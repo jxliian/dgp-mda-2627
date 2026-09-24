@@ -4,7 +4,7 @@ Este directorio centraliza toda la documentación técnica, de gestión, calidad
 
 ---
 
-## 🗂️ Estructura de Carpetas en `docs/`
+## Estructura de Carpetas en `docs/`
 
 ```text
 docs/
@@ -54,7 +54,7 @@ docs/
 
 ---
 
-## 📅 Hitos de Entrega Clave (Curso 2026-2027)
+## Hitos de Entrega Clave (Curso 2026-2027)
 
 1. **25 de septiembre de 2026 (08:30h):** Entrevista inicial con el cliente (Colegio Purísima Concepción).
 2. **01-02 de octubre de 2026:** Comienzo de sesiones de prácticas y consolidación de requisitos/tecnologías.

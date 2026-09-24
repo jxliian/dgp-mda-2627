@@ -12,7 +12,7 @@ El proyecto se realiza en colaboración con el **Colegio de Educación Especial 
 
 ---
 
-## 📌 1. Visión y Objetivos del Proyecto
+## 1. Visión y Objetivos del Proyecto
 
 El objetivo es desarrollar una solución de software accesible que proporcione una **agenda visual personalizada y estructuración del tiempo** para estudiantes con necesidades educativas especiales (NEAE), facilitando su autonomía y su preparación dentro del **Programa de Transición a la Vida Adulta (PTVAL)**.
 
@@ -34,7 +34,7 @@ El objetivo es desarrollar una solución de software accesible que proporcione u
 
 ---
 
-## 📂 2. Estructura del Repositorio
+## 2. Estructura del Repositorio
 
 El repositorio mantiene una estructuración clara y modular, sin atarse aún a tecnologías específicas:
 
@@ -81,7 +81,7 @@ dgp-mda-2627/
 
 ---
 
-## 👥 3. Organización y Roles del Equipo
+## 3. Organización y Roles del Equipo
 
 El equipo cuenta con **6 integrantes**:
 
@@ -96,7 +96,7 @@ El equipo cuenta con **6 integrantes**:
 
 ---
 
-## 🌿 4. Flujo de Trabajo en Git (Rama Única `main`)
+## 4. Flujo de Trabajo en Git (Rama Única `main`)
 
 Para simplificar la operativa y evitar la sobrecarga de ramas o Pull Requests, **todos los integrantes trabajarán directamente sobre la rama `main` con cuidado y coordinación activa**.
 
@@ -124,7 +124,7 @@ Para simplificar la operativa y evitar la sobrecarga de ramas o Pull Requests, *
 
 ---
 
-## 🗓️ 5. Fechas Clave (Curso 2026-2027)
+## 5. Fechas Clave (Curso 2026-2027)
 
 | Fecha / Hito | Evento / Entregable |
 | :--- | :--- |
@@ -139,7 +139,7 @@ Para simplificar la operativa y evitar la sobrecarga de ramas o Pull Requests, *
 
 ---
 
-## 📋 6. Plantillas de Gestión Operativa
+## 6. Plantillas de Gestión Operativa
 
 - [Plantilla de Actas de Reunión](file:///home/jxlig0d/Escritorio/DGP-MDA-REPO/dgp-mda-2627/docs/plantillas/plantilla_acta_reunion.md)
 - [Plantilla de Registro de Horas Individuales](file:///home/jxlig0d/Escritorio/DGP-MDA-REPO/dgp-mda-2627/docs/plantillas/plantilla_registro_horas.md)
