@@ -1,0 +1,146 @@
+# ==============================================================================
+# Gitignore General y Agnóstico a Tecnologías
+# Asignaturas: Dirección y Gestión de Proyectos (DGP) & Metodologías de Desarrollo Ágil (MDA)
+# Universidad de Granada (UGR) - Curso 2026/2027
+# ==============================================================================
+
+# --- Archivos del Sistema Operativo ---
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+[Dd]esktop.ini
+*$py.class
+*~
+*.swp
+*.swo
+
+# --- Entornos de Desarrollo e IDEs ---
+.idea/
+*.iml
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.sublime-workspace
+*.sublime-project
+.project
+.classpath
+.settings/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# --- Secretos y Variables de Entorno ---
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env
+*.pem
+*.key
+*.cert
+secrets.json
+credentials.json
+
+# --- Registros y Logs ---
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# --- Dependencias y Paquetes (Node / JS / TS) ---
+node_modules/
+jspm_packages/
+.pnp
+.pnp.js
+.yarn/cache/
+.yarn/unplugged/
+.yarn/build-state.yml
+
+# --- Compilados y Builds ---
+dist/
+build/
+out/
+bin/
+obj/
+*.class
+*.jar
+*.war
+*.ear
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# --- Móvil (Flutter / Android / iOS) ---
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+ios/Flutter/.last_build_id
+ios/.symlinks/
+*.xcworkspace
+xcuserdata/
+DerivedData/
+*.mobileprovision
+.gradle/
+local.properties
+*.apk
+*.aab
+
+# --- Bases de Datos Locales y Volcados ---
+*.sqlite
+*.sqlite3
+*.db
+*.sql
+*.dump
+
+# --- Cobertura de Código y Reportes de Calidad ---
+coverage/
+*.lcov
+.nyc_output/
+.sonarqube/
+htmlcov/
+.coverage
+.coverage.*
+
+# --- Temporales y Scratch ---
+tmp/
+temp/
+scratch/
+*.bak

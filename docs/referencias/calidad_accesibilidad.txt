@@ -1,0 +1,36 @@
+Tareas posibles para realizar por el encargado de gestión de calidad
+
+- Asegurarse de que se usan herramientas estandarizadas para especificación y diseño (por ejemplo, diagramas y plantillas que habéis visto en Ingeniería del Software).
+
+- Asegurarse de que se organiza bien el trabajo: se hacen reuniones, se toma acta de las reuniones, se reparte trabajo de forma adecuada y se usan los recursos (hardware y software ) correctos para cada tarea.
+
+- Revisar o asegurarse de que se revisen o prueben todos los entregables (correctitud y completitud), y de que se terminan a tiempo o se planifica adecuadamente el cambio de fecha de entrega y sus consecuencias. 
+
+
+Algunos enlaces interesantes relacionados con el control de calidad:
+
+https://iveconsultores.com/control-de-calidad/
+
+https://iveconsultores.com/sistema-de-gestion-de-calidad/
+
+
+--------------------------------------
+
+
+Tareas posibles para realizar por el encargado de gestión de accesibilidad
+
+- Formarse y formar a sus compañeros en guías de usabilidad y accesibilidad web y móvil
+
+- Planificar qué guías considerar en función de los usuarios finales del proyecto
+
+- Formarse en heurísticas de accesibilidad y usarlas para probar la aplicación
+
+- Aplicar talkback o voiceover para probar la aplicación móvil
+
+- Aplicar validadores de accesibilidad web para probar la aplicación web
+
+- Hacer informes del progreso del trabajo en cuanto a usabilidad y accesibilidad
+
+
+En clase de teoría se dará un seminario con más detalles sobre la base de estas tareas
+
