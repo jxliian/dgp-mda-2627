@@ -115,42 +115,43 @@ La aplicación se desarrollará principalmente en **Flutter**. Trabajaremos con 
 ### 4.1 Estructura del Equipo y Asignación Nominal
 El equipo de trabajo está compuesto por 6 integrantes. Se seguirá una división de roles entre los integrantes del equipo, rotando aquellos roles menos importantes en cada iteración para repartir dicha carga. La asignación inicial de roles del equipo es:
 
-- **Miguel Ángel Luque** — *Coordinador*
-- **Yeray Rodríguez Navas** — *Gestor de Calidad*
-- **Julián Carrión Tovar** — *Gestor de Usabilidad y Accesibilidad*
 - **Pablo Hernández Ibáñez** — *Moderador*
+- **Yeray Rodríguez Navas** — *Gestor de Calidad*
 - **Pablo de la Torre Roldán** — *Catalogador*
 - **José Rodríguez Fernández** — *Presentador*
+- **Julián Carrión Tovar** — *Gestor de Usabilidad y Accesibilidad*
+- **Miguel Ángel Luque** — *Coordinador*
 
 ### 4.2 Responsabilidades de Cada Rol
-Cada rol tendrá las siguientes responsabilidades específicas:
+Cada rol tendrá las siguientes responsabilidades:
 
 1. **Coordinador:**
    - Organiza el trabajo del equipo, distribuye tareas, controla los plazos y realiza el seguimiento general del proyecto.
-   - Actúa como enlace de gestión con el profesorado de prácticas y vigila el balance de carga horaria.
+   - Se encarga de avisar sobre las próximas entregas y de planificar el tiempo de trabajo correspondiente a cada iteración.
+   - Actúa como portavoz de gestión ante el profesorado de prácticas y vigila el balance de carga horaria.
 2. **Catalogador:**
-   - Custodia y organiza toda la documentación del proyecto dentro de la estructura estandarizada del repositorio (`docs/`).
-   - Supervisa la nomenclatura de los archivos, el control de versiones documental y la generación periódica de entregables compilados.
-   - Archiva y gestiona las actas oficiales de reuniones en sus carpetas correspondientes.
+   - Responsable de recopilar, analizar y clasificar la información generada por el grupo en las distintas tareas asociadas a las prácticas.
+   - Se encarga de revisar y consolidar la información añadida a la documentación en cada iteración y, cuando sea posible, de revisar la documentación de la iteración anterior en coordinación con el Gestor de Calidad.
+   - Custodia y organiza la totalidad de la documentación en el repositorio institucional (`docs/`) y coordina la publicación de actas de reunión.
 3. **Moderador:**
-   - Responsable de plantear y moderar los debates y de seleccionar las ideas y decisiones grupales.
-   - En caso de indecisión, **él tendrá la última palabra consultando con el Gestor de Calidad** sobre la decisión correcta ante el debate vigente.
-   - Encargado de gestionar y documentar las alteraciones en los documentos de especificación.
+   - Responsable de plantear y moderar los debates, así como de seleccionar las ideas y decisiones grupales.
+   - En caso de indecisión, **tiene la última palabra tras consultar con el Gestor de Calidad sobre la opción más adecuada**.
+   - Asimismo, se encarga de gestionar y documentar los cambios en los documentos de especificación.
 4. **Presentador:**
-   - Se encargará de realizar todos los comunicados al cliente, junto con presentaciones mostrando el avance del proyecto y resultados del mismo.
-   - Elaborará los resúmenes que presentará y comunicará al cliente / profesor, siendo el encargado, con ayuda de los roles necesarios, en decidir qué se mostrará y preguntará en cada iteración.
+   - Se encarga de realizar todas las comunicaciones con el cliente, así como de elaborar presentaciones que muestren el avance y los resultados del proyecto.
+   - Prepara los resúmenes que se comunicarán al cliente o profesor y decide, junto con los roles pertinentes, qué contenidos y preguntas se expondrán en cada iteración.
 5. **Gestor de la Calidad (Rol Fijo):**
-   - Asegurarse de que se usan herramientas estandarizadas para especificación y diseño (por ejemplo, diagramas UML en Visual Paradigm y plantillas de ingeniería del software).
-   - Asegurarse de que se organiza bien el trabajo: se celebran reuniones, se toma acta formal, se reparte el trabajo de forma adecuada y se emplean los recursos hardware y software correctos para cada tarea.
-   - Revisar o asegurarse de que se revisen o prueben todos los entregables (verificando correctitud y completitud) y de que se terminan a tiempo o se planifica adecuadamente el cambio de fecha de entrega y sus consecuencias.
-   - Supervisar los criterios de aceptación, revisiones de código, análisis estático continuo y auditorías de calidad del proceso y del producto.
+   - Responsable de asegurar la calidad de los productos generados y del proceso de desarrollo. Vela por que la documentación y las técnicas aplicadas cumplan con los estándares definidos.
+   - Asegurarse de que se usan herramientas estandarizadas para especificación y diseño (diagramas UML en Visual Paradigm y plantillas de ingeniería de software).
+   - Asegurarse de que se organiza bien el trabajo: celebración regular de reuniones, toma de actas formales, reparto equitativo de tareas y uso de recursos hardware y software correctos.
+   - Revisar o asegurarse de que se revisen o prueben todos los entregables (verificando correctitud y completitud) y de que se terminan a tiempo o se planifica adecuadamente cualquier cambio de fecha.
+   - Supervisar los criterios de aceptación, revisiones de código, análisis estático continuo y auditorías periódicas de calidad del proceso y producto.
 6. **Gestor de Usabilidad y Accesibilidad (Rol Fijo):**
-   - Formarse y formar a sus compañeros en guías de usabilidad y accesibilidad web y móvil (WCAG 2.1 AA, accesibilidad cognitiva, heurísticas de usabilidad).
-   - Planificar qué guías considerar en función de los usuarios finales del proyecto (alumnado PTVAL con NEAE, personal docente y tutores).
-   - Formarse en heurísticas de accesibilidad y emplearlas activamente para auditar y probar la aplicación.
-   - Aplicar lectores de pantalla (TalkBack en dispositivos Android, VoiceOver en iOS) para probar rigurosamente la aplicación móvil.
-   - Aplicar validadores de accesibilidad (Lighthouse, WAVE, Google Accessibility Scanner) para evaluar contrastes cromáticos, etiquetado y facilidad de lectura.
-   - Elaborar informes formales periódicos del progreso del trabajo en materia de usabilidad y accesibilidad.
+   - Responsable de planificar, coordinar y velar por la usabilidad y la accesibilidad del proyecto. Se encarga de investigar e informar al equipo sobre las buenas prácticas, técnicas y herramientas a utilizar en estas materias.
+   - Define los requisitos de accesibilidad, formula las preguntas necesarias de las consultas que se harán y verifica su correcto cumplimiento mediante pruebas de usuario, testing o entrevistas. Para el desarrollo e implementación de estas actividades contará con el apoyo de los roles correspondientes.
+   - Formarse y formar a sus compañeros en guías de usabilidad y accesibilidad web y móvil (WCAG 2.1 AA, heurísticas de accesibilidad cognitiva y diseño accesible).
+   - Aplicar lectores de pantalla (TalkBack en Android, VoiceOver en iOS) y validadores de accesibilidad (Lighthouse, WAVE, Google Accessibility Scanner).
+   - Elaborar informes periódicos del progreso del trabajo en cuanto a usabilidad y accesibilidad.
 
 ### 4.3 Fijeza, Rotación de Roles y Protocolo de Ausencias
 - **Roles Fijos:** Los roles de **Gestor de Calidad** y **Gestor de Usabilidad y Accesibilidad** serán **fijos** a sus responsables correspondientes (Yeray Rodríguez Navas y Julián Carrión Tovar, respectivamente) durante todo el proyecto para garantizar la especialización técnica continua y el rigor metodológico.
@@ -342,11 +343,11 @@ Al terminar la tercera iteración, se llevará a cabo el **proceso de hardening 
 
 | Fase / Ámbito | Herramienta | Aplicación en el Proyecto |
 | :--- | :--- | :--- |
-| **Control de Versiones & CI/CD** | **GitHub** | Gestión del repositorio, control de Pull Requests, ramas y flujos automatizados. |
-| **Análisis Estático & Estilo** | **SonarCloud / ESLint** | Detección automática de bugs, vulnerabilidades, duplicidades y formato de código. |
-| **Pruebas Unitarias & API** | **Jest / Flutter Test** | Automatización de pruebas de lógica, integración de servicios y widgets. |
-| **Accesibilidad & UX** | **Lighthouse / WAVE** | Evaluación de niveles de accesibilidad (contraste cromático, etiquetas, legibilidad) y validación en navegadores y apps móviles (junto con Google Accessibility Scanner y TalkBack). |
-| **Gestión de Tareas y Bugs** | **Jira / ClickUp** | Trazabilidad de requisitos, incidencias, gestión del backlog y feedback de las demos. |
+| **Control de Versiones & CI/CD** | **GitHub** | Gestión del repositorio, control de Pull Requests y ramas. |
+| **Análisis Estático & Estilo** | **SonarCloud / ESLint** | Detección automática de bugs, vulnerabilidades y formato de código. |
+| **Pruebas Unitarias & API** | **Jest** | Automatización de pruebas de lógica e integración de servicios. |
+| **Accesibilidad & UX** | **Lighthouse / WAVE** | Evaluación de niveles de accesibilidad (contraste, etiquetas, lectura). |
+| **Gestión de Tareas y Bugs** | **Jira** | Trazabilidad de requisitos, incidencias y feedback de las demos. |
 
 ---
 

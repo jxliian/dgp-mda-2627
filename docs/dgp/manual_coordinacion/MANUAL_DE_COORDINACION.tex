@@ -303,20 +303,20 @@ Se seguirá una división de roles entre los 6 integrantes del equipo, rotando a
 \end{itemize}
 
 \subsection{Responsabilidades de Cada Rol}
-Cada rol tendrá las siguientes responsabilidades específicas asignadas:
+Cada rol tendrá las siguientes responsabilidades:
 \begin{itemize}[leftmargin=*]
-  \item \textbf{Coordinador:} Organiza el trabajo del equipo, distribuye tareas, controla los plazos y realiza el seguimiento general del proyecto. Actúa como portavoz de gestión ante el profesorado y equilibra la dedicación horaria.
-  \item \textbf{Catalogador:} Custodia y organiza la totalidad de la documentación en el repositorio institucional (\texttt{docs/}), asegura el cumplimiento de las normas de nomenclatura de archivos y control de versiones documental, y coordina el archivo y publicación de las actas de reunión.
-  \item \textbf{Moderador:} Responsable de plantear y moderar los debates y de seleccionar las ideas y decisiones grupales. En caso de indecisión \textbf{él tendrá la última palabra consultando con el Gestor de Calidad} sobre la decisión correcta ante el debate vigente. Es además el encargado de gestionar y documentar las alteraciones en los documentos de especificación.
-  \item \textbf{Presentador:} Se encargará de realizar todos los comunicados al cliente, junto con presentaciones mostrando el avance del proyecto y resultados del mismo. Elaborará los resúmenes que presentará y comunicará al cliente / profesor, siendo el encargado, con ayuda de los roles necesarios, en decidir qué se mostrará y preguntará en cada iteración.
-  \item \textbf{Gestor de la Calidad (Rol Fijo):}
+  \item \textbf{Coordinador:} Organiza el trabajo del equipo, distribuye tareas, controla los plazos y realiza el seguimiento general del proyecto. Se encarga de avisar sobre las próximas entregas y de planificar el tiempo de trabajo correspondiente a cada iteración. Actúa como portavoz de gestión ante el profesorado y supervisa el equilibrio de la dedicación horaria.
+  \item \textbf{Catalogador:} Responsable de recopilar, analizar y clasificar la información generada por el grupo en las distintas tareas asociadas a las prácticas. Se encarga de revisar y consolidar la información añadida a la documentación en cada iteración y, cuando sea posible, de revisar la documentación de la iteración anterior en coordinación con el Gestor de Calidad. Asimismo, custodia y organiza la documentación en el repositorio institucional (\texttt{docs/}) y coordina la publicación de actas de reunión.
+  \item \textbf{Moderador:} Responsable de plantear y moderar los debates, así como de seleccionar las ideas y decisiones grupales. En caso de indecisión, tiene la última palabra tras consultar con el Gestor de Calidad sobre la opción más adecuada. Asimismo, se encarga de gestionar y documentar los cambios en los documentos de especificación.
+  \item \textbf{Presentador:} Se encarga de realizar todas las comunicaciones con el cliente, así como de elaborar presentaciones que muestren el avance y los resultados del proyecto. Prepara los resúmenes que se comunicarán al cliente o profesor y decide, junto con los roles pertinentes, qué contenidos y preguntas se expondrán en cada iteración.
+  \item \textbf{Gestor de la Calidad (Rol Fijo):} Responsable de asegurar la calidad de los productos generados y del proceso de desarrollo. Vela por que la documentación y las técnicas aplicadas cumplan con los estándares definidos:
     \begin{itemize}
       \item Asegurarse de que se usan herramientas estandarizadas para especificación y diseño (diagramas UML en Visual Paradigm y plantillas de ingeniería de software).
       \item Asegurarse de que se organiza bien el trabajo: celebración regular de reuniones, toma de actas formales, reparto equitativo de tareas y uso de recursos hardware y software correctos.
       \item Revisar o asegurarse de que se revisen y prueben todos los entregables (verificando correctitud y completitud) y de que se finalizan a tiempo o se planifica adecuadamente cualquier cambio de fecha y sus consecuencias.
       \item Supervisar los criterios de aceptación, revisiones de código, análisis estático continuo y auditorías periódicas de calidad del proceso y producto.
     \end{itemize}
-  \item \textbf{Gestor de Usabilidad y Accesibilidad (Rol Fijo):}
+  \item \textbf{Gestor de Usabilidad y Accesibilidad (Rol Fijo):} Responsable de planificar, coordinar y velar por la usabilidad y la accesibilidad del proyecto. Se encarga de investigar e informar al equipo sobre las buenas prácticas, técnicas y herramientas a utilizar en estas materias. Asimismo, define los requisitos de accesibilidad, formula las preguntas necesarias de las consultas que se harán y verifica su correcto cumplimiento mediante pruebas de usuario, testing o entrevistas. Para el desarrollo e implementación de estas actividades contará con el apoyo de los roles correspondientes:
     \begin{itemize}
       \item Formarse y formar a sus compañeros en guías de usabilidad y accesibilidad web y móvil (WCAG~2.1~AA, heurísticas de accesibilidad cognitiva y diseño accesible).
       \item Planificar qué guías considerar en función de los usuarios finales del proyecto (alumnado PTVAL con NEAE, docentes y familias).
@@ -547,11 +547,11 @@ Control de Versiones \& CI/CD & GitHub & Gestión del repositorio, control de Pu
 \hline
 Análisis Estático \& Estilo & SonarCloud / ESLint & Detección automática de bugs, vulnerabilidades y formato de código. \\
 \hline
-Pruebas Unitarias \& API & Jest / Flutter Test & Automatización de pruebas de lógica e integración de servicios. \\
+Pruebas Unitarias \& API & Jest & Automatización de pruebas de lógica e integración de servicios. \\
 \hline
-Accesibilidad \& UX & Lighthouse / WAVE & Evaluación de niveles de accesibilidad (contraste, etiquetas, lectura) junto a Google Accessibility Scanner. \\
+Accesibilidad \& UX & Lighthouse / WAVE & Evaluación de niveles de accesibilidad (contraste, etiquetas, lectura). \\
 \hline
-Gestión de Tareas y Bugs & Jira / ClickUp & Trazabilidad de requisitos, incidencias y feedback de las demos. \\
+Gestión de Tareas y Bugs & Jira & Trazabilidad de requisitos, incidencias y feedback de las demos. \\
 \hline
 \end{tabularx}
 }
