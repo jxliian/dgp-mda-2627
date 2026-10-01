@@ -1,0 +1,26 @@
+% ==============================================================================
+% SECCIÓN 10: CONTROL DE VERSIONES
+% ==============================================================================
+\section{Control de Versiones (Método y Herramientas)}
+
+Utilizaremos la herramienta \textbf{GitHub} para el control de versiones, actualizando el repositorio compartido en cada sesión de prácticas, llevando a cabo un control supervisado y documentado correctamente, especificando qué cambios se han llevado a cabo.
+
+\subsection{Estrategia y Disciplina en el Repositorio}
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Actualización Sistemática:} Es obligatorio realizar commit y push de los avances generados al término de cada sesión presencial de prácticas, documentando de forma precisa el trabajo efectuado.
+  \item \textbf{Control Supervisado y Pull Requests:} Las ramas funcionales de trabajo (\texttt{feature/}, \texttt{bugfix/}) deberán ser integradas mediante Pull Requests revisadas antes de su incorporación a la rama principal de desarrollo.
+  \item \textbf{Prohibición de Código Roto:} Ningún integrante subirá código que no compile o rompa la batería de pruebas local (\texttt{flutter test}).
+\end{itemize}
+
+\subsection{Convención de Commits (Conventional Commits)}
+Formato obligatorio: \texttt{<tipo>: <descripción concisa>}
+\begin{itemize}[leftmargin=*]
+  \item \texttt{feat}: Nueva funcionalidad implementada.
+  \item \texttt{fix}: Corrección de un defecto o fallo.
+  \item \texttt{docs}: Actualización exclusiva de documentación o actas.
+  \item \texttt{style}: Cambios estéticos o de formateo sin impacto lógico.
+  \item \texttt{refactor}: Modificación de código sin alteración funcional.
+  \item \texttt{test}: Incorporación o modificación de pruebas unitarias/integración.
+  \item \texttt{a11y}: Modificaciones específicas de accesibilidad (contrastes, VoiceOver/TalkBack).
+  \item \texttt{chore}: Mantenimiento de configuración, dependencias o CI/CD.
+\end{itemize}

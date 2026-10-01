@@ -1,0 +1,23 @@
+% ==============================================================================
+% SECCIÓN 8: ESTÁNDARES DE CÓDIGO
+% ==============================================================================
+\section{Estándares de Código}
+
+Utilizaremos la herramienta \textbf{Flutter} para la implementación. Se aplican las siguientes reglas de estilo y diseño:
+
+\subsection{Convenciones de Nomenclatura y Lenguaje}
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Idioma de Nomenclatura:} Los nombres de las variables, funciones, métodos, clases y archivos estarán escritos en **inglés** para mayor estandarización.
+  \item \textbf{Variables y Funciones:} Se utilizará la forma lower-case / \texttt{lowerCamelCase} (ejemplo: \texttt{taskStatus}, \texttt{studentId}, \texttt{calculateTotalTime()}, \texttt{fetchActiveUsers()}).
+  \item \textbf{Clases y Widgets:} Se empleará \texttt{PascalCase} de acuerdo con el estándar de Flutter (ejemplo: \texttt{TaskDetailCard}, \texttt{VisualTimerWidget}, \texttt{UserRepository}).
+  \item \textbf{Constantes y Enumerados:} Se utilizará \texttt{UPPER\_SNAKE\_CASE} o \texttt{lowerCamelCase} según la convención oficial de Dart (\texttt{const int MAX\_RETRY = 3;}).
+\end{itemize}
+
+\subsection{Comentarios y Documentación en Código}
+Los comentarios de los scripts, funciones y demás estructuras se pondrán al inicio del documento o del respectivo bloque de código para mayor legibilidad y orden, empleando etiquetas y bloques compatibles con Doxygen (\texttt{///} o \texttt{/** ... */}). Describirán propósito, parámetros, retornos y excepciones controladas.
+
+\subsection{Principios de Calidad y Formato}
+\begin{itemize}[leftmargin=*]
+  \item Código modular, desacoplado y siguiendo principios SOLID y Clean Code.
+  \item Formateo automático mandatorio mediante \texttt{dart format .} antes de cada commit.
+\end{itemize}

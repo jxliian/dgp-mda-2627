@@ -1,0 +1,87 @@
+% ==============================================================================
+% SECCIÓN 4: ORGANIZACIÓN DEL EQUIPO (ROLES Y NORMAS)
+% ==============================================================================
+\section{Organización del Equipo de Trabajo (Estructura, Normas)}
+
+\subsection{Asignación Nominal de Roles Iniciales}
+Se seguirá una división de roles entre los 6 integrantes del equipo, rotando aquellos roles menos importantes en cada iteración para repartir dicha carga. La asignación inicial de roles del equipo es:
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Pablo Hernández Ibáñez:} Moderador (Rotativo)
+  \item \textbf{Yeray Rodríguez Navas:} Gestor de Calidad (\textbf{Fijo})
+  \item \textbf{Pablo de la Torre Roldán:} Catalogador (Rotativo)
+  \item \textbf{José Rodríguez Fernández:} Presentador (Rotativo)
+  \item \textbf{Julián Carrión Tovar:} Gestor de Usabilidad y Accesibilidad (\textbf{Fijo})
+  \item \textbf{Miguel Ángel Luque:} Coordinador (Rotativo)
+\end{itemize}
+
+\subsection{Responsabilidades de Cada Rol}
+Cada rol tendrá las siguientes responsabilidades:
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Coordinador:} Organiza el trabajo del equipo, distribuye tareas, controla los plazos y realiza el seguimiento general del proyecto. Se encarga de avisar sobre las próximas entregas y de planificar el tiempo de trabajo correspondiente a cada iteración. Actúa como portavoz de gestión ante el profesorado y supervisa el equilibrio de la dedicación horaria.
+  \item \textbf{Catalogador:} Responsable de recopilar, analizar y clasificar la información generada por el grupo en las distintas tareas asociadas a las prácticas. Se encarga de revisar y consolidar la información añadida a la documentación en cada iteración y, cuando sea posible, de revisar la documentación de la iteración anterior en coordinación con el Gestor de Calidad. Asimismo, custodia y organiza la documentación en el repositorio institucional (\texttt{docs/}) y coordina la publicación de actas de reunión.
+  \item \textbf{Moderador:} Responsable de plantear y moderar los debates, así como de seleccionar las ideas y decisiones grupales. En caso de indecisión, tiene la última palabra tras consultar con el Gestor de Calidad sobre la opción más adecuada. Asimismo, se encarga de gestionar y documentar los cambios en los documentos de especificación.
+  \item \textbf{Presentador:} Se encarga de realizar todas las comunicaciones con el cliente, así como de elaborar presentaciones que muestren el avance y los resultados del proyecto. Prepara los resúmenes que se comunicarán al cliente o profesor y decide, junto con los roles pertinentes, qué contenidos y preguntas se expondrán en cada iteración.
+  \item \textbf{Gestor de la Calidad (Rol Fijo):} Responsable de asegurar la calidad de los productos generados y del proceso de desarrollo. Vela por que la documentación y las técnicas aplicadas cumplan con los estándares definidos:
+    \begin{itemize}
+      \item Asegurarse de que se usan herramientas estandarizadas para especificación y diseño (diagramas UML en Visual Paradigm y plantillas de ingeniería de software).
+      \item Asegurarse de que se organiza bien el trabajo: celebración regular de reuniones, toma de actas formales, reparto equitativo de tareas y uso de recursos hardware y software correctos.
+      \item Revisar o asegurarse de que se revisen y prueben todos los entregables (verificando correctitud y completitud) y de que se finalizan a tiempo o se planifica adecuadamente cualquier cambio de fecha y sus consecuencias.
+      \item Supervisar los criterios de aceptación, revisiones de código, análisis estático continuo y auditorías periódicas de calidad del proceso y producto.
+    \end{itemize}
+  \item \textbf{Gestor de Usabilidad y Accesibilidad (Rol Fijo):} Responsable de planificar, coordinar y velar por la usabilidad y la accesibilidad del proyecto. Se encarga de investigar e informar al equipo sobre las buenas prácticas, técnicas y herramientas a utilizar en estas materias. Asimismo, define los requisitos de accesibilidad, formula las preguntas necesarias de las consultas que se harán y verifica su correcto cumplimiento mediante pruebas de usuario, testing o entrevistas. Para el desarrollo e implementación de estas actividades contará con el apoyo de los roles correspondientes:
+    \begin{itemize}
+      \item Formarse y formar a sus compañeros en guías de usabilidad y accesibilidad web y móvil (WCAG~2.1~AA, heurísticas de accesibilidad cognitiva y diseño accesible).
+      \item Planificar qué guías considerar en función de los usuarios finales del proyecto (alumnado PTVAL con NEAE, docentes y familias).
+      \item Formarse en heurísticas de accesibilidad y emplearlas rigurosamente para evaluar y probar la aplicación.
+      \item Aplicar lectores de pantalla (\textbf{TalkBack} en Android y \textbf{VoiceOver} en iOS) para validar la accesibilidad móvil.
+      \item Aplicar validadores de accesibilidad (\textbf{Lighthouse}, \textbf{WAVE}, Google Accessibility Scanner) para evaluar contrastes cromáticos, etiquetas y comprensión.
+      \item Elaborar informes periódicos del progreso del trabajo en cuanto a usabilidad y accesibilidad.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Fijeza, Esquema de Rotación y Protocolo de Ausencias}
+Los roles de \textbf{Gestor de Calidad} y \textbf{Gestor de Usabilidad y Accesibilidad} serán \textbf{fijos} a los responsables correspondientes (Yeray Rodríguez Navas y Julián Carrión Tovar), mientras que el resto rotará en cada iteración de trabajo.
+
+\begin{infobox}[title=Regla de Rotación Cíclica]
+La secuencia obligatoria de rotación en cada cambio de iteración es:\\
+\centerline{\large $\dots \longrightarrow \textbf{Coordinador} \longrightarrow \textbf{Catalogador} \longrightarrow \textbf{Moderador} \longrightarrow \textbf{Presentador} \longrightarrow \dots$}
+\end{infobox}
+
+\noindent\textbf{Protocolo de Suplencias y Ausencias:}
+\begin{enumerate}[leftmargin=*]
+  \item En caso de que algún integrante con cualquiera de los roles de Gestor (Calidad o Accesibilidad) no pueda acudir a una iteración de trabajo, dicho rol será cedido temporalmente al que en dicha reiteración tenga el rol de \textbf{Coordinador} (y al \textbf{Presentador} en caso de inasistencia de ambos).
+  \item Si algún rol rotativo no está presente en una iteración, se le cederá durante esa iteración al responsable de ese rol en la siguiente iteración.
+\end{enumerate}
+
+\subsection{Matriz de Rotación de Roles por Iteración}
+
+\vspace{0.2cm}
+\noindent
+{\small
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash\bfseries}p{4.2cm}|>{\centering\arraybackslash}p{2.3cm}|>{\centering\arraybackslash}X|>{\centering\arraybackslash}X|>{\centering\arraybackslash}X|}
+\hline
+\rowcolor{tableHeader}
+Integrante & Fase Inicial & Iteración 1 & Iteración 2 & Iteración 3 \\
+\hline
+Miguel Ángel Luque & \textbf{Coordinador} & Catalogador & Moderador & Presentador \\
+\hline
+Pablo de la Torre Roldán & \textbf{Catalogador} & Moderador & Presentador & Coordinador \\
+\hline
+Pablo Hernández Ibáñez & \textbf{Moderador} & Presentador & Coordinador & Catalogador \\
+\hline
+José Rodríguez Fernández & \textbf{Presentador} & Coordinador & Catalogador & Moderador \\
+\hline
+Yeray Rodríguez Navas & \textbf{Gestor Calidad} & \textbf{Gestor Calidad} & \textbf{Gestor Calidad} & \textbf{Gestor Calidad} \\
+\hline
+Julián Carrión Tovar & \textbf{Gestor Accesib.} & \textbf{Gestor Accesib.} & \textbf{Gestor Accesib.} & \textbf{Gestor Accesib.} \\
+\hline
+\end{tabularx}
+}
+\vspace{0.3cm}
+
+\subsection{Normas de Convivencia y Compromiso Operativo}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Puntualidad:} Margen máximo de cortesía de 5 minutos en reuniones presenciales y virtuales.
+  \item \textbf{Notificación Previa de Bloqueos:} Notificar obligatoriamente cualquier impedimento o retraso con al menos \textbf{48 horas de antelación}.
+  \item \textbf{Registro Honesto de Horas:} Cumplimentación semanal estricta de la ficha de dedicación horaria individual.
+\end{enumerate}
