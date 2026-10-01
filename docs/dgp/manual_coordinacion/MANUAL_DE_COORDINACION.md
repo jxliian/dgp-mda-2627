@@ -6,321 +6,368 @@
 
 > **Equipo de Trabajo:** **CLENCH Software Development**  
 > **Asignaturas:** Dirección y Gestión de Proyectos (DGP) & Metodologías de Desarrollo Ágil (MDA)  
-> **Titulación:** Grado en Ingeniería Informática — Universidad de Granada (UGR)  
+> **Titulación:** Grado en Ingeniería Informática — Escuela Técnica Superior de Ingenierías Informática y de Telecomunicación (ETSIIT)  
+> **Universidad:** Universidad de Granada (UGR)  
 > **Curso Académico:** 2026 / 2027  
-> **Proyecto:** Sistema de Agenda y Asignación de Tareas Accesible (Proyecto AUTOVIDA — Fundación Purísima Concepción)  
-> **Versión del Documento:** 1.0  
+> **Proyecto:** Sistema de Agenda y Asignación de Tareas Accesible (Proyecto AUTOVIDA — C.E.E. Fundación Purísima Concepción)  
+> **Versión del Documento:** 2.0  
 > **Fecha de Elaboración:** Octubre de 2026  
 
 ---
 
 ## Firma y Aceptación de los Miembros del Equipo (CLENCH)
 
-*Este documento ha sido consensuado, completado y aprobado por todos los integrantes de **CLENCH Software Development**, quienes se comprometen a cumplir con los acuerdos, normativas y procesos descritos a continuación.*
+*Este documento ha sido completado, consensuado y formalmente aprobado por todos los integrantes de **CLENCH Software Development**, quienes asumen el compromiso de cumplir con las normativas, roles, estándares y procesos descritos a continuación para el correcto desarrollo del proyecto.*
 
-| Nombre y Apellidos | Rol Principal | Asignatura(s) | Firma y Conformidad |
-| :--- | :---: | :---: | :---: |
-| **Miguel Ángel Luque** | Coordinador General | DGP / MDA | *Firmado electrónicamente* |
-| **Yeray Rodríguez Navas** | Gestor de Calidad (Fijo) | DGP / MDA | *Firmado electrónicamente* |
-| **Julián Carrión Tovar** | Gestor de Usabilidad y Accesibilidad (Fijo) | DGP / MDA | *Firmado electrónicamente* |
-| **Pablo Hernández Ibáñez** | Moderador | DGP / MDA | *Firmado electrónicamente* |
-| **Pablo de la Torre Roldán** | Catalogador | DGP / MDA | *Firmado electrónicamente* |
-| **José Rodríguez Fernández** | Presentador | DGP / MDA | *Firmado electrónicamente* |
+| Nombre y Apellidos | Rol Asignado (Fase Inicial) | Carácter del Rol | Asignatura(s) | Firma y Conformidad |
+| :--- | :--- | :---: | :---: | :---: |
+| **Miguel Ángel Luque** | Coordinador | Rotativo | DGP / MDA | *Firmado electrónicamente* |
+| **Yeray Rodríguez Navas** | Gestor de Calidad | **Fijo** | DGP / MDA | *Firmado electrónicamente* |
+| **Julián Carrión Tovar** | Gestor de Usabilidad y Accesibilidad | **Fijo** | DGP / MDA | *Firmado electrónicamente* |
+| **Pablo Hernández Ibáñez** | Moderador | Rotativo | DGP / MDA | *Firmado electrónicamente* |
+| **Pablo de la Torre Roldán** | Catalogador | Rotativo | DGP / MDA | *Firmado electrónicamente* |
+| **José Rodríguez Fernández** | Presentador | Rotativo | DGP / MDA | *Firmado electrónicamente* |
 
 ---
 
-## 1. METODOLOGÍA DE DESARROLLO Y CICLO DE VIDA
+## 1. IMAGEN DE EMPRESA
 
-### 1.1 Modelo de Ciclo de Vida
-El proyecto se desarrollará bajo un ciclo de vida de **prototipado evolutivo**, integrando el marco ágil de trabajo de la asignatura **MDA** (Scrum/Kanban adaptado a entornos académicos) con las buenas prácticas de dirección, gestión de alcance, costes, riesgos y plazos de **DGP**.
+### 1.1 Identidad Corporativa: CLENCH Software Development
+El equipo de trabajo opera bajo la denominación social y marca corporativa **CLENCH Software Development**. La identidad de la empresa nace con una profunda vocación de **Aprendizaje-Servicio e impacto social**, orientada a diseñar soluciones tecnológicas accesibles, fiables y centradas en las personas.
 
-El desarrollo se articula en **cuatro entregas principales**:
-1. **Fase Inicial (Entrega de primeros documentos - 21/22 de octubre de 2026):**
+<p align="center">
+  <img src="images/logo_clench.png" alt="Logotipo Oficial CLENCH" width="260"/>
+</p>
+
+- **Nombre Comercial:** CLENCH Software Development.
+- **Lema / Propósito:** *"Tecnología accesible para transformar vidas y potenciar la autonomía"*.
+- **Misión:** Desarrollar software de alta calidad, intuitivo y universalmente accesible que elimine barreras cognitivas y motrices en la vida diaria de estudiantes con Necesidades Específicas de Apoyo Educativo (NEAE).
+- **Visión:** Consolidar una metodología de trabajo colaborativo ágil, rigurosa y empática en ingeniería del software, referente en la aplicación práctica de normativas de accesibilidad universal (WCAG 2.1 AA) e inclusión sociolaboral.
+- **Valores Corporativos:**
+  1. **Accesibilidad Universal y Empatía:** El usuario final (alumnado del programa PTVAL y docentes del C.E.E. Purísima Concepción) es el centro de cada decisión de diseño.
+  2. **Calidad y Rigor Técnico:** Compromiso con el código limpio, testing exhaustivo, análisis estático y cero tolerancia a defectos críticos.
+  3. **Transparencia y Trabajo en Equipo:** Comunicación honesta, responsabilidad compartida y reparto equitativo del esfuerzo.
+  4. **Compromiso Social:** Responsabilidad ética y respeto absoluto a la privacidad, dignidad y protección de datos del colectivo asistido.
+
+---
+
+## 2. METODOLOGÍA DE DESARROLLO Y CICLO DE VIDA
+
+### 2.1 Enfoque Metodológico Ágil
+Para desarrollar la aplicación utilizaremos **metodología ágil**, integrando los principios y ceremonias de **Scrum** complementados con un tablero visual **Kanban** para la gestión fluida del trabajo en progreso (WIP). Este marco ágil se acopla a las buenas prácticas de dirección, gestión de alcance, costes, riesgos y plazos de **DGP** y a las directrices docentes de **MDA**.
+
+### 2.2 Ciclo de Vida por Iteraciones
+El desarrollo se estructura en un modelo de **prototipado evolutivo iterativo**, articulado en cuatro hitos principales de entrega y una fase final de verificación global:
+
+1. **Fase Inicial (Entrega de primeros documentos — 21/22 de octubre de 2026):**
    - Constitución formal del equipo, Manual de Coordinación y Plan de Dirección.
-   - Entrevista con el cliente (Colegio Purísima Concepción) y visita al centro.
+   - Entrevista de requisitos con el cliente (Colegio Purísima Concepción) y visita presencial al centro.
    - Definición de Personajes, Escenarios y Visión del Producto (MDA - P0 y P1).
-   - Elaboración de la Propuesta Técnica preliminar y estimación inicial de costes.
+   - Elaboración de la Propuesta Técnica preliminar, arquitectura software y estimación de costes.
    - Product Backlog inicial y Plan de Entregas (MDA - P2).
 2. **Iteración 1 (22 de octubre – 11/12 de noviembre de 2026):**
-   - Sprint 1: Arquitectura base, configuración del entorno, módulo central de perfiles de usuario accesibles y estructura básica de agenda.
-   - Primer prototipo funcional desplegado y evaluación intermedia.
+   - Puesta en marcha del entorno de trabajo e integración de la arquitectura base en Flutter.
+   - Módulo central de perfiles de usuario accesibles, autenticación adaptada y estructura básica de agenda.
+   - Primer prototipo funcional desplegado y evaluación intermedia ante el profesorado.
 3. **Iteración 2 (12 de noviembre – 2/3 de diciembre de 2026):**
-   - Sprint 2: Implementación de flujos de tareas del centro (reprografía, gestión de comedores/dietas, guía de visitas) y temporizador visual accesible.
-   - Sesión de revisión y validación preliminar con el centro.
+   - Implementación de flujos de tareas escolares: reprografía asistida paso a paso, registro diario de comedor y dietas especiales, y guía de visitas.
+   - Integración del temporizador visual accesible y adaptable.
+   - Sesión de demostración funcional intermedia y feedback directo con el centro.
 4. **Iteración 3 (3 de diciembre – 21 de diciembre de 2026):**
-   - Sprint 3: Tareas personales, chat accesible tutor-estudiante, ajustes de accesibilidad física y cognitiva, estabilización y pruebas finales.
-   - Consolidación de informes de calidad, auditoría de accesibilidad y entrega de código final.
-5. **Defensa Final (12 de enero de 2027):**
-   - Presentación oral y demostración en vivo del software ante el tribunal y clientes.
+   - Módulo de tareas personales configurables y chat accesible tutor-estudiante.
+   - Ajustes refinados de accesibilidad física y cognitiva (contrastes, áreas táctiles, lectores de pantalla).
+   - Estabilización del código, cobertura de tests unitarios y de integración.
+5. **Hardening y Verificación Global (Final de Iteración 3):**
+   - Proceso de estabilización integral: auditoría de vulnerabilidades, revisión exhaustiva de políticas de datos (RGPD) y revisión final de aceptación por parte del cliente.
+6. **Defensa Final del Proyecto (12 de enero de 2027):**
+   - Exposición oral, presentación de resultados y demostración práctica del software ante el tribunal docente y clientes.
 
-### 1.2 Eventos y Ceremonias Ágiles Adaptadas
-- **Sprint Planning (Inicio de iteración):** Desglose de historias de usuario en tareas técnicas, asignación de responsables y estimación de esfuerzo en horas y Story Points.
-- **Seguimiento Continuo (Weekly & Asynchronous Standup):**
-  - Reunión semanal obligatoria durante la sesión de prácticas con el profesor/tutor.
-  - Sincronización asíncrona mediante Discord/Telegram para reportar: qué se hizo ayer, qué se hará hoy y qué impedimentos existen.
-- **Sprint Review & Demo (Final de iteración):** Demostración del incremento de software potencialmente desplegable ante el docente y/o representantes del cliente.
-- **Sprint Retrospective:** Análisis de aspectos positivos a mantener, problemas detectados y plan de mejora continua para el siguiente ciclo.
-
----
-
-## 2. RECURSOS SOFTWARE Y DESARROLLO
-
-Para la ejecución homogénea del proyecto se seleccionan herramientas colaborativas estándar, garantizando interoperabilidad y trazabilidad:
-
-| Área / Finalidad | Herramienta Propuesta | Justificación y Uso |
-| :--- | :--- | :--- |
-| **Control de Versiones** | **Git / GitHub** | Repositorio central, flujo coordinado en rama `main`, trazabilidad de código y documentación. |
-| **Organización, Reuniones y Gantt** | **ClickUp** ([app.clickup.com](https://app.clickup.com/login)) | Organización integral del equipo, diagramas de Gantt interactivos, convocatorias y notas de reuniones, seguimiento de tareas y sprints. |
-| **Diseño y Prototipado UI/UX** | **Figma / Penpot** | Creación de wireframes y prototipos interactivos adaptados a usuarios con discapacidad cognitiva. |
-| **Recursos de Accesibilidad** | **Portal ARASAAC** | Catálogo oficial de pictogramas bajo licencia Creative Commons para comunicación aumentativa. |
-| **Auditoría de Accesibilidad** | **WAVE, axe DevTools, Colour Contrast Analyser, TalkBack, VoiceOver** | Verificación de contraste cromático, lectores de pantalla para móviles y cumplimiento WCAG 2.1 AA. |
-| **Control de Calidad y Linters** | **SonarCloud / Linters específicos** | Análisis estático de código, detección de code smells, vulnerabilidades y métricas de complejidad ciclomática. |
-| **Comunicación del Equipo** | **Discord & WhatsApp / Telegram** | Canales temáticos para comunicación síncrona y avisos urgentes. |
-| **Reuniones Telemáticas** | **Google Meet / Microsoft Teams** | Sesiones de trabajo grupales, entrevistas grabadas y reuniones con docentes/clientes. |
-| **Gestión Documental** | **Repositorio Git (`docs/`) & Google Drive** | Repositorio formal versionado en Markdown y copias de seguridad de material multimedia compartido. |
+### 2.3 Eventos y Ceremonias Ágiles Adaptadas
+- **Sprint Planning (Inicio de iteración):** Selección de historias del Product Backlog, estimación en horas reales y desglose en tareas técnicas en el tablero Kanban.
+- **Seguimiento Semanal (Weekly Standup):**
+  - Reunión semanal síncrona presencial durante las sesiones de prácticas con el profesor/tutor.
+  - Sincronización asíncrona regular por Discord comunicando: tareas completadas, objetivos inmediatos y posibles dependencias o bloqueos.
+- **Sprint Review & Demo (Final de iteración):** Demostración del incremento de software potencialmente desplegable para validar los requisitos con el profesor y el cliente.
+- **Sprint Retrospective:** Análisis interno del rendimiento grupal, precisión de estimaciones y plan de acciones de mejora para la siguiente iteración.
 
 ---
 
-## 3. ORGANIZACIÓN DEL EQUIPO DE TRABAJO (ESTRUCTURA, NORMAS)
+## 3. RECURSOS SOFTWARE DE DESARROLLO
 
-### 3.1 Estructura de Roles del Equipo (6 Integrantes)
-El equipo combina roles fijos de especialización (calidad y accesibilidad) con roles rotatorios en cada iteración para garantizar que todos los miembros desarrollen competencias de dirección y gestión técnica:
+La aplicación se desarrollará principalmente en **Flutter**. Trabajaremos con el **IDE de Flutter** por las facilidades que nos brinda a la hora de hacer tests unitarios e interfaces personalizables en tiempo de ejecución.
 
-```text
-                               ┌────────────────────────┐
-                               │   COORDINADORES (2)    │
-                               │ (Rotatorio por Sprint) │
-                               └───────────┬────────────┘
-                                           │
-         ┌─────────────────────────────────┼────────────────────────────────┐
-         │                                 │                                │
-┌────────┴──────────────┐       ┌──────────┴─────────────┐       ┌──────────┴─────────────┐
-│  GESTOR DE CALIDAD    │       │ AUDITOR ACCESIBILIDAD  │       │ MODERADOR / CATALOGADOR│
-│ (Fijo durante proyecto│       │ (Fijo durante proyecto)│       │ (Rotatorio / Apoyo)    │
-└───────────────────────┘       └────────────────────────┘       └────────────────────────┘
-```
+### 3.1 Stack Tecnológico Principal
+- **Framework Frontend:** **Flutter (Dart)**. Permite el desarrollo multiplataforma nativo a partir de un único código base, garantizando un rendimiento óptimo en las tabletas Android del centro escolar y acceso web para pantallas táctiles de aula.
+- **Entorno de Desarrollo (IDE de Flutter):** **Visual Studio Code / Android Studio** configurado con el paquete oficial de herramientas de Flutter y Dart. Proporciona:
+  - *Hot Reload* y *Hot Restart* para acelerar drásticamente el ciclo de diseño y personalización de interfaces en tiempo de ejecución.
+  - *Flutter DevTools* para inspección profunda del árbol de widgets, perfiles de memoria y rendimiento.
+  - Entorno integrado de ejecución y depuración de pruebas unitarias (*Flutter Test*).
+- **Backend y API REST:** **Node.js con Express y TypeScript**, garantizando tipado estático seguro, arquitectura modular y alto rendimiento en peticiones I/O.
+- **Capa de Persistencia y Base de Datos:** **PostgreSQL** mediante **Prisma ORM**, desplegado en contenedores Docker para reproducibilidad de entornos de desarrollo.
+- **Servicio de Comunicación en Vivo:** **WebSockets / Socket.io** para soporte del chat interactivo tutor-estudiante y notificaciones de tareas en tiempo real.
+- **Catálogo de Pictogramas:** **Portal ARASAAC** (licencia Creative Commons), fuente estandarizada oficial para comunicación aumentativa y adaptativa.
+- **Diseño y Prototipado UX/UI:** **Figma / Penpot** para creación de wireframes interactivos y validación visual previa.
 
-1. **Coordinadores (2 miembros en cada iteración):**
-   - Responsables de liderar la planificación temporal, seguimiento del cronograma, asignación equitativa de cargas y reporte al profesor.
-   - En cada iteración asumen la coordinación 2 miembros diferentes, de modo que todos roten (salvo los 2 gestores fijos).
-2. **Gestor de la Calidad (Rol fijo - no rota):**
-   - Supervisa el cumplimiento de la metodología, la calidad del proceso y del producto.
-   - Revisa la correctitud y completitud de todos los entregables antes de su envío.
-   - Monitoriza métricas de código, cobertura de pruebas y resolución de incidencias.
-3. **Auditor de Usabilidad y Accesibilidad (Rol fijo - no rota):**
-   - Responsable de velar por el cumplimiento de las normativas de accesibilidad (WCAG 2.1 AA, heurísticas de usabilidad cognitiva).
-   - Forma a los compañeros en diseño accesible y prueba la aplicación con herramientas de asistencia (TalkBack, switch, lectores).
-   - Valida la idoneidad de los pictogramas de ARASAAC y la claridad visual de las pantallas.
-4. **Catalogador (Rol rotatorio / compartido):**
-   - Gestiona la estructura de documentación en el repositorio, la correcta nomenclatura de archivos y el control de versiones documental.
-5. **Moderador (Rol rotatorio / compartido):**
-   - Convoca las reuniones, modera los debates, vela por el cumplimiento de los tiempos y recopila la información para la redacción de las actas.
-6. **Presentador (Rol rotatorio):**
-   - Coordina y prepara el material audiovisual y diapositivas de las defensas orales ante el cliente y el profesorado en cada iteración.
+---
 
-### 3.2 Matriz de Asignación de Roles por Iteración
+## 4. ORGANIZACIÓN DEL EQUIPO DE TRABAJO (ESTRUCTURA, NORMAS)
 
-| Miembro | Rol Base | Fase Inicial | Iteración 1 | Iteración 2 | Iteración 3 |
+### 4.1 Estructura del Equipo y Asignación Nominal
+El equipo de trabajo está compuesto por 6 integrantes. Se seguirá una división de roles entre los integrantes del equipo, rotando aquellos roles menos importantes en cada iteración para repartir dicha carga. La asignación inicial de roles del equipo es:
+
+- **Miguel Ángel Luque** — *Coordinador*
+- **Yeray Rodríguez Navas** — *Gestor de Calidad*
+- **Julián Carrión Tovar** — *Gestor de Usabilidad y Accesibilidad*
+- **Pablo Hernández Ibáñez** — *Moderador*
+- **Pablo de la Torre Roldán** — *Catalogador*
+- **José Rodríguez Fernández** — *Presentador*
+
+### 4.2 Responsabilidades de Cada Rol
+Cada rol tendrá las siguientes responsabilidades específicas:
+
+1. **Coordinador:**
+   - Organiza el trabajo del equipo, distribuye tareas, controla los plazos y realiza el seguimiento general del proyecto.
+   - Actúa como enlace de gestión con el profesorado de prácticas y vigila el balance de carga horaria.
+2. **Catalogador:**
+   - Custodia y organiza toda la documentación del proyecto dentro de la estructura estandarizada del repositorio (`docs/`).
+   - Supervisa la nomenclatura de los archivos, el control de versiones documental y la generación periódica de entregables compilados.
+   - Archiva y gestiona las actas oficiales de reuniones en sus carpetas correspondientes.
+3. **Moderador:**
+   - Responsable de plantear y moderar los debates y de seleccionar las ideas y decisiones grupales.
+   - En caso de indecisión, **él tendrá la última palabra consultando con el Gestor de Calidad** sobre la decisión correcta ante el debate vigente.
+   - Encargado de gestionar y documentar las alteraciones en los documentos de especificación.
+4. **Presentador:**
+   - Se encargará de realizar todos los comunicados al cliente, junto con presentaciones mostrando el avance del proyecto y resultados del mismo.
+   - Elaborará los resúmenes que presentará y comunicará al cliente / profesor, siendo el encargado, con ayuda de los roles necesarios, en decidir qué se mostrará y preguntará en cada iteración.
+5. **Gestor de la Calidad (Rol Fijo):**
+   - Asegurarse de que se usan herramientas estandarizadas para especificación y diseño (por ejemplo, diagramas UML en Visual Paradigm y plantillas de ingeniería del software).
+   - Asegurarse de que se organiza bien el trabajo: se celebran reuniones, se toma acta formal, se reparte el trabajo de forma adecuada y se emplean los recursos hardware y software correctos para cada tarea.
+   - Revisar o asegurarse de que se revisen o prueben todos los entregables (verificando correctitud y completitud) y de que se terminan a tiempo o se planifica adecuadamente el cambio de fecha de entrega y sus consecuencias.
+   - Supervisar los criterios de aceptación, revisiones de código, análisis estático continuo y auditorías de calidad del proceso y del producto.
+6. **Gestor de Usabilidad y Accesibilidad (Rol Fijo):**
+   - Formarse y formar a sus compañeros en guías de usabilidad y accesibilidad web y móvil (WCAG 2.1 AA, accesibilidad cognitiva, heurísticas de usabilidad).
+   - Planificar qué guías considerar en función de los usuarios finales del proyecto (alumnado PTVAL con NEAE, personal docente y tutores).
+   - Formarse en heurísticas de accesibilidad y emplearlas activamente para auditar y probar la aplicación.
+   - Aplicar lectores de pantalla (TalkBack en dispositivos Android, VoiceOver en iOS) para probar rigurosamente la aplicación móvil.
+   - Aplicar validadores de accesibilidad (Lighthouse, WAVE, Google Accessibility Scanner) para evaluar contrastes cromáticos, etiquetado y facilidad de lectura.
+   - Elaborar informes formales periódicos del progreso del trabajo en materia de usabilidad y accesibilidad.
+
+### 4.3 Fijeza, Rotación de Roles y Protocolo de Ausencias
+- **Roles Fijos:** Los roles de **Gestor de Calidad** y **Gestor de Usabilidad y Accesibilidad** serán **fijos** a sus responsables correspondientes (Yeray Rodríguez Navas y Julián Carrión Tovar, respectivamente) durante todo el proyecto para garantizar la especialización técnica continua y el rigor metodológico.
+- **Roles Rotativos:** El resto de integrantes rotará de rol en cada iteración de trabajo según el ciclo formal predefinido:
+  $$\dots \longrightarrow \text{Coordinador} \longrightarrow \text{Catalogador} \longrightarrow \text{Moderador} \longrightarrow \text{Presentador} \longrightarrow \dots$$
+- **Protocolo de Ausencias y Sustituciones:**
+  - En caso de que algún integrante con cualquiera de los roles de Gestor (Calidad o Accesibilidad) no pueda acudir a una iteración de trabajo, dicho rol será cedido temporalmente al que en dicha iteración ejerza el rol de **Coordinador** (y al **Presentador** en caso de inasistencia de ambos).
+  - Si algún rol rotativo no está presente en una iteración, se le cederá durante esa iteración al responsable de ese rol en la siguiente iteración.
+
+### 4.4 Matriz de Rotación de Roles por Iteración
+
+| Integrante | Rol Inicial | Fase Inicial | Iteración 1 | Iteración 2 | Iteración 3 |
 | :--- | :---: | :---: | :---: | :---: | :---: |
-| **Miguel Ángel Luque** | Coordinador | Coordinación / Propuesta | Coordinador / Back | Front / Pruebas | Coordinador / Review |
-| **Yeray Rodríguez Navas** | Gestor de Calidad | **Gestor Calidad** | **Gestor Calidad** / Back | **Gestor Calidad** / Front | **Gestor Calidad** / Tests |
-| **Julián Carrión Tovar** | Gestor Accesibilidad | **Gestor Accesib.** | **Gestor Accesib.** / Front | **Gestor Accesib.** / Tests | **Gestor Accesib.** / Front |
-| **Pablo Hernández Ibáñez** | Moderador | Moderador / Requisitos | Front / Pruebas | Coordinador / Back | Front / Pruebas |
-| **Pablo de la Torre Roldán** | Catalogador | Catalogador / Docs | Back / DevOps | Catalogador / Front | Back / Despliegue |
-| **José Rodríguez Fernández** | Presentador | Presentador / Escenarios | Presentador / Front | Back / Pruebas | Presentador / Front |
+| **Miguel Ángel Luque** | Coordinador | **Coordinador** | Catalogador | Moderador | Presentador |
+| **Pablo de la Torre Roldán** | Catalogador | **Catalogador** | Moderador | Presentador | Coordinador |
+| **Pablo Hernández Ibáñez** | Moderador | **Moderador** | Presentador | Coordinador | Catalogador |
+| **José Rodríguez Fernández** | Presentador | **Presentador** | Coordinador | Catalogador | Moderador |
+| **Yeray Rodríguez Navas** | Gestor Calidad | **Gestor Calidad (Fijo)** | **Gestor Calidad (Fijo)** | **Gestor Calidad (Fijo)** | **Gestor Calidad (Fijo)** |
+| **Julián Carrión Tovar** | Gestor Accesibilidad | **Gestor Accesib. (Fijo)** | **Gestor Accesib. (Fijo)** | **Gestor Accesib. (Fijo)** | **Gestor Accesib. (Fijo)** |
 
-*Nota: La rotación asegura que los integrantes participen alternativamente en tareas de Frontend, Backend, Documentación y Pruebas, cumpliendo el requisito docente.*
-
-### 3.3 Normas de Convivencia y Compromiso
-1. **Puntualidad:** Asistencia puntual a las reuniones presenciales y virtuales (margen de cortesía: 5 minutos).
-2. **Transparencia:** Notificar de inmediato cualquier bloqueo o imposibilidad de cumplir con un plazo al menos **48 horas antes** de la fecha acordada.
-3. **Respeto e Inclusión:** Fomentar un ambiente constructivo, escuchando las opiniones de todos y tomando decisiones por consenso o por mayoría cualificada si no hay acuerdo unánime.
-4. **Dedicación Equitativa:** Cada miembro debe registrar sus horas reales de trabajo individual semanalmente en la plantilla oficial.
-5. **Régimen Sancionador Interno:**
-   - La falta injustificada a 2 reuniones o el incumplimiento reiterado de entregables asignados implicará una amonestación interna y su reflejo negativo en la evaluación individual entregada a los profesores.
+*Nota: Esta matriz garantiza que los cuatro integrantes sujetos a rotación asuman exactamente una vez cada rol rotativo a lo largo de las cuatro fases del proyecto, combinando las labores de gestión con el desarrollo técnico de Frontend, Backend y Pruebas.*
 
 ---
 
-## 4. HERRAMIENTAS PARA COMUNICACIONES EN EL EQUIPO DE TRABAJO
+## 5. HERRAMIENTAS PARA COMUNICACIONES EN EL EQUIPO DE TRABAJO Y REUNIONES
 
-### 4.1 Canales Oficiales y Plataformas de Organización
-- **Plataforma de Gestión, Reuniones y Gantt ([ClickUp](https://app.clickup.com/login)):**
-  - Espacio de trabajo común para la organización del equipo.
-  - **Diagramas de Gantt interactivos:** Planificación temporal detallada, dependencias entre tareas e hitos de cada sprint.
-  - **Organización de Sprints:** Asignación equitativa de historias de usuario y tareas.
-  - **Gestión de Reuniones:** Convocatorias, órdenes del día (agendas), seguimiento de acuerdos y checklists de tareas derivadas.
-- **Canal Discord del Equipo:**
-  - `#general`: Avisos generales, enlaces y anuncios oficiales.
-  - `#desarrollo-front`: Discusiones técnicas de interfaz y experiencia de usuario.
-  - `#desarrollo-back`: Modelado de base de datos, APIs y lógica de servidor.
-  - `#calidad-accesibilidad`: Auditorías, dudas sobre WCAG, feedback de usabilidad y ARASAAC.
-  - `#gestion-dgp`: Presupuestos, riesgos, actas y documentación de entregas.
-- **Grupo de Mensajería Instantánea (WhatsApp / Telegram):**
-  - Exclusivo para urgencias de última hora, avisos de inicio de reunión o imprevistos de fuerza mayor.
-- **Correo Institucional (@correo.ugr.es):**
-  - Único medio para comunicaciones formales con el profesorado y responsables del Colegio Purísima Concepción.
+### 5.1 Canales de Comunicación
+- **WhatsApp:** Canal principal para la organización operativa, concreción rápida de fechas y horarios de reuniones, y avisos urgentes o imprevistos de última hora.
+- **Discord:** Plataforma oficial para realizar videollamadas grupales cuando no sea posible realizar reuniones presenciales, compartir pantalla durante sesiones de programación en pareja (*pair programming*) y mantener canales temáticos organizados (`#general`, `#desarrollo-front`, `#desarrollo-back`, `#calidad-accesibilidad`, `#gestion-dgp`).
+- **ClickUp:** Herramienta centralizada para el seguimiento y control de las tareas en progreso, gestión del Product Backlog, diagramas de Gantt interactivos y agendas de trabajo.
+- **Correo Institucional (@correo.ugr.es):** Medio formal reservado para comunicaciones institucionales con el profesorado y la dirección del centro cliente.
 
-### 4.2 Protocolo de Reuniones y Actas
-- **Periodicidad y Convocatoria:**
-  - Reunión fija semanal en horario de prácticas con el profesor responsable.
-  - Reunión interna de planificación/sincronización de 1 hora semanal (habitualmente lunes por la tarde), gestionada a través de **ClickUp**.
-- **Actas:**
-  - Toda reunión formal contará con un acta redactada por el Catalogador/Moderador según la plantilla oficial (`docs/plantillas/plantilla_acta_reunion.md`).
-  - El acta se publicará en `docs/reuniones/` en un plazo máximo de **24 horas** tras la finalización de la reunión.
+### 5.2 Protocolo de Reuniones y Actas
+- **Reuniones Semanales con el Cliente / Profesor:** Se mantendrán reuniones semanales de seguimiento técnico y metodológico en la franja lectiva de prácticas para revisar el estado del avance, resolver dudas y validar el rumbo de las funcionalidades.
+- **Reuniones Internas del Equipo:** Sesión de trabajo semanal fijada por consenso (habitualmente lunes en horario de tarde), presencial o telemática vía Discord, para revisar el tablero de tareas y sincronizar entregables.
+- **Elaboración y Custodia de Actas:**
+  - Toda reunión formal requiere la elaboración de un acta siguiendo la plantilla oficial (`docs/plantillas/plantilla_acta_reunion.md`).
+  - El Catalogador (con el soporte del Moderador) redactará el acta registrando: asistentes, orden del día, debates mantenidos, decisiones acordadas y compromisos con responsables y fechas límite.
+  - El acta se publicará en el repositorio (`docs/reuniones/`) en un plazo improrrogable máximo de **24 horas** tras finalizar la reunión.
 
 ---
 
-## 5. RELACIONES CON EL CLIENTE (ENTREVISTAS, REUNIONES, REVISIONES)
+## 6. RELACIONES CON EL CLIENTE (ENTREVISTAS, REUNIONES, REVISIONES, ...)
 
-### 5.1 Interlocutores del Proyecto
-- **Cliente Principal:** Dirección y personal docente del Colegio de Educación Especial Fundación Purísima Concepción (Fundación Hospitalarias - Granada).
-- **Destinatarios Finales:** Estudiantes con necesidades educativas especiales del Programa de Transición a la Vida Adulta (PTVAL), tutores escolares y familiares.
-- **Peticionarios y Evaluadores:** Profesorado de las asignaturas DGP y MDA de la Universidad de Granada.
+### 6.1 Protocolo de Interacción y Entrevistas
+- Se realizarán reuniones y revisiones semanales con el cliente/profesor para comprobar la evolución del proyecto, validar las funcionalidades desarrolladas y resolver posibles dudas.
+- Además, se concertarán **entrevistas específicas** cuando sea necesario para concretar o modificar los requisitos de la aplicación, recabar opiniones de las personas tutoras o validar la pertinencia de los apoyos visuales.
+- Los cambios y decisiones acordados en estas reuniones se registrarán sistemáticamente en acta y se volcarán al Product Backlog para mantener permanentemente actualizada la planificación y los requisitos del proyecto.
 
-### 5.2 Hitos de Interacción y Protocolo
-1. **Entrevista Inicial de Requisitos (25 de septiembre de 2026 - 08:30h):**
-   - Asistencia en la sesión de teoría para formular las preguntas preparadas previamente y captar necesidades reales.
-2. **Visita Técnica al Centro (02 de octubre de 2026):**
-   - Asistencia de los representantes designados para observar los espacios de trabajo (taller de reprografía, comedor, aulas) y comprender los flujos cotidianos.
-3. **Validaciones Intermedias de Prototipos:**
-   - En las iteraciones 1 y 2 se concertarán revisiones con el cliente para mostrar los bocetos y prototipos de la agenda, verificando la compresión cognitiva de los pictogramas y la sencillez de los flujos.
-4. **Formalidad y Trato:**
-   - Máximo respeto, empatía y sensibilidad hacia la labor social y educativa del centro.
-   - Todo material audiovisual o fotográfico del centro estará sujeto al consentimiento expreso y la normativa de protección de datos (RGPD).
+### 6.2 Interlocutores y Consideraciones Éticas
+- **Interlocutores:** Profesionales y equipo docente del C.E.E. Fundación Purísima Concepción, estudiantes del aula PTVAL y profesorado evaluador de DGP y MDA.
+- **Compromiso Ético y Protección de Datos:** Máxima rigurosidad con el RGPD. Cualquier dato o imagen de prueba será completamente ficticio o contará con autorización expresa del centro. Se mantendrá una actitud de absoluto respeto y empatía hacia los beneficiarios del software.
 
 ---
 
-## 6. ESTÁNDARES DE DOCUMENTACIÓN
+## 7. ESTÁNDARES DE DOCUMENTACIÓN
 
-### 6.1 Formato y Estructura
-- Toda la documentación viva del proyecto se redactará en formato **Markdown (`.md`)** en el repositorio Git para permitir control de versiones línea a línea.
-- Para las entregas oficiales en la plataforma docente de la UGR, los documentos se compilarán a formato **PDF estándar**, incluyendo:
-  - Portada oficial con logotipo de la UGR, título del proyecto, número de grupo, nombres de autores y fecha.
-  - Tabla de contenidos con numeración clara de apartados y subapartados.
-  - Historial de cambios y control de versiones del documento.
+### 7.1 Documentación Textual (Google Docs)
+Para la documentación textual, es decir, especificaciones, documentos de especificación, desarrollo y manuales que requieran mayor redacción de texto, utilizaremos documentos compartidos de **Google Docs**. 
 
-### 6.2 Nomenclatura de Archivos
-- Se utilizará formato en minúsculas separado por guiones bajos o la nomenclatura estandarizada:
-  - Actas: `ACTA_EQUIPO_[AÑO]_[MES]_[DIA].md` (ej. `ACTA_EQUIPO_2026_10_05.md`)
-  - Documentos técnicos: `DOC_[AMBITO]_[NOMBRE]_[vX.Y].md`
+Para asegurar consistencia profesional en todos los documentos generados por el equipo, **cada documento seguirá rigurosamente la siguiente estructura normalizada:**
+1. **Portada Institucional:**
+   - Logotipo oficial de CLENCH Software Development y escudo corporativo de la Universidad de Granada.
+   - Título formal del documento y subtítulo descriptivo del proyecto AUTOVIDA.
+   - Datos académicos: Asignaturas (DGP/MDA), Grado en Ingeniería Informática, curso 2026/2027.
+   - Metadatos: Versión del documento, fecha de última revisión y relación completa de autores y roles.
+2. **Historial de Cambios y Control de Versiones:**
+   - Tabla con columnas: Versión, Fecha, Autor(es), Resumen detallado de modificaciones y Estado de aprobación.
+3. **Firma y Conformidad de los Integrantes:**
+   - Tabla de aprobación y compromiso expreso de los miembros del equipo.
+4. **Tabla de Contenidos (Índice General):**
+   - Índice jerárquico paginado y generado automáticamente con numeración decimal.
+5. **Introducción y Objetivos:**
+   - Justificación del documento, ámbito de aplicación y contexto del proyecto.
+6. **Cuerpo Central Específico:**
+   - Secciones y subsecciones estructuradas mediante numeración estricta, tablas normalizadas, diagramas legibles y cajas de aviso destacadas.
+7. **Conclusiones, Riesgos o Siguientes Pasos:**
+   - Cierre analítico y recomendaciones operativas derivadas del contenido.
+8. **Referencias y Anexos:**
+   - Normativas consultadas, enlaces web y material complementario.
+
+*Proceso de Versionado y Publicación:* Los documentos consensuados en Google Docs se exportarán periódicamente a formato PDF y se volcarán paralelamente a Markdown en la ruta correspondiente de `docs/` para su versionado en Git.
+
+### 7.2 Documentación de Código (Doxygen)
+Con respecto a la documentación de código, hemos optado por usar **Doxygen**, aplicando así un estándar sencillo y fácil de entender para el grupo y cualquiera que pueda heredar el código, además de permitir la generación de documentación de código de manera dinámica a partir de los propios comentarios en los fuentes.
+
+### 7.3 Concreción del Diseño Software (UML y Visual Paradigm)
+Para la concreción del diseño de nuestra solución software (base de datos relacional, definición de clases, modelos de dominio, diagramas de secuencia y casos de uso) utilizaremos el estándar **UML**. Para ello nos apoyaremos en la herramienta **Visual Paradigm**, por su capacidad demostrada de generar diagramas completos, estandarizados y exportables fácilmente.
 
 ---
 
-## 7. ESTÁNDARES DE CÓDIGO
+## 8. ESTÁNDARES DE CÓDIGO
 
-### 7.1 Principios Generales
-- **Clean Code:** Código legible, modular, auto-explicativo y con funciones de responsabilidad única (principios SOLID).
-- **Desacoplamiento:** Clara separación entre la capa de presentación (frontend), capa de negocio y acceso a datos (backend).
-- **Comentarios Relevantes:** Comentar únicamente la lógica compleja o decisiones no triviales; evitar comentarios redundantes que repitan el código.
+Utilizaremos la herramienta **Flutter** para la implementación del software. Se establecen los siguientes estándares obligatorios de código:
 
-### 7.2 Convenciones de Nomenclatura y Estilo
-- Nombres de clases y componentes: `PascalCase` (ej. `BotonAccesible`, `TareaService`).
-- Funciones, métodos y variables: `camelCase` (ej. `obtenerTareasPorEstudiante`, `esModoContrasteAlto`).
-- Constantes y enumerados: `UPPER_SNAKE_CASE` (ej. `ESTADO_TAREA_COMPLETADA`).
-- Uso obligatorio de linters y formateadores de código (configurados en el repositorio) para asegurar consistencia automática en cada commit.
+### 8.1 Convenciones de Nomenclatura y Lenguaje
+- **Idioma del Código:** Los nombres de las variables, funciones, métodos, clases y archivos estarán escritos en **inglés** para mayor estandarización internacional.
+- **Nomenclatura de Variables y Funciones:** Se utilizará la forma lower-case / `lowerCamelCase` (ejemplo: `studentName`, `taskCompletionStatus`, `loadUserProfile()`, `startVisualTimer()`).
+- **Nomenclatura de Clases y Widgets:** Se utilizará `PascalCase` de acuerdo a las convenciones oficiales de Flutter y Dart (ejemplo: `TaskDetailScreen`, `PictogramPicker`, `StudentRepository`).
+- **Constantes y Enumerados:** Se empleará `UPPER_SNAKE_CASE` o `lowerCamelCase` según recomienden las guías de estilo oficiales de Dart (`static const int MAX_ATTEMPTS = 3;`).
+
+### 8.2 Comentarios y Documentación en Código
+- Los comentarios de los scripts, funciones, clases y demás estructuras se pondrán al inicio del documento o del respectivo bloque de código para mayor legibilidad y orden, empleando la sintaxis compatible con Doxygen (`///` o bloques `/** ... */`).
+- Todo bloque describirá de forma sintética: propósito de la función/widget, parámetros de entrada, valores de retorno y posibles excepciones.
+
+### 8.3 Principios de Diseño y Buenas Prácticas
+- **Clean Code & SOLID:** Funciones cortas con una sola responsabilidad, nombres auto-explicativos y minimización de efectos colaterales.
+- **Desacoplamiento UI / Lógica:** Separación estricta entre widgets visuales y la lógica de negocio o persistencia mediante repositorios y gestores de estado.
+- **Formateo Automático Obligatorio:** Ejecución de `dart format .` y resolución de advertencias de `flutter analyze` de forma previa a cualquier subida al repositorio.
 
 ---
 
-## 8. PLAN DE GESTIÓN DE CAMBIOS
+## 9. PLAN DE GESTIÓN DE CAMBIOS
 
-Ante cualquier solicitud de cambio (proveniente del cliente, del profesorado o de una necesidad técnica surgida durante el desarrollo), se seguirá el siguiente procedimiento formal:
+Ante cualquier cambio solicitado (por el cliente, por el profesorado o por necesidades técnicas sobrevenidas), se revisarán los requisitos afectados y se evaluará su impacto en la planificación, el diseño y el desarrollo de la aplicación. 
 
+Una vez aprobado el cambio, se realizarán las modificaciones necesarias tanto en la aplicación como en la documentación y memoria del proyecto, manteniendo siempre actualizados los requisitos.
+
+### 9.1 Flujo Formal de Gestión de Cambios
 ```text
-  [Propuesta de Cambio] 
-          │
-          ▼
-  [Análisis de Impacto] (Alcance, Plazos, Horas, Calidad, Accesibilidad)
-          │
-          ▼
-  [Revisión del Coordinador y Gestor de Calidad]
-          │
-     ┌────┴──────────────┐
-     │                   │
-  [Aprobado]         [Rechazado / Pospuesto]
-     │                   │
-     ▼                   ▼
-[Actualizar Backlog   [Notificación y registro
- y Cronograma]         del motivo]
+  [Solicitud de Cambio (Cliente / Tutor / Equipo)]
+                         │
+                         ▼
+        [Análisis Técnico y de Impacto]
+  (Alcance, Horas de Dedicación, Cronograma, Costes, Accesibilidad)
+                         │
+                         ▼
+   [Revisión del Coordinador y Gestor de Calidad]
+                         │
+        ┌────────────────┴────────────────┐
+        ▼                                 ▼
+   [Aprobado]                     [Rechazado / Pospuesto]
+        │                                 │
+        ▼                                 ▼
+[Actualizar Backlog,              [Notificar al solicitante
+ Cronograma y Docs]                y registrar justificación]
 ```
 
-1. **Registro:** Cumplimentar una solicitud de cambio formal indicando origen, justificación y descripción.
-2. **Evaluación de Impacto:** Los coordinadores de la iteración y el gestor de calidad analizarán el impacto en:
-   - Fechas límite del pliego técnico.
-   - Carga de trabajo y horas asignadas a los miembros.
-   - Requisitos de accesibilidad y riesgos técnicos.
-3. **Decisión:** Si el cambio altera las fechas o el alcance pactado con el cliente o profesor, se requerirá comunicación previa justificada con al menos **3 días de antelación**, tal como exige el pliego técnico.
+### 9.2 Comunicación y Preaviso de 3 Días
+Si la aprobación de un cambio compromete las fechas de entrega, el alcance principal o las condiciones fijadas en el pliego técnico, el equipo se compromete a comunicarlo formalmente al profesorado con un mínimo de **3 días de antelación**, exponiendo la causa de la desviación y el plan de mitigación previsto.
 
 ---
 
-## 9. CONTROL DE VERSIONES (MÉTODO Y HERRAMIENTAS)
+## 10. CONTROL DE VERSIONES (MÉTODO Y HERRAMIENTAS)
 
-### 9.1 Estrategia de Trabajo Colaborativo en Rama Única (`main`)
-Para mantener un flujo de trabajo ágil, directo y sin sobrecarga innecesaria de ramas o Pull Requests, el equipo trabajará de manera coordinada **directamente sobre la rama principal (`main`)**.
+Utilizaremos la herramienta **GitHub** para el control de versiones, actualizando el repositorio compartido en cada sesión de prácticas, llevando a cabo un control supervisado y documentado correctamente, especificando qué cambios se han llevado a cabo.
 
-Para asegurar la estabilidad del proyecto y evitar sobrescrituras de código o conflictos, se establecen las siguientes **normas obligatorias**:
-1. **Sincronización Continua (`git pull`):** Antes de iniciar cualquier tarea, y obligatoriamente antes de hacer `git push`, cada miembro debe ejecutar `git pull` para incorporar las novedades subidas por los compañeros.
-2. **Coordinación Activa y Reparto Modular:** Los miembros del equipo se asignarán componentes, pantallas o documentos independientes. Cuando alguien vaya a modificar un archivo central o compartido, lo notificará previamente al grupo para evitar conflictos de edición simultánea.
-3. **Validación Local Estricta:** Queda prohibido subir código roto a `main`. Cada miembro debe verificar localmente que el proyecto compila, ejecuta y no genera errores antes de hacer `push`.
-4. **Commits Atómicos y Claros:** Se realizarán commits pequeños y bien delimitados, facilitando identificar cambios y revertir si fuera necesario.
+### 10.1 Método de Trabajo en el Repositorio
+- **Supervisión Continua:** Cada miembro subirá sus avances con regularidad, asegurando que el repositorio compartido refleje de forma veraz el estado técnico al término de cada sesión de prácticas.
+- **Validación Previa:** Queda prohibido subir código defectuoso que impida la compilación o rompa los tests automatizados. Cada integrante debe validar localmente su código (`flutter test`, `dart format`) antes de sincronizar.
+- **Gestión de Ramas y Pull Requests:** Para desarrollos de nuevos módulos o refactorizaciones complejas se utilizarán ramas temáticas (`feature/`, `bugfix/`) que se integrarán en la rama de desarrollo mediante Pull Requests revisadas.
 
-### 9.2 Convención de Commits (Conventional Commits)
-Los mensajes de confirmación seguirán el formato:
-`<tipo>: <descripción concisa>`
+### 10.2 Convención de Mensajes de Commit
+Se adoptará el estándar de **Conventional Commits**:
+`<tipo>: <descripción en imperativo y en minúsculas>`
 
-Tipos permitidos:
-- `feat`: Nueva funcionalidad o avance del sistema.
-- `fix`: Corrección de un fallo o defecto.
-- `docs`: Modificación exclusiva de documentación o actas.
-- `style`: Ajustes estéticos o formateo sin cambios lógicos.
-- `refactor`: Refactorización de código.
-- `test`: Inclusión o ajuste de pruebas.
-- `chore`: Mantenimiento, dependencias o configuración.
-- `a11y`: Ajustes específicos de accesibilidad y usabilidad.
-
-*Ejemplo:* `feat: agregar temporizador visual con cuenta atras accesible`
+Tipos reconocidos:
+- `feat:` Inclusión de una nueva funcionalidad.
+- `fix:` Corrección de un fallo o error en el sistema.
+- `docs:` Alteración exclusiva en documentación, actas o comentarios.
+- `style:` Ajustes de formato o maquetación sin alteración lógica.
+- `refactor:` Reestructuración de código que no altera el comportamiento.
+- `test:` Inclusión o modificación de pruebas unitarias o de integración.
+- `a11y:` Mejoras directas de accesibilidad, contrastes o compatibilidad con TalkBack.
+- `chore:` Tareas rutinarias de configuración, dependencias o herramientas.
 
 ---
 
-## 10. GESTIÓN DE CALIDAD Y ACCESIBILIDAD
+## 11. GESTIÓN DE CALIDAD Y ACCESIBILIDAD (DURANTE EL DESARROLLO Y AL FINAL, INCLUIR HERRAMIENTAS)
 
-### 10.1 Gestión de Calidad (Proceso y Producto)
-- **Definition of Ready (DoR):** Una tarea solo se inicia si cuenta con objetivos claros y requisitos de accesibilidad identificados.
-- **Definition of Done (DoD):** Una tarea solo se considera finalizada cuando:
-  - El código ha sido probado localmente y compila sin errores.
-  - Se han superado los linters y pruebas correspondientes.
-  - La interfaz cumple con los criterios de accesibilidad aplicables.
-  - Ha sido sincronizada y subida a `main` sin conflictos.
-  - La documentación asociada está actualizada.
-- **Control de Entregables:** El Gestor de Calidad realiza una revisión formal de corrección, ortografía, formato y completitud 48 horas antes de cada entrega oficial.
+Se revisará completamente todo el desarrollo al final de cada iteración y se corregirán los aspectos necesarios para alcanzar nuestros objetivos, asegurando una detección temprana de errores y validación continua del trabajo entregado.
 
-### 10.2 Gestión de Usabilidad y Accesibilidad
-La accesibilidad no es un añadido final, sino el núcleo del diseño del proyecto:
-- **Estándar WCAG 2.1 Nivel AA:** Cumplimiento estricto en ratios de contraste (mínimo 4.5:1 para texto normal, 3:1 para elementos gráficos).
-- **Adaptación Cognitiva:**
-  - Interfaces limpias, libres de distracciones, con navegación predictiva y retroalimentación clara.
-  - Integración sistemática de pictogramas ARASAAC para reforzar visualmente cada texto y acción.
-  - Disponibilidad de secuencias visuales paso a paso para la realización de tareas complejas (reprografía, menús, etc.).
-- **Accesibilidad Física y Sensorial:**
-  - Objetivos táctiles de al menos 48x48 dp para facilitar la pulsación en casos de problemas de motricidad fina.
-  - Compatibilidad verificada con lectores de pantalla móviles (**TalkBack** en Android y **VoiceOver** en iOS).
-  - Opciones de personalización de perfil: modo de contraste alto, tamaños de fuente ajustables y temporizadores configurables (visibles u ocultos según necesidad del usuario).
+### 11.1 Procedimiento de Calidad en Cada Iteración
+Por cada iteración seguiremos rigurosamente los siguientes pasos de control:
+1. **Definición de criterios de aceptación:** Discutiremos sobre lo que se ha de realizar en la iteración y qué criterios seguimos para determinar si se ha completado correctamente (Definition of Ready y Definition of Done).
+2. **Revisiones de código:** Se revisará el código obligatoriamente en busca de errores antes de añadirlo a la rama de desarrollo de la nueva iteración.
+3. **Análisis Estático Continuo:** Escaneo automatizado del código fuente en cada ciclo para identificar vulnerabilidades, duplicidades y fallos de estilo.
+4. **Pruebas Unitarias y de Integración:** Ejecución de pruebas automatizadas sobre los nuevos módulos desarrollados en la iteración correspondiente.
+5. **Pruebas de Regresión Iterativas (Iteraciones 2 y 3):** Al finalizar la Iteración 2 e Iteración 3, se verifica que los nuevos cambios no hayan roto funcionalidades previamente entregadas en la iteración anterior.
+6. **Demo y Validación de Iteración:** Al cierre de cada iteración se realiza una revisión funcional con el cliente para validar el trabajo entregado.
+
+### 11.2 Proceso de Hardening y Verificación Global
+Al terminar la tercera iteración, se llevará a cabo el **proceso de hardening y verificación global**, el cual constará de:
+- Una revisión y validación integral por parte del cliente.
+- Ejecución completa de baterías de pruebas extremas (*smoke tests*, estrés y regresión total).
+- Auditoría final exhaustiva que revisará las políticas de datos (RGPD) y analizará las posibles vulnerabilidades de seguridad del sistema.
+
+### 11.3 Cuadro Oficial de Herramientas de Calidad y Accesibilidad
+
+| Fase / Ámbito | Herramienta | Aplicación en el Proyecto |
+| :--- | :--- | :--- |
+| **Control de Versiones & CI/CD** | **GitHub** | Gestión del repositorio, control de Pull Requests, ramas y flujos automatizados. |
+| **Análisis Estático & Estilo** | **SonarCloud / ESLint** | Detección automática de bugs, vulnerabilidades, duplicidades y formato de código. |
+| **Pruebas Unitarias & API** | **Jest / Flutter Test** | Automatización de pruebas de lógica, integración de servicios y widgets. |
+| **Accesibilidad & UX** | **Lighthouse / WAVE** | Evaluación de niveles de accesibilidad (contraste cromático, etiquetas, legibilidad) y validación en navegadores y apps móviles (junto con Google Accessibility Scanner y TalkBack). |
+| **Gestión de Tareas y Bugs** | **Jira / ClickUp** | Trazabilidad de requisitos, incidencias, gestión del backlog y feedback de las demos. |
 
 ---
 
-## 11. PLAN DE MEDICIÓN DEL DESEMPEÑO Y RECOMPENSAS
+## 12. PLAN DE MEDICIÓN DEL DESEMPEÑO, RECOMPENSAS Y CASTIGOS
 
-### 11.1 Registro y Control del Esfuerzo
-- Cada integrante completará su **registro individual de dedicación horaria** semanalmente (`docs/plantillas/plantilla_registro_horas.md`), contabilizando el tiempo exacto invertido en desarrollo, gestión, reuniones y documentación.
-- Los coordinadores y el Gestor de Calidad consolidarán las horas en cada iteración para detectar a tiempo sobrecargas o desviaciones de esfuerzo.
+### 12.1 Medición y Registro del Esfuerzo
+- Cada integrante registrará rigurosamente su dedicación semanal en la plantilla oficial (`docs/plantillas/plantilla_registro_horas.md`), detallando horas invertidas en especificación, desarrollo, pruebas, reuniones y documentación.
+- El Coordinador y el Gestor de Calidad supervisarán la homogeneidad de la dedicación para detectar y corregir desviaciones tempranamente.
 
-### 11.2 Evaluación 360º y Autoevaluación
-- Al finalizar cada una de las 3 iteraciones, cada miembro completará una encuesta de autoevaluación y co-evaluación interna valorando:
-  - Grado de cumplimiento de las tareas asignadas.
-  - Calidad del trabajo aportado.
-  - Actitud proactiva, colaboración y capacidad de comunicación.
-- Los resultados se comentarán constructivamente en la reunión de retrospectiva para tomar acciones de compensación.
+### 12.2 Sistema de Recompensas y Reconocimiento
+- **Reconocimiento Público Interno:** En la reunión de retrospectiva de cada iteración se dejará constancia en acta del agradecimiento y mención destacada al compañero o rol que haya realizado aportes extraordinarios de innovación, soporte o calidad técnica.
+- **Prioridad en la Elección de Tareas y Módulos:** Aquellos miembros que hayan mantenido un rendimiento sobresaliente y hayan culminado sus entregables con anticipación tendrán prioridad al elegir los componentes técnicos de desarrollo en la iteración siguiente.
+- **Distribución Equitativa del Éxito:** El propósito común es que el compromiso coordinado permita a la totalidad del equipo optar a la calificación máxima de matrícula de honor (10) en ambas asignaturas.
 
-### 11.3 Plan de Recompensas y Reconocimiento
-- **Reconocimiento Interno:** En cada retrospectiva se destacará formalmente el rol o miembro que haya realizado aportes excepcionales de innovación, calidad o soporte al equipo.
-- **Rotación Preferencial:** Aquellos miembros que hayan completado sus tareas con anticipación y excelencia tendrán prioridad para elegir roles y módulos de desarrollo en la siguiente iteración.
-- **Distribución Equitativa de Calificación:** El objetivo del equipo es garantizar que la calidad global del proyecto y la implicación demostrada en los informes de gestión permitan a todos los miembros aspirar a la máxima calificación posible (10) en la evaluación de prácticas.
+### 12.3 Régimen Sancionador Interno (Castigos y Penalizaciones)
+Para preservar la equidad, el respeto mutuo y el compromiso con los resultados del proyecto, se establece un régimen disciplinario vinculante:
+1. **Inasistencias a Reuniones:**
+   - La falta no justificada a una reunión conllevará un aviso de advertencia interna.
+   - Acumular **dos faltas injustificadas** a reuniones oficiales supondrá una amonestación formal en acta y se traducirá directamente en una penalización en la nota individual remitida a los profesores responsables en los informes de gestión.
+2. **Incumplimiento de Plazos y Entregables:**
+   - Si un miembro no entrega su tarea asignada en la fecha acordada sin causa justificada comunicada con al menos **48 horas de antelación**, el Coordinador y el Gestor de Calidad reasignarán la tarea de urgencia a otro integrante.
+   - El trabajo no realizado será reflejado en el informe de seguimiento individual como incumplimiento grave, reduciendo la ponderación de la evaluación del implicado.
+3. **Falta de Calidad Reiterada:**
+   - La subida continuada de código que rompa la compilación o incumpla las normas estipuladas requerirá rehacer el módulo fuera del horario de prácticas sin cómputo de horas de exceso.
