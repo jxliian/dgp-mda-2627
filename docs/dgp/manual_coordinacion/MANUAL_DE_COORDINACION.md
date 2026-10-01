@@ -1,27 +1,31 @@
 # MANUAL DE COORDINACIÓN Y PLAN DE DIRECCIÓN DEL PROYECTO
 
+<p align="center">
+  <img src="images/logo_clench.png" alt="CLENCH Software Development" width="300"/>
+</p>
+
+> **Equipo de Trabajo:** **CLENCH Software Development**  
 > **Asignaturas:** Dirección y Gestión de Proyectos (DGP) & Metodologías de Desarrollo Ágil (MDA)  
 > **Titulación:** Grado en Ingeniería Informática — Universidad de Granada (UGR)  
 > **Curso Académico:** 2026 / 2027  
 > **Proyecto:** Sistema de Agenda y Asignación de Tareas Accesible (Proyecto AUTOVIDA — Fundación Purísima Concepción)  
-> **Grupo de Prácticas:** Grupo [X] — Subgrupo [Y]  
-> **Versión del Documento:** 1.0 (Borrador de Inicio)  
-> **Fecha de Elaboración:** 24 de septiembre de 2026  
+> **Versión del Documento:** 1.0  
+> **Fecha de Elaboración:** Octubre de 2026  
 
 ---
 
-## Firma y Aceptación de los Miembros del Equipo
+## Firma y Aceptación de los Miembros del Equipo (CLENCH)
 
-*Este documento ha sido consensuado, completado y aprobado por todos los integrantes del equipo de trabajo, quienes se comprometen a cumplir con los acuerdos, normativas y procesos descritos a continuación.*
+*Este documento ha sido consensuado, completado y aprobado por todos los integrantes de **CLENCH Software Development**, quienes se comprometen a cumplir con los acuerdos, normativas y procesos descritos a continuación.*
 
-| Nombre y Apellidos | DNI / Identificador | Correo Institucional UGR | Asignatura(s) | Firma de Compromiso |
-| :--- | :---: | :---: | :---: | :---: |
-| [Miembro 1 - Estudiante A] | 12345678A | estudianteA@correo.ugr.es | DGP / MDA | *Firmado* |
-| [Miembro 2 - Estudiante B] | 23456789B | estudianteB@correo.ugr.es | DGP / MDA | *Firmado* |
-| [Miembro 3 - Estudiante C] | 34567890C | estudianteC@correo.ugr.es | DGP / MDA | *Firmado* |
-| [Miembro 4 - Estudiante D] | 45678901D | estudianteD@correo.ugr.es | DGP / MDA | *Firmado* |
-| [Miembro 5 - Estudiante E] | 56789012E | estudianteE@correo.ugr.es | DGP | *Firmado* |
-| [Miembro 6 - Estudiante F] | 67890123F | estudianteF@correo.ugr.es | MDA | *Firmado* |
+| Nombre y Apellidos | Rol Principal | Asignatura(s) | Firma y Conformidad |
+| :--- | :---: | :---: | :---: |
+| **Miguel Ángel Luque** | Coordinador General | DGP / MDA | *Firmado electrónicamente* |
+| **Yeray Rodríguez Navas** | Gestor de Calidad (Fijo) | DGP / MDA | *Firmado electrónicamente* |
+| **Julián Carrión Tovar** | Gestor de Usabilidad y Accesibilidad (Fijo) | DGP / MDA | *Firmado electrónicamente* |
+| **Pablo Hernández Ibáñez** | Moderador | DGP / MDA | *Firmado electrónicamente* |
+| **Pablo de la Torre Roldán** | Catalogador | DGP / MDA | *Firmado electrónicamente* |
+| **José Rodríguez Fernández** | Presentador | DGP / MDA | *Firmado electrónicamente* |
 
 ---
 
@@ -65,8 +69,8 @@ Para la ejecución homogénea del proyecto se seleccionan herramientas colaborat
 
 | Área / Finalidad | Herramienta Propuesta | Justificación y Uso |
 | :--- | :--- | :--- |
-| **Control de Versiones** | **Git / GitHub** | Repositorio central, flujo mediante Pull Requests, trazabilidad de código y documentación. |
-| **Gestión de Tareas y Backlog** | **Jira Software / GitHub Projects** | Tablero Kanban y Scrum, seguimiento de historias de usuario, estimaciones de tiempo y burndown charts. |
+| **Control de Versiones** | **Git / GitHub** | Repositorio central, flujo coordinado en rama `main`, trazabilidad de código y documentación. |
+| **Organización, Reuniones y Gantt** | **ClickUp** ([app.clickup.com](https://app.clickup.com/login)) | Organización integral del equipo, diagramas de Gantt interactivos, convocatorias y notas de reuniones, seguimiento de tareas y sprints. |
 | **Diseño y Prototipado UI/UX** | **Figma / Penpot** | Creación de wireframes y prototipos interactivos adaptados a usuarios con discapacidad cognitiva. |
 | **Recursos de Accesibilidad** | **Portal ARASAAC** | Catálogo oficial de pictogramas bajo licencia Creative Commons para comunicación aumentativa. |
 | **Auditoría de Accesibilidad** | **WAVE, axe DevTools, Colour Contrast Analyser, TalkBack, VoiceOver** | Verificación de contraste cromático, lectores de pantalla para móviles y cumplimiento WCAG 2.1 AA. |
@@ -116,14 +120,14 @@ El equipo combina roles fijos de especialización (calidad y accesibilidad) con 
 
 ### 3.2 Matriz de Asignación de Roles por Iteración
 
-| Miembro | Asignatura | Fase Inicial | Iteración 1 | Iteración 2 | Iteración 3 |
+| Miembro | Rol Base | Fase Inicial | Iteración 1 | Iteración 2 | Iteración 3 |
 | :--- | :---: | :---: | :---: | :---: | :---: |
-| **[Estudiante A]** | DGP / MDA | **Coordinador** | Frontend / Pruebas | Backend / Pruebas | **Coordinador** |
-| **[Estudiante B]** | DGP / MDA | **Coordinador** | Backend / DevOps | Frontend / Pruebas | Presentador / Dev |
-| **[Estudiante C]** | DGP / MDA | **Gestor de Calidad** | **Gestor de Calidad** | **Gestor de Calidad** | **Gestor de Calidad** |
-| **[Estudiante D]** | DGP / MDA | **Auditor Accesib.** | **Auditor Accesib.** | **Auditor Accesib.** | **Auditor Accesib.** |
-| **[Estudiante E]** | DGP | Catalogador / Doc | **Coordinador** | Moderador / Doc | Backend / Gestión |
-| **[Estudiante F]** | MDA | Moderador / Req | Presentador / Front | **Coordinador** | Frontend / Pruebas |
+| **Miguel Ángel Luque** | Coordinador | Coordinación / Propuesta | Coordinador / Back | Front / Pruebas | Coordinador / Review |
+| **Yeray Rodríguez Navas** | Gestor de Calidad | **Gestor Calidad** | **Gestor Calidad** / Back | **Gestor Calidad** / Front | **Gestor Calidad** / Tests |
+| **Julián Carrión Tovar** | Gestor Accesibilidad | **Gestor Accesib.** | **Gestor Accesib.** / Front | **Gestor Accesib.** / Tests | **Gestor Accesib.** / Front |
+| **Pablo Hernández Ibáñez** | Moderador | Moderador / Requisitos | Front / Pruebas | Coordinador / Back | Front / Pruebas |
+| **Pablo de la Torre Roldán** | Catalogador | Catalogador / Docs | Back / DevOps | Catalogador / Front | Back / Despliegue |
+| **José Rodríguez Fernández** | Presentador | Presentador / Escenarios | Presentador / Front | Back / Pruebas | Presentador / Front |
 
 *Nota: La rotación asegura que los integrantes participen alternativamente en tareas de Frontend, Backend, Documentación y Pruebas, cumpliendo el requisito docente.*
 
@@ -139,7 +143,12 @@ El equipo combina roles fijos de especialización (calidad y accesibilidad) con 
 
 ## 4. HERRAMIENTAS PARA COMUNICACIONES EN EL EQUIPO DE TRABAJO
 
-### 4.1 Canales Oficiales
+### 4.1 Canales Oficiales y Plataformas de Organización
+- **Plataforma de Gestión, Reuniones y Gantt ([ClickUp](https://app.clickup.com/login)):**
+  - Espacio de trabajo común para la organización del equipo.
+  - **Diagramas de Gantt interactivos:** Planificación temporal detallada, dependencias entre tareas e hitos de cada sprint.
+  - **Organización de Sprints:** Asignación equitativa de historias de usuario y tareas.
+  - **Gestión de Reuniones:** Convocatorias, órdenes del día (agendas), seguimiento de acuerdos y checklists de tareas derivadas.
 - **Canal Discord del Equipo:**
   - `#general`: Avisos generales, enlaces y anuncios oficiales.
   - `#desarrollo-front`: Discusiones técnicas de interfaz y experiencia de usuario.
@@ -152,9 +161,9 @@ El equipo combina roles fijos de especialización (calidad y accesibilidad) con 
   - Único medio para comunicaciones formales con el profesorado y responsables del Colegio Purísima Concepción.
 
 ### 4.2 Protocolo de Reuniones y Actas
-- **Periodicidad:**
+- **Periodicidad y Convocatoria:**
   - Reunión fija semanal en horario de prácticas con el profesor responsable.
-  - Reunión interna de planificación/sincronización de 1 hora semanal (habitualmente lunes por la tarde).
+  - Reunión interna de planificación/sincronización de 1 hora semanal (habitualmente lunes por la tarde), gestionada a través de **ClickUp**.
 - **Actas:**
   - Toda reunión formal contará con un acta redactada por el Catalogador/Moderador según la plantilla oficial (`docs/plantillas/plantilla_acta_reunion.md`).
   - El acta se publicará en `docs/reuniones/` en un plazo máximo de **24 horas** tras la finalización de la reunión.

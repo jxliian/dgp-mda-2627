@@ -81,18 +81,22 @@ dgp-mda-2627/
 
 ---
 
-## 3. Organización y Roles del Equipo
+## 3. Organización y Roles del Equipo (CLENCH Software Development)
 
-El equipo cuenta con **6 integrantes**:
+<p align="center">
+  <img src="docs/dgp/manual_coordinacion/images/logo_clench.png" alt="CLENCH Software Development" width="280"/>
+</p>
 
-- **Coordinadores (Rotatorio):** Dos miembros lideran cada iteración, gestionando la planificación y sincronización del equipo.
-- **Gestor de Calidad (Fijo):** Vela por la calidad del proceso, la completitud de los entregables y la estabilidad del código.
-- **Auditor de Usabilidad y Accesibilidad (Fijo):** Asegura el cumplimiento de normativas de accesibilidad (WCAG 2.1 AA), lectores de pantalla (TalkBack/VoiceOver) y adaptación con ARASAAC.
-- **Catalogador:** Custodia la documentación, versiones y nomenclatura en `docs/`.
-- **Moderador:** Dinamiza las reuniones, controla tiempos y redacta las actas.
-- **Presentador:** Prepara y coordina las exposiciones públicas y defensas orales.
+El equipo **CLENCH Software Development** está compuesto por **6 integrantes**:
 
-> Más información en el [Manual de Coordinación](file:///home/jxlig0d/Escritorio/DGP-MDA-REPO/dgp-mda-2627/docs/dgp/manual_coordinacion/MANUAL_DE_COORDINACION.md).
+- **Coordinador General (Rotatorio):** **Miguel Ángel Luque** (lidera la Fase Inicial e Iteración 1).
+- **Gestor de Calidad (Fijo):** **Yeray Rodríguez Navas** (calidad del proceso, completitud de entregables y SonarCloud).
+- **Gestor de Usabilidad y Accesibilidad (Fijo):** **Julián Carrión Tovar** (cumplimiento WCAG 2.1 AA, TalkBack y ARASAAC).
+- **Moderador:** **Pablo Hernández Ibáñez** (dinamización de reuniones, gestión de turnos y soporte en actas).
+- **Catalogador:** **Pablo de la Torre Roldán** (custodia documental, nomenclatura de ficheros y versiones).
+- **Presentador:** **José Rodríguez Fernández** (preparación y coordinación de defensas orales y diapositivas).
+
+> Más información en el [Manual de Coordinación](docs/dgp/manual_coordinacion/MANUAL_DE_COORDINACION.md).
 
 ---
 

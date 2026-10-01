@@ -1,0 +1,490 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-tabla,es-nodecimaldot]{babel}
+\usepackage[left=2.2cm, right=2.2cm, top=2.5cm, bottom=2.5cm, headheight=20pt]{geometry}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{colortbl}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage{eso-pic}
+\usepackage[sc, osf]{mathpazo}
+\linespread{1.06}
+\usepackage[scaled=.95,type1]{cabin}
+\usepackage{inconsolata}
+\usepackage{setspace}
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+\usepackage[hyperfootnotes=false,colorlinks=true,linkcolor=ugrDarkRed,urlcolor=ugrDarkRed,citecolor=ugrDarkRed]{hyperref}
+
+% Paleta corporativa UGR
+\definecolor{ugrRed}{RGB}{166, 25, 46}
+\definecolor{ugrDarkRed}{RGB}{125, 15, 30}
+\definecolor{textDark}{RGB}{35, 35, 35}
+\definecolor{textGray}{RGB}{95, 100, 110}
+\definecolor{bgGray}{RGB}{246, 248, 250}
+\definecolor{tableHeader}{RGB}{235, 238, 242}
+\definecolor{borderGray}{RGB}{210, 215, 222}
+
+% Fondo UGR para portada si existe
+\newcommand\BackgroundPic{%
+  \put(0,0){%
+    \parbox[b][\paperheight]{\paperwidth}{%
+      \vfill
+      \centering
+      \IfFileExists{images/portada-ugr-color.pdf}{%
+        \includegraphics[width=\paperwidth,height=\paperheight,keepaspectratio]{images/portada-ugr-color.pdf}%
+      }{}%
+      \vfill
+}}}
+
+% Configuración de títulos de sección
+\titleformat{\section}
+  {\color{ugrDarkRed}\sffamily\LARGE\bfseries}
+  {\thesection.}{0.8em}{}[\color{ugrRed}\titlerule]
+
+\titleformat{\subsection}
+  {\color{ugrDarkRed}\sffamily\Large\bfseries}
+  {\thesubsection.}{0.6em}{}
+
+\titleformat{\subsubsection}
+  {\color{textDark}\sffamily\large\bfseries}
+  {\thesubsubsection.}{0.5em}{}
+
+\titlespacing*{\section}{0pt}{14pt}{6pt}
+\titlespacing*{\subsection}{0pt}{10pt}{4pt}
+\titlespacing*{\subsubsection}{0pt}{8pt}{3pt}
+
+% Encabezados y pies de página
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\sffamily\color{textGray} DGP \& MDA --- Grado en Ingeniería Informática (UGR)}
+\fancyhead[R]{\small\sffamily\color{textGray}\itshape Manual de Coordinación --- Equipo CLENCH}
+\fancyfoot[L]{\small\sffamily\color{textGray} Proyecto AUTOVIDA --- C.E.E. Purísima Concepción}
+\fancyfoot[R]{\small\sffamily\bfseries\color{ugrDarkRed} \thepage}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% Parámetros de tablas
+\setlength{\arrayrulewidth}{0.6pt}
+\renewcommand{\arraystretch}{1.25}
+
+% Cajas de texto destacadas
+\newtcolorbox{infobox}[1][]{
+  colback=bgGray,
+  colframe=ugrDarkRed,
+  fonttitle=\sffamily\bfseries\color{white},
+  coltitle=white,
+  colbacktitle=ugrDarkRed,
+  enhanced,
+  attach boxed title to top left={yshift=-2mm, xshift=4mm},
+  boxed title style={sharp corners, size=small},
+  top=4mm, bottom=3mm, left=3mm, right=3mm,
+  sharp corners,
+  boxrule=0.8pt,
+  #1
+}
+
+\begin{document}
+\sloppy
+
+% ==============================================================================
+% PORTADA OFICIAL UGR
+% ==============================================================================
+\begin{titlepage}
+  \AddToShipoutPicture*{\BackgroundPic}
+  \newgeometry{left=4.2cm, right=2.5cm, top=3.8cm, bottom=3.0cm}
+  
+  \begin{flushleft}
+    \large\textsf{\textbf{Universidad de Granada}}\\[2pt]
+    \large\textsf{Escuela Técnica Superior de Ingenierías Informática y de Telecomunicación}
+    \vfill
+
+    {\large\textsc{Grado en Ingeniería Informática}} 
+    \vfill
+
+    {\large\textsc{Dirección y Gestión de Proyectos (DGP)}} \\
+    {\large\textsc{Metodologías de Desarrollo Ágil (MDA)}}
+    \par\smallskip {\normalsize\textsf{Curso Académico 2026--2027}}
+    \vfill
+
+    \begin{flushleft}
+      \Huge\bfseries\color{ugrDarkRed}
+      \setstretch{0.95}
+      MANUAL DE COORDINACIÓN\\
+      \LARGE\color{textDark}
+      Y PLAN DE DIRECCIÓN DEL PROYECTO
+    \end{flushleft}
+    \vspace{6pt}
+    {\large\textsf{\textbf{Proyecto AUTOVIDA:}} Software Accesible de Agenda y Asignación de Tareas para la Autonomía en Estudiantes NEAE / PTVAL}\\[4pt]
+    {\normalsize\itshape En colaboración con el C.E.E. Fundación Purísima Concepción de Granada}
+
+    \vfill
+    
+    \noindent
+    \begin{minipage}[t]{0.45\textwidth}
+      \textsf{\normalsize\textbf{Equipo de Trabajo:}}\\[2pt]
+      {\large\textsf{\textbf{CLENCH Software Development}}}\\[6pt]
+      \includegraphics[width=4.6cm]{images/logo_clench.png}
+    \end{minipage}%
+    \hfill
+    \begin{minipage}[t]{0.52\textwidth}
+      \textsf{\normalsize\textbf{Asignación de Roles:}}\\[4pt]
+      {\normalsize\rmfamily
+        \begin{tabular}{@{}ll@{}}
+          \textbf{Miguel Ángel Luque} & Coordinador General \\
+          \textbf{Yeray Rodríguez Navas} & Gestor de la Calidad \\
+          \textbf{Julián Carrión Tovar} & Gestor Accesibilidad \\
+          \textbf{Pablo Hernández Ibáñez} & Moderador \\
+          \textbf{Pablo de la Torre Roldán} & Catalogador \\
+          \textbf{José Rodríguez Fernández} & Presentador \\
+        \end{tabular}
+      }
+    \end{minipage}
+    \vspace{0.8cm}
+
+    \textsf{\small Versión 1.0 --- Octubre de 2026}
+  \end{flushleft}
+  \restoregeometry
+\end{titlepage}
+
+% ==============================================================================
+% CONTROL DEL DOCUMENTO Y FIRMA DE COMPROMISO
+% ==============================================================================
+\newpage
+\pagenumbering{roman}
+
+\section*{Firma y Aceptación de los Miembros del Equipo}
+\addcontentsline{toc}{section}{Firma y Aceptación de los Miembros del Equipo}
+
+El presente documento constituye el marco formal de organización, coordinación y dirección técnica del equipo de trabajo constituido para las asignaturas de \textbf{Dirección y Gestión de Proyectos (DGP)} y \textbf{Metodologías de Desarrollo Ágil (MDA)} del Grado en Ingeniería Informática de la Universidad de Granada durante el curso académico 2026--2027.
+
+Todos los miembros firmantes han participado en su redacción, consienten las normas de convivencia, roles asignados, mecanismos de seguimiento y asumen la responsabilidad compartida e individual de los compromisos adquiridos.
+
+\vspace{0.8cm}
+
+\noindent
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{4.6cm}|>{\centering\arraybackslash}X|>{\centering\arraybackslash}p{2.6cm}|>{\centering\arraybackslash}p{3.8cm}|}
+\hline
+\rowcolor{tableHeader}
+\textbf{Nombre y Apellidos} & \textbf{Rol Principal} & \textbf{Asignatura(s)} & \textbf{Firma y Conformidad} \\
+\hline
+\textbf{Miguel Ángel Luque} & Coordinador & DGP / MDA & \textit{Firmado electrónicamente} \\
+\hline
+\textbf{Yeray Rodríguez Navas} & Gestor de Calidad (Fijo) & DGP / MDA & \textit{Firmado electrónicamente} \\
+\hline
+\textbf{Julián Carrión Tovar} & Gestor Accesibilidad (Fijo) & DGP / MDA & \textit{Firmado electrónicamente} \\
+\hline
+\textbf{Pablo Hernández Ibáñez} & Moderador & DGP / MDA & \textit{Firmado electrónicamente} \\
+\hline
+\textbf{Pablo de la Torre Roldán} & Catalogador & DGP / MDA & \textit{Firmado electrónicamente} \\
+\hline
+\textbf{José Rodríguez Fernández} & Presentador & DGP / MDA & \textit{Firmado electrónicamente} \\
+\hline
+\end{tabularx}
+
+\vspace{1.2cm}
+
+\begin{infobox}[title=Propósito del Documento]
+Este manual regula el ciclo de vida del desarrollo, el reparto equitativo de cargas, la custodia documental, el estándar de código y pruebas, la relación con el cliente y los mecanismos ante cualquier desviación de costes, riesgos o plazos según el pliego técnico de la licitación docente.
+\end{infobox}
+
+% ==============================================================================
+% ÍNDICE GENERAL
+% ==============================================================================
+\newpage
+{
+  \hypersetup{linkcolor=textDark}
+  \tableofcontents
+}
+
+\newpage
+\pagenumbering{arabic}
+
+% ==============================================================================
+% SECCIÓN 1: METODOLOGÍA Y CICLO DE VIDA
+% ==============================================================================
+\section{Metodología de Desarrollo y Ciclo de Vida}
+
+\subsection{Modelo de Ciclo de Vida: Prototipado Evolutivo Ágil}
+El proyecto se articula mediante un modelo de \textbf{prototipado evolutivo por iteraciones}, integrando las buenas prácticas de dirección, alcance, riesgos y costes de \textbf{DGP} con el marco de agilidad práctica de \textbf{MDA} (Scrum adaptado con flujo Kanban para el seguimiento de tareas).
+
+El desarrollo contempla cuatro hitos clave de entrega temporal:
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Fase Inicial (21--22 de octubre de 2026):} Constitución formal del equipo, firma del Manual de Coordinación, consolidación de la Propuesta Técnica con arquitectura tecnológica, elaboración de Personajes y Escenarios (P0 y P1), y definición del Product Backlog inicial y Plan de Entregas (P2).
+  \item \textbf{Iteración 1 (22 de octubre -- 11/12 de noviembre de 2026):} Primer prototipo funcional demostrable. Puesta en marcha de la arquitectura base en Flutter, diseño de la base de datos relacional, configuración del módulo de autenticación accesible y perfiles de estudiante.
+  \item \textbf{Iteración 2 (12 de noviembre -- 2/3 de diciembre de 2026):} Segundo incremento de software. Implementación de las tareas del centro escolar (flujo asistido de reprografía, registro diario de comensales y dietas del comedor, y guía de visitas), con temporizador visual accesible.
+  \item \textbf{Iteración 3 (3 de diciembre -- 21 de diciembre de 2026):} Software completo y estabilizado. Inclusión de tareas personales configurables, chat accesible tutor--estudiante, soporte multi-dispositivo y consolidación de las auditorías de calidad y accesibilidad WCAG~2.1~AA.
+  \item \textbf{Defensa Final (12 de enero de 2027):} Presentación oral, defensa técnica del proyecto y demostración en vivo de la aplicación ante el tribunal evaluador y representantes del centro.
+\end{enumerate}
+
+\subsection{Eventos y Ceremonias Ágiles Adaptadas}
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Sprint Planning:} Al inicio de cada iteración, el equipo desglosa las historias de usuario en tareas técnicas con responsables directos y estimación de esfuerzo en horas reales.
+  \item \textbf{Sincronización Semanal y Standup Asíncrono:} Cada semana se celebra una reunión síncrona presencial durante la franja de prácticas para sincronización con el tutor docente. Paralelamente, se mantiene seguimiento diario asíncrono en Discord comunicando tareas finalizadas, objetivos del día y posibles bloqueos.
+  \item \textbf{Sprint Review y Demostración:} Al cierre de cada iteración, se presenta el incremento de software potencialmente desplegable para recabar retroalimentación del profesorado y el centro.
+  \item \textbf{Sprint Retrospective:} Sesión interna orientada a la mejora continua, evaluando la precisión de las estimaciones horarias y la efectividad del trabajo colaborativo.
+\end{itemize}
+
+% ==============================================================================
+% SECCIÓN 2: RECURSOS SOFTWARE Y DESARROLLO
+% ==============================================================================
+\section{Recursos Software de Desarrollo}
+
+Para asegurar la robustez, interoperabilidad y accesibilidad universal del producto, se aprueba el siguiente stack técnico oficial:
+
+\vspace{0.3cm}
+\noindent
+{\small
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash\bfseries}p{3.2cm}|>{\raggedright\arraybackslash}p{3.5cm}|X|}
+\hline
+\rowcolor{tableHeader}
+Ámbito / Función & Tecnología / Herramienta & Justificación y Utilidad en el Proyecto \\
+\hline
+Frontend Móvil / Tablet & Flutter SDK (3.47.5, Dart) & Creación de interfaz accesible para tabletas Android del colegio y versión web para pantallas táctiles de aula. \\
+\hline
+Backend y API REST & Node.js / Express (TypeScript) & Lógica de negocio modular, persistencia, DTOs compartidos y servicios de sincronización. \\
+\hline
+Comunicación en Vivo & WebSockets / Socket.io & Chat accesible e instantáneo entre tutores y estudiantes, y avisos de estado de tareas en tiempo real. \\
+\hline
+Base de Datos & PostgreSQL + Prisma ORM & Almacenamiento relacional de usuarios, perfiles de accesibilidad, comensales y tareas. Contenedor Docker. \\
+\hline
+Control de Versiones & Git \& GitHub & Repositorio institucional con flujo coordinado en rama \texttt{main} y Conventional Commits. \\
+\hline
+Organización, Reuniones y Gantt & \textbf{ClickUp} (\href{https://app.clickup.com/login}{app.clickup.com}) & Gestión integral del equipo, diagramas de Gantt, agenda y notas de reuniones, seguimiento de tareas y sprints. \\
+\hline
+Diseño UX/UI & Figma & Diseño de pantallas adaptadas a discapacidad intelectual antes de su codificación. \\
+\hline
+Recursos Accesibilidad & Catálogo Oficial ARASAAC & Pictogramas estandarizados bajo licencia CC para comunicación aumentativa y adaptativa. \\
+\hline
+Auditoría Accesibilidad & Google Accessibility Scanner, TalkBack, suite \texttt{meetsGuideline} & Evaluación en tabletas Android, lectores de pantalla y verificación automática de WCAG~2.1~AA. \\
+\hline
+Calidad de Código & SonarCloud \& Linters oficiales & Análisis estático continuo, cobertura de pruebas y control de deuda técnica. \\
+\hline
+\end{tabularx}
+}
+\vspace{0.4cm}
+
+% ==============================================================================
+% SECCIÓN 3: ORGANIZACIÓN DEL EQUIPO (ROLES Y NORMAS)
+% ==============================================================================
+\section{Organización del Equipo de Trabajo (Equipo CLENCH)}
+
+\subsection{Estructura de Roles y Asignación Nominal}
+El equipo está compuesto por 6 miembros. Se establecen roles fijos para asegurar la especialización en áreas críticas de evaluación (calidad y accesibilidad), y roles rotatorios que garantizan la participación equilibrada de todos los estudiantes:
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Coordinador General (Miguel Ángel Luque --- Rotatorio):} Lidera la planificación temporal, la asignación de paquetes de trabajo, la resolución de impedimentos y la interlocución formal con el profesorado de prácticas.
+  \item \textbf{Gestor de Calidad (Yeray Rodríguez Navas --- Rol Fijo):} Supervisa el cumplimiento de la metodología, vela por la correctitud y completitud de todos los entregables antes de su subida a la plataforma, y monitoriza las métricas de pruebas y linters en SonarCloud.
+  \item \textbf{Gestor de Usabilidad y Accesibilidad (Julián Carrión Tovar --- Rol Fijo):} Custodia el cumplimiento de las pautas WCAG~2.1~AA y directrices de lectura fácil, valida la pertinencia de los pictogramas de ARASAAC y ejecuta las pruebas periódicas con TalkBack y Google Accessibility Scanner.
+  \item \textbf{Moderador (Pablo Hernández Ibáñez --- Rotatorio/Apoyo):} Dinamiza las reuniones internas y externas, controla los tiempos de intervención, asegura el turno de palabra y apoya en la toma y redacción de actas de reunión.
+  \item \textbf{Catalogador (Pablo de la Torre Roldán --- Rotatorio/Apoyo):} Custodia el repositorio documental (\texttt{docs/}), asegura la correcta nomenclatura de ficheros, la trazabilidad de versiones y la compilación uniforme a PDF institucional.
+  \item \textbf{Presentador (José Rodríguez Fernández --- Rotatorio/Apoyo):} Coordina el diseño del material audiovisual, diapositivas y guion de las exposiciones públicas y defensas orales ante el tribunal docente.
+\end{itemize}
+
+\subsection{Matriz de Rotación de Responsabilidades por Iteración}
+Para cumplir con el requerimiento docente de rotación equilibrada en tareas de especificación, análisis, frontend, backend y pruebas, se acuerda el siguiente esquema:
+
+\vspace{0.3cm}
+\noindent
+{\small
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash\bfseries}p{3.2cm}|X|X|X|X|}
+\hline
+\rowcolor{tableHeader}
+Miembro & Fase Inicial & Iteración 1 & Iteración 2 & Iteración 3 \\
+\hline
+Miguel Ángel Luque & Coordinación / Propuesta & Coordinador / Back & Front / Pruebas & Coordinador / Review \\
+\hline
+Yeray Rodríguez Navas & Gestor Calidad & Gestor Calidad / Back & Gestor Calidad / Front & Gestor Calidad / Tests \\
+\hline
+Julián Carrión Tovar & Gestor Accesib. & Gestor Accesib. / Front & Gestor Accesib. / Tests & Gestor Accesib. / Front \\
+\hline
+Pablo Hernández Ibáñez & Moderador / Requisitos & Front / Pruebas & Coordinador / Back & Front / Pruebas \\
+\hline
+Pablo de la Torre Roldán & Catalogador / Docs & Back / DevOps & Catalogador / Front & Back / Despliegue \\
+\hline
+José Rodríguez Fernández & Presentador / Escenarios & Presentador / Front & Back / Pruebas & Presentador / Front \\
+\hline
+\end{tabularx}
+}
+\vspace{0.4cm}
+
+\subsection{Normas de Convivencia y Compromiso Operativo}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Puntualidad:} Margen máximo de cortesía de 5 minutos en reuniones presenciales y telemáticas.
+  \item \textbf{Transparencia y Notificación Previa:} Ante cualquier impedimento personal o retraso en un plazo acordado, es obligatorio avisar al equipo con un mínimo de \textbf{48 horas de antelación}.
+  \item \textbf{Dedicación Homogénea:} Cada integrante registrará rigurosamente sus horas individuales en la plantilla oficial.
+  \item \textbf{Régimen Sancionador Interno:} Dos faltas injustificadas a reuniones o el incumplimiento no justificado de entregables asignados conllevará una advertencia formal y se reflejará proporcionalmente en la calificación individual final elevada al profesorado.
+\end{enumerate}
+
+% ==============================================================================
+% SECCIÓN 4: COMUNICACIONES EN EL EQUIPO
+% ==============================================================================
+\section{Herramientas para Comunicaciones en el Equipo de Trabajo}
+
+\subsection{Canales Oficiales de Comunicación y Organización}
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Plataforma de Gestión, Reuniones y Gantt (ClickUp --- \url{https://app.clickup.com/login}):} Espacio de trabajo centralizado para la organización del equipo. En él se gestionan:
+    \begin{itemize}
+      \item \textbf{Diagramas de Gantt interactivos:} Planificación temporal de cada iteración, hitos y control de dependencias entre tareas.
+      \item \textbf{Organización y Sprints:} Asignación de historias de usuario, estimaciones de tiempo y tableros Kanban.
+      \item \textbf{Gestión de Reuniones:} Convocatorias, órdenes del día (agendas), seguimiento de acuerdos y checklists de compromisos.
+    \end{itemize}
+  \item \textbf{Servidor Discord Oficial:}
+    \begin{itemize}
+      \item \texttt{\#general}: Anuncios oficiales, enlaces de interés y acuerdos clave.
+      \item \texttt{\#desarrollo-front}: Coordinación de interfaces Flutter, widgets y diseño visual.
+      \item \texttt{\#desarrollo-back}: API, esquemas Prisma, base de datos y endpoints.
+      \item \texttt{\#calidad-accesibilidad}: Auditorías, consultas de ARASAAC y pruebas de contraste.
+      \item \texttt{\#gestion-dgp}: Cronograma, actas, gestión de costes y seguimiento de horas.
+    \end{itemize}
+  \item \textbf{Grupo de Mensajería Instantánea (WhatsApp/Telegram):} Reservado con exclusividad para avisos urgentes de última hora o incidencias de fuerza mayor.
+  \item \textbf{Correo Institucional (@correo.ugr.es):} Único canal para comunicaciones formales con el profesorado y el centro educativo.
+\end{itemize}
+
+\subsection{Protocolo de Reuniones y Actas}
+Se fija una reunión presencial obligatoria semanal (durante la sesión de prácticas) y una reunión telemática semanal de planificación los lunes por la tarde, coordinadas a través de \textbf{ClickUp}. 
+Toda reunión formal contará con un acta oficial custodiada en \texttt{docs/reuniones/} según la plantilla estandarizada, que será publicada en un plazo máximo de \textbf{24 horas} tras la conclusión de la misma.
+
+% ==============================================================================
+% SECCIÓN 5: RELACIONES CON EL CLIENTE
+% ==============================================================================
+\section{Relaciones con el Cliente (Entrevistas, Reuniones, Revisiones)}
+
+\subsection{Interlocutores del Proyecto}
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Cliente Directo y Entorno de Aplicación:} Personal directivo, docentes y profesionales del \textbf{Colegio de Educación Especial Fundación Purísima Concepción de Granada} (Fundación Hospitalarias).
+  \item \textbf{Destinatarios Finales:} Alumnado con necesidades educativas especiales del \textbf{Programa de Transición a la Vida Adulta (PTVAL)}, tutores escolares y familias.
+  \item \textbf{Entidad Evaluadora y Supervisora:} Profesorado de las asignaturas DGP y MDA de la Universidad de Granada.
+\end{itemize}
+
+\subsection{Protocolo de Interacción y Ética}
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Sensibilidad y Empatía:} Máxima vocación de servicio social en todas las visitas presenciales y sesiones con estudiantes del centro.
+  \item \textbf{Privacidad y RGPD:} Queda terminantemente prohibida la toma o difusión de imágenes o datos personales de estudiantes sin el consentimiento informado expreso custodiado por la dirección del centro.
+  \item \textbf{Validación de Prototipos:} En cada iteración se acordarán demostraciones intermedias con los tutores para recibir retroalimentación temprana sobre la claridad de los pictogramas.
+\end{itemize}
+
+% ==============================================================================
+% SECCIÓN 6: ESTÁNDARES DE DOCUMENTACIÓN
+% ==============================================================================
+\section{Estándares de Documentación}
+
+\subsection{Formato y Control de Versiones Documental}
+Toda la documentación editable se mantendrá en formato \textbf{Markdown (\texttt{.md})} dentro de \texttt{docs/} en el repositorio Git. Para las entregas oficiales en la plataforma docente de la UGR, los documentos se compilarán a \textbf{PDF formal} bajo la tipografía y portada corporativa oficial de la Universidad de Granada.
+
+\subsection{Nomenclatura Estandarizada}
+\begin{itemize}[leftmargin=*]
+  \item Actas de reunión: \texttt{ACTA\_[TIPO]\_[AÑO]\_[MES]\_[DIA].md} (ejemplo: \texttt{ACTA\_EQUIPO\_2026\_10\_01.md}).
+  \item Informes y propuestas: \texttt{DOC\_[AMBITO]\_[NOMBRE]\_[vX.Y].pdf} (ejemplo: \texttt{DOC\_DGP\_PROPUESTA\_TECNICA\_v1.0.pdf}).
+\end{itemize}
+
+% ==============================================================================
+% SECCIÓN 7: ESTÁNDARES DE CÓDIGO
+% ==============================================================================
+\section{Estándares de Código}
+
+\subsection{Principios de Diseño}
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Clean Code y Modularidad:} Funciones de responsabilidad única, nombres auto-explicativos y separación estricta entre capas (presentación, dominio y datos).
+  \item \textbf{Desacoplamiento:} Ningún componente visual de Flutter contendrá llamadas directas a persistencia; todo acceso a datos se estructurará mediante repositorios y servicios inyectados.
+\end{itemize}
+
+\subsection{Convenciones de Estilo}
+\begin{itemize}[leftmargin=*]
+  \item Clases, Widgets y Tipos: \texttt{PascalCase} (ejemplo: \texttt{BotonAccesibleArasaac}, \texttt{TareaService}).
+  \item Métodos, variables y propiedades: \texttt{camelCase} (ejemplo: \texttt{marcarPasoCompletado}, \texttt{esModoContrasteAlto}).
+  \item Constantes y enumerados: \texttt{UPPER\_SNAKE\_CASE} o \texttt{camelCase} según convención de Dart (\texttt{const int TIEMPO\_MAXIMO = 30;}).
+  \item Formateo automático: Ejecución obligatoria de \texttt{flutter format .} y linters oficiales antes de confirmar cambios.
+\end{itemize}
+
+% ==============================================================================
+% SECCIÓN 8: PLAN DE GESTIÓN DE CAMBIOS
+% ==============================================================================
+\section{Plan de Gestión de Cambios}
+
+Ante cualquier modificación de alcance o solicitud técnica no prevista proveniente del cliente o del profesorado:
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Registro Formal:} Se registra la solicitud en el backlog como propuesta de cambio.
+  \item \textbf{Evaluación de Impacto:} Los coordinadores y el Gestor de Calidad analizan la repercusión sobre el cronograma, el esfuerzo en horas y los criterios de accesibilidad.
+  \item \textbf{Aprobación y Preaviso:} Si el cambio implica alterar una fecha de entrega o un objetivo comprometido, se comunicará al profesorado con un mínimo de \textbf{3 días de antelación}, tal como estipula el pliego técnico.
+\end{enumerate}
+
+% ==============================================================================
+% SECCIÓN 9: CONTROL DE VERSIONES (MÉTODO Y HERRAMIENTAS)
+% ==============================================================================
+\section{Control de Versiones (Método y Herramientas)}
+
+\subsection{Estrategia de Trabajo Colaborativo en Rama Única (\texttt{main})}
+Para maximizar la agilidad y evitar fricciones de integración en ciclos cortos, se adopta un flujo sobre la rama principal (\texttt{main}) con disciplina estricta:
+\begin{itemize}[leftmargin=*]
+  \item \textbf{\texttt{git pull} sistemático:} Obligatorio antes de iniciar el trabajo y de forma previa inmediata a cada \texttt{git push}.
+  \item \textbf{Validación local estricta:} Queda terminantemente prohibido subir código que impida la compilación o rompa los tests automatizados.
+  \item \textbf{Reparto modular:} Los integrantes coordinan qué pantallas o servicios modifican para evitar colisiones en ficheros comunes.
+\end{itemize}
+
+\subsection{Convención de Mensajes de Confirmación (Conventional Commits)}
+Formato: \texttt{<tipo>: <descripción concisa en imperativo>}
+\begin{itemize}[leftmargin=*]
+  \item \texttt{feat}: Nueva funcionalidad implementada.
+  \item \texttt{fix}: Corrección de un defecto o fallo.
+  \item \texttt{a11y}: Mejora o adaptación específica de accesibilidad.
+  \item \texttt{docs}: Creación o modificación de documentación.
+  \item \texttt{test}: Adición o ajuste de pruebas unitarias o de integración.
+  \item \texttt{refactor}: Modificación de código sin alteración de comportamiento funcional.
+\end{itemize}
+
+% ==============================================================================
+% SECCIÓN 10: GESTIÓN DE CALIDAD Y ACCESIBILIDAD
+% ==============================================================================
+\section{Gestión de Calidad y Accesibilidad}
+
+\subsection{Gestión de Calidad (Proceso y Producto)}
+Bajo la supervisión continua de \textbf{Yeray Rodríguez Navas (Gestor de Calidad)}:
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Control de Proceso:} Verificación semanal de la correcta cumplimentación de las actas de reunión y del registro de horas de todos los integrantes.
+  \item \textbf{Control de Producto:} Análisis estático con SonarCloud para evitar vulnerabilidades y vigilar la complejidad ciclomática. Supervisión de la batería de pruebas unitarias y de integración.
+  \item \textbf{Revisión Cruzada Previa:} Ningún entregable formal se subirá a PRADO sin la revisión y visto bueno explícito del Gestor de Calidad.
+\end{itemize}
+
+\subsection{Gestión de Usabilidad y Accesibilidad}
+Bajo el liderazgo de \textbf{Julián Carrión Tovar (Gestor de Usabilidad y Accesibilidad)}:
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Cumplimiento WCAG~2.1~AA:} Auditorías periódicas de relaciones de contraste (mínimo 4.5:1 en textos estándar y 3:1 en elementos interactivos).
+  \item \textbf{Pruebas con Herramientas de Asistencia:} Validación de la navegación en dispositivos Android mediante el lector de pantalla \textbf{TalkBack} y ejecución de escaneos completos con \textbf{Google Accessibility Scanner}.
+  \item \textbf{Pruebas Automatizadas de Accesibilidad:} Implementación en Flutter de tests mediante \texttt{meetsGuideline(androidTapTargetGuideline)} para asegurar áreas de pulsación mínimas de $48\times 48$\,dp y \texttt{meetsGuideline(textContrastGuideline)}.
+  \item \textbf{Adaptación Cognitiva y ARASAAC:} Verificación rigurosa de que la simbología utilizada en las tareas de reprografía y comedor se adecúe al nivel madurativo y de comprensión del alumnado PTVAL.
+\end{itemize}
+
+% ==============================================================================
+% SECCIÓN 11: PLAN DE MEDICIÓN DEL DESEMPEÑO Y RECOMPENSAS
+% ==============================================================================
+\section{Plan de Medición del Desempeño y Recompensas}
+
+\subsection{Registro y Control del Esfuerzo Individual}
+Cada miembro actualizará semanalmente su ficha personal de dedicación horaria, desglosando el tiempo invertido en especificación, desarrollo, pruebas, documentación y reuniones. El balance consolidado se anexará en cada entrega de iteración.
+
+\subsection{Evaluación 360º y Autoevaluación Final}
+Al cierre del proyecto se llevará a cabo una sesión de evaluación entre pares (360 grados), donde cada integrante valorará el compromiso, proactividad y compañerismo del resto, sirviendo de base para la autoevaluación formal requerida por el profesorado.
+
+\subsection{Reconocimiento y Recompensas}
+\begin{itemize}[leftmargin=*]
+  \item Reconocimiento público interno en las actas de retrospectiva a aportaciones destacadas o resolución de bloqueos complejos.
+  \item Prioridad en la elección de rol técnico en la siguiente iteración para los miembros con desempeño sobresaliente.
+\end{itemize}
+
+\vfill
+\begin{center}
+  \small\sffamily\color{textGray}
+  Documento elaborado por el Equipo de Prácticas para las asignaturas DGP y MDA.\\
+  Grado en Ingeniería Informática --- Escuela Técnica Superior de Ingenierías Informática y de Telecomunicación.\\
+  Universidad de Granada, Curso 2026--2027.
+\end{center}
+
+\end{document}
