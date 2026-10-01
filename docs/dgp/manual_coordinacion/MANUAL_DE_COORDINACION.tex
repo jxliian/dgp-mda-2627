@@ -129,15 +129,16 @@
     \vfill
     
     \noindent
-    \begin{minipage}[t]{0.35\textwidth}
+    \begin{minipage}[t]{0.395\textwidth}
+      \raggedright
       \textsf{\normalsize\textbf{Equipo de Trabajo:}}\\[2pt]
-      {\large\textsf{\textbf{CLENCH Software Development}}}\\[6pt]
+      {\large\textsf{\textbf{CLENCH Software \mbox{Development}}}}\\[6pt]
       \includegraphics[width=4.2cm]{images/logo_clench.png}
     \end{minipage}%
     \hfill
-    \begin{minipage}[t]{0.63\textwidth}
+    \begin{minipage}[t]{0.595\textwidth}
       \textsf{\normalsize\textbf{Asignación de Roles:}}\\[4pt]
-      {\normalsize\rmfamily
+      {\normalsize\rmfamily\setlength{\tabcolsep}{4pt}
         \begin{tabular}{@{}ll@{}}
           \textbf{Miguel Ángel Luque} & Coordinador \\
           \textbf{Yeray Rodríguez Navas} & Gestor de Calidad \\
@@ -417,8 +418,8 @@ Los cambios y decisiones acordados en estas reuniones se registrarán metódicam
 % ==============================================================================
 \section{Estándares de Documentación}
 
-\subsection{Documentación Textual en Google Docs y Estructura Normalizada}
-Para la documentación textual, es decir, especificaciones, documentos de especificación, desarrollo y manuales que requieran mayor redacción de texto, utilizaremos documentos compartidos de \textbf{Google Docs}.
+\subsection{Documentación Textual en LaTeX a través de GitHub y Estructura Normalizada}
+Para la documentación textual y técnica, es decir, especificaciones, documentos de desarrollo, diseño y manuales que requieran redacción formal, utilizaremos \textbf{\LaTeX{}} gestionado de forma centralizada y versionado a través de \textbf{GitHub}. Esta elección asegura un riguroso control de versiones mediante Git, homogeneidad tipográfica corporativa y generación determinista de documentos en formato PDF de alta calidad.
 
 Para asegurar que todos los entregables compartan una imagen impecable y profesional, \textbf{la estructura que seguirá cada documento será obligatoriamente la siguiente:}
 \begin{enumerate}[leftmargin=*]
@@ -432,7 +433,7 @@ Para asegurar que todos los entregables compartan una imagen impecable y profesi
   \item \textbf{Referencias y Anexos:} Fuentes bibliográficas, enlaces a repositorios y glosarios.
 \end{enumerate}
 
-\noindent\textit{Publicación y Custodia:} Los documentos consensuados en Google Docs se exportarán periódicamente a formato PDF formal y se registrarán paralelamente en Markdown en \texttt{docs/} en el repositorio Git.
+\noindent\textit{Publicación, Versionado y Custodia:} El código fuente \texttt{.tex} y todos los recursos asociados (figuras, imágenes y tablas) se mantendrán y versionarán en el repositorio Git de GitHub bajo la ruta \texttt{docs/}. Las modificaciones documentales se gestionarán mediante el flujo estándar de ramas y revisiones mediante \textit{Pull Requests}, asegurando la aprobación del equipo. Los documentos finales se compilarán en formato PDF y se dispondrá adicionalmente de versiones en Markdown cuando sea conveniente para su consulta rápida en la propia plataforma de GitHub.
 
 \subsection{Documentación de Código: Doxygen}
 Con respecto a la documentación de código, hemos optado por usar \textbf{Doxygen}, aplicando así un estándar sencillo y fácil de entender para el grupo y cualquiera que pueda heredar el código, además de permitir la generación de documentación de código de manera dinámica a partir de los propios comentarios en los ficheros fuente.

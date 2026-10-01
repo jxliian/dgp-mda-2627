@@ -208,8 +208,8 @@ Cada rol tendrá las siguientes responsabilidades específicas:
 
 ## 7. ESTÁNDARES DE DOCUMENTACIÓN
 
-### 7.1 Documentación Textual (Google Docs)
-Para la documentación textual, es decir, especificaciones, documentos de especificación, desarrollo y manuales que requieran mayor redacción de texto, utilizaremos documentos compartidos de **Google Docs**. 
+### 7.1 Documentación Textual en LaTeX a través de GitHub
+Para la documentación textual y técnica, es decir, especificaciones, documentos de desarrollo, diseño y manuales que requieran redacción formal, utilizaremos **LaTeX** gestionado de forma centralizada y versionado a través de **GitHub**. Esta elección asegura un riguroso control de versiones mediante Git, homogeneidad tipográfica corporativa y generación determinista de documentos en formato PDF de alta calidad.
 
 Para asegurar consistencia profesional en todos los documentos generados por el equipo, **cada documento seguirá rigurosamente la siguiente estructura normalizada:**
 1. **Portada Institucional:**
@@ -232,7 +232,7 @@ Para asegurar consistencia profesional en todos los documentos generados por el 
 8. **Referencias y Anexos:**
    - Normativas consultadas, enlaces web y material complementario.
 
-*Proceso de Versionado y Publicación:* Los documentos consensuados en Google Docs se exportarán periódicamente a formato PDF y se volcarán paralelamente a Markdown en la ruta correspondiente de `docs/` para su versionado en Git.
+*Proceso de Versionado, Compilación y Custodia:* El código fuente `.tex` y todos los recursos asociados (figuras, imágenes y tablas) se mantendrán y versionarán en el repositorio Git de GitHub bajo la ruta `docs/`. Las modificaciones documentales se gestionarán mediante el flujo estándar de ramas y revisiones mediante *Pull Requests*, asegurando la aprobación del equipo. Los documentos finales se compilarán en formato PDF y se dispondrá adicionalmente de versiones en Markdown cuando sea conveniente para su consulta rápida en la propia plataforma de GitHub.
 
 ### 7.2 Documentación de Código (Doxygen)
 Con respecto a la documentación de código, hemos optado por usar **Doxygen**, aplicando así un estándar sencillo y fácil de entender para el grupo y cualquiera que pueda heredar el código, además de permitir la generación de documentación de código de manera dinámica a partir de los propios comentarios en los fuentes.
