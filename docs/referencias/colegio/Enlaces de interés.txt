@@ -1,0 +1,33 @@
+Enlaces de interés:
+
+- Curso online de Plena Inclusión de Accesibilidad cognitiva:
+https://www.plenainclusion.org/wp-content/uploads/2020/01/contenidos_mooc_accesibilidad_cognitiva._edicion_2-actualizacion2024.pdf
+
+
+- Página web de ARASAAC: Pictogramas, audios, lengua de signos y software de apoyo. 
+(esta página tiene una API que se puede usar para búsquedas y consultas en opción Desarrolladores)
+
+https://arasaac.org/index.html
+
+- Página web de ARAWRITE: aplicación de Arasaac que pasa texto a pictograma
+
+https://arawrite.arasaac.org/
+
+- Página web de SoyVisual: Pictogramas, fotografías y actividades didácticas en forma de fichas .
+
+https://www.soyvisual.org/
+
+- Procomun: Material multimedia didáctico de uso libre. Red de recursos educativos en abierto (fotografía, vídeos, audios,...) Elegir "Búsqueda Multimedia".
+
+https://procomun.intef.es/
+
+- Plena Inclusión: Organización que aúna a los centros con personas con discapacidad intelectual. Web que incluye publicaciones y formación online gratuita.
+
+https://www.plenainclusion.org/
+
+
+- Curso online de Plena Inclusión de Autoformación en lectura fácil:
+
+https://formacionabiertaplenainclusion.org/course/view.php?id=62
+
+
