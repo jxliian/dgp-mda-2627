@@ -5,9 +5,10 @@
 **Asignaturas:** Dirección y Gestión de Proyectos (DGP) & Metodologías de Desarrollo Ágil (MDA) - UGR  
 **Miembro del Equipo:** Julián Carrión Tovar  
 
-### Matriz de Roles Asignados
+### Matriz de Roles y Responsabilidades
 - **Carácter del Rol:** **Fijo en todas las fases**
-- **Rol Desempeñado:** Gestor de Usabilidad y Accesibilidad (normativa WCAG 2.1 AA, heurísticas cognitivas, integración ARASAAC, pruebas con TalkBack/VoiceOver y validadores)
+- **Rol Desempeñado:** Gestor de Usabilidad y Accesibilidad (normativa WCAG 2.1 AA, heurísticas cognitivas, integración ARASAAC, pruebas de contraste y tecnologías de apoyo).
+- **Representación y Gestión en Git:** Representante presencial del equipo en la visita al C.E.E. Purísima Concepción (02/10/2026) y encargado de la subida y control de versiones de la documentación inicial en GitHub.
 
 ---
 
@@ -38,7 +39,7 @@
 | Integración de SAAC y catálogo de pictogramas ARASAAC | 0.0 h | 0.0 h | +0.0 h | |
 | Prototipado UX/UI accesible (modo oscuro, alto contraste) | 0.0 h | 0.0 h | +0.0 h | |
 | Implementación frontend accesible en Flutter | 0.0 h | 0.0 h | +0.0 h | |
-| Documentación de accesibilidad y soporte al equipo | 0.0 h | 0.0 h | +0.0 h | |
+| Documentación colaborativa y gestión Git | 0.0 h | 0.0 h | +0.0 h | |
 | **TOTAL FASE INICIAL** | **0.0 h** | **0.0 h** | **+0.0 h** | |
 
 ### 2.2 Detalle Cronológico de Tareas (Fase Inicial)
@@ -46,10 +47,10 @@
 | Fecha | Tarea / ID Jira | Categoría | Horas | Descripción Detallada del Trabajo Realizado |
 | :---: | :---: | :---: | :---: | :--- |
 | 25/09/2026 | T-DGP-01 | Reunión | 1.5 | Asistencia a entrevista inicial con cliente. |
-| 02/10/2026 | T-DGP-02 | Reunión | 2.5 | Visita presencial al colegio: observación de destreza motriz, interacción con tablets y necesidades de accesibilidad sensorial/cognitiva. |
-| [DD/MM/AAAA] | T-ACC-01 | Accesibilidad | 0.0 | Elaboración de la guía de estilos accesibles (contrastes, fuentes, áreas táctiles). |
-| [DD/MM/AAAA] | T-ACC-02 | Accesibilidad | 0.0 | Estudio de integración de la API/recursos de ARASAAC y síntesis de voz humana. |
-| [DD/MM/AAAA] | T-UX-01 | Diseño | 0.0 | Diseño de pantallas prototipo de baja carga cognitiva (máximo 4 opciones). |
+| 02/10/2026 | T-DGP-02 | Reunión | 2.5 | Visita presencial al colegio en representación del equipo: observación de destreza motriz, interacción con tablets y necesidades de accesibilidad sensorial/cognitiva. |
+| [DD/MM/AAAA] | T-DOC-01 | Documentación | 0.0 | Redacción colaborativa de notas de campo de la visita y subida de actas a GitHub. |
+| [DD/MM/AAAA] | T-ACC-01 | Accesibilidad | 0.0 | Definición colaborativa de directrices de accesibilidad y adaptación de pictogramas ARASAAC. |
+| [DD/MM/AAAA] | T-[XX] | Desarrollo | 0.0 | Trabajo conjunto en arquitectura y diseño preliminar. |
 
 ### 2.3 Valoración y Observaciones
 - **Dificultades y bloqueos:** 

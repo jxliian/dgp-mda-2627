@@ -35,13 +35,13 @@
 
 | Categoría de Actividad | Horas Estimadas | Horas Reales | Desviación (h) | Justificación de la Desviación |
 | :--- | :---: | :---: | :---: | :--- |
-| Reuniones de coordinación y cliente | 0.0 h | 0.0 h | +0.0 h | |
+| Reuniones de coordinación de equipo | 0.0 h | 0.0 h | +0.0 h | |
 | Soporte en gestión de cronograma y recursos | 0.0 h | 0.0 h | +0.0 h | |
-| Análisis de requisitos y apoyo en backlog | 0.0 h | 0.0 h | +0.0 h | |
+| Análisis conjunto de requisitos y apoyo en backlog | 0.0 h | 0.0 h | +0.0 h | |
 | Diseño de arquitectura y prototipos UI | 0.0 h | 0.0 h | +0.0 h | |
 | Implementación frontend / backend (Flutter) | 0.0 h | 0.0 h | +0.0 h | |
 | Pruebas y verificación | 0.0 h | 0.0 h | +0.0 h | |
-| Documentación DGP y apoyo operativo | 0.0 h | 0.0 h | +0.0 h | |
+| Documentación colaborativa DGP y apoyo operativo | 0.0 h | 0.0 h | +0.0 h | |
 | **TOTAL FASE INICIAL** | **0.0 h** | **0.0 h** | **+0.0 h** | |
 
 ### 2.2 Detalle Cronológico de Tareas (Fase Inicial)
@@ -49,10 +49,9 @@
 | Fecha | Tarea / ID Jira | Categoría | Horas | Descripción Detallada del Trabajo Realizado |
 | :---: | :---: | :---: | :---: | :--- |
 | 25/09/2026 | T-DGP-01 | Reunión | 1.5 | Asistencia a entrevista inicial con cliente. |
-| 02/10/2026 | T-DGP-02 | Reunión | 2.5 | Visita presencial al colegio y apoyo en toma de notas de campo. |
-| [DD/MM/AAAA] | T-REF-01 | Coordinación | 0.0 | Apoyo al coordinador en la estructuración de tareas y reparto de cargas. |
-| [DD/MM/AAAA] | T-[XX] | Requisitos | 0.0 | Colaboración en el refinamiento de historias de usuario y criterios de aceptación. |
-| [DD/MM/AAAA] | T-[XX] | Desarrollo | 0.0 | Implementación de módulos Flutter asignados. |
+| [DD/MM/AAAA] | T-REF-01 | Coordinación | 0.0 | Apoyo colaborativo al coordinador en planificación y seguimiento. |
+| [DD/MM/AAAA] | T-DOC-01 | Documentación | 0.0 | Trabajo conjunto en redacción y revisión de memoria y manual de coordinación. |
+| [DD/MM/AAAA] | T-[XX] | Requisitos | 0.0 | Análisis conjunto de requerimientos del sistema y Product Backlog. |
 
 ### 2.3 Valoración y Observaciones
 - **Dificultades y bloqueos:** 

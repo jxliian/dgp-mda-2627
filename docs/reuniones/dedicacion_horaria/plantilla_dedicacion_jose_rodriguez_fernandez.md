@@ -34,13 +34,13 @@
 
 | Categoría de Actividad | Horas Estimadas | Horas Reales | Desviación (h) | Justificación de la Desviación |
 | :--- | :---: | :---: | :---: | :--- |
-| Entrevistas y visitas con cliente | 0.0 h | 0.0 h | +0.0 h | |
+| Reuniones de equipo y cliente | 0.0 h | 0.0 h | +0.0 h | |
 | Elaboración de presentaciones y material audiovisual | 0.0 h | 0.0 h | +0.0 h | |
-| Definición de identidad corporativa (CLENCH) | 0.0 h | 0.0 h | +0.0 h | |
-| Análisis de requisitos y especificación funcional | 0.0 h | 0.0 h | +0.0 h | |
+| Definición colaborativa de imagen corporativa (CLENCH) | 0.0 h | 0.0 h | +0.0 h | |
+| Análisis conjunto de requisitos y especificación funcional | 0.0 h | 0.0 h | +0.0 h | |
 | Implementación frontend / backend (Flutter) | 0.0 h | 0.0 h | +0.0 h | |
 | Pruebas y verificación | 0.0 h | 0.0 h | +0.0 h | |
-| Documentación DGP (Imagen de Empresa) | 0.0 h | 0.0 h | +0.0 h | |
+| Documentación colaborativa DGP | 0.0 h | 0.0 h | +0.0 h | |
 | **TOTAL FASE INICIAL** | **0.0 h** | **0.0 h** | **+0.0 h** | |
 
 ### 2.2 Detalle Cronológico de Tareas (Fase Inicial)
@@ -48,10 +48,9 @@
 | Fecha | Tarea / ID Jira | Categoría | Horas | Descripción Detallada del Trabajo Realizado |
 | :---: | :---: | :---: | :---: | :--- |
 | 25/09/2026 | T-DGP-01 | Reunión | 1.5 | Asistencia a entrevista inicial con cliente. |
-| 02/10/2026 | T-DGP-02 | Reunión | 2.5 | Visita presencial al colegio y relación directa con equipo docente. |
-| [DD/MM/AAAA] | T-PRE-01 | Diseño | 0.0 | Diseño de imagen de empresa (CLENCH) y documentación de identidad corporativa. |
-| [DD/MM/AAAA] | T-PRE-02 | Presentación | 0.0 | Elaboración de diapositivas y guion para la presentación de requisitos. |
-| [DD/MM/AAAA] | T-[XX] | Desarrollo | 0.0 | Implementación de componentes de software asignados. |
+| [DD/MM/AAAA] | T-PRE-01 | Diseño | 0.0 | Elaboración colaborativa de la imagen corporativa e identidad de CLENCH. |
+| [DD/MM/AAAA] | T-DOC-01 | Documentación | 0.0 | Preparación colaborativa del guion y diapositivas de presentación de requisitos. |
+| [DD/MM/AAAA] | T-[XX] | Requisitos | 0.0 | Análisis conjunto de requerimientos a partir de los datos de la visita. |
 
 ### 2.3 Valoración y Observaciones
 - **Dificultades y bloqueos:** 

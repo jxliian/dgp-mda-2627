@@ -35,12 +35,12 @@
 | Categoría de Actividad | Horas Estimadas | Horas Reales | Desviación (h) | Justificación de la Desviación |
 | :--- | :---: | :---: | :---: | :--- |
 | Reuniones de equipo y cliente | 0.0 h | 0.0 h | +0.0 h | |
-| Moderación de debates y toma de decisiones técnicas | 0.0 h | 0.0 h | +0.0 h | |
+| Moderación de debates y toma colaborativa de decisiones | 0.0 h | 0.0 h | +0.0 h | |
 | Gestión del plan de control de cambios | 0.0 h | 0.0 h | +0.0 h | |
-| Análisis de requisitos y especificación funcional | 0.0 h | 0.0 h | +0.0 h | |
+| Análisis conjunto de requisitos y especificación funcional | 0.0 h | 0.0 h | +0.0 h | |
 | Implementación frontend / backend (Flutter) | 0.0 h | 0.0 h | +0.0 h | |
 | Pruebas y verificación | 0.0 h | 0.0 h | +0.0 h | |
-| Documentación DGP (Plan de Gestión de Cambios) | 0.0 h | 0.0 h | +0.0 h | |
+| Documentación colaborativa DGP | 0.0 h | 0.0 h | +0.0 h | |
 | **TOTAL FASE INICIAL** | **0.0 h** | **0.0 h** | **+0.0 h** | |
 
 ### 2.2 Detalle Cronológico de Tareas (Fase Inicial)
@@ -48,10 +48,9 @@
 | Fecha | Tarea / ID Jira | Categoría | Horas | Descripción Detallada del Trabajo Realizado |
 | :---: | :---: | :---: | :---: | :--- |
 | 25/09/2026 | T-DGP-01 | Reunión | 1.5 | Asistencia a entrevista inicial con cliente. |
-| 02/10/2026 | T-DGP-02 | Reunión | 2.5 | Visita presencial al colegio y recogida de acuerdos de diseño. |
-| [DD/MM/AAAA] | T-MOD-01 | Moderación | 0.0 | Conducción de reunión interna y moderación de acuerdos sobre arquitectura Flutter. |
-| [DD/MM/AAAA] | T-MOD-02 | Documentación | 0.0 | Redacción del Plan de Gestión de Cambios y protocolo de preaviso de 3 días. |
-| [DD/MM/AAAA] | T-[XX] | Desarrollo | 0.0 | Implementación de componentes de software asignados. |
+| [DD/MM/AAAA] | T-MOD-01 | Moderación | 0.0 | Conducción de reunión interna y moderación de acuerdos sobre arquitectura y dinámicas. |
+| [DD/MM/AAAA] | T-DOC-01 | Documentación | 0.0 | Elaboración colaborativa del Plan de Gestión de Cambios. |
+| [DD/MM/AAAA] | T-[XX] | Requisitos | 0.0 | Análisis colaborativo de requisitos y casos de uso. |
 
 ### 2.3 Valoración y Observaciones
 - **Dificultades y bloqueos:** 

@@ -38,7 +38,7 @@
 | Supervisión de estándares de código Flutter / Dart | 0.0 h | 0.0 h | +0.0 h | |
 | Implementación frontend / backend (Flutter) | 0.0 h | 0.0 h | +0.0 h | |
 | Configuración del entorno de pruebas y CI | 0.0 h | 0.0 h | +0.0 h | |
-| Documentación de calidad y revisión de entregables DGP | 0.0 h | 0.0 h | +0.0 h | |
+| Documentación colaborativa de calidad y revisión DGP | 0.0 h | 0.0 h | +0.0 h | |
 | **TOTAL FASE INICIAL** | **0.0 h** | **0.0 h** | **+0.0 h** | |
 
 ### 2.2 Detalle Cronológico de Tareas (Fase Inicial)
@@ -46,10 +46,9 @@
 | Fecha | Tarea / ID Jira | Categoría | Horas | Descripción Detallada del Trabajo Realizado |
 | :---: | :---: | :---: | :---: | :--- |
 | 25/09/2026 | T-DGP-01 | Reunión | 1.5 | Asistencia a entrevista inicial con cliente. |
-| 02/10/2026 | T-DGP-02 | Reunión | 2.5 | Visita al C.E.E. Purísima Concepción y toma de requisitos de calidad. |
-| [DD/MM/AAAA] | T-CAL-01 | Calidad | 0.0 | Definición del plan de gestión de calidad y estándares de código en Flutter. |
-| [DD/MM/AAAA] | T-CAL-02 | Calidad | 0.0 | Revisión de diagramas y trazabilidad de requisitos con Visual Paradigm. |
-| [DD/MM/AAAA] | T-[XX] | Desarrollo | 0.0 | Apoyo técnico en desarrollo e integración continua. |
+| [DD/MM/AAAA] | T-CAL-01 | Calidad | 0.0 | Elaboración conjunta de los estándares de calidad del proyecto. |
+| [DD/MM/AAAA] | T-CAL-02 | Diseño | 0.0 | Revisión colaborativa de modelado UML y requisitos con Visual Paradigm. |
+| [DD/MM/AAAA] | T-[XX] | Requisitos | 0.0 | Análisis conjunto de las necesidades técnicas derivadas de la visita. |
 
 ### 2.3 Valoración y Observaciones
 - **Dificultades y bloqueos:** 

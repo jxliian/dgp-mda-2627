@@ -4,6 +4,17 @@ Este directorio alberga toda la documentación relativa a las reuniones oficiale
 
 ---
 
+> [!NOTE] Dinámica de Elaboración Documental y Control de Versiones en GitHub
+> Todos los documentos, actas y especificaciones de este proyecto se realizan de **forma conjunta y colaborativa entre todos los miembros del equipo**.
+> 
+> En esta fase inicial, **Julián Carrión Tovar** es quien, además de colaborar en su redacción y contenido, se encarga de subir las actas, plantillas y la información documental al repositorio de **GitHub** para gestionar el control de versiones. 
+> 
+> Más adelante, conforme se avance en las fases de implementación y se trabaje de lleno en el código fuente de la aplicación, **todos los integrantes del equipo colaborarán directamente** subiendo sus aportaciones mediante ramas y *commits* en el repositorio.
+> 
+> Asimismo, el reparto concreto de módulos y tareas técnicas se está gestionando de manera abierta y flexible entre todo el equipo, sin asignaciones rígidas prematuras.
+
+---
+
 ## 1. Estructura del Directorio
 
 ```text

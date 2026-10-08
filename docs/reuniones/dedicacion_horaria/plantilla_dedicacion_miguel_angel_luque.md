@@ -34,13 +34,13 @@
 
 | Categoría de Actividad | Horas Estimadas | Horas Reales | Desviación (h) | Justificación de la Desviación |
 | :--- | :---: | :---: | :---: | :--- |
-| Reuniones de coordinación y cliente | 0.0 h | 0.0 h | +0.0 h | |
-| Análisis y especificación de requisitos (MDA) | 0.0 h | 0.0 h | +0.0 h | |
+| Reuniones de coordinación de equipo | 0.0 h | 0.0 h | +0.0 h | |
+| Análisis y especificación colaborativa de requisitos | 0.0 h | 0.0 h | +0.0 h | |
 | Diseño de arquitectura y prototipos UI | 0.0 h | 0.0 h | +0.0 h | |
 | Usabilidad y Accesibilidad (WCAG / ARASAAC) | 0.0 h | 0.0 h | +0.0 h | |
 | Implementación frontend / backend (Flutter) | 0.0 h | 0.0 h | +0.0 h | |
 | Pruebas y verificación | 0.0 h | 0.0 h | +0.0 h | |
-| Documentación DGP (Manual Coord., Propuesta, Actas) | 0.0 h | 0.0 h | +0.0 h | |
+| Documentación colaborativa DGP y gestión | 0.0 h | 0.0 h | +0.0 h | |
 | **TOTAL FASE INICIAL** | **0.0 h** | **0.0 h** | **+0.0 h** | |
 
 ### 2.2 Detalle Cronológico de Tareas (Fase Inicial)
@@ -48,10 +48,9 @@
 | Fecha | Tarea / ID Jira | Categoría | Horas | Descripción Detallada del Trabajo Realizado |
 | :---: | :---: | :---: | :---: | :--- |
 | 25/09/2026 | T-DGP-01 | Reunión | 1.5 | Asistencia a entrevista inicial con cliente y coordinación de equipo. |
-| 02/10/2026 | T-DGP-02 | Reunión | 2.5 | Visita presencial al C.E.E. Purísima Concepción y toma de requisitos in situ. |
-| [DD/MM/AAAA] | T-[XX] | Coordinación | 0.0 | Planificación de tareas del equipo, revisión del manual de coordinación. |
-| [DD/MM/AAAA] | T-[XX] | Requisitos | 0.0 | Elaboración de especificaciones y desglose del Backlog en Jira. |
-| [DD/MM/AAAA] | T-[XX] | Documentación | 0.0 | Redacción y revisión del Manual de Coordinación y Propuesta Técnica. |
+| [DD/MM/AAAA] | T-[XX] | Coordinación | 0.0 | Planificación colaborativa de entregables y seguimiento de tiempos. |
+| [DD/MM/AAAA] | T-[XX] | Requisitos | 0.0 | Análisis conjunto de los datos de la visita al colegio y requisitos. |
+| [DD/MM/AAAA] | T-[XX] | Documentación | 0.0 | Redacción y revisión colaborativa de la memoria y manual de coordinación. |
 
 ### 2.3 Valoración y Observaciones
 - **Dificultades y bloqueos:** 

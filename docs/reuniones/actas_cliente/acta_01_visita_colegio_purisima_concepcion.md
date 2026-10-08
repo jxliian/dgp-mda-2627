@@ -7,11 +7,14 @@
 **Fecha:** 02 de octubre de 2026  
 **Horario:** 09:30 - 13:30 (Jornada matinal en el centro)  
 **Lugar / Modalidad:** Presencial — Instalaciones del C.E.E. Fundación Purísima Concepción (Granada). Recorrido por aulas de PTVAL (Programa de Transición a la Vida Adulta y Laboral), talleres ocupacionales y pabellones del centro.  
-**Moderador / Portavoz:** José Rodríguez Fernández (Presentador)  
-**Redactor / Catalogador:** Pablo de la Torre Roldán (Catalogador)  
-**Supervisor Metodológico:** Yeray Rodríguez Navas (Gestor de Calidad)  
-**Especialista en Accesibilidad:** Julián Carrión Tovar (Gestor de Usabilidad y Accesibilidad)  
-**Coordinador del Equipo:** Miguel Ángel Luque (Coordinador)  
+**Representante Asistente del Equipo:** Julián Carrión Tovar (Gestor de Usabilidad y Accesibilidad - Representante presencial de CLENCH)  
+**Redactor de Notas de Campo:** Julián Carrión Tovar  
+**Puesta en Común y Elaboración Documental:** Realizada de forma colaborativa y conjunta por la totalidad del equipo CLENCH Software Development  
+
+---
+
+> [!NOTE] Nota sobre Elaboración Documental y Control de Versiones en GitHub
+> Todos los documentos, actas y materiales del proyecto son elaborados de forma conjunta y colaborativa entre todos los miembros del equipo. En esta fase inicial de especificación y coordinación, **Julián Carrión Tovar** es quien colabora en los documentos y se encarga además de subirlos y mantenerlos en el repositorio de **GitHub** para el control de versiones. Conforme avance el proyecto y se intensifique el desarrollo del código software, todos los integrantes del equipo colaborarán activamente realizando aportaciones y *commits* directos en el repositorio.
 
 ---
 
@@ -20,23 +23,25 @@
 ### 1.1 Representantes del Cliente (C.E.E. Fundación Purísima Concepción)
 - **Equipo Directivo y Coordinación del Proyecto AUTOVIDA:** Responsables pedagógicos y de innovación del centro.
 - **Equipo Docente y Terapeutas:** Profesores de taller, especialistas en Pedagogía Terapéutica (PT), Audición y Lenguaje (AL) y terapeutas ocupacionales.
-- **Alumnado Observado:** Grupos de estudiantes de PTVAL que participaron en las actividades de aula, talleres con materiales reciclados y uso de dispositivos tecnológicos.
+- **Alumnado Observado:** Grupos de estudiantes de PTVAL en talleres con materiales reciclados y aulas de trabajo.
 
 ### 1.2 Representantes de CLENCH Software Development
-| Integrante | Rol en la Fase Inicial | Asistencia | Función en la Visita |
+| Integrante | Rol en el Equipo | Asistencia a la Visita | Observaciones |
 | :--- | :--- | :---: | :--- |
-| **Miguel Ángel Luque** | Coordinador | Sí | Coordinación del equipo y toma de notas de alcance |
-| **José Rodríguez Fernández** | Presentador | Sí | Interlocución principal con docentes y terapeutas |
-| **Pablo de la Torre Roldán** | Catalogador | Sí | Toma de notas estructuradas y redacción del acta |
-| **Pablo Hernández Ibáñez** | Moderador | Sí | Registro de dinámicas de grupo y organización |
-| **Yeray Rodríguez Navas** | Gestor de Calidad (Fijo) | Sí | Verificación de estándares técnicos y viabilidad |
-| **Julián Carrión Tovar** | Gestor de Accesibilidad (Fijo) | Sí | Cumplimentación de la checklist de accesibilidad y hardware |
-| **Amine Azzammouri** | Refuerzo: Coordinador | Sí | Apoyo logístico y registro de observaciones de campo |
+| **Julián Carrión Tovar** | Gestor de Usabilidad y Accesibilidad | **Sí (Presencial)** | **Único asistente en representación presencial de todo el equipo** |
+| **Miguel Ángel Luque** | Coordinador | Representado | Participación en análisis posterior y redacción colaborativa |
+| **José Rodríguez Fernández** | Presentador | Representado | Participación en análisis posterior y redacción colaborativa |
+| **Pablo de la Torre Roldán** | Catalogador | Representado | Participación en análisis posterior y redacción colaborativa |
+| **Pablo Hernández Ibáñez** | Moderador | Representado | Participación en análisis posterior y redacción colaborativa |
+| **Yeray Rodríguez Navas** | Gestor de Calidad | Representado | Participación en análisis posterior y redacción colaborativa |
+| **Amine Azzammouri** | Refuerzo de Coordinación | Representado | Participación en análisis posterior y redacción colaborativa |
+
+*Nota:* Debido a las indicaciones de aforo para las visitas al centro escolar, asistió un único representante por grupo de prácticas. Los resultados, observaciones y datos recogidos fueron posteriormente puestos en común con todos los integrantes del equipo.
 
 ---
 
 ## 2. Objetivo de la Visita
-Realizar una sesión de trabajo de campo e investigación contextual in situ en el C.E.E. Fundación Purísima Concepción para:
+Realizar una sesión de observación directa y toma de requerimientos contextuales in situ en el C.E.E. Fundación Purísima Concepción para:
 1. Observar directamente las capacidades motrices, cognitivas, sensoriales y comunicativas de los alumnos de PTVAL interactuando con la tecnología.
 2. Cumplimentar la lista de verificación (*checklist*) técnica sobre hardware, sistemas aumentativos y alternativos de comunicación (SAAC), entornos y ayudas técnicas.
 3. Conocer de primera mano las rutinas docentes, talleres prácticos y necesidades del profesorado para la gestión de la aplicación *Agenda Accesible*.
@@ -45,8 +50,6 @@ Realizar una sesión de trabajo de campo e investigación contextual in situ en 
 ---
 
 ## 3. Registro Detallado de Observaciones (Checklist de Campo)
-
-La información recopilada se estructura según las 5 áreas principales de la lista de verificación más la sección de notas de campo:
 
 ### 3.1 Área 1: Habilidades Motrices e Interacción Física
 - **Tipo de pulsación:** 
@@ -155,28 +158,30 @@ Durante el recorrido por las instalaciones se levantaron las siguientes notas de
 
 ## 4. Acuerdos y Requisitos Técnicos Derivados
 
-| Código | Requisito / Decisión de Diseño | Categoría | Responsable(s) CLENCH |
+*(Todos los requisitos y acuerdos son asumidos de forma conjunta por el equipo CLENCH Software Development. La concreción y reparto específico de módulos se definirá de manera consensuada conforme madure el Product Backlog).*
+
+| Código | Requisito / Criterio de Diseño | Ámbito de Aplicación | Responsabilidad |
 | :---: | :--- | :---: | :--- |
-| **[ACU-CLI-01.1]** | **Arquitectura Offline-First:** La app debe funcionar 100% sin conexión mediante almacenamiento local persistente (SQLite / Hive). | Arquitectura / Backend | Miguel Ángel L. / Amine A. |
-| **[ACU-CLI-01.2]** | **Pantallas de Baja Carga Cognitiva:** Máximo 2 a 4 opciones por pantalla, botones grandes y centrados, evitando esquinas. | UI/UX / Front | José R. / Pablo de la T. |
-| **[ACU-CLI-01.3]** | **Gestos Simples Únicamente:** Interacción basada en *tap* directo con filtro anti-rebote (*debounce*). No requerir gestos complejos. | Accesibilidad | Julián Carrión T. |
-| **[ACU-CLI-01.4]** | **Pictogramas ARASAAC:** Integración del repositorio estándar de ARASAAC como base visual primaria de comunicación. | Accesibilidad | Julián Carrión T. |
-| **[ACU-CLI-01.5]** | **Personalización Total por Perfil:** Modelo de datos que contemple canal de alerta (voz/sonido/imagen), modo visual (claro/oscuro/alto contraste/daltonismo) y fuentes en mayúsculas. | Modelado de Datos | Yeray R. / Pablo H. |
-| **[ACU-CLI-01.6]** | **Locuciones Humanas:** Permitir la subida y reproducción de audios grabados por educadores, evitando síntesis fría por IA. | Accesibilidad / Media | Julián Carrión T. |
-| **[ACU-CLI-01.7]** | **Panel de Administración con PIN:** Acceso protegido a configuraciones docentes y visualización de métricas de uso no punitivas. | Seguridad / Backend | Miguel Ángel L. / Pablo H. |
-| **[ACU-CLI-01.8]** | **Módulo de Tareas Especiales:** Modelado para comanda de comedor, temporizador visual, reprografía y guiado de rutas por el centro. | Requisitos / Backlog | José R. / Yeray R. |
+| **[ACU-CLI-01.1]** | **Arquitectura Offline-First:** La app debe operar 100% sin conexión mediante almacenamiento local persistente (SQLite / Hive). | Arquitectura / Backend | Equipo CLENCH (Conjunto) |
+| **[ACU-CLI-01.2]** | **Pantallas de Baja Carga Cognitiva:** Máximo 2 a 4 opciones por pantalla, botones grandes y centrados, evitando esquinas. | UI/UX / Frontend | Equipo CLENCH (Conjunto) |
+| **[ACU-CLI-01.3]** | **Gestos Simples Únicamente:** Interacción basada en *tap* directo con filtro anti-rebote (*debounce*). No requerir gestos complejos. | Accesibilidad | Equipo CLENCH (Conjunto) |
+| **[ACU-CLI-01.4]** | **Pictogramas ARASAAC:** Integración del repositorio estándar de ARASAAC como base visual primaria de comunicación. | Accesibilidad | Equipo CLENCH (Conjunto) |
+| **[ACU-CLI-01.5]** | **Personalización Total por Perfil:** Modelo de datos que contemple canal de alerta (voz/sonido/imagen), modo visual (claro/oscuro/alto contraste/daltonismo) y fuentes en mayúsculas. | Modelado de Datos | Equipo CLENCH (Conjunto) |
+| **[ACU-CLI-01.6]** | **Locuciones Humanas:** Permitir la subida y reproducción de audios grabados por educadores, evitando síntesis fría por IA. | Accesibilidad / Media | Equipo CLENCH (Conjunto) |
+| **[ACU-CLI-01.7]** | **Panel de Administración con PIN:** Acceso protegido a configuraciones docentes y visualización de métricas de uso no punitivas. | Seguridad / Backend | Equipo CLENCH (Conjunto) |
+| **[ACU-CLI-01.8]** | **Módulo de Tareas Especiales:** Modelado para comanda de comedor, temporizador visual, reprografía y guiado de rutas por el centro. | Requisitos / Backlog | Equipo CLENCH (Conjunto) |
 
 ---
 
-## 5. Compromisos y Asignación de Tareas Inmediatas
+## 5. Próximos Pasos de Trabajo
 
-| ID Tarea | Descripción del Entregable | Integrante Asignado | Fecha Límite |
-| :---: | :--- | :--- | :---: |
-| **T-REQ-01** | Redacción de Personajes y Escenarios (P0/P1) incorporando los perfiles reales de alumnos y docentes del colegio. | José R. Fernández / Pablo H. Ibáñez | 10/10/2026 |
-| **T-UX-01** | Diseño de wireframes accesibles de baja saturación (2 a 4 opciones) y paletas contrastadas (modo claro/oscuro). | Julián Carrión Tovar | 14/10/2026 |
-| **T-ARC-01** | Definición del esquema de persistencia local en Flutter para soporte 100% offline. | Miguel Ángel Luque / Amine Azzammouri | 15/10/2026 |
-| **T-DAT-01** | Modelado de datos UML (Visual Paradigm) de perfiles de usuario, tareas, agendas y métricas docentes. | Yeray Rodríguez Navas | 16/10/2026 |
-| **T-DOC-01** | Consolidación y archivo oficial del Acta de Visita en `docs/reuniones/actas_cliente/`. | Pablo de la Torre Roldán | 08/10/2026 |
+Las siguientes líneas de trabajo se abordarán de manera transversal y colaborativa por todos los integrantes del equipo durante la Fase Inicial, ajustando el reparto específico según las necesidades de cada entrega:
+
+1. **Elaboración de Personajes y Escenarios (P0/P1):** Modelado de perfiles reales de alumnado y docentes basados en la visita.
+2. **Definición de Bocetos y Wireframes Iniciales:** Prototipos de navegación simplificada (2 a 4 opciones) y contraste accesible.
+3. **Estudio de Arquitectura Técnica y Persistencia Local:** Planteamiento de la estructura Flutter con soporte *offline*.
+4. **Consolidación del Modelo de Datos Preliminar:** Esquema para perfiles personalizados, agendas, tareas y métricas docentes.
+5. **Revisión Continua de Entregables:** Refinamiento grupal de toda la documentación previa a las fechas de entrega oficial.
 
 ---
 
@@ -187,5 +192,5 @@ Durante el recorrido por las instalaciones se levantaron las siguientes notas de
 
 ---
 
-**Acta levantada y aprobada por el equipo CLENCH Software Development.**  
+**Acta elaborada y consensuada por el equipo CLENCH Software Development.**  
 *En Granada, a 02 de octubre de 2026.*

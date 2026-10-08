@@ -34,10 +34,10 @@
 
 | Categoría de Actividad | Horas Estimadas | Horas Reales | Desviación (h) | Justificación de la Desviación |
 | :--- | :---: | :---: | :---: | :--- |
-| Reuniones de equipo y visita cliente | 0.0 h | 0.0 h | +0.0 h | |
-| Redacción, catalogación y archivo de actas de reunión | 0.0 h | 0.0 h | +0.0 h | |
+| Reuniones de equipo y coordinación | 0.0 h | 0.0 h | +0.0 h | |
+| Redacción colaborativa y catalogación de actas | 0.0 h | 0.0 h | +0.0 h | |
 | Organización y normalización del árbol documental `docs/` | 0.0 h | 0.0 h | +0.0 h | |
-| Análisis de requisitos y especificación funcional | 0.0 h | 0.0 h | +0.0 h | |
+| Análisis conjunto de requisitos y especificación funcional | 0.0 h | 0.0 h | +0.0 h | |
 | Implementación frontend / backend (Flutter) | 0.0 h | 0.0 h | +0.0 h | |
 | Pruebas y verificación | 0.0 h | 0.0 h | +0.0 h | |
 | Documentación DGP (Estándares de Documentación) | 0.0 h | 0.0 h | +0.0 h | |
@@ -48,10 +48,9 @@
 | Fecha | Tarea / ID Jira | Categoría | Horas | Descripción Detallada del Trabajo Realizado |
 | :---: | :---: | :---: | :---: | :--- |
 | 25/09/2026 | T-DGP-01 | Reunión | 1.5 | Asistencia a entrevista inicial con cliente. |
-| 02/10/2026 | T-DGP-02 | Reunión | 2.5 | Visita presencial al colegio y toma de notas para acta formal. |
-| 03/10/2026 | T-CAT-01 | Documentación | 1.5 | Redacción y catalogación formal del Acta nº 01 de visita al colegio. |
-| [DD/MM/AAAA] | T-CAT-02 | Documentación | 0.0 | Definición y estructuración de plantillas de actas y seguimiento de horas. |
-| [DD/MM/AAAA] | T-[XX] | Desarrollo | 0.0 | Implementación de módulos Flutter asignados. |
+| [DD/MM/AAAA] | T-CAT-01 | Documentación | 0.0 | Elaboración colaborativa y catalogación de plantillas de actas y seguimiento. |
+| [DD/MM/AAAA] | T-DOC-01 | Documentación | 0.0 | Revisión y ordenación del árbol de documentos de coordinación. |
+| [DD/MM/AAAA] | T-[XX] | Requisitos | 0.0 | Análisis conjunto de especificaciones funcionales y backlog. |
 
 ### 2.3 Valoración y Observaciones
 - **Dificultades y bloqueos:** 
