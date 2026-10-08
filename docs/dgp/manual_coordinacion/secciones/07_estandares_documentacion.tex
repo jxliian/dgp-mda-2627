@@ -4,24 +4,22 @@
 \section{Estándares de Documentación}
 
 \subsection{Documentación Textual en LaTeX a través de GitHub y Estructura Normalizada}
-Para la documentación textual y técnica, es decir, especificaciones, documentos de desarrollo, diseño y manuales que requieran redacción formal, utilizaremos \textbf{\LaTeX{}} gestionado de forma centralizada y versionado a través de \textbf{GitHub}. Esta elección asegura un riguroso control de versiones mediante Git, homogeneidad tipográfica corporativa y generación determinista de documentos en formato PDF de alta calidad.
+Para la documentación textual y técnica, es decir, especificaciones, documentos de desarrollo, diseño y manuales que requieran redacción formal, utilizaremos \textbf{\LaTeX{}} gestionado de forma centralizada y versionado a través de \textbf{GitHub}, siendo que a su vez se realizará la redacción de la docuemtanción en la plataforma \textbf{Prism} para facilitar el desarrollo compartido de la documentación. Esta elección asegura un riguroso control de versiones mediante Git, homogeneidad tipográfica corporativa y generación determinista de documentos en formato PDF de alta calidad, facilitando de la misma manera el trabajo paralelo sin conflicto de versiones gracias a Prism.
 
 Para asegurar que todos los entregables compartan una imagen impecable y profesional, \textbf{la estructura que seguirá cada documento será obligatoriamente la siguiente:}
 \begin{enumerate}[leftmargin=*]
-  \item \textbf{Portada Institucional Normalizada:} Logotipo oficial de CLENCH Software Development, escudo corporativo de la Universidad de Granada, título formal del documento, subtítulo del proyecto AUTOVIDA, asignaturas (DGP/MDA), versión, fecha de emisión y listado completo de autores con roles asignados.
-  \item \textbf{Historial de Cambios y Control de Versiones:} Tabla de registro con versión, fecha, autores, resumen explicativo de cambios y estado de aprobación.
-  \item \textbf{Firma y Conformidad del Equipo:} Tabla de ratificación explícita por todos los miembros.
-  \item \textbf{Tabla de Contenidos (Índice):} Estructura paginada y jerarquizada generada automáticamente con numeración decimal.
+  \item \textbf{Portada:} Logotipo oficial de CLENCH Software Development, escudo de la Universidad de Granada, título formal del documento, subtítulo del proyecto AUTOVIDA, asignaturas (DGP/MDA), fecha y listado completo de autores con roles asignados.
+  \item \textbf{Índice:} Estructura paginada y jerarquizada generada automáticamente con numeración decimal.
   \item \textbf{Introducción y Objetivos del Documento:} Propósito, justificación y alcance del documento.
   \item \textbf{Cuerpo Central de Contenido:} Secciones y subsecciones numeradas de forma jerárquica, tablas con formato corporativo, figuras legibles y recuadros de aviso.
-  \item \textbf{Conclusiones y Siguientes Pasos:} Síntesis analítica y acciones inmediatas.
+  \item \textbf{Conclusiones y Siguientes Pasos} (Si fuese necesario)
   \item \textbf{Referencias y Anexos:} Fuentes bibliográficas, enlaces a repositorios y glosarios.
 \end{enumerate}
 
-\noindent\textit{Publicación, Versionado y Custodia:} El código fuente \texttt{.tex} y todos los recursos asociados (figuras, imágenes y tablas) se mantendrán y versionarán en el repositorio Git de GitHub bajo la ruta \texttt{docs/}. Las modificaciones documentales se gestionarán mediante el flujo estándar de ramas y revisiones mediante \textit{Pull Requests}, asegurando la aprobación del equipo. Los documentos finales se compilarán en formato PDF y se dispondrá adicionalmente de versiones en Markdown cuando sea conveniente para su consulta rápida en la propia plataforma de GitHub.
+\noindent\textit{Versionado:} El código fuente \texttt{.tex} y todos los recursos asociados (figuras, imágenes y tablas) se mantendrán y versionarán en el repositorio Git de GitHub bajo la ruta \texttt{docs/}. Las modificaciones documentales se gestionarán mediante el flujo estándar de ramas y revisiones mediante \textit{Pull Requests}, asegurando la aprobación del equipo. Los documentos finales se compilarán en formato PDF y se dispondrá, si se considera necesario, adicionalmente de versiones en Markdown cuando sea conveniente para su consulta rápida en la propia plataforma de GitHub.
 
 \subsection{Documentación de Código: Doxygen}
 Con respecto a la documentación de código, hemos optado por usar \textbf{Doxygen}, aplicando así un estándar sencillo y fácil de entender para el grupo y cualquiera que pueda heredar el código, además de permitir la generación de documentación de código de manera dinámica a partir de los propios comentarios en los ficheros fuente.
 
 \subsection{Diseño y Modelado Software: UML con Visual Paradigm}
-Para la concreción del diseño de nuestra solución software (base de datos, definición de clases, diagramas de arquitectura y casos de uso) utilizaremos el estándar \textbf{UML}. Para ello nos apoyaremos en \textbf{Visual Paradigm}, por su capacidad de generar diagramas completos fácilmente y garantizar consistencia en la modelización de datos y componentes.
+Para la concreción del diseño de nuestra solución software (base de datos, definición de clases, diagramas de arquitectura y casos de uso) utilizaremos el estándar \textbf{UML}. Para ello nos apoyaremos en plataformas diseñadas para ello, como \textbf{Visual Paradigm} entre otras.

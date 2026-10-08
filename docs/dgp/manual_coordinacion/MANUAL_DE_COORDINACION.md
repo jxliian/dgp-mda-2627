@@ -19,14 +19,14 @@
 
 *Este documento ha sido completado, consensuado y formalmente aprobado por todos los integrantes de **CLENCH Software Development**, quienes asumen el compromiso de cumplir con las normativas, roles, estándares y procesos descritos a continuación para el correcto desarrollo del proyecto.*
 
-| Nombre y Apellidos | Rol Asignado (Fase Inicial) | Carácter del Rol | Asignatura(s) | Firma y Conformidad |
-| :--- | :--- | :---: | :---: | :---: |
-| **Miguel Ángel Luque** | Coordinador | Rotativo | DGP / MDA | *Firmado electrónicamente* |
-| **Yeray Rodríguez Navas** | Gestor de Calidad | **Fijo** | DGP / MDA | *Firmado electrónicamente* |
-| **Julián Carrión Tovar** | Gestor de Usabilidad y Accesibilidad | **Fijo** | DGP / MDA | *Firmado electrónicamente* |
-| **Pablo Hernández Ibáñez** | Moderador | Rotativo | DGP / MDA | *Firmado electrónicamente* |
-| **Pablo de la Torre Roldán** | Catalogador | Rotativo | DGP / MDA | *Firmado electrónicamente* |
-| **José Rodríguez Fernández** | Presentador | Rotativo | DGP / MDA | *Firmado electrónicamente* |
+| Nombre y Apellidos | Rol Asignado (Fase Inicial) | Carácter del Rol | Asignatura(s) | 
+| :--- | :--- | :---: | :---: |
+| **Miguel Ángel Luque** | Coordinador | Rotativo | DGP / MDA |
+| **Yeray Rodríguez Navas** | Gestor de Calidad | **Fijo** | DGP / MDA |
+| **Julián Carrión Tovar** | Gestor de Usabilidad y Accesibilidad | **Fijo** | DGP / MDA |
+| **Pablo Hernández Ibáñez** | Moderador | Rotativo | DGP / MDA |
+| **Pablo de la Torre Roldán** | Catalogador | Rotativo | DGP / MDA |
+| **José Rodríguez Fernández** | Presentador | Rotativo | DGP / MDA |
 
 ---
 
