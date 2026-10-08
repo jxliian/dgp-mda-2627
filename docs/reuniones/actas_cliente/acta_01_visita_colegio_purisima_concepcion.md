@@ -154,26 +154,7 @@ Durante el recorrido por las instalaciones se levantaron las siguientes notas de
 7. **Naturaleza de las notificaciones sonoras y voces (*"¿Voces suyas??? No IA"*):**
    - **Requisito determinante:** Se solicita enfáticamente que las notificaciones habladas utilicen **voces humanas familiares y cálidas** (grabadas por docentes o terapeutas del centro), rechazando terminantemente voces sintéticas estridentes o asistentes fríos de inteligencia artificial que puedan provocar confusión, rechazo o sobrecarga sensorial en el alumnado.
 
----
-
-## 4. Acuerdos y Requisitos Técnicos Derivados
-
-*(Todos los requisitos y acuerdos son asumidos de forma conjunta por el equipo CLENCH Software Development. La concreción y reparto específico de módulos se definirá de manera consensuada conforme madure el Product Backlog).*
-
-| Código | Requisito / Criterio de Diseño | Ámbito de Aplicación | Responsabilidad |
-| :---: | :--- | :---: | :--- |
-| **[ACU-CLI-01.1]** | **Arquitectura Offline-First:** La app debe operar 100% sin conexión mediante almacenamiento local persistente (SQLite / Hive). | Arquitectura / Backend | Equipo CLENCH (Conjunto) |
-| **[ACU-CLI-01.2]** | **Pantallas de Baja Carga Cognitiva:** Máximo 2 a 4 opciones por pantalla, botones grandes y centrados, evitando esquinas. | UI/UX / Frontend | Equipo CLENCH (Conjunto) |
-| **[ACU-CLI-01.3]** | **Gestos Simples Únicamente:** Interacción basada en *tap* directo con filtro anti-rebote (*debounce*). No requerir gestos complejos. | Accesibilidad | Equipo CLENCH (Conjunto) |
-| **[ACU-CLI-01.4]** | **Pictogramas ARASAAC:** Integración del repositorio estándar de ARASAAC como base visual primaria de comunicación. | Accesibilidad | Equipo CLENCH (Conjunto) |
-| **[ACU-CLI-01.5]** | **Personalización Total por Perfil:** Modelo de datos que contemple canal de alerta (voz/sonido/imagen), modo visual (claro/oscuro/alto contraste/daltonismo) y fuentes en mayúsculas. | Modelado de Datos | Equipo CLENCH (Conjunto) |
-| **[ACU-CLI-01.6]** | **Locuciones Humanas:** Permitir la subida y reproducción de audios grabados por educadores, evitando síntesis fría por IA. | Accesibilidad / Media | Equipo CLENCH (Conjunto) |
-| **[ACU-CLI-01.7]** | **Panel de Administración con PIN:** Acceso protegido a configuraciones docentes y visualización de métricas de uso no punitivas. | Seguridad / Backend | Equipo CLENCH (Conjunto) |
-| **[ACU-CLI-01.8]** | **Módulo de Tareas Especiales:** Modelado para comanda de comedor, temporizador visual, reprografía y guiado de rutas por el centro. | Requisitos / Backlog | Equipo CLENCH (Conjunto) |
-
----
-
-## 5. Próximos Pasos de Trabajo
+## 4. Próximos Pasos de Trabajo
 
 Las siguientes líneas de trabajo se abordarán de manera transversal y colaborativa por todos los integrantes del equipo durante la Fase Inicial, ajustando el reparto específico según las necesidades de cada entrega:
 
@@ -185,7 +166,7 @@ Las siguientes líneas de trabajo se abordarán de manera transversal y colabora
 
 ---
 
-## 6. Próxima Interacción con el Cliente
+## 5. Próxima Interacción con el Cliente
 - **Fecha Prevista:** Segunda quincena de octubre de 2026 (coincidiendo con la entrega de la fase de especificación y primeros prototipos interactivos).
 - **Modalidad:** Consulta telemática / Presencial con el profesorado de prácticas y representantes del colegio.
 - **Objetivo Principal:** Presentar y validar los wireframes de navegación simplificada, el catálogo de pictogramas ARASAAC y la estructura del panel docente protegido por PIN.
