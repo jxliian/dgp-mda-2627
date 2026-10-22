@@ -4,7 +4,7 @@
 **Proyecto:** Agenda Accesible - Proyecto AUTOVIDA (C.E.E. Fundación Purísima Concepción)  
 **Asignaturas:** Dirección y Gestión de Proyectos (DGP) & Metodologías de Desarrollo Ágil (MDA) - UGR  
 **Fecha:** [22/10/2026]  
-**Hora Inicio:** [08:30] | **Hora Fin:** [10:30]  
+**Hora Inicio:** [08:30] | **Hora Fin:** [14:30]  
 **Lugar / Modalidad:** [Presencial - Aula ETSIIT]  
 **Convocante / Moderador:** [Pablo Hernández Ibáñez]  
 **Redactor / Catalogador:** [Pablo de la Torre Roldán]  
@@ -22,6 +22,11 @@
 | **Pablo de la Torre Roldán** | [Catalogador] | Sí | |
 | **José Rodríguez Fernández** | [Presentador] | Sí | |
 | **Amine Azzammouri** | Refuerzo: [Coordinador] | Sí | |
+
+**Otros Asistentes:** 
+
+[Profesor]: María Belén Prados Suárez 
+[Profesor]: Juan José Escobar Pérez 
 
 *Nota: Conforme al Manual de Coordinación de CLENCH, las ausencias no justificadas conllevan amonestación en acta y comunicación en el informe de seguimiento individual.*
 
@@ -57,9 +62,9 @@
 | ID de tarea | Descripción de la Tarea | Responsable(s) | Fecha Límite | Prioridad | Estado |
 | :---: | :--- | :--- | :---: | :---: | :---: |
 | T-06.1 | Iniciar la implementación de las funcionalidades básicas del proyecto en el ámbito de Backend y Frontend. | Todo el equipo | 18 Noviembre | Alta | Pendiente |
-| T-06.3 | Redactar el manual de accesibilidad y calidad. | Julián Carrión Tovar y Yeray Rodríguez Navas | Por definir | Alta | En proceso |
-| T-06.4 | Preparar el diagrama de Gantt a partir de los SCRUM de Jira. | Todo el equipo | Por definir | Por definir | En proceso |
-| T-06.5 | Incorporar las actas de reunión a la documentación de la entrega final. | Por asignar | 22/10/2026 | Muy Alta | Finalizado |
+| T-06.2 | Redactar el manual de accesibilidad y calidad. | Julián Carrión Tovar y Yeray Rodríguez Navas | Por definir | Alta | En proceso |
+| T-06.3 | Preparar el diagrama de Gantt a partir de los SCRUM de Jira. | Todo el equipo | Por definir | Por definir | En proceso |
+| T-06.4 | Incorporar las actas de reunión a la documentación de la entrega final. | Por asignar | 22/10/2026 | Muy Alta | Finalizado |
 
 ---
 
