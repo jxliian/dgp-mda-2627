@@ -4,7 +4,7 @@
 **Asignaturas:** Dirección y Gestión de Proyectos (DGP) & Metodologías de Desarrollo Ágil (MDA) - UGR  
 **Fecha:** 15/10/2026  
 **Hora Inicio:** 08:30 | **Hora Fin:** 10:30  
-**Modalidad:** Presencial - Aula  
+**Modalidad:** Presencial - Aula - Clase MDA/DGP
 **Moderador:** Pablo Hernández Ibáñez  
 **Catalogador:** Pablo de la Torre Roldán  
 
@@ -12,9 +12,11 @@
 
 ## 1. Asistencia
 
+## 1. Asistencia
+
 | Miembro del Equipo | Rol Actual | Asistencia (Sí / No / Justificada) |
-| --- | --- | --- |
-| Miguel Ángel Luque Gómez | Coordinador | Sí |
+| :--- | :--- | :---: |
+| Miguel Ángel Luque | Coordinador | Sí |
 | Pablo de la Torre Roldán | Catalogador | Sí |
 | Yeray Rodríguez Navas | Gestor de Calidad | Sí |
 | Julián Carrión Tovar | Gestor de Usabilidad y Accesibilidad | Sí |
@@ -22,9 +24,10 @@
 | José Rodríguez Fernández | Presentador | Sí |
 | Amine Azzammouri | Coordinador (Refuerzo) | Sí |
 
-**Otros Asistentes (si aplica):** Ninguno.
+**Otros Asistentes:** 
 
----
+[Profesor]: María Belén Prados Suárez 
+[Profesor]: Juan José Escobar Pérez 
 
 ## 2. Orden del Día
 

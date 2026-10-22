@@ -1,12 +1,12 @@
-# Acta de Reunión nº [02]
+# Acta de Reunión nº [02]: Organización de equipo de trabajo e inicio de prácticas
 
 **Proyecto:** Agenda Accesible - Proyecto AUTOVIDA (Purísima Concepción)  
 **Asignaturas:** Dirección y Gestión de Proyectos (DGP) & Metodologías de Desarrollo Ágil (MDA) - UGR  
-**Fecha:** [01/10/2026]  
-**Hora Inicio:** [8:30] | **Hora Fin:** [14:30]  
-**Modalidad:** [Presencial - Aula - Clase MDA/DGP]  
-**Moderador:** [Pablo Hernández Ibáñez]  
-**Catalogador:** [Pablo de la Torre Roldán]  
+**Fecha:** 01/10/2026 
+**Hora Inicio:** 8:30 d| **Hora Fin:** 14:30 
+**Modalidad:** Presencial - Aula - Clase MDA/DGP  
+**Moderador:** Pablo Hernández Ibáñez
+**Catalogador:** Pablo de la Torre Roldán  
 
 ---
 
@@ -30,11 +30,12 @@
 ---
 
 ## 2. Orden del Día
-1. Revisión de compromisos y tareas del acta anterior.
-2. Estado de avance de la iteración actual (tablero Kanban / Jira).
-3. Puntos clave a tratar / Decisiones de diseño y arquitectura.
-4. Bloqueos, riesgos o incidencias identificadas.
-5. Asignación de nuevas tareas y planificación semanal.
+1. Revisión de compromisos y tareas del acta anterior (en este caso sobre el primer [acta 01 visita al centro](../actas_cliente/acta_01_visita_colegio_purisima_concepcion.md)).
+2. Concreción de roles de equipo.
+3. Inicio de manual de coordinación.
+4. Personas y escenarios ficticios.
+5. Elevator Pitch.
+6. Asignación de tareas y planificación proxima acta.
 
 ---
 
