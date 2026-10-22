@@ -47,10 +47,10 @@
 
 ## 4. Acuerdos y Decisiones Tomadas
 
-| **DEC-06.1** | Los miembros del equipo encargados del desarrollo del Backend serán: Yeray, Pablo de la Torre y Miguel Ángel. Los miembros del equipo encargados del desarrollo del Frontend serán: Julián, Jose y Pablo Hernández
-| **DEC-06.2** | El miembro Amine apoyará conjuntamente el desarrollo de Backend y Frontend según vaya requiriendo la carga de trabajo.
-| **DEC-06.3** | Julián y Yeray se encargarán de redactar el manual de accsibilidad y calidad.
----
+- **[DEC-06.1]:** Los miembros del equipo encargados del desarrollo del Backend serán: Yeray, Pablo de la Torre y Miguel Ángel. Los miembros del equipo encargados del desarrollo del Frontend serán: Julián, Jose y Pablo Hernández
+- **[DEC-06.2:]** El miembro Amine apoyará conjuntamente el desarrollo de Backend y Frontend según vaya requiriendo la carga de trabajo.
+- **[DEC-06.3:]** Julián y Yeray se encargarán de redactar el manual de accsibilidad y calidad.
+
 
 ## 5. Compromisos y Asignación de Tareas
 
