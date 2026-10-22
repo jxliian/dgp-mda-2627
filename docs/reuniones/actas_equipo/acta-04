@@ -1,4 +1,4 @@
-#Acta de Reunión nº 04
+# Acta de Reunión nº 04
 
 **Proyecto:** Agenda Accesible - Proyecto AUTOVIDA (Purísima Concepción)  
 **Asignaturas:** Dirección y Gestión de Proyectos (DGP) & Metodologías de Desarrollo Ágil (MDA) - UGR  
@@ -10,7 +10,7 @@
 
 ---
 
-##1. Asistencia
+## 1. Asistencia
 
 | Miembro del Equipo | Rol Actual | Asistencia (Sí / No / Justificada) |
 | --- | --- | --- |
@@ -41,7 +41,7 @@
 
 - **Punto 1: Revisión de historias de usuario.**  
   Se revisó la forma correcta de redactar historias de usuario siguiendo la estructura:  
-  **“Como [rol] quiero [característica/objetivo] para [valor o beneficio]”**.  
+  **“Como [rol] quiero [característica/objetivo] para [valor o beneficio]”.**  
   Se comprobó la necesidad de que cada historia represente una funcionalidad concreta y aporte un beneficio identificable para el usuario.
 
 - **Punto 2: Pruebas de aceptación.**  
@@ -70,7 +70,7 @@
 
 ## 4. Acuerdos y Decisiones Tomadas
 
-- **DEC-04.1:** Utilizar el formato estándar  
+- **DEC-04.1:** Utilizar el formato  
   **“Como [rol] quiero [objetivo] para [beneficio]”**  
   para redactar todas las historias de usuario.
 
