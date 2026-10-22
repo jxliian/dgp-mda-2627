@@ -4,9 +4,9 @@
 **Asignaturas:** Dirección y Gestión de Proyectos (DGP) & Metodologías de Desarrollo Ágil (MDA) - UGR  
 **Fecha:** [DD/MM/AAAA]  
 **Hora Inicio:** [HH:MM] | **Hora Fin:** [HH:MM]  
-**Lugar / Modalidad:** [Presencial - Aula / Telemática - Discord / Google Meet]  
-**Convocante / Moderador:** [Nombre del Moderador]  
-**Redactor / Catalogador:** [Nombre del Redactor]  
+**Modalidad:** [Presencial - Aula / Telemática - Discord / Google Meet]  
+**Moderador:** [Nombre del Moderador]  
+**Catalogador:** [Nombre del Catalogador]  
 
 ---
 
@@ -15,11 +15,12 @@
 | Miembro del Equipo | Rol Actual | Asistencia (Sí / No / Justificada) |
 | :--- | :--- | :---: |
 | [Miembro 1] | Coordinador | Sí |
-| [Miembro 2] | Co-coordinador / Desarrollador | Sí |
+| [Miembro 2] | Catalogador | Sí |
 | [Miembro 3] | Gestor de Calidad | Sí |
-| [Miembro 4] | Auditor de Usabilidad y Accesibilidad | Sí |
-| [Miembro 5] | Moderador / Catalogador | Sí |
-| [Miembro 6] | Presentador / Desarrollador | Sí |
+| [Miembro 4] | Gestor de Usabilidad y Accesibilidad | Sí |
+| [Miembro 5] | Moderador | Sí |
+| [Miembro 6] | Presentador | Sí |
+| [Miembro 7] | Refuerzo | Sí |
 
 **Otros Asistentes (si aplica):** [Cliente / Profesor / Tutor]
 
