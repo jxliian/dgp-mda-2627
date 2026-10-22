@@ -95,6 +95,7 @@ El equipo **CLENCH Software Development** está compuesto por **6 integrantes**:
 - **Moderador:** **Pablo Hernández Ibáñez** (dinamización de reuniones, gestión de turnos y soporte en actas).
 - **Catalogador:** **Pablo de la Torre Roldán** (custodia documental, nomenclatura de ficheros y versiones).
 - **Presentador:** **José Rodríguez Fernández** (preparación y coordinación de defensas orales y diapositivas).
+- **Coordinador (Refuerzo):** **Amine Azzammouri** (refuerzo de rol y tareas según iteracion con orden rotativo inverso).
 
 > Más información en el [Manual de Coordinación](docs/dgp/manual_coordinacion/MANUAL_DE_COORDINACION.md).
 
