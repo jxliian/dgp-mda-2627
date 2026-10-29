@@ -29,20 +29,22 @@
 
 ## 2. Orden del Día
 1. Iniciar el desarrollo del Frontend y Backend con la distribución de miembros acordada
-2. Realización del modelo relacional de la base de datos
-3. Creación del guión de instalación y adaptación del entorno de trabajo
+2. Diseño de UI teniendo en cuenta los requisitos de accesibilidad
+3. Realización del modelo relacional de la base de datos
+4. Creación del guión de instalación y adaptación del entorno de trabajo
 
 ---
 
 ## 3. Puntos Tratados y Discusión
 **Punto 1**  Es necesario realizar modificaciones en los requisitos para añadir funcionalidades no contempladas como la elección de avatares por los alumnos asi como para las tareas relacionadas con el comedor.
+
 **Punto 2**  Tratamiento de imágenes para la inclusión en tareas y pasos.
 
 ---
 
 ## 4. Acuerdos y Decisiones Tomadas
 **[DEC-07.1]:** El miembro Yeray es el encargado de redactar el guión de instalación y adaptación del entorno de trabajo con el apoyo de Amine.
-**[DEC-07.2]:** Miguel Ángel y Pablo Roldán se encargarán del diseño inicial del modelo relacional de la base de datos.
+**[DEC-07.2]:** Miguel Ángel y Pablo de la Torre Roldán se encargarán del diseño inicial del modelo relacional de la base de datos.
 **[DEC-07.3]:** El resto de miembros del equipo se encargarán del desarrollo de Mockups y Wireframes para el frontend.
 
 ## 5. Compromisos y Asignación de Tareas
