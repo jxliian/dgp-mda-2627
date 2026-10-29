@@ -1,9 +1,16 @@
------A INSTALAR-----
+#A INSTALAR#
 Flutter y Android Studio
 FastAPI Python
 PostgreSQL
 
-----FastAPI----
+#PASOS PARA DESPLEGAR LA BASE DE DATOS EN TU PC#
+1. Descargar e instalar uv con curl -LsSf https://astral.sh/uv/install.sh | sh
+2. Reiniciar terminal
+3. En la carpeta del proyecto fastAPI, sudo docker compose up -d
+4. Para iniciar el framework: uv run fastapi dev main.py
+
+#PASOS SEGUIDOS POR YERAY PARA DESARROLLAR LA BASE DE DATOS POR PRIMERA VEZ#
+##FastAPI##
 1. Copiar y pegar este comando: curl -LsSf https://astral.sh/uv/install.sh | sh ---> descarga e instala uv
 2. Creamos proyecto con uv y añadimos FastAPI:
 	``` uv init mda-dgp-26/27 --bare ```
