@@ -32,10 +32,11 @@ CREATE TABLE Student (
     stud_access_contrast VARCHAR(50),
     stud_access_fontsize INT,
     stud_access_ndays_visible INT,
-    stud_access_filters VARCHAR(255),
+    stud_access_filters BOOLEAN,
     stud_access_time_bar BOOLEAN,
     stud_access_talkback BOOLEAN,
-    stud_access_profile_mod VARCHAR(50),
+    stud_access_profile_mod BOOLEAN,
+    stud_access_tasks_mod BOOLEAN,
     avatar_id_fk INT,
     CONSTRAINT fk_student_avatar FOREIGN KEY (avatar_id_fk) REFERENCES Avatar(avatar_id) ON DELETE SET NULL
 );
@@ -63,7 +64,6 @@ CREATE TABLE Tasks (
     task_duration INT,
     task_creator VARCHAR(50),
     task_finished BOOLEAN,
-    task_date DATE,
     alt_task_id_fk INT UNIQUE,
     CONSTRAINT fk_tasks_alt_tareas FOREIGN KEY (alt_task_id_fk) REFERENCES Alt_tareas(alt_task_id) ON DELETE SET NULL
 );
@@ -116,7 +116,8 @@ CREATE TABLE stud_task (
     stud_id_fk INT,
     task_id_fk INT,
     task_index INT,
-    PRIMARY KEY (stud_id_fk, task_id_fk),
+    task_date DATE,
+    PRIMARY KEY (stud_id_fk, task_id_fk, task_index, task_date),
     CONSTRAINT fk_stud_task_student FOREIGN KEY (stud_id_fk) REFERENCES Student(stud_id) ON DELETE CASCADE,
     CONSTRAINT fk_stud_task_tasks FOREIGN KEY (task_id_fk) REFERENCES Tasks(task_id) ON DELETE CASCADE
 );
