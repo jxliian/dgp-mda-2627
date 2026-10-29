@@ -1,0 +1,132 @@
+-- 1. Tabla Admn
+CREATE TABLE Admn (
+    admn_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    admn_usr VARCHAR(50) NOT NULL,
+    admn_passwd VARCHAR(255) NOT NULL
+);
+
+-- 2. Tabla Staff
+CREATE TABLE Staff (
+    staff_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    staff_usr VARCHAR(50) NOT NULL,
+    staff_passwd VARCHAR(255) NOT NULL
+);
+
+-- 3. Tabla Avatar
+CREATE TABLE Avatar (
+    avatar_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    avatar_alt VARCHAR(255),
+    avatar_bin BYTEA
+);
+
+-- 4. Tabla Student
+CREATE TABLE Student (
+    stud_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    stud_usr VARCHAR(50) NOT NULL,
+    stud_password VARCHAR(255) NOT NULL,
+    stud_class VARCHAR(50),
+    stud_access_main_col VARCHAR(50),
+    stud_access_sec_col VARCHAR(50),
+    stud_access_ntasks_visible INT,
+    stud_access_pictograms BOOLEAN,
+    stud_access_contrast VARCHAR(50),
+    stud_access_fontsize INT,
+    stud_access_ndays_visible INT,
+    stud_access_filters VARCHAR(255),
+    stud_access_time_bar BOOLEAN,
+    stud_access_talkback BOOLEAN,
+    stud_access_profile_mod VARCHAR(50),
+    avatar_id_fk INT,
+    CONSTRAINT fk_student_avatar FOREIGN KEY (avatar_id_fk) REFERENCES Avatar(avatar_id) ON DELETE SET NULL
+);
+
+-- 5. Tabla Parents
+CREATE TABLE Parents (
+    par_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    par_usr VARCHAR(50) NOT NULL,
+    par_passwd VARCHAR(255) NOT NULL
+);
+
+-- 6. Tabla Alt_tareas
+CREATE TABLE Alt_tareas (
+    alt_task_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    alt_task_start_hour TIME,
+    alt_task_duration INT,
+    alt_task_creator VARCHAR(50)
+);
+
+-- 7. Tabla Tasks
+CREATE TABLE Tasks (
+    task_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    task_title VARCHAR(100),
+    task_start_hour TIME,
+    task_duration INT,
+    task_creator VARCHAR(50),
+    task_finished BOOLEAN,
+    task_date DATE,
+    alt_task_id_fk INT UNIQUE,
+    CONSTRAINT fk_tasks_alt_tareas FOREIGN KEY (alt_task_id_fk) REFERENCES Alt_tareas(alt_task_id) ON DELETE SET NULL
+);
+
+-- 8. Subtipos de Tareas (Herencia/Especialización de Tasks)
+CREATE TABLE Generic_Task (
+    task_id_fk INT PRIMARY KEY,
+    CONSTRAINT fk_generic_task FOREIGN KEY (task_id_fk) REFERENCES Tasks(task_id) ON DELETE CASCADE
+);
+
+CREATE TABLE Canteen_Task (
+    task_id_fk INT PRIMARY KEY,
+    CONSTRAINT fk_canteen_task FOREIGN KEY (task_id_fk) REFERENCES Tasks(task_id) ON DELETE CASCADE
+);
+
+-- 9. Tabla Steps
+CREATE TABLE Steps (
+    step_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    step_description TEXT,
+    step_finished BOOLEAN,
+    step_index INT,
+    generic_task_id_fk INT NOT NULL,
+    CONSTRAINT fk_steps_generic_task FOREIGN KEY (generic_task_id_fk) REFERENCES Generic_Task(task_id_fk) ON DELETE CASCADE
+);
+
+-- -----------------------------------------------------
+-- TABLAS INTERMEDIAS (RELACIONES MUCHOS A MUCHOS)
+-- -----------------------------------------------------
+
+-- Relación N:M entre Staff y Student
+CREATE TABLE staff_stud (
+    staff_id_fk INT,
+    stud_id_fk INT,
+    PRIMARY KEY (staff_id_fk, stud_id_fk),
+    CONSTRAINT fk_staff_stud_staff FOREIGN KEY (staff_id_fk) REFERENCES Staff(staff_id) ON DELETE CASCADE,
+    CONSTRAINT fk_staff_stud_student FOREIGN KEY (stud_id_fk) REFERENCES Student(stud_id) ON DELETE CASCADE
+);
+
+-- Relación N:M entre Parents y Student
+CREATE TABLE par_stud (
+    par_id_fk INT,
+    stud_id_fk INT,
+    PRIMARY KEY (par_id_fk, stud_id_fk),
+    CONSTRAINT fk_par_stud_parents FOREIGN KEY (par_id_fk) REFERENCES Parents(par_id) ON DELETE CASCADE,
+    CONSTRAINT fk_par_stud_student FOREIGN KEY (stud_id_fk) REFERENCES Student(stud_id) ON DELETE CASCADE
+);
+
+-- Relación N:M entre Student y Tasks
+CREATE TABLE stud_task (
+    stud_id_fk INT,
+    task_id_fk INT,
+    task_index INT,
+    PRIMARY KEY (stud_id_fk, task_id_fk),
+    CONSTRAINT fk_stud_task_student FOREIGN KEY (stud_id_fk) REFERENCES Student(stud_id) ON DELETE CASCADE,
+    CONSTRAINT fk_stud_task_tasks FOREIGN KEY (task_id_fk) REFERENCES Tasks(task_id) ON DELETE CASCADE
+);
+
+-- Relación N:M entre Canteen_Task y Student
+CREATE TABLE canteen_stud (
+    task_id_fk INT,
+    stud_id_fk INT,
+    canteen_date DATE,
+    PRIMARY KEY (task_id_fk, stud_id_fk),
+    CONSTRAINT fk_canteen_stud_canteen FOREIGN KEY (task_id_fk) REFERENCES Canteen_Task(task_id_fk) ON DELETE CASCADE,
+    CONSTRAINT fk_canteen_stud_student FOREIGN KEY (stud_id_fk) REFERENCES Student(stud_id) ON DELETE CASCADE
+);
