@@ -17,8 +17,8 @@
 
 | Periodo / Hito | Horas Estimadas | Horas Reales | Desviación (h) | Estado de Cumplimiento |
 | :--- | :---: | :---: | :---: | :---: |
-| **Fase Inicial** (Semanas 1-4: P0/P1/P2) | 0.0 h | 0.0 h | +0.0 h | En curso |
-| **Iteración 1** (Semanas 5-8: Sprint 1) | 0.0 h | 0.0 h | +0.0 h | Pendiente |
+| **Fase Inicial** (Semanas 1-4: P0/P1/P2) | 10.0 h | 14.0 h | +4.0 h | Finalizada |
+| **Iteración 1** (Semanas 5-8: Sprint 1) | 0.0 h | 0.0 h | +0.0 h | En curso |
 | **Iteración 2** (Semanas 9-11: Sprint 2) | 0.0 h | 0.0 h | +0.0 h | Pendiente |
 | **Iteración 3** (Semanas 12-14: Sprint 3) | 0.0 h | 0.0 h | +0.0 h | Pendiente |
 | **TOTAL ACUMULADO** | **0.0 h** | **0.0 h** | **+0.0 h** | - |
@@ -34,27 +34,24 @@
 
 | Categoría de Actividad | Horas Estimadas | Horas Reales | Desviación (h) | Justificación de la Desviación |
 | :--- | :---: | :---: | :---: | :--- |
-| Reuniones de equipo y coordinación | 0.0 h | 0.0 h | +0.0 h | |
-| Redacción colaborativa y catalogación de actas | 0.0 h | 0.0 h | +0.0 h | |
-| Organización y normalización del árbol documental `docs/` | 0.0 h | 0.0 h | +0.0 h | |
-| Análisis conjunto de requisitos y especificación funcional | 0.0 h | 0.0 h | +0.0 h | |
-| Implementación frontend / backend (Flutter) | 0.0 h | 0.0 h | +0.0 h | |
-| Pruebas y verificación | 0.0 h | 0.0 h | +0.0 h | |
-| Documentación DGP (Estándares de Documentación) | 0.0 h | 0.0 h | +0.0 h | |
-| **TOTAL FASE INICIAL** | **0.0 h** | **0.0 h** | **+0.0 h** | |
+| Reuniones de equipo y coordinación | 8.0 h | 9.0 h | +1.0 h | |
+| Redacción colaborativa y catalogación de actas | 0.5 h | 0.5 h | +0.0 h | |
+| Organización y normalización del árbol documental `docs/` | 0.5 h | 0.5 h | +0.0 h | |
+| Análisis conjunto de requisitos y especificación funcional | 1.0 h | 4.0 h | +3.0 h | |
+| **TOTAL FASE INICIAL** | **10.0 h** | **14.0 h** | **+4.0 h** | |
 
 ### 2.2 Detalle Cronológico de Tareas (Fase Inicial)
 
-| Fecha | Tarea / ID Jira | Categoría | Horas | Descripción Detallada del Trabajo Realizado |
-| :---: | :---: | :---: | :---: | :--- |
-| 25/09/2026 | T-DGP-01 | Reunión | 1.5 | Asistencia a entrevista inicial con cliente. |
-| [DD/MM/AAAA] | T-CAT-01 | Documentación | 0.0 | Elaboración colaborativa y catalogación de plantillas de actas y seguimiento. |
-| [DD/MM/AAAA] | T-DOC-01 | Documentación | 0.0 | Revisión y ordenación del árbol de documentos de coordinación. |
-| [DD/MM/AAAA] | T-[XX] | Requisitos | 0.0 | Análisis conjunto de especificaciones funcionales y backlog. |
+| Fecha | Categoría | Horas | Descripción Detallada del Trabajo Realizado |
+| :---: | :---: | :---: | :--- |
+| 25/09/2026 | Reunión | 2.0 | Asistencia a entrevista inicial con cliente. |
+| [05-29/10/2026] | Documentación | 6.0 | Elaboración colaborativa y catalogación de plantillas de actas y seguimiento. |
+| [15/10/2026] | Documentación | 2.0 | Revisión y ordenación del árbol de documentos de coordinación. |
+| [22/10/2026] | Requisitos | 4.0 | Análisis conjunto de especificaciones funcionales y backlog. |
 
 ### 2.3 Valoración y Observaciones
-- **Dificultades y bloqueos:** 
-- **Medidas correctoras adoptadas:** 
+- **Dificultades y bloqueos:** Identificar claramente los requisitos y ordenarlos por prioridad.
+- **Medidas correctoras adoptadas:** Pasar los requisitos y HUs a Jira, obteniendo un RF por cada HU
 
 ---
 
