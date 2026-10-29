@@ -29,7 +29,7 @@ CREATE TABLE Student (
     stud_access_sec_col VARCHAR(50),
     stud_access_ntasks_visible INT,
     stud_access_pictograms BOOLEAN,
-    stud_access_contrast VARCHAR(50),
+    stud_access_contrast BOOLEAN,
     stud_access_fontsize INT,
     stud_access_ndays_visible INT,
     stud_access_filters BOOLEAN,
@@ -48,8 +48,8 @@ CREATE TABLE Parents (
     par_passwd VARCHAR(255) NOT NULL
 );
 
--- 6. Tabla Alt_tareas
-CREATE TABLE Alt_tareas (
+-- 6. Tabla Alt_tasks
+CREATE TABLE Alt_Tasks (
     alt_task_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     alt_task_start_hour TIME,
     alt_task_duration INT,
@@ -65,7 +65,7 @@ CREATE TABLE Tasks (
     task_creator VARCHAR(50),
     task_finished BOOLEAN,
     alt_task_id_fk INT UNIQUE,
-    CONSTRAINT fk_tasks_alt_tareas FOREIGN KEY (alt_task_id_fk) REFERENCES Alt_tareas(alt_task_id) ON DELETE SET NULL
+    CONSTRAINT fk_tasks_alt_tasks FOREIGN KEY (alt_task_id_fk) REFERENCES Alt_Tasks(alt_task_id) ON DELETE SET NULL
 );
 
 -- 8. Subtipos de Tareas (Herencia/Especialización de Tasks)
