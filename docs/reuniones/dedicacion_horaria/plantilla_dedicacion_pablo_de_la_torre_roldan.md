@@ -60,7 +60,7 @@
 *(A cumplimentar al inicio de cada iteración)*
 
 ### Iteración 1 (Rol: Moderador)
-- **Horas estimadas:** [0.0 h] | **Horas reales:** [0.0 h]
+- **Horas estimadas:** [20.0 h] | **Horas reales:** [0.0 h]
 - **Objetivo principal:** Moderación de reuniones de sprint y resolución de discrepancias de diseño.
 
 ### Iteración 2 (Rol: Presentador)
