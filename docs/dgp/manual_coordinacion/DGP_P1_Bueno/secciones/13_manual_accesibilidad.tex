@@ -1,0 +1,53 @@
+% ==============================================================================
+% MANUAL DE ACCESIBILIDAD Y CALIDAD
+% ==============================================================================
+\newpage
+\section{Manual de Accesibilidad y Calidad}
+
+El Gestor de Accesibilidad y el Gestor de Calidad se encargarán conjuntamente de elaborar un manual de accesibilidad que proporcione al resto del equipo los conocimientos necesarios para diseñar una aplicación accesible y satisfactoria para sus usuarios. A continuación se presenta dicho manual:
+
+\begingroup
+\makeatletter
+\newcounter{manualsection}
+\newcounter{manualsubsection}[manualsection]
+\renewcommand{\themanualsection}{\arabic{manualsection}}
+\renewcommand{\themanualsubsection}{\themanualsection.\arabic{manualsubsection}}
+\providecommand{\theHmanualsection}{}
+\providecommand{\theHmanualsubsection}{}
+\renewcommand{\theHmanualsection}{manual.\arabic{manualsection}}
+\renewcommand{\theHmanualsubsection}{manual.\arabic{manualsection}.\arabic{manualsubsection}}
+
+\newcommand{\l@manualsection}{\@dottedtocline{1}{0em}{2.3em}}
+\newcommand{\l@manualsubsection}{\@dottedtocline{2}{1.5em}{3.2em}}
+
+\section*{Índice del manual}
+\@starttoc{mtoc}
+
+\renewcommand{\section}[1]{%
+  \refstepcounter{manualsection}%
+  \setcounter{manualsubsection}{0}%
+  \addcontentsline{mtoc}{manualsection}{\protect\numberline{\themanualsection}#1}%
+  \par\addvspace{14pt}%
+  \noindent{\color{clenchMagenta}\sffamily\LARGE\bfseries\themanualsection.\ #1\par}%
+  \vspace{6pt}\noindent{\color{clenchCyan}\rule{\linewidth}{0.4pt}}\par\vspace{6pt}%
+}
+\renewcommand{\subsection}[1]{%
+  \refstepcounter{manualsubsection}%
+  \addcontentsline{mtoc}{manualsubsection}{\protect\numberline{\themanualsubsection}#1}%
+  \par\addvspace{10pt}%
+  \noindent{\color{clenchCyanDark}\sffamily\Large\bfseries\themanualsubsection.\ #1\par}%
+  \vspace{4pt}%
+}
+
+\input{ManualAccesibilidadCalidad/secciones/03_resumen_y_objetivos.tex}
+\input{ManualAccesibilidadCalidad/secciones/04_requisitos_propuestos.tex}
+\input{ManualAccesibilidadCalidad/secciones/05_justificacion_propuesta.tex}
+\input{ManualAccesibilidadCalidad/secciones/06_antecedentes_equipo.tex}
+\input{ManualAccesibilidadCalidad/secciones/07_solucion_tecnica.tex}
+\input{ManualAccesibilidadCalidad/secciones/08_actividades_cronograma.tex}
+\input{ManualAccesibilidadCalidad/secciones/09_seguimiento_cliente.tex}
+\input{ManualAccesibilidadCalidad/secciones/10_valor_beneficios.tex}
+\input{ManualAccesibilidadCalidad/secciones/11_documentacion_y_actas.tex}
+
+\makeatother
+\endgroup

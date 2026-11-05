@@ -1,0 +1,29 @@
+\section{Buenas prácticas de backend}
+
+Estas pautas son una introducción independiente del lenguaje o la arquitectura que finalmente utilice AUTOVIDA. Se concretarán cuando el equipo acuerde la tecnología, los perfiles y los datos que realmente necesita el proyecto.
+
+\subsection{Datos, validación y consistencia}
+\begin{itemize}[leftmargin=*]
+  \item Validar cada entrada en el servidor: presencia de campos requeridos, tipo, longitud y valores permitidos. Rechazar lo inválido con un mensaje controlado y comprensible para la interfaz.
+  \item Aplicar las reglas de negocio en un lugar consistente. No duplicar reglas contradictorias entre pantallas y servidor.
+  \item Guardar únicamente los datos necesarios para las funciones aprobadas. Usar nombres y formatos consistentes y establecer relaciones claras entre usuarios, tareas y actividades.
+  \item Evitar estados imposibles o duplicados mediante restricciones y operaciones de escritura seguras. Si una operación debe completarse como un todo, impedir que quede guardada a medias.
+  \item Definir cómo se corregirán errores de datos y cómo se harán copias de seguridad y restauraciones, según el alcance y la infraestructura aprobados.
+\end{itemize}
+
+\subsection{Permisos, seguridad y privacidad}
+\begin{itemize}[leftmargin=*]
+  \item Comprobar permisos en cada operación protegida, no solo en la interfaz. Aplicar el mínimo acceso necesario para cada perfil.
+  \item No incluir contraseñas, tokens, claves ni datos personales innecesarios en el código, mensajes de error o registros técnicos. Las credenciales se gestionan mediante la configuración segura del entorno elegido.
+  \item No devolver información de otras personas al consultar o modificar una tarea. Probar expresamente los casos de acceso permitido y denegado.
+  \item Tratar los datos del alumnado con especial cuidado: limitar su uso al propósito acordado, restringir quién puede verlos y no reutilizarlos en pruebas sin autorización y protección adecuada.
+  \item No mostrar trazas internas, consultas, rutas del servidor o detalles técnicos a las personas usuarias. Registrar solo lo necesario para investigar fallos y con acceso limitado.
+\end{itemize}
+
+\subsection{Errores y disponibilidad}
+El servidor debe distinguir entre una operación completada, una entrada incorrecta, falta de permisos y un fallo inesperado. La interfaz recibirá una respuesta previsible y podrá explicarle a la persona qué ha pasado y qué puede hacer. Los fallos técnicos no deben borrar silenciosamente datos ni presentarse como si la tarea se hubiera guardado.
+
+El equipo identificará las operaciones importantes, probará sus casos normales y de error y documentará las dependencias de las que dependen. No se prometerá disponibilidad, recuperación o seguridad absoluta: se acordarán medidas concretas, se probarán y se anotarán sus límites.
+
+\subsection{Práctica guiada}
+En grupos, recorrer el flujo ``crear una tarea''. Enumerar datos de entrada, reglas de validación, quién puede crearla, qué se guarda, respuestas posibles y qué mensaje muestra la interfaz si no se puede guardar. Revisar que no se confunda un fallo con una operación completada.

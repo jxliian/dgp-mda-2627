@@ -1,0 +1,22 @@
+\section{Formación básica de backend}
+
+\subsection{Qué es el backend}
+El backend es la parte que procesa la información y las reglas de AUTOVIDA fuera de la pantalla que ve la persona usuaria. De forma simplificada, la interfaz envía una petición; el servidor comprueba que sea válida y que la persona tenga permiso; consulta o actualiza los datos almacenados; y devuelve un resultado que la interfaz presenta de forma comprensible.
+
+Por ejemplo, al guardar una tarea, el servidor debe comprobar que los campos requeridos tienen valores válidos, que quien la guarda puede modificarla, y que la operación se ha almacenado correctamente. La interfaz puede ayudar a prevenir errores, pero nunca debe ser la única barrera: los datos recibidos por el servidor se consideran no confiables hasta validarlos.
+
+\subsection{Conceptos esenciales}
+\begin{itemize}[leftmargin=*]
+  \item \textbf{API:} conjunto definido de operaciones por las que la interfaz y el servidor intercambian datos. Cada operación debe tener entradas y respuestas documentadas.
+  \item \textbf{Base de datos:} almacenamiento organizado de la información. Debe evitar registros inconsistentes y guardar solo los datos necesarios para las funciones acordadas.
+  \item \textbf{Autenticación y autorización:} la autenticación identifica quién accede; la autorización determina qué acciones puede realizar esa persona. Son comprobaciones distintas.
+  \item \textbf{Validación:} reglas aplicadas a los datos recibidos, como campos obligatorios, formatos y límites permitidos. Deben comprobarse en el servidor.
+  \item \textbf{Respuesta y error:} resultado que el servidor comunica a la interfaz. Debe ser consistente y permitir mostrar una explicación útil sin revelar información interna.
+\end{itemize}
+
+\subsection{Flujo que debe entender todo el equipo}
+Para cada función, dibujar o describir estos pasos: acción del usuario, petición enviada, validaciones, regla de negocio, lectura o escritura de datos, respuesta y mensaje visible. Este esquema ayuda a detectar requisitos olvidados y a planificar pruebas aunque no todas las personas programen backend.
+
+\begin{infobox}[title={Idea clave}]
+El frontend facilita una interacción comprensible; el backend protege las reglas y los datos. Nunca se debe confiar en que la interfaz haya enviado información correcta o de que una persona tenga permiso solo porque un botón estaba oculto.
+\end{infobox}

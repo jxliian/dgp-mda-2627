@@ -1,0 +1,546 @@
+\newpage
+\section{Actas de Equipo}
+
+Las siguientes actas recogen los principales acuerdos y compromisos de las reuniones de CLENCH Software Development entre el 1 y el 29 de octubre de 2026. Se presentan de forma resumida y homogénea como registro del trabajo realizado para el proyecto AUTOVIDA: el sistema accesible de agenda y asignación de tareas destinado al C.E.E. Fundación Purísima Concepción.
+
+\newcommand{\filaAsistente}[2]{#1 & #2 & {\textcolor{clenchCyanDark}{$\checkmark$}} \\
+}
+
+\subsection{Acta 01: Visita presencial al cliente}
+\textcolor{textGray}{\textit{2 de octubre de 2026 --- Observación y toma de requisitos en el centro}}
+
+\begin{infobox}[title=Datos de la reunión]
+\textbf{Proyecto:} Agenda Accesible --- Proyecto AUTOVIDA\par
+\textbf{Cliente:} C.E.E. Fundación Purísima Concepción de Granada\par
+\textbf{Asignaturas:} Dirección y Gestión de Proyectos (DGP) y Metodologías de Desarrollo Ágil (MDA) --- UGR\par
+\textbf{Horario y modalidad:} 09:30--13:30, visita presencial por las aulas PTVAL, talleres y pabellones del centro\par
+\textbf{Tiempo de reunión:} <vacio>\par
+\textbf{Tiempo de trabajo:} <vacio>\par
+\textbf{Representante presencial de CLENCH:} Julián Carrión Tovar, Gestor de Usabilidad y Accesibilidad\par
+\textbf{Notas de campo:} Julián Carrión Tovar. Análisis y elaboración del acta: equipo CLENCH Software Development.
+\end{infobox}
+
+\subsubsection{Asistencia y participantes}
+La visita se realizó con un único representante presencial de CLENCH por las indicaciones de aforo. Los resultados se compartieron después con el equipo completo para su análisis y documentación colaborativa.
+
+\begin{center}\small
+\renewcommand{\arraystretch}{1.18}
+\begin{tabularx}{0.96\textwidth}{@{}X X c@{}}
+\toprule
+\rowcolor{tableHeader}\textbf{Integrante / participante} & \textbf{Representación} & \textbf{Asistencia} \\
+\midrule
+  \filaAsistente{Julián Carrión Tovar}{Gestor de Usabilidad y Accesibilidad, CLENCH}
+Miguel Ángel Luque Gómez & Coordinador de CLENCH & Representado \\
+José Rodríguez Fernández & Presentador de CLENCH & Representado \\
+Pablo de la Torre Roldán & Catalogador de CLENCH & Representado \\
+Pablo Hernández Ibáñez & Moderador de CLENCH & Representado \\
+Yeray Rodríguez Navas & Gestor de Calidad de CLENCH & Representado \\
+Amine Azzammouri & Refuerzo de Coordinación de CLENCH & Representado \\
+Equipo directivo y coordinación del centro & Representantes del cliente & \textcolor{clenchCyanDark}{$\checkmark$} \\
+Equipo docente y terapeutas & Personal educativo y terapéutico & \textcolor{clenchCyanDark}{$\checkmark$} \\
+Alumnado de PTVAL & Participantes observados en sus talleres & \textcolor{clenchCyanDark}{$\checkmark$} \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsubsection{Objetivo de la visita}
+Observar el contexto real de uso de la aplicación y recoger necesidades del alumnado y del personal del centro. La visita se centró en las capacidades motrices, cognitivas, sensoriales y comunicativas; los dispositivos y ayudas técnicas disponibles; las rutinas de los talleres; y los requisitos iniciales para la interfaz accesible, la arquitectura y los datos.
+
+\subsubsection{Observaciones del entorno y accesibilidad}
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Interacción motriz:} El alumnado observado manejaba tabletas táctiles con soltura; algunos estudiantes del centro utilizan seguimiento ocular. Se recomienda priorizar pulsaciones simples, botones amplios y ubicaciones centrales, evitando depender de gestos complejos o colocar acciones críticas en los bordes.
+  \item \textbf{Percepción visual y sensorial:} Se identificó la necesidad de alto contraste, tipografía clara y controles visuales personalizables. Deben evitarse destellos, animaciones rápidas y estímulos agresivos. Las notificaciones han de poder adaptarse a cada perfil mediante voz, sonido o pictogramas; la vibración puede servir como refuerzo confirmatorio.
+  \item \textbf{Comunicación y carga cognitiva:} El centro utiliza pictogramas ARASAAC y existe diversidad en lectoescritura. Se recomiendan textos de Lectura Fácil, pantallas despejadas y entre dos y cuatro opciones simultáneas. Los errores deben tratarse sin penalización, ofreciendo alternativas adaptadas y refuerzo positivo.
+  \item \textbf{Dispositivos y conectividad:} Se observaron tabletas Android, pizarras digitales y ayudas de seguimiento ocular. Aunque el centro dispone de Wi-Fi, las salidas no garantizan conexión; se identificó como necesidad que la aplicación funcione sin conexión y sincronice los datos cuando vuelva a haber red.
+  \item \textbf{Personalización y gestión docente:} Cada perfil debería permitir configurar apoyos visuales, colores, temporizadores y canal de notificación. Se planteó proteger los ajustes mediante PIN o contraseña y reservar las métricas de uso al personal autorizado, con finalidad de seguimiento y sin exponer evaluaciones punitivas al alumnado.
+  \item \textbf{Contexto del centro:} Los pabellones están separados y algunos alumnos tienen dificultades de equilibrio en los desplazamientos. Se propuso explorar una ruta o visita guiada. También se observaron talleres grupales, roles rotativos de liderazgo entre alumnos y la necesidad de que el panel docente resulte intuitivo.
+\end{itemize}
+
+\subsubsection{Necesidades funcionales identificadas}
+La visita aportó casos de uso para una agenda diaria personalizable, juegos adaptados, cartelera de cine, recordatorios de medicación y gestión de comedor (menús, dietas, ausencias y comunicación a familias). Para las notificaciones habladas, el acta recoge la preferencia del centro por voces humanas, familiares y cálidas, frente a voces sintéticas que puedan generar confusión o sobrecarga. También se señaló evitar interfaces que exijan nociones espaciales corporales complejas y considerar textos en mayúsculas cuando favorezcan la lectura.
+
+\subsubsection{Próximos pasos y compromisos}
+Las siguientes acciones se plantearon para la Fase Inicial, con reparto transversal entre los integrantes y ajuste según las necesidades de cada entrega.
+
+\begin{center}\footnotesize
+\begin{tabularx}{\textwidth}{@{}p{0.10\textwidth}X p{0.22\textwidth}p{0.17\textwidth}p{0.13\textwidth}@{}}
+\toprule
+\rowcolor{tableHeader} ID & Tarea & Responsable(s) & Horizonte & Estado \\
+\midrule
+T-01.1 & Elaborar personas y escenarios basados en las observaciones del centro. & Todo el equipo & Fase Inicial & Planificado \\
+T-01.2 & Preparar bocetos y wireframes con navegación simplificada y contraste accesible. & Todo el equipo & Fase Inicial & Planificado \\
+T-01.3 & Estudiar la arquitectura Flutter con funcionamiento sin conexión y sincronización posterior. & Todo el equipo & Fase Inicial & Planificado \\
+T-01.4 & Consolidar el modelo de datos para perfiles, agendas, tareas y métricas docentes. & Todo el equipo & Fase Inicial & Planificado \\
+T-01.5 & Revisar y refinar los entregables antes de las fechas oficiales. & Todo el equipo & Continuo & Planificado \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsubsection{Próxima interacción con el cliente}
+Se previó una nueva consulta durante la segunda quincena de octubre de 2026, presencial o telemática, para presentar y validar los wireframes de navegación simplificada, el catálogo ARASAAC y el panel docente protegido por PIN.
+
+\subsubsection{Elaboración y seguimiento}
+El acta de visita se elaboró a partir de las notas de campo de Julián Carrión Tovar y de la puesta en común del equipo. En esta fase inicial, Julián colaboró además en la publicación de documentos en el repositorio de GitHub; se previó una participación progresiva de todos los integrantes en el control de versiones conforme avanzara el desarrollo.
+
+\clearpage
+\subsection{Acta 02: Organización del equipo e inicio de las prácticas}
+\textcolor{textGray}{\textit{1 de octubre de 2026}}
+
+\begin{infobox}[title=Datos de la reunión]
+\textbf{Proyecto:} Agenda Accesible --- Proyecto AUTOVIDA (C.E.E. Fundación Purísima Concepción)\par
+\textbf{Asignaturas:} Dirección y Gestión de Proyectos (DGP) y Metodologías de Desarrollo Ágil (MDA) --- UGR\par
+\textbf{Horario y modalidad:} 08:30--14:30, presencial en el aula de prácticas\par
+\textbf{Tiempo de reunión:} 3 horas.
+\textbf{Tiempo de trabajo:} x (prácticas no comenzadas).
+\textbf{Moderador:} Pablo Hernández Ibáñez\qquad
+\textbf{Catalogador:} Pablo de la Torre Roldán
+\end{infobox}
+
+\subsubsection{Asistencia}
+\begin{center}\small
+\renewcommand{\arraystretch}{1.18}
+\begin{tabularx}{0.96\textwidth}{@{}X X c@{}}
+\toprule
+\rowcolor{tableHeader}\textbf{Integrante / asistente} & \textbf{Rol} & \textbf{Asistencia} \\
+\midrule
+  \filaAsistente{Miguel Ángel Luque Gómez}{Coordinador}
+  \filaAsistente{Pablo de la Torre Roldán}{Catalogador}
+  \filaAsistente{Yeray Rodríguez Navas}{Gestor de Calidad}
+  \filaAsistente{Julián Carrión Tovar}{Gestor de Usabilidad y Accesibilidad}
+  \filaAsistente{Pablo Hernández Ibáñez}{Moderador}
+  \filaAsistente{José Rodríguez Fernández}{Presentador}
+  \filaAsistente{Amine Azzammouri}{Coordinador (refuerzo)}
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsubsection{Orden del día y desarrollo}
+\begin{enumerate}[leftmargin=*]
+  \item Revisar los compromisos derivados de la visita inicial al centro.
+  \item Concretar los roles, su rotación y la identidad del equipo; iniciar el Manual de Coordinación.
+  \item Comenzar la elaboración de personas y escenarios ficticios vinculados al alumnado y al uso de la agenda.
+  \item Preparar el \textit{elevator pitch} del proyecto y distribuir el trabajo para la siguiente reunión.
+\end{enumerate}
+El equipo inició la Iteración 0, acordó trabajar en la identidad de CLENCH y comenzó el manual. Después debatió las personas y escenarios, y elaboró un \textit{elevator pitch} que concreta el público destinatario, sus necesidades, la solución propuesta y su valor diferencial.
+
+\subsubsection{Acuerdos}
+\begin{itemize}[leftmargin=*]
+  \item \textbf{DEC-02.1:} Establecer los roles rotativos y el rol de refuerzo conforme al esquema de rotación del equipo descrito en la sección de organización.
+  \item \textbf{DEC-02.2:} Continuar conjuntamente la definición de personas y escenarios para asegurar que sean coherentes con las necesidades del proyecto.
+  \item \textbf{DEC-02.3:} Mantener el trabajo del Manual de Coordinación como entregable común del equipo.
+\end{itemize}
+
+\subsubsection{Compromisos}
+\begin{center}\footnotesize
+\begin{tabularx}{\textwidth}{@{}p{0.10\textwidth}X p{0.23\textwidth}p{0.14\textwidth}p{0.13\textwidth}@{}}
+\toprule
+\rowcolor{tableHeader} ID & Tarea & Responsable(s) & Fecha límite & Estado \\
+\midrule
+T-02.1 & Formalizar la asignación de roles. & Todo el equipo & 21/10/2026 & Finalizado \\
+T-02.2 & Completar el Manual de Coordinación. & Todo el equipo & 21/10/2026 & Pendiente \\
+T-02.3 & Definir personas y escenarios. & Todo el equipo & 21/10/2026 & Pendiente \\
+T-02.4 & Preparar el \textit{elevator pitch}. & Julián Carrión Tovar & 21/10/2026 & Finalizado \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsubsection{Próxima convocatoria}
+Se previó una reunión para el 8 de octubre de 2026 a las 08:30, con el objetivo de continuar el seguimiento, avanzar en el Manual de Coordinación y terminar el apartado de personas.
+
+\clearpage
+\subsection{Acta 03: Propuesta técnica e historias de usuario}
+\textcolor{textGray}{\textit{9 de octubre de 2026}}
+
+\begin{infobox}[title=Datos de la reunión]
+\textbf{Proyecto:} Agenda Accesible --- Proyecto AUTOVIDA (C.E.E. Fundación Purísima Concepción)\par
+\textbf{Asignaturas:} Dirección y Gestión de Proyectos (DGP) y Metodologías de Desarrollo Ágil (MDA) --- UGR\par
+\textbf{Horario y modalidad:} 08:30--14:30, presencial en el aula de prácticas\par
+\textbf{Tiempo de reunión:} <vacio>\par
+\textbf{Tiempo de trabajo:} <vacio>\par
+\textbf{Moderador:} Pablo Hernández Ibáñez\qquad
+\textbf{Catalogador:} Pablo de la Torre Roldán
+\end{infobox}
+
+\subsubsection{Asistencia}
+\begin{center}\small
+\renewcommand{\arraystretch}{1.18}
+\begin{tabularx}{0.96\textwidth}{@{}X X c@{}}
+\toprule
+\rowcolor{tableHeader}\textbf{Integrante / asistente} & \textbf{Rol} & \textbf{Asistencia} \\
+\midrule
+  \filaAsistente{Miguel Ángel Luque Gómez}{Coordinador}
+  \filaAsistente{Pablo de la Torre Roldán}{Catalogador}
+  \filaAsistente{Yeray Rodríguez Navas}{Gestor de Calidad}
+  \filaAsistente{Julián Carrión Tovar}{Gestor de Usabilidad y Accesibilidad}
+  \filaAsistente{Pablo Hernández Ibáñez}{Moderador}
+  \filaAsistente{José Rodríguez Fernández}{Presentador}
+  \filaAsistente{Amine Azzammouri}{Coordinador (refuerzo)}
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsubsection{Orden del día y desarrollo}
+\begin{enumerate}[leftmargin=*]
+  \item Revisar el trabajo pendiente de la reunión anterior y avanzar en las personas, escenarios y el Manual de Coordinación.
+  \item Iniciar la propuesta técnica, su estructura, objetivos y requisitos funcionales.
+  \item Redactar historias de usuario y definir sus criterios y pruebas de aceptación.
+  \item Distribuir tareas y planificar el trabajo semanal.
+\end{enumerate}
+El equipo debatió las personas y escenarios para mantenerlos alineados con el propósito de la aplicación. Para avanzar en la propuesta técnica, distribuyó inicialmente el trabajo entre resumen e introducción, objetivos y requisitos. También acordó emplear el formato «Como [rol], quiero [objetivo] para [beneficio]» y definir pruebas que contemplen el flujo esperado y situaciones alternativas o de error.
+
+\subsubsection{Acuerdos}
+\begin{itemize}[leftmargin=*]
+  \item \textbf{DEC-03.1:} Completar las personas y escenarios de acuerdo con el contexto de uso de la agenda accesible.
+  \item \textbf{DEC-03.2:} Dividir la redacción inicial de la propuesta técnica en resumen e introducción, objetivos y requisitos funcionales.
+  \item \textbf{DEC-03.3:} Usar una estructura homogénea para las historias de usuario y revisarlas junto con sus pruebas de aceptación.
+\end{itemize}
+
+\subsubsection{Compromisos}
+\begin{center}\footnotesize
+\begin{tabularx}{\textwidth}{@{}p{0.10\textwidth}X p{0.26\textwidth}p{0.14\textwidth}p{0.13\textwidth}@{}}
+\toprule
+\rowcolor{tableHeader} ID & Tarea & Responsable(s) & Fecha límite & Estado \\
+\midrule
+T-03.1 & Completar personas y escenarios. & Julián Carrión, Miguel Ángel Luque y Yeray Rodríguez & 21/10/2026 & Finalizado \\
+T-03.2 & Completar el Manual de Coordinación. & Todo el equipo & 21/10/2026 & Finalizado \\
+T-03.3 & Redactar resumen e introducción de la propuesta técnica. & Pablo Hernández y Pablo de la Torre & 21/10/2026 & Finalizado \\
+T-03.4 & Redactar los objetivos de la propuesta técnica. & José Rodríguez Fernández & 21/10/2026 & Finalizado \\
+T-03.5 & Especificar los requisitos funcionales. & Amine Azzammouri inicialmente; después, todo el equipo & 21/10/2026 & Pendiente \\
+T-03.6 & Elaborar historias de usuario y pruebas de aceptación. & Todo el equipo & 21/10/2026 & Pendiente \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsubsection{Próxima convocatoria}
+Se previó una reunión para el 15 de octubre de 2026 a las 08:30, para revisar el avance de la propuesta técnica, completar los requisitos y continuar las tareas pendientes.
+
+\clearpage
+\subsection{Acta 04: Seguimiento y priorización de historias de usuario}
+\textcolor{textGray}{\textit{15 de octubre de 2026}}
+
+\begin{infobox}[title=Datos de la reunión]
+\textbf{Proyecto:} Agenda Accesible --- Proyecto AUTOVIDA (C.E.E. Fundación Purísima Concepción)\par
+\textbf{Asignaturas:} Dirección y Gestión de Proyectos (DGP) y Metodologías de Desarrollo Ágil (MDA) --- UGR\par
+\textbf{Horario y modalidad:} 08:30--10:30, presencial en el aula de prácticas\par
+\textbf{Tiempo de reunión:} <vacio>\par
+\textbf{Tiempo de trabajo:} <vacio>\par
+\textbf{Moderador:} Pablo Hernández Ibáñez\qquad
+\textbf{Catalogador:} Pablo de la Torre Roldán
+\end{infobox}
+
+\subsubsection{Asistencia}
+\begin{center}\small
+\renewcommand{\arraystretch}{1.18}
+\begin{tabularx}{0.96\textwidth}{@{}X X c@{}}
+\toprule
+\rowcolor{tableHeader}\textbf{Integrante / asistente} & \textbf{Rol} & \textbf{Asistencia} \\
+\midrule
+  \filaAsistente{Miguel Ángel Luque Gómez}{Coordinador}
+  \filaAsistente{Pablo de la Torre Roldán}{Catalogador}
+  \filaAsistente{Yeray Rodríguez Navas}{Gestor de Calidad}
+  \filaAsistente{Julián Carrión Tovar}{Gestor de Usabilidad y Accesibilidad}
+  \filaAsistente{Pablo Hernández Ibáñez}{Moderador}
+  \filaAsistente{José Rodríguez Fernández}{Presentador}
+  \filaAsistente{Amine Azzammouri}{Coordinador (refuerzo)}
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsubsection{Orden del día y desarrollo}
+\begin{enumerate}[leftmargin=*]
+  \item Revisar el trabajo y la redacción de las historias de usuario.
+  \item Analizar las pruebas de aceptación y descomponer las historias en tareas.
+  \item Aplicar un método para priorizar requisitos.
+  \item Revisar la documentación y organizar el trabajo pendiente.
+\end{enumerate}
+Se comprobó que cada historia describiera una funcionalidad concreta y un beneficio identificable. Para las historias prioritarias se avanzó en pruebas de aceptación con escenarios normales y alternativos, y en su descomposición en tareas de diseño, implementación, validación y pruebas. Se revisó el método MoSCoW y el uso de etiquetas textuales, además de colores, para representar prioridades sin depender solo del color. También se acordó mantener coherencia entre las historias, el sistema AUTOVIDA y la documentación LaTeX.
+
+\subsubsection{Acuerdos}
+\begin{itemize}[leftmargin=*]
+  \item \textbf{DEC-04.1:} Redactar las historias con la estructura «Como [rol], quiero [objetivo] para [beneficio]».
+  \item \textbf{DEC-04.2:} Priorizar las historias y requisitos con MoSCoW: imprescindibles (\textit{Must}), importantes (\textit{Should}), deseables (\textit{Could}) y aplazables (\textit{Would}).
+  \item \textbf{DEC-04.3:} Acompañar cualquier distinción cromática con una etiqueta textual accesible.
+  \item \textbf{DEC-04.4:} Añadir pruebas de aceptación y tareas de implementación a las historias prioritarias; para las secundarias, conservar como mínimo usuario, historia y prioridad.
+  \item \textbf{DEC-04.5:} Revisar la trazabilidad y la coherencia de los requisitos antes de incorporarlos al Product Backlog.
+\end{itemize}
+
+\subsubsection{Compromisos}
+\begin{center}\footnotesize
+\begin{tabularx}{\textwidth}{@{}p{0.10\textwidth}X p{0.25\textwidth}p{0.14\textwidth}p{0.13\textwidth}@{}}
+\toprule
+\rowcolor{tableHeader} ID & Tarea & Responsable(s) & Fecha límite & Estado \\
+\midrule
+T-04.1 & Revisar y depurar las historias de usuario. & Equipo & 22/10/2026 & Pendiente \\
+T-04.2 & Clasificar historias y requisitos con MoSCoW. & Coordinación y equipo & 22/10/2026 & Pendiente \\
+T-04.3 & Completar pruebas de aceptación de historias prioritarias. & Gestor de Calidad y equipo & 22/10/2026 & Pendiente \\
+T-04.4 & Dividir historias prioritarias en tareas implementables. & Equipo de desarrollo & 22/10/2026 & Pendiente \\
+T-04.5 & Revisar requisitos desde la usabilidad y accesibilidad. & Julián Carrión Tovar & 22/10/2026 & Pendiente \\
+T-04.6 & Integrar y actualizar la documentación. & Pablo de la Torre Roldán & 22/10/2026 & Pendiente \\
+T-04.7 & Revisar la coherencia general de la documentación. & Yeray Rodríguez Navas & 22/10/2026 & Pendiente \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsubsection{Próxima convocatoria}
+Se fijó como próxima fecha prevista el 29 de octubre de 2026 a las 08:30, para revisar el Product Backlog, las prioridades y el avance de la iteración.
+
+\clearpage
+\subsection{Acta 05: Priorización y estimación de historias de usuario}
+\textcolor{textGray}{\textit{19 de octubre de 2026}}
+
+\begin{infobox}[title=Datos de la reunión]
+\textbf{Proyecto:} Agenda Accesible --- Proyecto AUTOVIDA (C.E.E. Fundación Purísima Concepción)\par
+\textbf{Asignaturas:} Dirección y Gestión de Proyectos (DGP) y Metodologías de Desarrollo Ágil (MDA) --- UGR\par
+\textbf{Horario y modalidad:} 15:03--17:30, reunión telemática por Discord\par
+\textbf{Tiempo de reunión:} <vacio>\par
+\textbf{Tiempo de trabajo:} <vacio>\par
+\textbf{Moderador:} Pablo Hernández Ibáñez\qquad
+\textbf{Catalogador:} Pablo de la Torre Roldán
+\end{infobox}
+
+\subsubsection{Asistencia}
+\begin{center}\small
+\renewcommand{\arraystretch}{1.18}
+\begin{tabularx}{0.96\textwidth}{@{}X X c@{}}
+\toprule
+\rowcolor{tableHeader}\textbf{Integrante / asistente} & \textbf{Rol} & \textbf{Asistencia} \\
+\midrule
+  \filaAsistente{Miguel Ángel Luque Gómez}{Coordinador}
+  \filaAsistente{Pablo de la Torre Roldán}{Catalogador}
+  \filaAsistente{Yeray Rodríguez Navas}{Gestor de Calidad}
+  \filaAsistente{Julián Carrión Tovar}{Gestor de Usabilidad y Accesibilidad}
+  \filaAsistente{Pablo Hernández Ibáñez}{Moderador}
+  \filaAsistente{José Rodríguez Fernández}{Presentador}
+  \filaAsistente{Amine Azzammouri}{Refuerzo}
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsubsection{Orden del día y desarrollo}
+\begin{enumerate}[leftmargin=*]
+  \item Revisar y corregir las historias de usuario.
+  \item Actualizar el estado del trabajo en Jira.
+  \item Priorizar y estimar las historias mediante \textit{Planning Poker}.
+  \item Distribuir las historias por iteraciones y asignar tareas.
+\end{enumerate}
+Se revisó el Product Backlog para corregir errores de formato y criterios de aceptación. A continuación, se debatió el orden funcional de las historias y se estimó su esfuerzo en puntos de historia mediante \textit{Planning Poker}, registrando los resultados en una hoja de cálculo compartida. Con las estimaciones y prioridades, se distribuyeron las historias entre iteraciones buscando equilibrar la carga del equipo.
+
+\subsubsection{Acuerdos}
+\begin{itemize}[leftmargin=*]
+  \item \textbf{DEC-05.1:} Abordar primero las historias relacionadas con la creación y gestión de usuarios; después, las funciones centrales de la agenda; y finalmente, las tareas y funciones secundarias.
+  \item \textbf{DEC-05.2:} Registrar en la hoja de planificación las estimaciones consensuadas mediante \textit{Planning Poker}.
+  \item \textbf{DEC-05.3:} Distribuir las historias entre iteraciones atendiendo a su prioridad y esfuerzo estimado.
+\end{itemize}
+
+\subsubsection{Compromisos}
+\begin{center}\footnotesize
+\begin{tabularx}{\textwidth}{@{}p{0.10\textwidth}X p{0.25\textwidth}p{0.14\textwidth}p{0.13\textwidth}@{}}
+\toprule
+\rowcolor{tableHeader} ID & Tarea & Responsable(s) & Fecha límite & Estado \\
+\midrule
+T-05.1 & Actualizar y corregir las historias revisadas en la documentación y Jira. & Todo el equipo & 21/10/2026 & Finalizado \\
+T-05.2 & Trasladar estimaciones y planificación de iteraciones a Jira. & Pablo de la Torre Roldán & 21/10/2026 & Finalizado \\
+T-05.3 & Redactar y revisar el acta de la reunión. & Yeray Rodríguez Navas & 20/10/2026 & Finalizado \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsubsection{Próxima convocatoria}
+Se previó una reunión para el 22 de octubre de 2026 a las 08:30, dedicada a revisar la iteración y su inicio.
+
+\clearpage
+\subsection{Acta 06: Revisión final de la iteración}
+\textcolor{textGray}{\textit{22 de octubre de 2026}}
+
+\begin{infobox}[title=Datos de la reunión]
+\textbf{Proyecto:} Agenda Accesible --- Proyecto AUTOVIDA (C.E.E. Fundación Purísima Concepción)\par
+\textbf{Asignaturas:} Dirección y Gestión de Proyectos (DGP) y Metodologías de Desarrollo Ágil (MDA) --- UGR\par
+\textbf{Horario y modalidad:} 08:30--14:30, presencial en el aula de la ETSIIT\par
+\textbf{Tiempo de reunión:} <vacio>\par
+\textbf{Tiempo de trabajo:} <vacio>\par
+\textbf{Moderador:} Pablo Hernández Ibáñez\qquad
+\textbf{Catalogador:} Pablo de la Torre Roldán
+\end{infobox}
+
+\subsubsection{Asistencia}
+\begin{center}\small
+\renewcommand{\arraystretch}{1.18}
+\begin{tabularx}{0.96\textwidth}{@{}X X c@{}}
+\toprule
+\rowcolor{tableHeader}\textbf{Integrante / asistente} & \textbf{Rol} & \textbf{Asistencia} \\
+\midrule
+  \filaAsistente{Miguel Ángel Luque Gómez}{Coordinador}
+  \filaAsistente{Yeray Rodríguez Navas}{Gestor de Calidad}
+  \filaAsistente{Julián Carrión Tovar}{Gestor de Usabilidad y Accesibilidad}
+  \filaAsistente{Pablo Hernández Ibáñez}{Moderador}
+  \filaAsistente{Pablo de la Torre Roldán}{Catalogador}
+  \filaAsistente{José Rodríguez Fernández}{Presentador}
+  \filaAsistente{Amine Azzammouri}{Coordinador (refuerzo)}
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsubsection{Orden del día y desarrollo}
+\begin{enumerate}[leftmargin=*]
+  \item Revisar el trabajo y actualizar las tareas completadas en Jira.
+  \item Poner en común el avance de la iteración.
+  \item Distribuir los ámbitos de trabajo de la siguiente iteración.
+  \item Incorporar las actas a la entrega y preparar un diagrama de Gantt a partir de los sprints de Jira.
+\end{enumerate}
+Se revisó el avance de la iteración y se acordó organizar el trabajo técnico por ámbitos: Yeray Rodríguez Navas, Pablo de la Torre Roldán y Miguel Ángel Luque Gómez apoyarían el backend; Julián Carrión Tovar, José Rodríguez Fernández y Pablo Hernández Ibáñez, el frontend. Amine Azzammouri prestaría apoyo al ámbito con mayor carga. Se acordó iniciar bocetos y funcionalidades básicas, y preparar documentación de accesibilidad, calidad e instalación.
+
+\subsubsection{Acuerdos}
+\begin{itemize}[leftmargin=*]
+  \item \textbf{DEC-06.1:} Distribuir el trabajo de backend y frontend conforme a los equipos indicados, revisando el reparto según las necesidades de cada iteración.
+  \item \textbf{DEC-06.2:} Amine Azzammouri apoyará ambos ámbitos en función de la carga de trabajo.
+  \item \textbf{DEC-06.3:} Julián Carrión Tovar y Yeray Rodríguez Navas prepararán conjuntamente los manuales de accesibilidad y calidad.
+  \item \textbf{DEC-06.4:} Incorporar las actas y el diagrama de Gantt generado a partir de Jira a la documentación final.
+\end{itemize}
+
+\subsubsection{Compromisos}
+\begin{center}\footnotesize
+\begin{tabularx}{\textwidth}{@{}p{0.09\textwidth}X p{0.25\textwidth}p{0.14\textwidth}p{0.10\textwidth}p{0.12\textwidth}@{}}
+\toprule
+\rowcolor{tableHeader} ID & Tarea & Responsable(s) & Fecha límite & Prioridad & Estado \\
+\midrule
+T-06.1 & Iniciar las funcionalidades básicas del proyecto en frontend y backend. & Todo el equipo & 18/11/2026 & Alta & Pendiente \\
+T-06.2 & Redactar los manuales de accesibilidad y calidad. & Julián Carrión y Yeray Rodríguez & Por definir & Alta & En proceso \\
+T-06.3 & Preparar el diagrama de Gantt a partir de los sprints de Jira. & Todo el equipo & Por definir & Por definir & En proceso \\
+T-06.4 & Incorporar las actas a la documentación de entrega. & Por asignar & 22/10/2026 & Muy alta & Finalizado \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsubsection{Próxima convocatoria}
+Se previó una reunión para el 29 de octubre de 2026 a las 08:30, con el objetivo de crear bocetos e iniciar la implementación de las funciones básicas.
+
+\clearpage
+\subsection{Acta 07: Diseño y arquitectura}
+\textcolor{textGray}{\textit{29 de octubre de 2026}}
+
+\begin{infobox}[title=Datos de la reunión]
+\textbf{Proyecto:} Agenda Accesible --- Proyecto AUTOVIDA (C.E.E. Fundación Purísima Concepción)\par
+\textbf{Asignaturas:} Dirección y Gestión de Proyectos (DGP) y Metodologías de Desarrollo Ágil (MDA) --- UGR\par
+\textbf{Horario y modalidad:} 08:30--14:30, presencial en el aula de la ETSIIT\par
+\textbf{Tiempo de reunión:} <vacio>\par
+\textbf{Tiempo de trabajo:} <vacio>\par
+\textbf{Moderador:} Pablo de la Torre Roldán\qquad
+\textbf{Catalogador:} Miguel Ángel Luque Gómez
+\end{infobox}
+
+\subsubsection{Asistencia}
+\begin{center}\small
+\renewcommand{\arraystretch}{1.18}
+\begin{tabularx}{0.96\textwidth}{@{}X X c@{}}
+\toprule
+\rowcolor{tableHeader}\textbf{Integrante / asistente} & \textbf{Rol} & \textbf{Asistencia} \\
+\midrule
+  \filaAsistente{Miguel Ángel Luque Gómez}{Catalogador}
+  \filaAsistente{Yeray Rodríguez Navas}{Gestor de Calidad}
+  \filaAsistente{Julián Carrión Tovar}{Gestor de Usabilidad y Accesibilidad}
+  \filaAsistente{Pablo Hernández Ibáñez}{Presentador}
+  \filaAsistente{Pablo de la Torre Roldán}{Moderador}
+  \filaAsistente{José Rodríguez Fernández}{Coordinador}
+  \filaAsistente{Amine Azzammouri}{Catalogador (refuerzo)}
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsubsection{Orden del día y desarrollo}
+\begin{enumerate}[leftmargin=*]
+  \item Iniciar el desarrollo de frontend y backend de acuerdo con el reparto establecido.
+  \item Diseñar la interfaz teniendo en cuenta los requisitos de accesibilidad.
+  \item Definir el modelo de datos de la aplicación y su gestión mediante Supabase.
+  \item Preparar la guía de instalación y adaptar el entorno de trabajo.
+\end{enumerate}
+Durante la revisión de requisitos se identificó la necesidad de incorporar la elección de avatares por parte del alumnado y las tareas relacionadas con el comedor. También se trató el uso y la adaptación de imágenes en las tareas y sus pasos. El trabajo de diseño se orientó a los mockups y wireframes del frontend, mientras que el modelo de datos se planteó de acuerdo con la persistencia prevista en Supabase.
+
+\subsubsection{Acuerdos}
+\begin{itemize}[leftmargin=*]
+  \item \textbf{DEC-07.1:} Yeray Rodríguez Navas redactará la guía de instalación y adaptación del entorno, con apoyo de Amine Azzammouri.
+  \item \textbf{DEC-07.2:} Miguel Ángel Luque Gómez y Pablo de la Torre Roldán elaborarán el diseño inicial del modelo de datos para la aplicación y su gestión mediante Supabase.
+  \item \textbf{DEC-07.3:} Julián Carrión Tovar, Pablo Hernández Ibáñez y José Rodríguez Fernández prepararán los mockups y wireframes del frontend, atendiendo a los requisitos de accesibilidad.
+  \item \textbf{DEC-07.4:} Revisar los requisitos para contemplar avatares, tareas del comedor y tratamiento de imágenes.
+\end{itemize}
+
+\subsubsection{Compromisos}
+\begin{center}\footnotesize
+\begin{tabularx}{\textwidth}{@{}p{0.09\textwidth}X p{0.28\textwidth}p{0.14\textwidth}p{0.10\textwidth}p{0.12\textwidth}@{}}
+\toprule
+\rowcolor{tableHeader} ID & Tarea & Responsable(s) & Fecha límite & Prioridad & Estado \\
+\midrule
+T-07.1 & Redactar la guía de instalación y adaptación del entorno de trabajo. & Yeray Rodríguez, con apoyo de Amine Azzammouri & 05/11/2026 & Alta & Pendiente \\
+T-07.2 & Diseñar el modelo de datos inicial de la aplicación para su gestión con Supabase. & Miguel Ángel Luque y Pablo de la Torre & 05/11/2026 & Alta & Pendiente \\
+T-07.3 & Elaborar mockups y wireframes accesibles del frontend. & Julián Carrión, Pablo Hernández y José Rodríguez & 05/11/2026 & Media & Pendiente \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsubsection{Próxima convocatoria}
+Se previó una reunión para el 5 de noviembre de 2026 a las 08:30, para continuar el desarrollo de frontend y backend y revisar los compromisos de diseño y preparación del entorno.
+
+\clearpage
+\subsection{Acta 08: Revisión de documentación}
+\textcolor{textGray}{\textit{2 de noviembre de 2026}}
+
+\begin{infobox}[title=Datos de la reunión]
+\textbf{Proyecto:} Agenda Accesible --- Proyecto AUTOVIDA (C.E.E. Fundación Purísima Concepción)\par
+\textbf{Asignaturas:} Dirección y Gestión de Proyectos (DGP) y Metodologías de Desarrollo Ágil (MDA) --- UGR\par
+\textbf{Horario y modalidad:} 19:00--21:30, telemática a través de la plataforma Discord\par
+\textbf{Tiempo de reunión:} <vacio>\par
+\textbf{Tiempo de trabajo:} <vacio>\par
+\textbf{Moderador:} Pablo de la Torre Roldán\qquad
+\textbf{Catalogador:} Miguel Ángel Luque Gómez
+\end{infobox}
+
+\subsubsection{Asistencia}
+\begin{center}\small
+\renewcommand{\arraystretch}{1.18}
+\begin{tabularx}{0.96\textwidth}{@{}X X c@{}}
+\toprule
+\rowcolor{tableHeader}\textbf{Integrante / asistente} & \textbf{Rol} & \textbf{Asistencia} \\
+\midrule
+  \filaAsistente{Miguel Ángel Luque Gómez}{Catalogador}
+  \filaAsistente{Yeray Rodríguez Navas}{Gestor de Calidad}
+  \filaAsistente{Julián Carrión Tovar}{Gestor de Usabilidad y Accesibilidad}
+  \filaAsistente{Pablo Hernández Ibáñez}{Presentador}
+  \filaAsistente{Pablo de la Torre Roldán}{Moderador}
+  \filaAsistente{José Rodríguez Fernández}{Coordinador}
+  \filaAsistente{Amine Azzammouri}{Catalogador (refuerzo)}
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsubsection{Orden del día y desarrollo}
+\begin{enumerate}[leftmargin=*]
+  \item Realizar cambios en el manual de coordinación y propuesta técnica incorporando las mejoras propuestas por la profesora.
+  \item Incorporar actas de equipo y cliente en el manual de coordinación.
+
+\end{enumerate}
+
+\subsubsection{Acuerdos}
+\begin{itemize}[leftmargin=*]
+  \item \textbf{DEC-08.1:} De forma conjunta se refinarán los requisitos no funcionales propuestos. 
+  \item \textbf{DEC-08.2:} De forma conjunta se adaptarán los requisitos para enfocarlos al cliente.
+  \item \textbf{DEC-08.3:} De forma conjunta se redefinirán los objetivos de la propuesta técnica para orientarlos al cliente.
+  \item \textbf{DEC-08.4:} José Rodríguez - Inclusión de actas de equipo y de cliente en el manual de coordinación.
+  \item \textbf{DEC-08.5:} Pablo de la Torre Roldán - diagrama de arquitectura
+\end{itemize}
+
+\subsubsection{Compromisos}
+\begin{center}\footnotesize
+\begin{tabularx}{\textwidth}{@{}p{0.06\textwidth}p{0.27\textwidth} p{0.18\textwidth}p{0.14\textwidth}p{0.10\textwidth}p{0.12\textwidth}@{}}
+\toprule
+\rowcolor{tableHeader} ID & Tarea & Responsable(s) & Fecha límite & Prioridad & Estado \\
+\midrule
+T-08.1 & Requisitos no funcionales: El equipo revisará conjuntamente los requisitos no funcionales propuestos y concretará para cada uno criterios verificables de calidad y aceptación. Entregable: versión revisada de los requisitos no funcionales. & Todo el equipo & 02/11/2026 & Alta & Finalizado \\
+T-08.2 & Enfoque al cliente: El equipo reformulará conjuntamente los requisitos para expresarlos desde las necesidades y prioridades del cliente, comprobando que sean claros y validables. Entregable: catálogo de requisitos adaptado al cliente. & Todo el equipo & 02/11/2026 & Alta & Finalizado \\
+T-08.3 & Objetivos de la propuesta técnica: El equipo revisará los objetivos de la propuesta técnica para vincularlos explícitamente con las necesidades del cliente y los requisitos acordados. Entregable: objetivos técnicos actualizados. & Todo el equipo & 02/11/2026 & Alta & Finalizado \\
+T-08.4 &— Actas en el manual de coordinación: José Rodríguez incorporará al manual de coordinación las pautas y plantillas para elaborar y conservar las actas de las reuniones de equipo y de cliente. Entregable: manual de coordinación actualizado. & José Rodríguez & 02/11/2026 & Alta & Finalizado \\
+T-08.5 & Diagrama de arquitectura: Pablo de la Torre Roldán elaborará el diagrama de arquitectura de la solución y lo integrará en la documentación técnica. Entregable: diagrama revisado e incorporado a la propuesta. & Pablo de la Torre Roldán & 02/11/2026 & Alta & Finalizado \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsubsection{Próxima convocatoria}
+Se previó una reunión para el 5 de noviembre de 2026 a las 08:30, para continuar el desarrollo de frontend y backend y revisar los compromisos de diseño y preparación del entorno.

@@ -1,0 +1,133 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-tabla,es-nodecimaldot]{babel}
+\usepackage[left=2.2cm, right=2.2cm, top=2.5cm, bottom=2.5cm, headheight=40pt]{geometry}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{etoolbox}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{colortbl}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage{eso-pic}
+\usepackage[sc, osf]{mathpazo}
+\linespread{1.06}
+\usepackage[scaled=.95,type1]{cabin}
+\usepackage{inconsolata}
+\usepackage{setspace}
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+
+\makeatletter
+\patchcmd{\LT@output}{\copy\LT@foot\vss}{\copy\LT@foot\vskip 0pt plus \maxdimen minus \normalbaselineskip}{}{\PackageError{PROPUESTA_TECNICA}{No se pudo ajustar el espaciado de longtable}{}}
+\patchcmd{\LT@output}{\copy\LT@foot\vss}{\copy\LT@foot\vskip 0pt plus \maxdimen minus \normalbaselineskip}{}{\PackageError{PROPUESTA_TECNICA}{No se pudo ajustar el espaciado de longtable}{}}
+\makeatother
+
+\usepackage[hyperfootnotes=false,colorlinks=true,linkcolor=clenchCyanDark,urlcolor=clenchCyanDark,citecolor=clenchCyanDark]{hyperref}
+
+% Paleta visual de CLENCH Software Development
+\definecolor{clenchCyan}{RGB}{0, 166, 199}
+\definecolor{clenchMagenta}{RGB}{173, 0, 144}
+\definecolor{clenchCyanDark}{RGB}{0, 93, 117}
+\definecolor{textDark}{RGB}{22, 24, 33}
+\definecolor{textGray}{RGB}{82, 88, 100}
+\definecolor{bgGray}{RGB}{247, 249, 251}
+\definecolor{tableHeader}{RGB}{229, 245, 249}
+\definecolor{borderGray}{RGB}{205, 220, 226}
+
+\newcommand\CoverAccent{%
+  \put(0,0){\color{clenchCyan}\rule{\paperwidth}{0.45cm}}%
+}
+
+% Configuración de títulos de sección
+\titleformat{\section}
+  {\color{clenchMagenta}\sffamily\LARGE\bfseries}
+  {\thesection.}{0.8em}{}[\color{clenchCyan}\titlerule]
+
+\titleformat{\subsection}
+  {\color{clenchCyanDark}\sffamily\Large\bfseries}
+  {\thesubsection.}{0.6em}{}
+
+\titleformat{\subsubsection}
+  {\color{textDark}\sffamily\large\bfseries}
+  {\thesubsubsection.}{0.5em}{}
+
+\titlespacing*{\section}{0pt}{14pt}{6pt}
+\titlespacing*{\subsection}{0pt}{10pt}{4pt}
+\titlespacing*{\subsubsection}{0pt}{8pt}{3pt}
+
+% Encabezados y pies de página
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\sffamily\color{textGray} DGP \& MDA --- Grado en Ingeniería Informática (UGR)}
+\fancyhead[R]{\raisebox{-2mm}{\includegraphics[height=1.1cm]{images/logo_clench.png}}}
+\fancyfoot[L]{\small\sffamily\color{textGray} Proyecto AUTOVIDA --- C.E.E. Purísima Concepción}
+\fancyfoot[R]{\small\sffamily\bfseries\color{clenchMagenta} \thepage}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\footrulewidth}{0.4pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{clenchCyan}\leaders\hrule height \headrulewidth\hfill}}
+\renewcommand{\footrule}{\hbox to\headwidth{\color{borderGray}\leaders\hrule height \footrulewidth\hfill}}
+
+% Parámetros de tablas
+\setlength{\arrayrulewidth}{0.6pt}
+\renewcommand{\arraystretch}{1.25}
+
+% Cajas de texto destacadas
+\newtcolorbox{infobox}[1][]{
+  colback=bgGray,
+  colframe=clenchCyanDark,
+  fonttitle=\sffamily\bfseries\color{white},
+  coltitle=white,
+  colbacktitle=clenchMagenta,
+  enhanced,
+  attach boxed title to top left={yshift=-2mm, xshift=4mm},
+  boxed title style={sharp corners, size=small},
+  top=4mm, bottom=3mm, left=3mm, right=3mm,
+  sharp corners,
+  boxrule=0.8pt,
+  #1
+}
+
+\begin{document}
+\sloppy
+
+
+% ==============================================================================
+% ESTRUCTURA MODULARIZADA DE LA PROPUESTA TÉCNICA
+% Cada sección se encuentra aislada en la carpeta secciones/
+% ==============================================================================
+
+\input{secciones/00_portada_propuesta.tex}
+
+% ==============================================================================
+% ÍNDICE GENERAL
+% ==============================================================================
+\newpage
+{
+  \hypersetup{linkcolor=textDark}
+  \tableofcontents
+}
+
+\newpage
+\pagenumbering{arabic}
+
+
+\input{secciones/03_resumen_y_objetivos.tex}
+\input{secciones/04_requisitos_propuestos.tex}
+\input{secciones/05_justificacion_propuesta.tex}
+\input{secciones/06_antecedentes_equipo.tex}
+\input{secciones/07_solucion_tecnica.tex}
+\input{secciones/08_actividades_cronograma.tex}
+\input{secciones/09_seguimiento_cliente.tex}
+\input{secciones/10_valor_beneficios.tex}
+\input{secciones/11_documentacion_y_actas.tex}
+\input{secciones/12_anexo_cronograma.tex}
+
+
+\end{document}

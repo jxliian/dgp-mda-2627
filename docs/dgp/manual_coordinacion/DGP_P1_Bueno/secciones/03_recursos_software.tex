@@ -1,0 +1,44 @@
+% ==============================================================================
+% SECCIÓN 3: RECURSOS SOFTWARE DE DESARROLLO
+% ==============================================================================
+\newpage
+\section{Recursos Software de Desarrollo}
+
+La aplicación se desarrollará en \textbf{Flutter}. Trabajaremos principalmente con el \textbf{IDE Android Studio} con las extensiones de Dart y Flutter, por las facilidades que nos brinda a la hora de hacer tests unitarios y probar los prototipos en los propios dispositivos físicos.
+
+% Revisar las tecnologías utilizadas para el backend
+\subsection{Ecosistema y Herramientas de Desarrollo}
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Framework de Desarrollo Frontend:} \textbf{Flutter SDK (Dart)}. Permite generar aplicaciones nativas multiplataforma desde un único código fuente, asegurando un rendimiento fluido en las tabletas.
+  
+  \item \textbf{Entorno de Desarrollo (IDE de Flutter):} \textbf{Visual Studio Code / Android Studio} con las extensiones oficiales de Flutter y Dart. Ofrece:
+    
+    \begin{itemize}
+      \item \textit{Hot Reload} y \textit{Hot Restart} para modificar y personalizar componentes gráficos y estilos visuales en tiempo de ejecución de manera instantánea.
+      
+      \item Suite integrada para ejecución automatizada y depuración de pruebas unitarias (*Flutter Test*).
+      
+      \item \textit{Flutter DevTools} para análisis de rendimiento, inspección del árbol de widgets y perfiles de memoria.
+    \end{itemize}
+  
+  \item \textbf{Backend y API REST:} \textbf{Python con FastAPI}, aportando tipado seguro, arquitectura desacoplada y alta escalabilidad en la gestión de servicios web.
+  
+  \item \textbf{Persistencia y Base de Datos:} \textbf{PostgreSQL} para almacenar y gestionar los datos de la aplicación.
+
+  
+  \item \textbf{Catálogo de Pictogramas:} Catálogo oficial de pictogramas de \textbf{ARASAAC} (licencia Creative Commons) para comunicación aumentativa.
+  
+  \item \textbf{Diseño UX/UI:} \textbf{Figma} para la confección y testeo de wireframes accesibles previos a la fase de programación.
+\end{itemize}
+
+\subsection{Diagrama de Arquitectura}
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Aplicación cliente:} Flutter y Dart para presentar la agenda, actividades guiadas, rutinas, apoyos visuales y temporizador.
+  \item \textbf{Servicio backend (Servidor):} Python con FastAPI para validar permisos, gestionar perfiles, actividades y rutinas, y registrar el avance comunicado por el cliente.
+  \item \textbf{Persistencia (Servidor):} PostgreSQL para guardar los datos necesarios de perfiles, asignaciones y progreso. El esquema y el periodo de conservación se definirán tras acordar los datos mínimos.
+  \item \textbf{Diseño y apoyos visuales:} Figma para prototipos; se propone evaluar pictogramas de ARASAAC y verificar atribución y condiciones de uso antes de incorporarlos.
+\end{itemize}
+
+\begin{center}
+  \includegraphics[width=\textwidth,height=0.75\textheight,keepaspectratio]{images/arquitectura.png}
+\end{center}

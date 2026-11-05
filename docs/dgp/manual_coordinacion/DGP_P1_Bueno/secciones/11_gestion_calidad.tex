@@ -1,0 +1,36 @@
+% ==============================================================================
+% SECCIÓN 11: GESTIÓN DE CALIDAD Y ACCESIBILIDAD
+% ==============================================================================
+\newpage
+\section{Gestión de Calidad (Durante el Desarrollo y al Final)}
+\subsection{Plan de Gestión de Calidad}
+El Gestor de Calidad coordinará la verificación en cada iteración y mantendrá el informe \textbf{DC-03}; cada responsable revisará su propio trabajo y aportará evidencias. La referencia de aceptación será la versión aprobada de los requisitos y sus criterios, no expectativas que no se hayan acordado. Las pruebas con usuarios, perfiles de accesibilidad y datos reales se planificarán con el centro; hasta entonces se utilizarán cuentas y datos de prueba. 
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Preparar.} Para cada requisito incluido en la iteración, identificar criterio de aceptación, caso de prueba, responsable, versión y entorno. Confirmar que los casos cubren perfiles, permisos, errores previsibles y requisitos de accesibilidad o privacidad aplicables.
+  \item \textbf{Revisar.} Revisar requisitos y diseño antes de implementarlos; inspeccionar cambios de código y configuración antes de integrarlos. Registrar observaciones y su resolución.
+  \item \textbf{Verificar.} Ejecutar pruebas unitarias para la lógica aislable, pruebas de integración para servicios, permisos y persistencia, y pruebas de extremo a extremo para los flujos acordados. Comprobar también usabilidad y apoyos de accesibilidad con los perfiles y condiciones que acuerde el centro.
+  \item \textbf{Registrar resultados.} Para cada prueba anotar identificador, requisito, versión, precondiciones, pasos, resultado esperado y obtenido, estado (superada, fallida o bloqueada) y evidencia. Una prueba bloqueada no se contará como superada.
+  \item \textbf{Corregir y repetir.} Registrar cada fallo como incidencia con severidad, responsable y versión objetivo. Tras corregirlo, repetir la prueba fallida y las pruebas de regresión relacionadas; conservar ambos resultados.
+  \item \textbf{Informar y aceptar.} Presentar resultados, incidencias abiertas, limitaciones y cambios aprobados en la revisión de iteración. El centro confirmará la aceptación de los entregables que le correspondan; la decisión y las reservas se anotarán en el acta.
+\end{enumerate}
+
+\subsubsection{Lista de verificación de calidad y entrega}
+Antes de presentar una iteración o versión, el Gestor de Calidad comprobará:
+\begin{itemize}[leftmargin=*]
+  \item El alcance y la versión de requisitos están identificados, y cada requisito incluido tiene criterios comprobables y pruebas asociadas.
+  \item Se han ejecutado las pruebas previstas; los resultados y evidencias están registrados y las pruebas bloqueadas se explican.
+  \item Los permisos impiden accesos no autorizados y las pruebas usan datos adecuados al entorno; no se incorporan datos reales sin autorización y medidas acordadas.
+  \item Se han revisado los flujos principales y los apoyos de accesibilidad acordados; los hallazgos de usabilidad y sus acciones quedan documentados.
+  \item Se han repetido las pruebas afectadas por correcciones y no quedan defectos bloqueantes abiertos.
+  \item Las incidencias menores pendientes, sus limitaciones, responsables y medidas temporales se han comunicado para decisión expresa.
+  \item Requisitos, pruebas, incidencias y versión entregada mantienen trazabilidad; el informe DC-03 refleja el resultado real.
+\end{itemize}
+
+\subsubsection{Criterios de aceptación}
+Un requisito se considerará superado únicamente cuando todos los pasos de su criterio de aceptación aprobado produzcan el resultado esperado y exista evidencia registrada. Si no se cumple, se abrirá una incidencia o se tramitará un cambio; no se modificará el criterio retroactivamente para declarar la prueba superada.
+
+Cuando haya reuniones con el centro, se preparará también un acta o resumen validable por las personas asistentes. Las actas internas no se considerarán aprobaciones del cliente: los acuerdos externos se identificarán expresamente y se confirmarán con sus participantes.
+
+Cada acta incluirá fecha, hora de inicio y fin, asistentes, puntos tratados, decisiones, tareas asignadas, responsables y fechas límite.
+

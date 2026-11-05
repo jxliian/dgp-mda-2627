@@ -1,0 +1,45 @@
+\section{Prácticas de calidad para el equipo}
+
+La calidad del software asegura que el producto responde a los requisitos acordados y que el sistema resultante es comprensible, revisable y mantenible. No significa que una sola persona inspeccione todo al final del proceso: cada integrante verifica su propio trabajo y el equipo comparte la responsabilidad del resultado final.
+
+\subsection{Ciclo de trabajo recomendado}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Acordar el resultado.} Describir la necesidad con lenguaje claro y definir los criterios de aceptación para reconocer que está resuelta.
+  \item \textbf{Diseñar la comprobación.} Identificar y anotar los casos de uso normales, los flujos de error previsibles y los requisitos de accesibilidad aplicables antes de comenzar la implementación.
+  \item \textbf{Implementar cambios atómicos.} Mantener cada aportación (\textit{commit}) centrada en una única funcionalidad o corrección para facilitar su revisión y reducir conflictos.
+  \item \textbf{Revisar y probar.} Otra persona del equipo comprueba el cambio mediante \textit{Pull Requests} o revisiones por pares, ejecuta las pruebas disponibles y verifica la lista de accesibilidad y calidad.
+  \item \textbf{Registrar el resultado.} Anotar las pruebas realizadas, incidencias detectadas, decisiones técnicas y tareas pendientes. No se debe marcar como terminado ningún elemento que mantenga un bloqueo conocido o carezca de revisión.
+\end{enumerate}
+
+\subsection{Reglas de código}
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Convenciones de nomenclatura:} Utilizar nombres descriptivos, explícitos y en un idioma consensuado para variables, funciones y clases. Evitar abreviaturas ambiguas o nombres genéricos. Se utilizará la nomenclatura \textit{camelCase} para el código y \textit{snake\_case} para los archivos subidos al Github de CLENCH.
+  \item \textbf{Formato y análisis estático:} Emplear herramientas de \textit{linting} y formateo automático para garantizar que todo el código del proyecto mantenga un estilo uniforme, independientemente de quién lo escriba.
+  \item \textbf{Modularidad y simplicidad:} Aplicar el principio de responsabilidad única (funciones que realicen una sola tarea) y evitar la duplicación de código.
+  \item \textbf{Gestión de dependencias:} Evitar la inclusión de librerías externas para resolver problemas triviales que puedan implementarse de forma nativa y segura.
+\end{itemize}
+
+\subsection{Reglas de documentación}
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Comentarios en el código:} Se utilizarán nombres claros y descriptivos para variables, funciones y clases antes de recurrir a comentarios. Los comentarios deben reservarse para explicar el ``porqué'' de las decisiones complejas, lógicas de negocio específicas o parches inusuales.
+  \item \textbf{Sincronización técnica:} El código y su documentación deben actualizarse al mismo tiempo. No se permitirá una documentación desactualizada.
+  \item \textbf{Claridad y formato:} Redactar con un lenguaje directo y estructurado. Toda documentación externa o manual de usuario final debe validarse bajo criterios de lectura fácil y accesibilidad cognitiva.
+\end{itemize}
+
+\subsection{Niveles de prueba}
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Prueba unitaria:} Comprueba una regla pequeña y específica de manera aislada (por ejemplo, validar que un campo obligatorio del modelo no acepte valores nulos).
+  \item \textbf{Prueba de integración:} Verifica que los componentes conectados colaboren correctamente (por ejemplo, que el envío de un formulario actualice la base de datos y devuelva el código de estado esperado).
+  \item \textbf{Prueba de flujo completo (End-to-End):} Recorre una tarea desde la interacción en la interfaz gráfica hasta la persistencia en el servidor, evaluando el sistema tal como lo experimentaría la persona usuaria.
+  \item \textbf{Prueba de aceptación:} Contrasta el producto final con la necesidad inicial y los criterios acordados internamente y, cuando proceda, validándolo directamente con el centro o los usuarios destinatarios.
+\end{itemize}
+
+Las comprobaciones automáticas son fundamentales para prevenir regresiones, pero no sustituyen la revisión visual humana, la comprobación de navegación por teclado, el uso de lectores de pantalla ni las pruebas empíricas con las personas destinatarias.
+
+\subsection{Criterio de terminado (\textit{Definition of Done})}
+Una tarea se considera terminada exclusivamente cuando: cumple los criterios de aceptación acordados, cuenta con las pruebas pertinentes superadas, el código ha sido revisado y aprobado por otro miembro del equipo, no existen defectos bloqueantes ocultos y toda la documentación técnica y de usuario afectada ha sido actualizada. Si alguna condición excepcional no aplica, debe documentarse explícitamente el motivo.
+
+\subsection{Gestión de incidencias}
+Toda incidencia (o \textit{bug}) reportada debe documentar: los pasos exactos para reproducirla, el resultado esperado, el resultado observado, la gravedad del impacto, evidencias (capturas o \textit{logs} sin exponer datos personales o sensibles), la persona asignada y el estado actual. 
+
+El orden de prioridad en la resolución debe ser: primero los bloqueos de funcionalidades principales, segundo los problemas de accesibilidad que impidan la comprensión o el uso interactivo, y tercero los riesgos de integridad de datos. Tras implementar la corrección, es obligatorio repetir los pasos de reproducción y verificar que no se ha provocado una regresión en funciones adyacentes.

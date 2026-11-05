@@ -1,0 +1,28 @@
+\section{Accesibilidad en el frontend: diseño visual}
+
+El frontend es la parte de AUTOVIDA con la que interactúan el alumnado y el personal del centro. Debe presentar información comprensible y predecible, y permitir que las tareas principales se identifiquen sin depender de la memoria, de una percepción concreta del color o de instrucciones complejas.
+
+\subsection{Colores y contraste}
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Definir una paleta reducida y consistente.} Asignar colores con funciones claras (por ejemplo, acción principal, información, aviso y error) y reutilizar esas funciones en todas las pantallas.
+  \item \textbf{Comprobar el contraste entre texto y fondo.} Como referencia de diseño, buscar al menos una relación de contraste de 4,5:1 para texto normal y 3:1 para texto grande. No decidir a simple vista: utilizar un comprobador de contraste sobre los colores reales y revisar también estados como deshabilitado, seleccionado y al pasar el foco.
+  \item \textbf{No comunicar solo mediante el color.} Acompañar los estados de una etiqueta, un icono reconocible o una explicación textual. Por ejemplo, una tarea urgente no debe distinguirse únicamente por aparecer en rojo.
+  \item \textbf{Acompañar los botones con símbolos reconocibles.} Combinar el símbolo con una etiqueta de texto clara y mantener el mismo símbolo para la misma acción; así, la función del botón se entiende aunque no se perciba el color. El símbolo no debe sustituir la etiqueta textual.
+  \item \textbf{Evitar combinaciones difíciles de diferenciar.} Revisar especialmente texto y controles en rojo/verde, tonos muy próximos y fondos con imágenes o degradados.
+  \item \textbf{Mantener la coherencia.} El mismo color debe significar lo mismo en distintas vistas; los colores decorativos no deben competir con la información ni reducir su contraste.
+\end{itemize}
+
+\subsection{Tipografía legible}
+\begin{itemize}[leftmargin=*]
+  \item Elegir una tipografía sencilla y familiar, con formas de letras claramente diferenciables.
+  \item Usar un tamaño cómodo en el dispositivo objetivo y permitir que el texto se amplíe o se reduzca sin que se corte ni se solape. Permitir también ajustar el tamaño de los botones, conservando etiquetas legibles y un área fácil de seleccionar. Revisar la interfaz en móvil y escritorio.
+  \item Separar títulos, instrucciones y acciones mediante jerarquía visual, espacio en blanco y alineación consistente; evitar bloques densos y líneas excesivamente largas.
+  \item Preferir frases directas, vocabulario cotidiano y una instrucción por frase. Acompañar palabras poco conocidas con una explicación breve.
+  \item Reservar las \textbf{MAYÚSCULAS} para rótulos breves, siglas o avisos puntuales. No redactar instrucciones ni párrafos completos en mayúsculas: las frases en caja mixta suelen ser más fáciles de leer.
+\end{itemize}
+
+\subsection{Revisión visual rápida}
+Antes de aceptar una pantalla, comprobar: ¿se lee cada texto sobre su fondo?, ¿se entiende el estado sin mirar el color?, ¿se distinguen las acciones por sus símbolos y etiquetas?, ¿se mantienen legibles los textos y fáciles de seleccionar los botones al cambiar su tamaño?, ¿se puede entender cada instrucción en una lectura?
+
+\subsection{Referencia de accesibilidad}
+El equipo tomará las Pautas de Accesibilidad para el Contenido Web (WCAG) 2.2, nivel AA, como referencia técnica para los criterios que correspondan a la interfaz. La conformidad no se dará por supuesta: se comprobarán los criterios aplicables y se harán pruebas con personas usuarias. La referencia principal para contraste es el criterio 1.4.3 de WCAG.

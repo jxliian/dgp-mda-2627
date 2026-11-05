@@ -1,0 +1,35 @@
+\section{Lista de comprobación y mejora continua}
+
+Antes de considerar terminada una funcionalidad, completar esta lista. Marcar ``no aplica'' solo cuando se anote una explicación breve.
+
+\subsection{Interfaz y accesibilidad}
+\begin{itemize}[leftmargin=*]
+  \item El texto tiene contraste suficiente con su fondo y el contraste se ha comprobado con una herramienta.
+  \item La información no depende solo del color, el sonido o un icono sin etiqueta.
+  \item Los textos son legibles, directos y consistentes; las mayúsculas se limitan a rótulos breves.
+  \item No hay ventanas emergentes automáticas o innecesarias; los avisos aparecen en contexto.
+  \item Los errores explican cómo continuar y no borran datos introducidos sin avisar.
+  \item Los controles funcionan con teclado y muestran un foco visible; se ha comprobado la ampliación del texto.
+\end{itemize}
+
+\subsection{Backend y calidad}
+\begin{itemize}[leftmargin=*]
+  \item El servidor valida los datos recibidos y aplica las reglas de negocio.
+  \item Cada operación comprueba los permisos necesarios y devuelve solo los datos requeridos.
+  \item Los errores se gestionan de forma controlada, sin exponer información interna ni marcar como guardado lo que falló.
+  \item Se han probado el flujo normal y los casos de error relevantes.
+  \item Otra persona ha revisado el cambio y los criterios de aceptación se pueden verificar.
+  \item Las incidencias, decisiones y limitaciones pendientes están registradas y tienen seguimiento.
+\end{itemize}
+
+\subsection{Registro de formación y decisiones}
+El equipo anotará la fecha de cada sesión, asistentes, ejercicios realizados, dudas que requieran seguimiento y cambios acordados para el manual. Para cada decisión relevante se registrará qué se decidió, por qué, quién la validó y si queda pendiente confirmación del centro. No se incluirán en actas ni ejemplos datos personales reales del alumnado.
+
+\subsection{Referencias para ampliar la formación}
+\begin{itemize}[leftmargin=*]
+  \item W3C, \textit{Web Content Accessibility Guidelines (WCAG) 2.2}: \url{https://www.w3.org/TR/WCAG22/}.
+  \item W3C WAI, comprensión del criterio de contraste mínimo: \url{https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html}.
+  \item W3C WAI-ARIA Authoring Practices Guide, patrón de diálogo modal: \url{https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/}.
+\end{itemize}
+
+Estas fuentes ayudan a concretar las comprobaciones técnicas; el equipo debe adaptarlas a las funciones reales del proyecto y contrastar la experiencia con sus usuarios previstos.

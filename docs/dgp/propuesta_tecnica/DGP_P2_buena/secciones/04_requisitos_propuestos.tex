@@ -1,0 +1,196 @@
+% ==============================================================================
+% SECCIÓN 4: REQUISITOS PROPUESTOS
+% ==============================================================================
+\newpage
+\section{Requisitos Propuestos}
+
+Este apartado concreta qué se propone construir para la primera versión de AUTOVIDA. Es una propuesta inicial del equipo, no un conjunto de requisitos ya aprobado por el centro. Antes de cerrar el alcance, se completará el origen de cada requisito con la petición, documento o acta correspondiente y se validará con las personas responsables.
+
+\subsection{Requisitos funcionales del producto mínimo viable}
+La primera versión se centrará en organizar actividades y guiar al alumnado durante su realización. Los criterios de aceptación permiten comprobar cada requisito mediante una prueba observable.
+
+\begingroup
+\small
+\newcommand{\criterioinicio}{\begin{itemize}[nosep,leftmargin=*]\item\raggedright}
+\newcommand{\criteriofin}{\end{itemize}}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{1cm}|>{\raggedright\arraybackslash}p{6cm}|>{\criterioinicio}p{5.9cm}<{\criteriofin}|>{\centering\arraybackslash}p{1.8cm}|}
+\hline
+\rowcolor{tableHeader}
+ID & Requisito funcional & \multicolumn{1}{|>{\raggedright\arraybackslash}p{5.9cm}|}{Criterio de aceptación} & Prioridad \\
+\hline
+\endfirsthead
+\rowcolor{tableHeader}
+ID & Requisito funcional & \multicolumn{1}{|>{\raggedright\arraybackslash}p{5.9cm}|}{Criterio de aceptación} & Prioridad \\
+\hline
+\endhead
+\hypertarget{rf-01}{}RF-01 & La aplicación distinguira entre perfiles de administrador, personal, tutores autorizados y alumnado, y permitirá a cada uno únicamente las funciones definidas para su rol respectivo. & Iniciar sesión con una cuenta de prueba de cada perfil y ejecutar operaciones autorizadas y no autorizadas según la matriz de permisos acordada. \item Comprobar que las primeras se completan y que las segundas se bloquean sin modificar datos. & MVP \\
+\hline
+\hypertarget{rf-02}{}RF-02 & Una persona con una cuenta habilitada podrá iniciar sesión introduciendo sus credenciales. Tras validarlas, la aplicación mostrará las funciones correspondientes a su perfil. & Iniciar sesión con credenciales válidas de una cuenta habilitada y comprobar que se abre la sesión y se muestra la vista de su perfil. \item Repetir con una contraseña incorrecta y con una cuenta deshabilitada; en ambos casos, comprobar que no se abre la sesión y se muestra un error. & MVP \\
+\hline
+\hypertarget{rf-03}{}RF-03 & Una persona con sesión iniciada podrá cerrarla desde la aplicación. Al hacerlo, la sesión dejará de estar activa y será necesario iniciar sesión de nuevo para acceder a las funciones protegidas. & Cerrar la sesión y comprobar que aparece la pantalla de acceso. \item Intentar volver a una pantalla protegida mediante navegación directa y verificar que se solicita iniciar sesión antes de mostrar sus datos. & MVP \\
+\hline
+\hypertarget{rf-04}{}RF-04 & El administrador podrá asignar uno o varios alumnos a un personal o tutor registrado & Desde una cuenta de administrador, asignar dos alumnos de prueba a una cuenta registrada de personal y comprobar que ambas asociaciones aparecen en su listado. \item Repetir con una cuenta de tutor y verificar que solo el administrador puede crear estas asociaciones. & MVP \\
+\hline
+\hypertarget{rf-05}{}RF-05 & El administrador podrá consultar los alumnos asociados a los tutores y el personal. & Desde la cuenta de administrador, acceder al perfil individual de un tutor o de un miembro del personal y comprobar que aparecen los alumnos asociados. & MVP \\
+\hline
+\hypertarget{rf-06}{}RF-06 & El administrador podrá eliminar la asociación existente entre un alumno y un tutor o familiar sin eliminar las cuentas de los usuarios. & Eliminar la asociación de prueba entre un alumno y un tutor o familiar. \item Comprobar que esa cuenta pierde acceso a la información del alumno, que las cuentas de ambos siguen activas y que las demás asociaciones no cambian. & MVP \\
+\hline
+\hypertarget{rf-07}{}RF-07 & El tutor podrá crear y asignar actividades a un alumno únicamente fuera de su horario escolar. & Configurar el horario escolar de prueba y, con una cuenta de tutor asociada al alumno, crear una actividad fuera de ese horario. Comprobar que se guarda y aparece para el alumno; intentar crear otra dentro del horario escolar y verificar que el sistema la rechaza. & MVP \\
+\hline
+\hypertarget{rf-08}{}RF-08 & Los tutores y el personal autorizados podrán modificar las actividades de sus alumnos asociados. & Modificar el título y la hora de una actividad de un alumno asociado y comprobar que, al volver a abrirla, muestra los nuevos valores. \item Intentar modificar una actividad de un alumno no asociado y verificar que no se guardan cambios. & MVP \\
+\hline
+\hypertarget{rf-09}{}RF-09 & Los tutores y el personal autorizados podrán eliminar las actividades del alumno asociado. & Eliminar una actividad de un alumno asociado y comprobar que deja de aparecer en su agenda, mientras las otras actividades y la cuenta del tutor o familiar permanecen disponibles. \item Verificar que una cuenta no asociada no puede eliminarla. & MVP \\
+\hline
+\hypertarget{rf-10}{}RF-10 & El personal autorizado podrá crear y asignar actividades a un alumno unicamente durante su horario escolar. & Configurar el horario escolar de prueba y, con una cuenta de personal autorizada, crear una actividad dentro de ese horario para un alumno asignado. Comprobar que se guarda y aparece para ese alumno; intentar crear otra fuera del horario y verificar que el sistema la rechaza. & MVP \\
+\hline
+\hypertarget{rf-11}{}RF-11 & El personal y los tutores podrán consultar los alumnos asociados a ellos. & Asociar un alumno a una cuenta de personal o de tutor y confirmar que aparece en el listado de alumnos. \item Si no hay ninguno asociado, se tiene que mostrar un mensaje indicándolo. & MVP \\
+\hline
+\hypertarget{rf-12}{}RF-12 & El personal podrá asignar una rutina a un alumno. & Asignar una rutina existente a un alumno y comprobar que aparece en la lista de rutinas de ese alumno, no en la de otro alumno no seleccionado. \item Comprobar que deniega la rutina a un alumno no asociado &  \\
+\hline
+\hypertarget{rf-13}{}RF-13 & El personal y los tutores podrán asociar una actividad alternativa a una actividad principal para que se muestre al alumno cuando esta no haya podido completarse. & Asociar una actividad alternativa a una principal. \item Indicar que la principal no puede realizarse y comprobar que el alumno puede consultar e iniciar la alternativa; verificar que ambas actividades mantienen su asociación y no se intercambian por error. &  \\
+\hline
+\hypertarget{rf-14}{}RF-14 & El personal podrá asociar a una actividad una duración concreta. & Guardar una actividad con una duración de 15 minutos y volver a abrirla; comprobar que conserva ese valor expresado en minutos. \item Intentar introducir una duración fraccionaria y verificar que no se acepta como duración válida. & MVP \\
+\hline
+\hypertarget{rf-15}{}RF-15 & El personal podrá asociar a una actividad una hora de inicio. & Asignar una hora de inicio a una actividad y guardarla. Volver a abrir la actividad y comprobar que se conserva la hora introducida y que la agenda la muestra a esa hora. & MVP \\
+\hline
+\hypertarget{rf-16}{}RF-16 & El sistema deberá diferenciar entre actividades programadas, que cuentan con fecha, hora de inicio y duración determinadas, y tareas sin fecha inicial fija. Esta última será iniciada manualmente por el alumno. & Crear una actividad programada con fecha, hora de inicio y duración, y otra sin fecha ni hora de inicio. \item Comprobar que la primera aparece como programada y que la segunda puede iniciarse sin asignarle una fecha de inicio. & MVP\\
+\hline
+\hypertarget{rf-17}{}RF-17 & El alumnado podrá crear actividades personales en horario fuera de clase indicando los datos necesarios y estas aparecerán en su agenda con una prioridad inferior a las actividades asignadas por el personal. & Crear desde una cuenta de alumno una actividad personal que coincida en fecha y hora con otra asignada por el personal. \item Comprobar que ambas aparecen, que la personal se identifica con prioridad inferior y que no modifica ni desplaza la asignada. \item Si el alumno intenta añadir una actividad en horario escolar esta se rechaza & MVP \\
+\hline
+\hypertarget{rf-18}{}RF-18 & El alumnado podrá modificar las actividades que haya creado. & Modificar un dato de una actividad creada por el alumno y comprobar que el nuevo valor se conserva al volver a abrirla. \item Intentar modificar una actividad creada por otra persona y verificar que no se guardan cambios. & MVP \\
+\hline
+\hypertarget{rf-19}{}RF-19 & El alumnado podrá eliminar las actividades que haya creado. & Eliminar una actividad creada por el alumno y comprobar que deja de aparecer en su agenda. \item Intentar eliminar una actividad creada por otra persona y verificar que sigue disponible y sin cambios. & MVP \\
+\hline
+\hypertarget{rf-20}{}RF-20 & El alumno podrá consultar en su agenda las actividades de la fecha seleccionada, tanto las asignadas por personal o familiares autorizados como las creadas por él. Únicamente podrá consultar las que se le hayan asignado a él & Registrar para un alumno una actividad asignada por personal, otra por un familiar autorizado y otra creada por él, todas en una fecha. \item Registrar además una actividad en otra fecha. \item Seleccionar cada fecha y comprobar que solo aparecen las actividades correspondientes, incluidas las de los tres orígenes autorizados. & MVP \\
+\hline
+\hypertarget{rf-21}{}RF-21 & Las actividades con hora de inicio (para los alumnos, tutores y personal) se mostrarán ordenadas por hora. Las actividades sin fecha de inicio se mostrarán según su orden establecido. Si no hay actividades programadas para esa fecha, se mostrará «No hay actividades para esta fecha». & Crear para una fecha tres actividades con horas de inicio distintas y comprobar que se muestran en orden cronológico. \item Seleccionar una fecha sin actividades programadas y comprobar que aparece «No hay actividades para esta fecha». & MVP \\
+\hline
+\hypertarget{rf-22}{}RF-22 & La aplicación deberá permitir la estructuración de actividades mediante una serie de pasos ordenados obligatorios o guiados para su resolución. & Crear una actividad con tres pasos en un orden definido, configurar uno como obligatorio y otro como guiado. \item Comprobar que se presentan en ese orden, que el paso guiado muestra su indicación y que la actividad no se completa mientras el obligatorio siga pendiente. & MVP \\
+\hline
+\hypertarget{rf-23}{}RF-23 & El alumno podrá cambiar ajustes de accesibilidad desde la aplicación, como texto, pictogramas, imágenes, audio o vídeo. & Configurar dos perfiles de alumno con apoyos distintos y asociar a una instrucción los recursos correspondientes. \item Abrir la misma actividad con cada perfil y comprobar que se muestran los recursos configurados para ese alumno. & MVP \\
+\hline
+\hypertarget{rf-24}{}RF-24 & El alumno podrá marcar cada instrucción como completada. & Abrir una actividad con tres instrucciones y marcarlas como completadas de forma individual. \item Después de cada acción, comprobar que solo cambia el estado de la instrucción seleccionada y que las demás conservan su estado; volver a abrir la actividad y verificar que los cambios se mantienen. & MVP \\
+\hline
+\hypertarget{rf-25}{}RF-25 & El alumno podrá consultar que pasos quedan pendientes dentro de la tarea. & En una actividad de tres pasos, marcar dos como completados y abrir su vista de progreso. Comprobar que identifica esos dos como completados y el tercero como pendiente. & MVP \\
+\hline
+\hypertarget{rf-26}{}RF-26 & El alumno podrá marcar una tarea como completada, tras marcar todas sus instrucciones como completadas (RF-25). & Intentar completar una actividad con una instrucción pendiente y comprobar que permanece pendiente. \item Marcar todas sus instrucciones como completadas y comprobar que entonces la actividad figura como completada. & MVP \\
+\hline
+\hypertarget{rf-27}{}RF-27 & El alumno podrá iniciar y pausar el temporizador durante la realización de una tarea. Al reanudarla, el temporizador continuará desde el punto en que se pausó. & Iniciar el temporizador de una actividad y pausarlo cuando muestre un tiempo restante conocido. \item Esperar varios segundos y comprobar que el valor no cambia; reanudarlo y verificar que continúa desde ese valor, sin reiniciarse. & MVP \\
+\hline
+\hypertarget{rf-28}{}RF-28 & Cuando el tiempo de la tarea llega a cero, aparecerá un mensaje indicando que se ha acabado el tiempo y que la tarea no se ha completado (con pictogramas, dependiendo de los ajustes de accesibilidad). & Iniciar el temporizador de una actividad y avanzar el reloj de prueba hasta cero. \item Comprobar que en ese momento aparece el mensaje, y que no aparecen antes de llegar a cero. & MVP \\
+\hline
+\hypertarget{rf-29}{}RF-29 & Al final del día, la aplicación notificará a los tutores y personal de las tareas no completadas. & No completar una tarea y comprobar que al final del día le llega una notificación al tutor y al personal. & MVP \\
+\hline
+\hypertarget{rf-30}{}RF-30 & El administrador podrá crear cuentas de usuario de alumnos, tutores y personal. & Comprobar que al crear un usuario, se crea una entrada en la base de datos. & MVP \\
+\hline
+\hypertarget{rf-31}{}RF-31 & El administrador podrá consultar las cuentas de usuario del sistema de alumnos, tutores y personal. & Comprobar que existe una pantalla que permita consultar los distintos usuarios filtrando por tipo, nombre... & MVP \\
+\hline
+\hypertarget{rf-32}{}RF-32 & El administrador podrá modificar los datos de los usuarios del sistema. & Comprobar que se puede seleccionar un usuario y al cambiar sus datos, se actualiza la base de datos. & MVP \\
+\hline
+\hypertarget{rf-33}{}RF-33 & El administrador podrá eliminar los usuarios del sistema. & Comprobar que se puede seleccionar un usuario y al eliminarlo, se actualiza la base de datos. & MVP \\
+\hline
+\hypertarget{rf-34}{}RF-34 & El personal y los tutores podrán consultar una actividad alternativa de una actividad principal. & Asociar una actividad alternativa a una principal, luego comprobar si se muestra en los detalles de la tarea principal. &  \\
+\hline
+\hypertarget{rf-35}{}RF-35 & El personal y los tutores podrán modificar una actividad alternativa de una actividad principal. & Modificar los datos de la actividad alternativa y comprobar que se actualice la base de datos. &  \\
+\hline
+\hypertarget{rf-36}{}RF-36 & El personal y los tutores podrán eliminar una actividad alternativa de una actividad principal. & Modificar los datos de la actividad alternativa y comprobar que deje de existir en la base de datos. &  \\
+\hline
+\hypertarget{rf-37}{}RF-37 & Los tutores y el personal podrán modificar los ajustes de accesibilidad de un alumno a su cargo. & Desde la cuenta de un tutor o personal asociado a un alumno, modificar uno de sus ajustes de accesibilidad y comprobar que el cambio se guarda y se aplica al consultar la aplicación con el perfil de ese alumno. & Pospuesto \\
+\hline
+\hypertarget{rf-38}{}RF-38 & Los tutor y el personal podrán eliminar una rutina de la agenda de un alumno a su cargo. & Desde la cuenta de un tutor o personal asociado a un alumno, eliminar una rutina de su agenda y comprobar que deja de aparecer. & Pospuesto \\
+\hline
+\hypertarget{rf-39}{}RF-39 & Los tutores y el personal podrán modificar una rutina de la agenda de un alumno a su cargo. & Desde la cuenta de un tutor o personal asociado a un alumno, modificar los datos de una rutina de su agenda y comprobar que los cambios se guardan y aparecen al volver a consultarla. & Pospuesto \\
+\hline
+\hypertarget{rf-40}{}RF-40 & Los tutores y el personal podrán crear una rutina en la agenda de un alumno a su cargo con una lista de tareas que se repita todos los días. & Desde la cuenta de un tutor o personal asociado a un alumno, crear una rutina con varias tareas y comprobar que aparece en la agenda de ese alumno y que se repite en los días siguientes. & Pospuesto \\
+\hline
+\hypertarget{rf-41}{}RF-41 & La aplicación notificará a los tutores y al personal autorizados vinculados a un alumno cuando se produzcan cambios relevantes en sus datos, ajustes de accesibilidad o planificación que requieran su atención. & Modificar los ajustes de accesibilidad o la planificación de un alumno y comprobar que sus tutores y el personal autorizados reciben el aviso, y que usuarios no vinculados a ese alumno no lo reciben. & MVP \\
+\hline
+\end{longtable}
+\endgroup
+
+\subsection{Requisitos no funcionales propuestos}
+\begingroup
+\small
+\begin{longtable}{|>{\raggedright\arraybackslash}p{1.4cm}|>{\raggedright\arraybackslash}p{5.5cm}|>{\raggedright\arraybackslash}p{7.8cm}|}
+\hline
+\rowcolor{tableHeader}
+ID & Requisito no funcional & \multicolumn{1}{|>{\raggedright\arraybackslash}p{7.8cm}|}{Criterio de aceptación} \\
+\hline
+\endfirsthead
+\rowcolor{tableHeader}
+ID & Requisito no funcional & \multicolumn{1}{|>{\raggedright\arraybackslash}p{7.8cm}|}{Criterio de aceptación} \\
+\hline
+\endhead
+\hypertarget{rnf-01}{}RNF-01 & \textbf{Accesibilidad de los apoyos:} La aplicación deberá proporcionar los apoyos accesibles definidos para cada alumno, incluyendo texto, pictogramas, imágenes y, cuando corresponda, recursos audiovisuales. Se revisará el prototipo con los perfiles de usuario que acuerde el centro y se registrarán los problemas observados. & \begin{itemize}[nosep,leftmargin=*]\item Configurar los apoyos de accesibilidad de un alumno de prueba. \item Abrir una actividad con ese perfil y comprobar que se muestran los apoyos configurados. \item Revisar el prototipo con los perfiles de usuario acordados con el centro y registrar los problemas observados.\end{itemize} \\
+\hline
+\hypertarget{rnf-02}{}RNF-02 & \textbf{Idioma:} Los textos de la interfaz incluidos en la primera versión estarán en español. & \begin{itemize}[nosep,leftmargin=*]\item Revisar las pantallas y los mensajes de la primera versión y comprobar que todos los textos de la interfaz están en español.\end{itemize} \\
+\hline
+\hypertarget{rnf-03}{}RNF-03 & \textbf{Privacidad y permisos:} Antes de usar datos reales se definirá qué datos son imprescindibles, quién puede consultarlos y cómo se protegerán. La matriz de permisos se verificará con pruebas para cada perfil. & \begin{itemize}[nosep,leftmargin=*]\item Comprobar que está documentado qué datos se recopilan, quién puede consultarlos y cómo se protegen. \item Ejecutar pruebas con cuentas de cada perfil según la matriz de permisos y comprobar que solo acceden a los datos autorizados.\end{itemize} \\
+\hline
+\hypertarget{rnf-04}{}RNF-04 & \textbf{Funcionamiento sin conexión:} La aplicación permitirá al alumno consultar las actividades previamente sincronizadas y registrar su progreso sin conexión a Internet. Durante este modo no se podrán crear ni recibir nuevas actividades. Al recuperar la conexión, el progreso realizado se sincronizará con el sistema. & \begin{itemize}[nosep,leftmargin=*]\item Sincronizar actividades y desconectar el dispositivo de Internet. \item Comprobar que el alumno puede consultar esas actividades y registrar su progreso, pero no crear ni recibir actividades nuevas. \item Recuperar la conexión y comprobar que el progreso se sincroniza con el sistema.\end{itemize} \\
+\hline
+\hypertarget{rnf-05}{}RNF-05 & \textbf{Usabilidad:} La interfaz deberá presentar las acciones principales de forma clara y accesible, evitando información innecesaria para el perfil del alumno. & \begin{itemize}[nosep,leftmargin=*]\item Pedir a usuarios de los perfiles acordados que realicen las acciones principales. \item Comprobar que pueden identificar esas acciones y que la interfaz no muestra información innecesaria para el perfil del alumno.\end{itemize} \\
+\hline
+\hypertarget{rnf-06}{}RNF-06 & \textbf{Adaptación de la interfaz:} La aplicación deberá permitir configurar las opciones de visualización y accesibilidad definidas para cada alumno, de forma que la interfaz se adapte a sus necesidades. & \begin{itemize}[nosep,leftmargin=*]\item Configurar opciones de visualización y accesibilidad distintas para dos perfiles de alumno. \item Abrir la aplicación con cada perfil y comprobar que se aplican las opciones configuradas para ese alumno.\end{itemize} \\
+\hline
+\hypertarget{rnf-07}{}RNF-07 & \textbf{Consistencia de datos:} Cuando un dispositivo recupere la conexión, los cambios realizados sin conexión deberán sincronizarse sin perder el progreso registrado por el alumno. & \begin{itemize}[nosep,leftmargin=*]\item Registrar varios cambios de progreso sin conexión a Internet. \item Recuperar la conexión y comprobar que todos los cambios se sincronizan y que no se pierde el progreso registrado.\end{itemize} \\
+\hline
+\hypertarget{rnf-08}{}RNF-08 & \textbf{Rendimiento:} Las operaciones habituales de consulta y actualización de la agenda deberán realizarse sin esperas perceptibles para el usuario en condiciones normales de funcionamiento. & \begin{itemize}[nosep,leftmargin=*]\item En condiciones normales de funcionamiento, realizar consultas y actualizaciones habituales de la agenda. \item Comprobar con usuarios que estas operaciones se completan sin esperas perceptibles.\end{itemize} \\
+\hline
+\end{longtable}
+\endgroup
+
+\subsection{Requisitos de información}
+\begingroup
+\small
+\begin{longtable}{|>{\raggedright\arraybackslash}p{1.5cm}|>{\raggedright\arraybackslash}p{4.0cm}|>{\raggedright\arraybackslash}p{9.0cm}|}
+\hline
+\rowcolor{tableHeader}
+\textbf{ID} & \textbf{Requisitos de información} & \textbf{Descripción y Atributos Principales} \\
+\hline
+\endfirsthead
+\rowcolor{tableHeader}
+\textbf{ID} & \textbf{Requisitos de información} & \textbf{Descripción y Atributos Principales} \\
+\hline
+\endhead
+
+INF-01 & \textbf{Cuentas de Usuarios (Diferenciando Roles)} & Información de acceso dividida según el tipo de usuario. \textbf{Atributos:} Identificador único, nombre de usuario y contraseña cifrada e independiente para Administradores, Personal del centro y Padres/Tutores. \\
+\hline
+
+INF-02 & \textbf{Cuenta de Estudiante y Accesibilidad} & Datos del alumno unificados con sus preferencias visuales y de uso. \textbf{Atributos:} Identificador, usuario, contraseña cifrada (ya sea contraseña alfanumerica o accesible), clase asignada y ajustes de accesibilidad (colores, contraste, tamaño de letra, lectura por voz, visibilidad de días/tareas y permisos). \\
+\hline
+
+INF-03 & \textbf{Avatar del Estudiante} & Recursos gráficos asociados al perfil del alumno para facilitar su identificación. Imagenes amigables que identifiquen al alumno según su elección. \textbf{Atributos:} Identificador de la imagen, texto alternativo descriptivo y el archivo de la imagen. \\
+\hline
+
+INF-04 & \textbf{Asociaciones de Supervisión (Personal / Tutor)} & Vínculos que definen qué adultos son responsables de cada alumno. \textbf{Atributos:} Referencia al estudiante y referencia al tutor personal o miembro del personal a cargo, permitiendo múltiples asignaciones cruzadas. \\
+\hline
+
+INF-05 & \textbf{Gestión de Tareas} & Registro central de las actividades planificadas en la agenda del estudiante. \textbf{Atributos:} Identificador, título, fecha y hora de inicio (opcional), duración estimada, autor de la tarea y estado (si está completada o no). \\
+\hline
+
+INF-06 & \textbf{Tareas Alternativas} & Actividades de respaldo vinculadas directamente a una tarea principal por si esta falla o no es posible su realización. \textbf{Atributos:} Identificador, hora de inicio, duración y creador de la tarea de reemplazo. \\
+\hline
+
+INF-07 & \textbf{Tipos de Tareas Específicas} & Clasificación especial de las actividades, tales como reprografía, comedor, etc. \textbf{Atributos:} Distinción entre tareas genéricas (que incluyen un listado de pasos) y tareas de comedor (que registran la fecha y la lista de alumnos que asisten ese día). \\
+\hline
+
+INF-08 & \textbf{Instrucciones y Pasos} & Desglose de pasos a realizar asociadas a las tareas genéricas. \textbf{Atributos:} Identificador del paso, orden de ejecución, descripción o contenido de la instrucción y estado (completado o pendiente). \\
+\hline
+
+\end{longtable}
+\endgroup
+
+\subsection{Elementos que se proponen posponer}
+Se propone dejar para una fase posterior las siguientes funcionalidades:
+\begin{itemize}[leftmargin=*]
+  \item Crear rutinas para alumnos desde una cuenta de tutor.
+  \item Crear rutinas para alumnos desde una cuenta de personal.
+  \item Eliminar rutinas de alumnos desde una cuenta de tutor.
+  \item Eliminar rutinas de alumnos desde una cuenta de personal.
+  \item Modificar rutinas de alumnos desde una cuenta de tutor.
+  \item Modificar rutinas de alumnos desde una cuenta de personal.
+  \item Modificar los ajustes de accesibilidad de alumnos desde una cuenta de tutor.
+  \item Modificar los ajustes de accesibilidad de alumnos desde una cuenta de personal.
+  \item Chat entre alumnado y tutores.
+\end{itemize}

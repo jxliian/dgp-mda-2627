@@ -1,0 +1,75 @@
+% ==============================================================================
+% SECCIONES 2 Y 3: RESUMEN, CASO DE NEGOCIO, DURACIÓN Y OBJETIVOS
+% ==============================================================================
+\newpage
+\thispagestyle{empty}
+\noindent{\Huge\bfseries Control de Cambios\par}
+
+\vspace{0.5em}
+\noindent{\large\bfseries Registro de correcciones aplicables a la propuesta técnica}\par
+\smallskip
+{\small\textit{Origen: notas de revisión de Entrega 1 DGP. No constan fecha ni asistentes; estas observaciones no se registran como aprobación formal del cliente.}}\par
+\smallskip
+{\small Los códigos y colores identifican cada línea de cambio. Se incluyen únicamente las observaciones que afectan al documento del cliente.}\par
+
+\begingroup
+\small
+\renewcommand{\arraystretch}{1.12}
+\setlength{\tabcolsep}{4pt}
+\noindent\begin{tabularx}{\textwidth}{|>{\centering\arraybackslash}p{1.25cm}|>{\raggedright\arraybackslash}p{7.3cm}|>{\raggedright\arraybackslash}X|}
+\hline
+\rowcolor{tableHeader}
+Código & Cambio registrado & Apartado afectado y estado \\
+\hline
+\textcolor[HTML]{AD0090}{\textbf{CC-01}} & \textcolor[HTML]{AD0090}{Orientar la propuesta a los objetivos de la entidad: facilidad de uso, personalización y adopción de la solución.} & \textcolor[HTML]{AD0090}{Resumen, objetivos, solución y valor. Parcial: la personalización ya aparece; concretar usabilidad y adopción y validarlas con el centro.} \\
+\hline
+\textcolor[HTML]{005D75}{\textbf{CC-02}} & \textcolor[HTML]{005D75}{Homogeneizar el catálogo con requisitos funcionales (RF), no funcionales (RNF), de información (RI) y elementos pospuestos, todos con título, numeración y redacción uniforme.} & \textcolor[HTML]{005D75}{Requisitos. Parcial: el catálogo usa RF, RNF e INF; normalizar la etiqueta RI y revisar el formato común.} \\
+\hline
+\textcolor[HTML]{275DAD}{\textbf{CC-03}} & \textcolor[HTML]{275DAD}{Concentrar la explicación de la solución, justificarla con requisitos y hallazgos contrastados, e incluir modelos conceptual y de arquitectura para recoger comentarios del cliente.} & \textcolor[HTML]{275DAD}{Justificación y solución. Ya existe esquema lógico y flujo principal; completar la trazabilidad y confirmar si el modelo solicitado debe ser MVC.} \\
+\hline
+\textcolor[HTML]{287A4B}{\textbf{CC-04}} & \textcolor[HTML]{287A4B}{Conectar evidencias etnográficas y perfiles beneficiarios —incluidos casos de uso complejos— con el valor añadido y el beneficio tangible para la entidad, sin inventar cifras de retorno.} & \textcolor[HTML]{287A4B}{Justificación y valor. Ampliar perfiles y sustentar el beneficio con evidencias verificables y acuerdos con el centro.} \\
+\hline
+\textcolor[HTML]{A65300}{\textbf{CC-05}} & \textcolor[HTML]{A65300}{Sustituir capturas operativas de Jira por un Gantt consolidado con hitos o entregables, responsables nominados, fechas de inicio y fin, y sprint asociado.} & \textcolor[HTML]{A65300}{Actividades y anexo del cronograma. Pendiente de reestructurar y validar fechas y responsables.} \\
+\hline
+\textcolor[HTML]{9C365D}{\textbf{CC-06}} & \textcolor[HTML]{9C365D}{Mantener la propuesta enfocada al cliente; trasladar las actas y su plantilla al documento interno, conservando allí las actas sin plantilla. Revisar el apartado “4.2” señalado y moverlo solo tras identificarlo.} & \textcolor[HTML]{9C365D}{Documentación y contenido señalado como interno. Pendiente de separar; la referencia “4.2” requiere confirmación.} \\
+\hline
+\textcolor[HTML]{5B5EA6}{\textbf{CC-07}} & \textcolor[HTML]{5B5EA6}{Precisar el canal oficial y la cadencia de comunicación con el cliente; reservar herramientas y coordinación interna para el Manual de Coordinación.} & \textcolor[HTML]{5B5EA6}{Seguimiento. Ya se propone una reunión quincenal; confirmar canal y periodicidad con el centro.} \\
+\hline
+\textcolor[HTML]{B22222}{\textbf{CC-08}} & \textcolor[HTML]{B22222}{Comprobar los saltos de página de las secciones principales y validar visualmente el PDF de la propuesta, dentro de la entrega en dos PDF independientes.} & \textcolor[HTML]{B22222}{Maquetación y entrega. Pendiente de revisión final del PDF del cliente.} \\
+\hline
+\end{tabularx}
+\endgroup
+
+\vspace{0.5em}
+{\small\textit{Fuera del alcance de esta propuesta: control de horas, métricas internas de productividad, gestión interna de cambios y calidad, y herramientas de coordinación del equipo; estos elementos corresponden al documento interno.}}
+\newpage
+\section{Resumen}
+
+\subsection{Título}
+\textbf{AUTOVIDA: Sistema de Agenda y Asignación de Tareas Accesible para Alumnado NEAE / PTVAL.}
+
+\subsection{Resumen}
+AUTOVIDA propone una aplicación accesible dirigida principalmente al alumnado del Programa de Transición a la Vida Adulta (PTVAL) del C.E.E. Fundación Purísima Concepción. Su objetivo es ayudar a cada alumno a organizarse en su día a día mediante la consulta de actividades, el seguimiento de tareas con instrucciones ordenadas y apoyos visuales, y el uso de rutinas. El personal del centro podrá preparar y asignar las actividades y rutinas de cada alumno.
+
+La primera versión se plantea como un producto mínimo viable con agenda por alumno, tareas guiadas, registro de pasos completados, rutinas y temporizador visual. Esta propuesta define requisitos verificables, criterios de aceptación, arquitectura preliminar y documentación de entrega.
+
+\subsection{Tipo de caso de negocio}
+Este proyecto se realiza como respuesta a una demanda: la necesidad del centro (nuestro cliente) de apoyar la organización y autonomía del alumnado PTVAL con una solución accesible. No se presenta como un proyecto originado principalmente por una nueva tecnología o por un mandato legal.
+
+\subsection{Duración propuesta}
+Se estima una duración de \textbf{4 meses desde la reunión de inicio}, correspondiente al tiempo disponible para la asignatura antes de Navidad. La distribución detallada de actividades y meses se completará en el apartado de cronograma.
+
+\newpage
+\section{Objetivos}
+
+\subsection{Objetivo general}
+Diseñar, implementar y validar con el centro una primera versión de AUTOVIDA que permita al personal preparar actividades y al alumnado consultar su agenda, seguir tareas guiadas y registrar su avance mediante una interfaz accesible y personalizable.
+
+\subsection{Objetivos específicos}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{OBJ-01. Definir el alcance:} definir el alumnado destinatario y sus necesidades de apoyo. \emph{Requisitos relacionados: \hyperlink{rf-01}{RF-01}, \hyperlink{rf-04}{RF-04}, \hyperlink{rf-11}{RF-11} y \hyperlink{rf-20}{RF-20} delimitan los perfiles, sus asociaciones y el acceso a las actividades; \hyperlink{rnf-01}{RNF-01} y \hyperlink{rnf-05}{RNF-05} orientan la identificación de apoyos y necesidades de uso. La población concreta y sus necesidades deberán validarse con el centro, ya que estos requisitos no las especifican por sí solos.}
+  \item \textbf{OBJ-02. Diseñar una interacción personalizable:} permitir configurar la interfaz y los apoyos de acuerdo con las necesidades de cada alumno. \emph{Requisitos relacionados: \hyperlink{rf-23}{RF-23} y \hyperlink{rnf-06}{RNF-06} contemplan los ajustes individuales; \hyperlink{rf-37}{RF-37} asigna su modificación al personal y a los tutores, pero figura como pospuesto y no debe considerarse parte del MVP mientras conserve ese estado.}
+  \item \textbf{OBJ-03. Fomentar el aprendizaje autónomo:} permitir que el alumno consulte, gestione y complete sus tareas con la menor intervención directa posible. \emph{Requisitos relacionados: \hyperlink{rf-07}{RF-07} y \hyperlink{rf-10}{RF-10} cubren la asignación de actividades; \hyperlink{rf-16}{RF-16}--\hyperlink{rf-28}{RF-28} especifican su consulta, organización, realización por pasos, seguimiento, finalización y temporizador.}
+  \item \textbf{OBJ-04. Adaptar las actividades a las necesidades individuales:} facilitar que cada estudiante comprenda y utilice las actividades mediante apoyos adecuados. \emph{Requisitos relacionados: \hyperlink{rf-22}{RF-22}, \hyperlink{rf-23}{RF-23} y \hyperlink{rf-28}{RF-28} contemplan pasos guiados, ajustes de accesibilidad y avisos visuales; \hyperlink{rnf-01}{RNF-01}, \hyperlink{rnf-05}{RNF-05} y \hyperlink{rnf-06}{RNF-06} concretan accesibilidad, usabilidad y adaptación. La modificación de ajustes por personal o tutores se recoge en \hyperlink{rf-37}{RF-37}, actualmente pospuesto.}
+  \item \textbf{OBJ-05. Proporcionar una experiencia fiable y estable:} comprobar que las funciones principales mantienen los datos y responden correctamente durante el uso. \emph{Requisitos relacionados: \hyperlink{rf-02}{RF-02} y \hyperlink{rf-03}{RF-03} verifican el control de las sesiones; \hyperlink{rf-24}{RF-24} y \hyperlink{rf-26}{RF-26}, la conservación del progreso; \hyperlink{rnf-04}{RNF-04} y \hyperlink{rnf-07}{RNF-07}, el funcionamiento y la sincronización sin conexión; \hyperlink{rnf-08}{RNF-08}, el rendimiento de la agenda. Los requisitos actuales no fijan un nivel de disponibilidad continua, por lo que no se puede prometer un uso sin interrupciones hasta acordar y medir ese criterio.}
+\end{enumerate}

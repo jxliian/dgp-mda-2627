@@ -1,0 +1,39 @@
+% ==============================================================================
+% SECCIÓN 9: PLAN DE GESTIÓN DE CAMBIOS
+% ==============================================================================
+\newpage
+\section{Plan de Gestión de Cambios}
+
+Toda solicitud que afecte requisitos, alcance, diseño, código, accesibilidad, calendario o documentación deberá registrarse y evaluarse antes de ejecutarse. No se incorporarán cambios sin aprobación y criterios de aceptación verificables; las incidencias urgentes podrán tramitarse de forma prioritaria, pero no omitirán el registro, las pruebas ni la revisión.
+
+\subsection{Procedimiento de Evaluación y Aprobación}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Solicitud y registro:} La persona solicitante abrirá una incidencia en Jira con identificador único, descripción del estado actual y del cambio propuesto, motivo, prioridad, requisitos afectados, persona responsable y criterios de aceptación iniciales.
+  \item \textbf{Clasificación y análisis:} El Coordinador determinará el alcance y la prioridad. Se analizarán esfuerzo, calendario, dependencias, riesgos y efectos sobre requisitos, arquitectura, seguridad, calidad, accesibilidad y entregables. El Gestor de Calidad revisará los riesgos y las pruebas necesarias; el Gestor de Usabilidad y Accesibilidad participará cuando se vean afectados sus criterios. El Catalogador identificará la documentación que deba actualizarse.
+  \item \textbf{Decisión:} El Moderador facilitará la valoración del equipo y dejará en Jira la decisión (aprobada, rechazada o aplazada), sus motivos, responsables y condiciones. Se buscará el consenso; si persiste un empate o indecisión, el Moderador resolverá tras consultar al Gestor de Calidad, de acuerdo con las responsabilidades definidas en la Sección~4. Si el cambio modifica compromisos acordados con el cliente o el profesorado, el Presentador gestionará su validación antes de autorizar la implementación.
+  \item \textbf{Planificación:} Una vez aprobado, se asignarán responsable, estimación y entrega. La tarea se vinculará a los requisitos, pruebas y documentación afectados; no se iniciará trabajo sobre una solicitud rechazada o aplazada.
+  \item \textbf{Implementación y revisión:} Se trabajará en una rama asociada al identificador de Jira. Código y documentación se actualizarán en la misma Pull Request o en Pull Requests vinculadas. El Gestor de Calidad revisará la propuesta y las pruebas; los cambios de interfaz o accesibilidad incluirán la revisión del gestor correspondiente.
+  \item \textbf{Aceptación y cierre:} Se comprobarán todos los criterios de aceptación, las pruebas y la ausencia de regresiones. Tras la aprobación de la revisión y, cuando corresponda, la validación del cliente, se integrará el cambio en la rama de desarrollo. Se cerrará la incidencia enlazando Pull Requests, evidencias y versiones resultantes.
+\end{enumerate}
+
+\subsection{Listas de Verificación y Criterios de Aceptación}
+Antes de aprobar, el equipo verificará que la solicitud incluya:
+\begin{itemize}[leftmargin=*,label=$\square$]
+  \item Motivo, resultado esperado, prioridad e identificador trazable en Jira.
+  \item Requisitos, funcionalidades, componentes y entregables afectados.
+  \item Impacto estimado en esfuerzo, calendario, dependencias y riesgos.
+  \item Efectos sobre calidad, seguridad, privacidad, usabilidad y accesibilidad, según corresponda.
+  \item Documentos, diagramas, casos de prueba y responsables que deban actualizarse.
+  \item Criterios de aceptación objetivos, comprobables y acordados antes de implementar.
+\end{itemize}
+
+Para aceptar el cambio antes de integrarlo, se comprobará que:
+\begin{itemize}[leftmargin=*,label=$\square$]
+  \item Cada criterio acordado se ha verificado y cuenta con evidencia o resultado de prueba.
+  \item La revisión de código y las pruebas aplicables han finalizado satisfactoriamente, sin regresiones conocidas sin registrar.
+  \item Se han actualizado los requisitos, diagramas, manuales, memoria y actas afectados.
+  \item Se ha completado la validación del cliente o profesorado cuando el cambio modifica lo acordado con ellos.
+\end{itemize}
+
+\subsection{Flujo de Versionado Documental y de Código}
+Cada cambio conservará el mismo identificador de Jira desde la solicitud hasta su cierre. Se creará una rama de trabajo con ese identificador (por ejemplo, \texttt{feature/CLENCH-123-descripcion} o \texttt{fix/CLENCH-123-descripcion}); los commits seguirán la convención de la Sección~10 e incluirán el identificador cuando sea posible. El código, las pruebas y los fuentes documentales \texttt{.tex} se versionarán en GitHub mediante Pull Requests revisadas, en la misma rama o en ramas vinculadas. El Catalogador consolidará en \texttt{docs/} las especificaciones, diagramas y documentos actualizados. Tras aceptar e integrar el cambio, se actualizará el registro de cambios y se etiquetará la versión de entrega como \texttt{vMAJOR.MINOR.PATCH}: \texttt{MAJOR} para cambios incompatibles, \texttt{MINOR} para nuevas capacidades compatibles y \texttt{PATCH} para correcciones compatibles. Los PDF se regenerarán desde los fuentes versionados para cada entrega.

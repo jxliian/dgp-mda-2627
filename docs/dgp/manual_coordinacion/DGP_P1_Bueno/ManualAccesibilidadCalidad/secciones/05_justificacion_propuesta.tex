@@ -1,0 +1,23 @@
+\section{Accesibilidad en el frontend: interacción y contenido}
+
+\subsection{Evitar ventanas emergentes}
+Las ventanas emergentes inesperadas interrumpen la tarea, pueden ocultar el contenido y dificultan que algunas personas comprendan qué ha ocurrido. En AUTOVIDA se evitarán las ventanas emergentes (\textit{pop-ups}) automáticas, publicitarias o innecesarias. La información habitual debe aparecer en el flujo de la propia pantalla, cerca de la acción a la que se refiere.
+
+Para avisos no urgentes, utilizar mensajes integrados que no roben el foco ni desaparezcan antes de que puedan leerse. Para confirmar que una tarea se ha guardado, mostrar una confirmación breve en contexto. Para errores, conservar los datos introducidos y explicar cómo corregirlos junto al campo correspondiente.
+
+Si una decisión verdaderamente importante requiere bloquear temporalmente la tarea, el equipo debe justificarlo y diseñar un diálogo accesible: explicar claramente el motivo y las opciones, dar nombres comprensibles a los botones, permitir cerrar o cancelar cuando sea seguro, mantener el foco dentro del diálogo mientras esté abierto y devolverlo al elemento que lo abrió al cerrarlo. No se abrirán diálogos por el mero hecho de cargar una página ni para mostrar información rutinaria.
+
+\subsection{Texto y mensajes comprensibles}
+\begin{itemize}[leftmargin=*]
+  \item Indicar qué se espera de la persona con verbos concretos: por ejemplo, ``Guardar tarea'' en vez de ``Aceptar'' cuando esa sea la acción real.
+  \item Usar los mismos términos para la misma función en toda la aplicación; no alternar sin motivo entre sinónimos.
+  \item Explicar errores en lenguaje claro, decir qué elemento necesita atención y proponer el siguiente paso. Evitar mensajes como ``Error 400'' sin explicación útil.
+  \item No depender de iconos sin etiqueta ni usar únicamente mayúsculas, color o sonido para transmitir una instrucción.
+  \item Dar instrucciones antes de una acción cuando sean necesarias y confirmar después el resultado de forma visible y persistente el tiempo suficiente para leerlo.
+\end{itemize}
+
+\subsection{Teclado y foco}
+Aunque la aplicación se dirija principalmente a alumnado que utiliza pantalla táctil, los controles deben tener un orden de navegación predecible y un indicador visible de foco cuando se usan con teclado. Los botones y campos deben ser controles reales y etiquetados, no elementos visuales que solo funcionen con ratón. Al abrir o cerrar un diálogo excepcional se comprobará el comportamiento del foco descrito anteriormente.
+
+\subsection{Ejercicio para el equipo}
+En parejas, revisar una pantalla o prototipo y localizar: un mensaje que podría ser más claro, un estado que dependa solo del color y una posible interrupción. Proponer un cambio y explicar cómo probarlo con una persona usuaria o mediante una lista de comprobación.
