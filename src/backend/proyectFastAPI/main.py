@@ -2,6 +2,7 @@ from fastapi import FastAPI, Depends
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, Session
 
+
 # Usamos las credenciales del docker-compose
 DATABASE_URL = "postgresql://autovida_admin:Clench1234@localhost:5432/autovida_db"
 
@@ -10,7 +11,7 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 app = FastAPI(title="AUTOVIDA API")
 
-def get_db():
+def get_db():                       
     db = SessionLocal()
     try:
         yield db
