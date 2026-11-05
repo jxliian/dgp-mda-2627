@@ -16,11 +16,11 @@ La primera versión se centrará en organizar actividades y guiar al alumnado du
 \begin{longtable}{|>{\raggedright\arraybackslash}p{1cm}|>{\raggedright\arraybackslash}p{6cm}|>{\criterioinicio}p{5.9cm}<{\criteriofin}|>{\centering\arraybackslash}p{1.8cm}|}
 \hline
 \rowcolor{tableHeader}
-ID & Requisito funcional & \multicolumn{1}{|>{\raggedright\arraybackslash}p{5.9cm}|}{Criterio de aceptación} & Prioridad \\
+ID & \textcolor{cambioCatalogo}{Requisito funcional} & \multicolumn{1}{|>{\raggedright\arraybackslash}p{5.9cm}|}{Criterio de aceptación} & Prioridad \\
 \hline
 \endfirsthead
 \rowcolor{tableHeader}
-ID & Requisito funcional & \multicolumn{1}{|>{\raggedright\arraybackslash}p{5.9cm}|}{Criterio de aceptación} & Prioridad \\
+ID & \textcolor{cambioCatalogo}{Requisito funcional} & \multicolumn{1}{|>{\raggedright\arraybackslash}p{5.9cm}|}{Criterio de aceptación} & Prioridad \\
 \hline
 \endhead
 \hypertarget{rf-01}{}RF-01 & La aplicación distinguira entre perfiles de administrador, personal, tutores autorizados y alumnado, y permitirá a cada uno únicamente las funciones definidas para su rol respectivo. & Iniciar sesión con una cuenta de prueba de cada perfil y ejecutar operaciones autorizadas y no autorizadas según la matriz de permisos acordada. \item Comprobar que las primeras se completan y que las segundas se bloquean sin modificar datos. & MVP \\
@@ -55,7 +55,7 @@ ID & Requisito funcional & \multicolumn{1}{|>{\raggedright\arraybackslash}p{5.9c
 \hline
 \hypertarget{rf-16}{}RF-16 & El sistema deberá diferenciar entre actividades programadas, que cuentan con fecha, hora de inicio y duración determinadas, y tareas sin fecha inicial fija. Esta última será iniciada manualmente por el alumno. & Crear una actividad programada con fecha, hora de inicio y duración, y otra sin fecha ni hora de inicio. \item Comprobar que la primera aparece como programada y que la segunda puede iniciarse sin asignarle una fecha de inicio. & MVP\\
 \hline
-\hypertarget{rf-17}{}RF-17 & El alumnado podrá crear actividades personales en horario fuera de clase indicando los datos necesarios y estas aparecerán en su agenda con una prioridad inferior a las actividades asignadas por el personal. & Crear desde una cuenta de alumno una actividad personal que coincida en fecha y hora con otra asignada por el personal. \item Comprobar que ambas aparecen, que la personal se identifica con prioridad inferior y que no modifica ni desplaza la asignada. \item Si el alumno intenta añadir una actividad en horario escolar esta se rechaza & MVP \\
+\hypertarget{rf-17}{}RF-17 & El alumnado podrá crear actividades personales en horario fuera de clase indicando los datos necesarios y estas aparecerán en su agenda con una prioridad inferior a las actividades asignadas por el personal. & Crear desde una cuenta de alumno una actividad personal que coincida en fecha y hora con otra asignada por el personal. \item Comprobar que ambas aparecen, que la personal se identifica con prioridad inferior y que no modifica ni desplaza la asignada. \item Si el alumno intenta añadir una actividad en horario escolar esta se rechaza & \textcolor{cambioCatalogo}{MVP} \\
 \hline
 \hypertarget{rf-18}{}RF-18 & El alumnado podrá modificar las actividades que haya creado. & Modificar un dato de una actividad creada por el alumno y comprobar que el nuevo valor se conserva al volver a abrirla. \item Intentar modificar una actividad creada por otra persona y verificar que no se guardan cambios. & MVP \\
 \hline
@@ -108,6 +108,7 @@ ID & Requisito funcional & \multicolumn{1}{|>{\raggedright\arraybackslash}p{5.9c
 \end{longtable}
 \endgroup
 
+\begin{cambiocontenido}{cambioRNF}
 \subsection{Requisitos no funcionales propuestos}
 \begingroup
 \small
@@ -140,6 +141,9 @@ ID & Requisito no funcional & \multicolumn{1}{|>{\raggedright\arraybackslash}p{7
 \end{longtable}
 \endgroup
 
+
+\end{cambiocontenido}
+\begin{cambiocontenido}{cambioInformacion}
 \subsection{Requisitos de información}
 \begingroup
 \small
@@ -181,6 +185,8 @@ INF-08 & \textbf{Instrucciones y Pasos} & Desglose de pasos a realizar asociadas
 \end{longtable}
 \endgroup
 
+
+\end{cambiocontenido}
 \subsection{Elementos que se proponen posponer}
 Se propone dejar para una fase posterior las siguientes funcionalidades:
 \begin{itemize}[leftmargin=*]

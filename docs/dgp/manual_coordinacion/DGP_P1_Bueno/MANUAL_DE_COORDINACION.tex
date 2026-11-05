@@ -72,9 +72,10 @@
 \newtcolorbox{infobox}[1][]{
   colback=bgGray,
   colframe=clenchCyan,
-  fonttitle=\sffamily\bfseries\color{white},
-  coltitle=white,
-  colbacktitle=clenchMagenta,
+  coltext=\colorTextoCaja,
+  fonttitle=\sffamily\bfseries\color{\colorTituloCaja},
+  coltitle=\colorTituloCaja,
+  colbacktitle=\fondoTituloCaja,
   enhanced,
   attach boxed title to top left={yshift=-2mm, xshift=4mm},
   boxed title style={sharp corners, size=small},
@@ -83,6 +84,8 @@
   boxrule=0.8pt,
   #1
 }
+
+\input{control_cambios_estilo.tex}
 
 \begin{document}
 \sloppy
@@ -108,6 +111,9 @@
 \newpage
 \pagenumbering{arabic}
 
+\input{secciones/00_control_cambios.tex}
+\clearpage
+
 
 \input{secciones/01_imagen_empresa.tex}
 
@@ -125,16 +131,24 @@
 
 \input{secciones/08_estandares_codigo.tex}
 
+\begin{cambiocontenido}{cambioRevision}
 \input{secciones/09_plan_gestion_cambios.tex}
+\end{cambiocontenido}
 
 \input{secciones/10_control_versiones.tex}
 
+\begin{cambiocontenido}{cambioRNF}
 \input{secciones/11_gestion_calidad.tex}
+\end{cambiocontenido}
 
 \input{secciones/12_medicion_desempeno.tex}
 
+\begin{cambiocontenido}{cambioBeneficios}
 \input{secciones/13_manual_accesibilidad.tex}
+\end{cambiocontenido}
 
+\begin{cambiocontenido}{cambioDocumentacion}
 \input{secciones/14_actas.tex}
+\end{cambiocontenido}
 
 \end{document}

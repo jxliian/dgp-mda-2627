@@ -5,33 +5,43 @@
 \clearpage
 \appendix
 
+\begin{cambiocontenido}{cambioCronograma}
 \section{Cronograma visual}
+
+% El identificador de figura comparte el color de su entrada en el registro.
+\makeatletter
+\renewcommand{\fnum@figure}{\color{cambioCronograma}\figurename~\thefigure}
+\makeatother
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.95\linewidth]{images/cronograma1.png}
-    \caption{Diagrama de Arquitectura (Parte 1)}
+    \figuracambiada{cambioCronograma}{\includegraphics[width=0.95\linewidth]{images/cronograma1.png}}
+    \caption{\textcolor{cambioCronograma}{Diagrama de Arquitectura (Parte 1)}}
     \label{fig:arquitectura_p1}
 \end{figure}
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.95\linewidth]{images/cronograma2.png}
-    \caption{Diagrama de Arquitectura (Parte 2)}
+    \figuracambiada{cambioCronograma}{\includegraphics[width=0.95\linewidth]{images/cronograma2.png}}
+    \caption{\textcolor{cambioCronograma}{Diagrama de Arquitectura (Parte 2)}}
     \label{fig:arquitectura_p2}
 \end{figure}
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.95\linewidth]{images/cronograma3.png}
-    \caption{Diagrama de Arquitectura (Parte 3)}
+    \figuracambiada{cambioCronograma}{\includegraphics[width=0.95\linewidth]{images/cronograma3.png}}
+    \caption{\textcolor{cambioCronograma}{Diagrama de Arquitectura (Parte 3)}}
     \label{fig:arquitectura_p3}
 \end{figure}
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.95\linewidth]{images/cronograma4.png}
-    \caption{Diagrama de Arquitectura (Parte 4)}
+    \figuracambiada{cambioCronograma}{\includegraphics[width=0.95\linewidth]{images/cronograma4.png}}
+    \caption{\textcolor{cambioCronograma}{Diagrama de Arquitectura (Parte 4)}}
     \label{fig:arquitectura_p4}
 \end{figure}
+
+% Vaciar las figuras antes de cerrar el grupo que aplica su color (PT-10).
+\clearpage
+\end{cambiocontenido}
 

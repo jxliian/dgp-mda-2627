@@ -1,0 +1,52 @@
+% Colores y marcado del control de cambios respecto al PDF ANTIGUO.
+% El marcado se limita a presentación: no sustituye ni reescribe contenido.
+\definecolor{cambioPresentacion}{HTML}{4B5563}
+\definecolor{cambioRevision}{HTML}{9C365D}
+\definecolor{cambioObjetivos}{HTML}{AD0090}
+\definecolor{cambioCatalogo}{HTML}{546500}
+\definecolor{cambioRNF}{HTML}{005D75}
+\definecolor{cambioInformacion}{HTML}{A65300}
+\definecolor{cambioArquitectura}{HTML}{275DAD}
+\definecolor{cambioBeneficios}{HTML}{287A4B}
+\definecolor{cambioDocumentacion}{HTML}{5B5EA6}
+\definecolor{cambioCronograma}{HTML}{B22222}
+\colorlet{cambioActivo}{textDark}
+\newcommand{\colorTextoCaja}{textDark}
+\newcommand{\colorTituloCaja}{white}
+\newcommand{\fondoTituloCaja}{clenchMagenta}
+
+% El grupo conserva el formato habitual al terminar cada bloque marcado.
+\newenvironment{cambiocontenido}[1]{%
+  \par\begingroup
+  \colorlet{cambioActivo}{#1}%
+  \color{cambioActivo}%
+  \hypersetup{linkcolor=cambioActivo,urlcolor=cambioActivo,citecolor=cambioActivo}%
+  \renewcommand{\colorTextoCaja}{cambioActivo}%
+  \renewcommand{\colorTituloCaja}{cambioActivo}%
+  \renewcommand{\fondoTituloCaja}{tableHeader}%
+  \let\textcolorOriginalCambio\textcolor
+  \renewcommand{\textcolor}[3][]{\textcolorOriginalCambio{cambioActivo}{##3}}%
+  \titleformat{\section}
+    {\color{cambioActivo}\sffamily\LARGE\bfseries}
+    {\thesection.}{0.8em}{}[\color{cambioActivo}\titlerule]%
+  \titleformat{\subsection}
+    {\color{cambioActivo}\sffamily\Large\bfseries}
+    {\thesubsection.}{0.6em}{}%
+  \titleformat{\subsubsection}
+    {\color{cambioActivo}\sffamily\large\bfseries}
+    {\thesubsubsection.}{0.5em}{}%
+}{\par\endgroup}
+
+% Las imágenes originales conservan sus píxeles: el marco identifica su cambio.
+\newcommand{\figuracambiada}[2]{%
+  \begingroup\setlength{\fboxsep}{0pt}\setlength{\fboxrule}{0.7pt}%
+  \fcolorbox{#1}{white}{#2}\endgroup}
+
+\newcommand{\entradaCambio}[6]{%
+  \begin{cambiocontenido}{#2}
+  \subsection*{#1. #3}
+  \noindent\textbf{Antes:} #4\par\smallskip
+  \noindent\textbf{Ahora:} #5\par\smallskip
+  \noindent\textbf{Localización:} #6\par
+  \end{cambiocontenido}
+}

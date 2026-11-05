@@ -21,21 +21,25 @@ El Gestor de Accesibilidad y el Gestor de Calidad se encargarán conjuntamente d
 \newcommand{\l@manualsubsection}{\@dottedtocline{2}{1.5em}{3.2em}}
 
 \section*{Índice del manual}
+\begingroup
+% Los números de página también pertenecen al contenido añadido (MC-06).
+\renewcommand{\normalcolor}{\color{cambioActivo}}
 \@starttoc{mtoc}
+\endgroup
 
 \renewcommand{\section}[1]{%
   \refstepcounter{manualsection}%
   \setcounter{manualsubsection}{0}%
   \addcontentsline{mtoc}{manualsection}{\protect\numberline{\themanualsection}#1}%
   \par\addvspace{14pt}%
-  \noindent{\color{clenchMagenta}\sffamily\LARGE\bfseries\themanualsection.\ #1\par}%
-  \vspace{6pt}\noindent{\color{clenchCyan}\rule{\linewidth}{0.4pt}}\par\vspace{6pt}%
+  \noindent{\color{cambioActivo}\sffamily\LARGE\bfseries\themanualsection.\ #1\par}%
+  \vspace{6pt}\noindent{\color{cambioActivo}\rule{\linewidth}{0.4pt}}\par\vspace{6pt}%
 }
 \renewcommand{\subsection}[1]{%
   \refstepcounter{manualsubsection}%
   \addcontentsline{mtoc}{manualsubsection}{\protect\numberline{\themanualsubsection}#1}%
   \par\addvspace{10pt}%
-  \noindent{\color{clenchCyanDark}\sffamily\Large\bfseries\themanualsubsection.\ #1\par}%
+  \noindent{\color{cambioActivo}\sffamily\Large\bfseries\themanualsubsection.\ #1\par}%
   \vspace{4pt}%
 }
 

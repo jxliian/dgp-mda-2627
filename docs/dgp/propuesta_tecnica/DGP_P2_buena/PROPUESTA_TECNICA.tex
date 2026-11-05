@@ -82,9 +82,10 @@
 \newtcolorbox{infobox}[1][]{
   colback=bgGray,
   colframe=clenchCyanDark,
-  fonttitle=\sffamily\bfseries\color{white},
-  coltitle=white,
-  colbacktitle=clenchMagenta,
+  coltext=\colorTextoCaja,
+  fonttitle=\sffamily\bfseries\color{\colorTituloCaja},
+  coltitle=\colorTituloCaja,
+  colbacktitle=\fondoTituloCaja,
   enhanced,
   attach boxed title to top left={yshift=-2mm, xshift=4mm},
   boxed title style={sharp corners, size=small},
@@ -93,6 +94,8 @@
   boxrule=0.8pt,
   #1
 }
+
+\input{control_cambios_estilo.tex}
 
 \begin{document}
 \sloppy
@@ -117,12 +120,17 @@
 \newpage
 \pagenumbering{arabic}
 
+\input{secciones/00_control_cambios.tex}
+\clearpage
+
 
 \input{secciones/03_resumen_y_objetivos.tex}
 \input{secciones/04_requisitos_propuestos.tex}
 \input{secciones/05_justificacion_propuesta.tex}
 \input{secciones/06_antecedentes_equipo.tex}
+\begin{cambiocontenido}{cambioArquitectura}
 \input{secciones/07_solucion_tecnica.tex}
+\end{cambiocontenido}
 \input{secciones/08_actividades_cronograma.tex}
 \input{secciones/09_seguimiento_cliente.tex}
 \input{secciones/10_valor_beneficios.tex}
