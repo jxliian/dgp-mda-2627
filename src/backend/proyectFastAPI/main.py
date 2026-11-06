@@ -1,22 +1,21 @@
+
 from fastapi import FastAPI, Depends
-from sqlalchemy import create_engine, text
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy import text
+from sqlalchemy.orm import Session
+
+from DB.database import get_db
+from auth.router import router as auth_router
+from gestion_asociaciones.assoc_mng_backend import router as associations_router
+from gestion_usuarios.users_mng_backend import router as users_router
 
 
-# Usamos las credenciales del docker-compose
-DATABASE_URL = "postgresql://autovida_admin:Clench1234@localhost:5432/autovida_db"
-
-engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 app = FastAPI(title="AUTOVIDA API")
+app.include_router(auth_router)
+app.include_router(associations_router)
+app.include_router(users_router)
 
-def get_db():                       
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+
 
 @app.get("/")
 def comprobar_conexion(db: Session = Depends(get_db)):

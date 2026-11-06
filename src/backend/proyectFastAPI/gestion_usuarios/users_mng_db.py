@@ -96,6 +96,14 @@ class UsersManagementDB:
         except Exception:
             return None
 
+    # Función para obtener el hash de la contraseña de un usuario dado su email
+    def getPasswordByEmail(self, db: Session, email: str, role: str) -> Optional[str]:
+        table, _, email_col, pwd_col = self._get_table_and_cols(role)
+        query = text(f"SELECT {pwd_col} FROM {table} WHERE {email_col} = :email")
+        result = db.execute(query, {"email": email}).fetchone()
+        return result[0] if result else None
+
+
     #Función que comprueba las credenciales del usuario y entrega el token si son correctos
     def login(self, db: Session, username: str, passwd_plain: str, role: str) -> DBResponse:
         stored_hash = self.getPassword(db, username, role)
@@ -167,6 +175,19 @@ class UsersManagementDB:
         except Exception as e:
             db.rollback()
             return DBResponse({"errorCode": 500, "errorMsg": f"Error al eliminar el usuario: {str(e)}"})
+
+    # Función para eliminar un usuario dado su email. Devuelve False si no existía.
+    # Sus asociaciones (par_stud, staff_stud...) las borra la BD en cascada.
+    def deleteUserByEmail(self, db: Session, email: str, role: str) -> bool:
+        table, _, email_col, _ = self._get_table_and_cols(role)
+        query = text(f"DELETE FROM {table} WHERE {email_col} = :email")
+        try:
+            result = db.execute(query, {"email": email})
+            db.commit()
+        except Exception:
+            db.rollback()
+            raise
+        return result.rowcount > 0
 
     def updateUser(self, db: Session, username: str, passwd_plain: str, role: str) -> DBResponse:
         """Actualiza la información del usuario."""
