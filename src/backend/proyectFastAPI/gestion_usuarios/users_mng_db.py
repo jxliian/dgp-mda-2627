@@ -1,214 +1,206 @@
-from typing import Optional, Any
-from sqlalchemy.orm import Session
-from sqlalchemy import text
-from passlib.context import CryptContext
+from typing import Optional
 
-# Configuración del contexto para hashing de contraseñas con Bcrypt
+from passlib.context import CryptContext
+from sqlalchemy import text
+from sqlalchemy.orm import Session
+
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# Mapeo de roles a tablas de PostgreSQL y sus columnas de usuario, email y contraseña
-ROLE_TABLE_MAP = {
-    "admin": "admn",
-    "staff": "staff",
-    "student": "student",
-    "parent": "parents"
-}
-
-ROLE_COLUMNS = {
-    "admin": ("admn_usr", "admn_email", "admn_passwd"),
-    "staff": ("staff_usr", "staff_email", "staff_passwd"),
-    "student": ("stud_usr", "stud_email", "stud_password"),
-    "parent": ("par_usr", "par_email", "par_passwd")
+# Identifiers are internal constants; never accept table or column names from a request.
+ROLE_CONFIG = {
+    "admin": {"table": "Admn", "username": "admn_usr", "name": "admn_full_name", "email": "admn_email", "password": "admn_passwd", "token": "token"},
+    "staff": {"table": "Staff", "username": "staff_usr", "name": "staff_full_name", "email": "staff_email", "password": "staff_passwd", "token": "token"},
+    "student": {"table": "Student", "username": "stud_usr", "name": "stud_full_name", "password": "stud_password", "token": "token"},
+    "parent": {"table": "Parents", "username": "par_usr", "name": "par_full_name", "email": "par_email", "password": "par_passwd", "token": "token"},
 }
 
 
-class DBResponse(dict):
-    """
-    Clase auxiliar que permite acceder a las llaves del diccionario
-    como atributos de un objeto (ej. response.errorCode o response['errorCode']).
-    """
-    def __getattr__(self, name: str) -> Any:
-        try:
-            return self[name]
-        except KeyError:
-            raise AttributeError(f"'DBResponse' object has no attribute '{name}'")
+def _config(role: str) -> dict:
+    """Obtiene la configuración de tabla y columnas permitida para un rol."""
+    try:
+        return ROLE_CONFIG[role.lower()]
+    except (AttributeError, KeyError) as exc:
+        raise ValueError(f"Rol no válido: {role!r}") from exc
 
-    def __setattr__(self, name: str, value: Any) -> None:
-        self[name] = value
+
+def _ok(message: str = "OK", **data) -> dict:
+    """Construye una respuesta JSON de operación correcta."""
+    return {"errorCode": 0, "errorMsg": message, **data}
+
+
+def _error(message: str, code: int = 1) -> dict:
+    """Construye una respuesta JSON de error con su código y mensaje."""
+    return {"errorCode": code, "errorMsg": message}
 
 
 class UsersManagementDB:
-    """
-    Capa de Acceso a Datos (DAO / Repository) para la gestión de usuarios en PostgreSQL.
-    """
+    """Operaciones de usuarios; las respuestas son diccionarios JSON serializables."""
 
-    def _get_table_and_cols(self, role: str):
-        role_lower = role.lower()
-        if role_lower not in ROLE_TABLE_MAP:
-            raise ValueError(f"Rol no válido: '{role}'. Roles permitidos: {list(ROLE_TABLE_MAP.keys())}")
-        table = ROLE_TABLE_MAP[role_lower]
-        usr_col, email_col, pwd_col = ROLE_COLUMNS[role_lower]
-        return table, usr_col, email_col, pwd_col
-
-    #Función para obtener un usuario dado su nombre de usuario
-    def getUserByUsername(self, db: Session, username: str, role: str) -> DBResponse:
+    def getUserByUsername(self, db: Session, username: str, role: str) -> dict:
+        """Busca un usuario por nombre de usuario y devuelve sus datos públicos."""
         try:
-            table, usr_col, email_col, _ = self._get_table_and_cols(role)
-            query = text(f"SELECT {usr_col}, {email_col} FROM {table} WHERE {usr_col} = :usr")
-            result = db.execute(query, {"usr": username}).fetchone()
+            cfg = _config(role)
+            fields = [cfg["username"], cfg["name"]]
+            if "email" in cfg:
+                fields.append(cfg["email"])
+            row = db.execute(
+                text(f"SELECT {', '.join(fields)} FROM {cfg['table']} WHERE {cfg['username']} = :username"),
+                {"username": username},
+            ).mappings().first()
+            return _ok(**dict(row)) if row else _error("Usuario no encontrado")
+        except ValueError as exc:
+            return _error(str(exc))
+        except Exception as exc:
+            return _error(f"Error de base de datos: {exc}", 500)
 
-            if result:
-                return DBResponse({
-                    "errorCode": 0,
-                    "errorMsg": "OK",
-                    "username": result[0],
-                    "email": result[1]
-                })
-            return DBResponse({"errorCode": 1, "errorMsg": "Usuario no encontrado"})
-        except Exception as e:
-            return DBResponse({"errorCode": 500, "errorMsg": f"Error de base de datos: {str(e)}"})
-
-    #Función para obtener un usuario dada su dirección de correo electrónico
-    def getUserByEmail(self, db: Session, email: str, role: str) -> DBResponse:
+    def getUserByEmail(self, db: Session, email: str, role: str) -> dict:
+        """Busca por correo a los usuarios de roles que tienen ese campo."""
         try:
-            table, usr_col, email_col, _ = self._get_table_and_cols(role)
-            query = text(f"SELECT {usr_col}, {email_col} FROM {table} WHERE {email_col} = :email")
-            result = db.execute(query, {"email": email}).fetchone()
+            cfg = _config(role)
+            if "email" not in cfg:
+                return _error("Los estudiantes no tienen correo electrónico")
+            row = db.execute(
+                text(f"SELECT {cfg['username']}, {cfg['name']}, {cfg['email']} FROM {cfg['table']} WHERE {cfg['email']} = :email"),
+                {"email": email},
+            ).mappings().first()
+            return _ok(**dict(row)) if row else _error("Usuario no encontrado por email")
+        except ValueError as exc:
+            return _error(str(exc))
+        except Exception as exc:
+            return _error(f"Error de base de datos: {exc}", 500)
 
-            if result:
-                return DBResponse({
-                    "errorCode": 0,
-                    "errorMsg": "OK",
-                    "username": result[0],
-                    "email": result[1]
-                })
-            return DBResponse({"errorCode": 1, "errorMsg": "Usuario no encontrado por email"})
-        except Exception as e:
-            return DBResponse({"errorCode": 500, "errorMsg": f"Error de base de datos: {str(e)}"})
+    def getUsers(self, db: Session, role: str) -> dict:
+        """Lista las cuentas de un rol sin incluir hashes de contraseña ni tokens."""
+        try:
+            cfg = _config(role)
+            fields = [cfg["username"], cfg["name"]]
+            if "email" in cfg:
+                fields.append(cfg["email"])
+            rows = db.execute(text(f"SELECT {', '.join(fields)} FROM {cfg['table']} ORDER BY {cfg['username']}" )).mappings().all()
+            return _ok(users=[dict(row) for row in rows])
+        except ValueError as exc:
+            return _error(str(exc))
+        except Exception as exc:
+            return _error(f"Error de base de datos: {exc}", 500)
 
-    # Función para obtener el hash de la contraseña de un usuario
     def getPassword(self, db: Session, username: str, role: str) -> Optional[str]:
+        """Devuelve el hash de contraseña de la cuenta o None si no existe."""
         try:
-            table, usr_col, _, pwd_col = self._get_table_and_cols(role)
-            query = text(f"SELECT {pwd_col} FROM {table} WHERE {usr_col} = :usr")
-            result = db.execute(query, {"usr": username}).fetchone()
-            return result[0] if result else None
-        except Exception:
+            cfg = _config(role)
+            return db.execute(
+                text(f"SELECT {cfg['password']} FROM {cfg['table']} WHERE {cfg['username']} = :username"),
+                {"username": username},
+            ).scalar_one_or_none()
+        except (ValueError, Exception):
             return None
 
-    # Función para obtener el hash de la contraseña de un usuario dado su email
-    def getPasswordByEmail(self, db: Session, email: str, role: str) -> Optional[str]:
-        table, _, email_col, pwd_col = self._get_table_and_cols(role)
-        query = text(f"SELECT {pwd_col} FROM {table} WHERE {email_col} = :email")
-        result = db.execute(query, {"email": email}).fetchone()
-        return result[0] if result else None
-
-
-    #Función que comprueba las credenciales del usuario y entrega el token si son correctos
-    def login(self, db: Session, username: str, passwd_plain: str, role: str) -> DBResponse:
-        stored_hash = self.getPassword(db, username, role)
-
-        if not stored_hash:
-            return DBResponse({"errorCode": 1, "errorMsg": "Usuario o contraseña incorrectos"})
-
-        if pwd_context.verify(passwd_plain, stored_hash):
-            return DBResponse({
-                "errorCode": 0,
-                "errorMsg": "OK",
-                "username": username,
-                "token": f"session_token_for_{username}"
-            })
-
-        return DBResponse({"errorCode": 1, "errorMsg": "Usuario o contraseña incorrectos"})
-
-    # Función para cerrar sesión
-    def logout(self, db: Session, username: str, role: str) -> DBResponse:
-        return DBResponse({"errorCode": 0, "errorMsg": "OK"})
-
-    def updatePassword(self, db: Session, username: str, new_password_plain: str, role: str) -> DBResponse:
-        """Actualiza la contraseña de un usuario."""
+    def updatePassword(self, db: Session, username: str, new_password_plain: str, role: str) -> dict:
+        """Guarda un nuevo hash de contraseña e invalida el token activo."""
         try:
-            table, usr_col, _, pwd_col = self._get_table_and_cols(role)
-            new_hash = pwd_context.hash(new_password_plain)
-
-            query = text(f"UPDATE {table} SET {pwd_col} = :pwd WHERE {usr_col} = :usr")
-            result = db.execute(query, {"pwd": new_hash, "usr": username})
-
-            if result.rowcount == 0:
+            cfg = _config(role)
+            result = db.execute(
+                text(f"UPDATE {cfg['table']} SET {cfg['password']} = :password, {cfg['token']} = NULL WHERE {cfg['username']} = :username"),
+                {"password": pwd_context.hash(new_password_plain), "username": username},
+            )
+            if not result.rowcount:
                 db.rollback()
-                return DBResponse({"errorCode": 1, "errorMsg": "No se encontró el usuario para actualizar"})
-
+                return _error("No se encontró el usuario para actualizar")
             db.commit()
-            return DBResponse({"errorCode": 0, "errorMsg": "Contraseña actualizada correctamente"})
-        except Exception as e:
+            return _ok("Contraseña actualizada correctamente")
+        except Exception as exc:
             db.rollback()
-            return DBResponse({"errorCode": 500, "errorMsg": f"Error al actualizar la contraseña: {str(e)}"})
+            return _error(f"Error al actualizar la contraseña: {exc}", 500)
 
-    def createUser(self, db: Session, username: str, passwd_plain: str, role: str, email: Optional[str] = None) -> DBResponse:
-        """Inserta un nuevo usuario en la base de datos."""
+    def createUser(self, db: Session, username: str, passwd_plain: str, role: str, full_name: str = "", email: Optional[str] = None) -> dict:
+        """Crea una cuenta y guarda la contraseña en forma de hash."""
         try:
-            table, usr_col, email_col, pwd_col = self._get_table_and_cols(role)
-            hashed_pwd = pwd_context.hash(passwd_plain)
-
-            query = text(f"INSERT INTO {table} ({usr_col}, {email_col}, {pwd_col}) VALUES (:usr, :email, :pwd)")
-            db.execute(query, {"usr": username, "email": email, "pwd": hashed_pwd})
+            cfg = _config(role)
+            fields = [cfg["username"], cfg["name"], cfg["password"]]
+            params = {"username": username, "full_name": full_name, "password": pwd_context.hash(passwd_plain)}
+            values = [":username", ":full_name", ":password"]
+            if "email" in cfg:
+                if not email:
+                    return _error("El correo electrónico es obligatorio")
+                fields.insert(2, cfg["email"])
+                values.insert(2, ":email")
+                params["email"] = email
+            db.execute(text(f"INSERT INTO {cfg['table']} ({', '.join(fields)}) VALUES ({', '.join(values)})"), params)
             db.commit()
-
-            return DBResponse({"errorCode": 0, "errorMsg": "Usuario creado con éxito"})
-        except Exception as e:
+            return _ok("Usuario creado con éxito")
+        except ValueError as exc:
+            return _error(str(exc))
+        except Exception as exc:
             db.rollback()
-            return DBResponse({"errorCode": 500, "errorMsg": f"Error al crear el usuario: {str(e)}"})
+            return _error(f"Error al crear el usuario: {exc}", 500)
 
-    def deleteUser(self, db: Session, username: str, role: str) -> DBResponse:
-        """Elimina un usuario por su nombre."""
+    def deleteUser(self, db: Session, username: str, role: str) -> dict:
+        """Elimina una cuenta y evita borrar al último administrador."""
         try:
-            table, usr_col, _, _ = self._get_table_and_cols(role)
-            query = text(f"DELETE FROM {table} WHERE {usr_col} = :usr")
-            result = db.execute(query, {"usr": username})
-
-            if result.rowcount == 0:
+            cfg = _config(role)
+            # Serialize admin deletions so two concurrent requests cannot both remove
+            # the final two administrators.
+            if role.lower() == "admin":
+                db.execute(text("LOCK TABLE Admn IN EXCLUSIVE MODE"))
+                count = db.execute(text("SELECT COUNT(*) FROM Admn")).scalar_one()
+                exists = db.execute(text("SELECT 1 FROM Admn WHERE admn_usr = :username"), {"username": username}).scalar_one_or_none()
+                if exists and count <= 1:
+                    db.rollback()
+                    return _error("No se puede eliminar el último administrador")
+            result = db.execute(text(f"DELETE FROM {cfg['table']} WHERE {cfg['username']} = :username"), {"username": username})
+            if not result.rowcount:
                 db.rollback()
-                return DBResponse({"errorCode": 1, "errorMsg": "El usuario a eliminar no existe"})
-
+                return _error("El usuario a eliminar no existe")
             db.commit()
-            return DBResponse({"errorCode": 0, "errorMsg": "Usuario eliminado correctamente"})
-        except Exception as e:
+            return _ok("Usuario eliminado correctamente")
+        except Exception as exc:
             db.rollback()
-            return DBResponse({"errorCode": 500, "errorMsg": f"Error al eliminar el usuario: {str(e)}"})
+            return _error(f"Error al eliminar el usuario: {exc}", 500)
 
-    # Función para eliminar un usuario dado su email. Devuelve False si no existía.
-    # Sus asociaciones (par_stud, staff_stud...) las borra la BD en cascada.
-    def deleteUserByEmail(self, db: Session, email: str, role: str) -> bool:
-        table, _, email_col, _ = self._get_table_and_cols(role)
-        query = text(f"DELETE FROM {table} WHERE {email_col} = :email")
+    def updateUser(self, db: Session, username: str, role: str, full_name: Optional[str] = None,
+                   email: Optional[str] = None, passwd_plain: Optional[str] = None) -> dict:
+        """Actualiza los datos indicados y revoca la sesión al cambiar contraseña."""
         try:
-            result = db.execute(query, {"email": email})
-            db.commit()
-        except Exception:
-            db.rollback()
-            raise
-        return result.rowcount > 0
-
-    def updateUser(self, db: Session, username: str, passwd_plain: str, role: str) -> DBResponse:
-        """Actualiza la información del usuario."""
-        return self.updatePassword(db, username, passwd_plain, role)
-
-    def updateAvatar(self, db: Session, username: str, avatar_id: int) -> DBResponse:
-        """Actualiza la clave foránea del avatar para un estudiante."""
-        try:
-            query = text("UPDATE Student SET avatar_id_fk = :avatar_id WHERE stud_usr = :usr")
-            result = db.execute(query, {"avatar_id": avatar_id, "usr": username})
-
-            if result.rowcount == 0:
+            cfg = _config(role)
+            updates = []
+            params = {"username": username}
+            if full_name is not None:
+                updates.append(f"{cfg['name']} = :full_name")
+                params["full_name"] = full_name
+            if email is not None:
+                if "email" not in cfg:
+                    return _error("Los estudiantes no tienen correo electrónico")
+                updates.append(f"{cfg['email']} = :email")
+                params["email"] = email
+            if passwd_plain is not None:
+                updates.append(f"{cfg['password']} = :password")
+                updates.append(f"{cfg['token']} = NULL")
+                params["password"] = pwd_context.hash(passwd_plain)
+            if not updates:
+                return _error("Debe indicarse al menos un campo para editar")
+            result = db.execute(text(f"UPDATE {cfg['table']} SET {', '.join(updates)} WHERE {cfg['username']} = :username"), params)
+            if not result.rowcount:
                 db.rollback()
-                return DBResponse({"errorCode": 1, "errorMsg": "Estudiante no encontrado"})
-
+                return _error("El usuario no existe")
             db.commit()
-            return DBResponse({"errorCode": 0, "errorMsg": "Avatar actualizado correctamente"})
-        except Exception as e:
+            return _ok("Usuario actualizado correctamente")
+        except ValueError as exc:
+            return _error(str(exc))
+        except Exception as exc:
             db.rollback()
-            return DBResponse({"errorCode": 500, "errorMsg": f"Error al actualizar el avatar: {str(e)}"})
+            return _error(f"Error al editar el usuario: {exc}", 500)
+
+    def updateAvatar(self, db: Session, username: str, avatar_id: int) -> dict:
+        """Actualiza el avatar asociado al estudiante indicado."""
+        try:
+            result = db.execute(text("UPDATE Student SET avatar_id_fk = :avatar_id WHERE stud_usr = :username"), {"avatar_id": avatar_id, "username": username})
+            if not result.rowcount:
+                db.rollback()
+                return _error("Estudiante no encontrado")
+            db.commit()
+            return _ok("Avatar actualizado correctamente")
+        except Exception as exc:
+            db.rollback()
+            return _error(f"Error al actualizar el avatar: {exc}", 500)
 
 
-# Instancia única del repositorio
 users_mng_db = UsersManagementDB()

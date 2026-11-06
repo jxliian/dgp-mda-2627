@@ -1,15 +1,19 @@
 -- 1. Tabla Admn
 CREATE TABLE Admn (
-    admn_email VARCHAR(255) PRIMARY KEY,
-    admn_usr VARCHAR(50) NOT NULL,
-    admn_passwd VARCHAR(255) NOT NULL
+    admn_usr VARCHAR(50) PRIMARY KEY,
+    admn_full_name VARCHAR(150) NOT NULL,
+    admn_email VARCHAR(254) NOT NULL UNIQUE,
+    admn_passwd VARCHAR(255) NOT NULL,
+    token VARCHAR(64) NULL
 );
 
 -- 2. Tabla Staff
 CREATE TABLE Staff (
-    staff_email VARCHAR(255) PRIMARY KEY,
-    staff_usr VARCHAR(50) NOT NULL,
-    staff_passwd VARCHAR(255) NOT NULL
+    staff_usr VARCHAR(50) PRIMARY KEY,
+    staff_full_name VARCHAR(150) NOT NULL,
+    staff_email VARCHAR(254) NOT NULL UNIQUE,
+    staff_passwd VARCHAR(255) NOT NULL,
+    token VARCHAR(64) NULL
 );
 
 -- 3. Tabla Avatar
@@ -21,9 +25,10 @@ CREATE TABLE Avatar (
 
 -- 4. Tabla Student
 CREATE TABLE Student (
-    stud_email VARCHAR(255) PRIMARY KEY,
-    stud_usr VARCHAR(50) NOT NULL,
+    stud_usr VARCHAR(50) PRIMARY KEY,
+    stud_full_name VARCHAR(150) NOT NULL,
     stud_password VARCHAR(255) NOT NULL,
+    token VARCHAR(64) NULL,
     stud_class VARCHAR(50),
     stud_access_main_col VARCHAR(50),
     stud_access_sec_col VARCHAR(50),
@@ -43,17 +48,19 @@ CREATE TABLE Student (
 
 -- 5. Tabla Parents
 CREATE TABLE Parents (
-    par_email VARCHAR(255) PRIMARY KEY,
-    par_usr VARCHAR(50) NOT NULL,
-    par_passwd VARCHAR(255) NOT NULL
+    par_usr VARCHAR(50) PRIMARY KEY,
+    par_full_name VARCHAR(150) NOT NULL,
+    par_email VARCHAR(254) NOT NULL UNIQUE,
+    par_passwd VARCHAR(255) NOT NULL,
+    token VARCHAR(64) NULL
 );
 
--- 6. Tabla Alt_Tasks
+-- 6. Tabla Alt_tasks
 CREATE TABLE Alt_Tasks (
     alt_task_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     alt_task_start_hour TIME,
     alt_task_duration INT,
-    alt_task_creator VARCHAR(255) -- Hace referencia al email del creador
+    alt_task_creator VARCHAR(50)
 );
 
 -- 7. Tabla Tasks
@@ -62,7 +69,7 @@ CREATE TABLE Tasks (
     task_title VARCHAR(100),
     task_start_hour TIME,
     task_duration INT,
-    task_creator VARCHAR(255), -- Hace referencia al email del creador
+    task_creator VARCHAR(50),
     task_finished BOOLEAN,
     alt_task_id_fk INT UNIQUE,
     CONSTRAINT fk_tasks_alt_tasks FOREIGN KEY (alt_task_id_fk) REFERENCES Alt_Tasks(alt_task_id) ON DELETE SET NULL
@@ -95,39 +102,39 @@ CREATE TABLE Steps (
 
 -- Relación N:M entre Staff y Student
 CREATE TABLE staff_stud (
-    staff_email_fk VARCHAR(255),
-    stud_email_fk VARCHAR(255),
-    PRIMARY KEY (staff_email_fk, stud_email_fk),
-    CONSTRAINT fk_staff_stud_staff FOREIGN KEY (staff_email_fk) REFERENCES Staff(staff_email) ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT fk_staff_stud_student FOREIGN KEY (stud_email_fk) REFERENCES Student(stud_email) ON DELETE CASCADE ON UPDATE CASCADE
+    staff_usr_fk VARCHAR(50),
+    stud_usr_fk VARCHAR(50),
+    PRIMARY KEY (staff_usr_fk, stud_usr_fk),
+    CONSTRAINT fk_staff_stud_staff FOREIGN KEY (staff_usr_fk) REFERENCES Staff(staff_usr) ON DELETE CASCADE,
+    CONSTRAINT fk_staff_stud_student FOREIGN KEY (stud_usr_fk) REFERENCES Student(stud_usr) ON DELETE CASCADE
 );
 
 -- Relación N:M entre Parents y Student
 CREATE TABLE par_stud (
-    par_email_fk VARCHAR(255),
-    stud_email_fk VARCHAR(255),
-    PRIMARY KEY (par_email_fk, stud_email_fk),
-    CONSTRAINT fk_par_stud_parents FOREIGN KEY (par_email_fk) REFERENCES Parents(par_email) ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT fk_par_stud_student FOREIGN KEY (stud_email_fk) REFERENCES Student(stud_email) ON DELETE CASCADE ON UPDATE CASCADE
+    par_usr_fk VARCHAR(50),
+    stud_usr_fk VARCHAR(50),
+    PRIMARY KEY (par_usr_fk, stud_usr_fk),
+    CONSTRAINT fk_par_stud_parents FOREIGN KEY (par_usr_fk) REFERENCES Parents(par_usr) ON DELETE CASCADE,
+    CONSTRAINT fk_par_stud_student FOREIGN KEY (stud_usr_fk) REFERENCES Student(stud_usr) ON DELETE CASCADE
 );
 
 -- Relación N:M entre Student y Tasks
 CREATE TABLE stud_task (
-    stud_email_fk VARCHAR(255),
+    stud_usr_fk VARCHAR(50),
     task_id_fk INT,
     task_index INT,
     task_date DATE,
-    PRIMARY KEY (stud_email_fk, task_id_fk, task_index, task_date),
-    CONSTRAINT fk_stud_task_student FOREIGN KEY (stud_email_fk) REFERENCES Student(stud_email) ON DELETE CASCADE ON UPDATE CASCADE,
+    PRIMARY KEY (stud_usr_fk, task_id_fk, task_index, task_date),
+    CONSTRAINT fk_stud_task_student FOREIGN KEY (stud_usr_fk) REFERENCES Student(stud_usr) ON DELETE CASCADE,
     CONSTRAINT fk_stud_task_tasks FOREIGN KEY (task_id_fk) REFERENCES Tasks(task_id) ON DELETE CASCADE
 );
 
 -- Relación N:M entre Canteen_Task y Student
 CREATE TABLE canteen_stud (
     task_id_fk INT,
-    stud_email_fk VARCHAR(255),
+    stud_usr_fk VARCHAR(50),
     canteen_date DATE,
-    PRIMARY KEY (task_id_fk, stud_email_fk),
+    PRIMARY KEY (task_id_fk, stud_usr_fk),
     CONSTRAINT fk_canteen_stud_canteen FOREIGN KEY (task_id_fk) REFERENCES Canteen_Task(task_id_fk) ON DELETE CASCADE,
-    CONSTRAINT fk_canteen_stud_student FOREIGN KEY (stud_email_fk) REFERENCES Student(stud_email) ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT fk_canteen_stud_student FOREIGN KEY (stud_usr_fk) REFERENCES Student(stud_usr) ON DELETE CASCADE
 );

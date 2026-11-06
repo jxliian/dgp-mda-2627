@@ -1,23 +1,23 @@
-
-from fastapi import FastAPI, Depends
+from dotenv import load_dotenv
+from fastapi import Depends, FastAPI
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from DB.database import get_db
-from auth.router import router as auth_router
-from gestion_asociaciones.assoc_mng_backend import router as associations_router
-from gestion_usuarios.users_mng_backend import router as users_router
+load_dotenv()
 
-
+from .DB.database import get_db
+from .asociaciones_alumnos.studs_links_backend import router as student_links_router
+from .auth.auth_backend import router as auth_router
+from .gestion_usuarios.users_mng_backend import router as users_router
 
 app = FastAPI(title="AUTOVIDA API")
 app.include_router(auth_router)
-app.include_router(associations_router)
 app.include_router(users_router)
+app.include_router(student_links_router)
 
 
-
-@app.get("/")
-def comprobar_conexion(db: Session = Depends(get_db)):
+@app.get("/", tags=["health"])
+def comprobar_conexion(db: Session = Depends(get_db)) -> dict:
+    """Comprueba que la API puede ejecutar una consulta en PostgreSQL."""
     db.execute(text("SELECT 1"))
-    return {"estado": "ok", "mensaje": "¡FastAPI conectado con éxito a PostgreSQL!"}
+    return {"estado": "ok", "mensaje": "API conectada a PostgreSQL"}

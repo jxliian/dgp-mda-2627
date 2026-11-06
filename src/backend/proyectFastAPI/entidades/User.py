@@ -1,218 +1,66 @@
-from abc import ABC, abstractmethod
-from ..gestion_usuarios import users_mng_db
+from abc import ABC
+from typing import Optional
+
+from ..gestion_usuarios.users_mng_db import users_mng_db
+
 
 class User(ABC):
-    def __init_(self):
-        self.email = None
-        self.username = None 
-        self.token = None
+    """Entidad de usuario. Las operaciones devuelven diccionarios serializables a JSON."""
 
-    @abstractmethod
-    def searchUserByUsername(self, username):
-        pass
+    role = ""
 
-    @abstractmethod
-    def searchUserByEmail(self, email):
-        pass
+    def __init__(self, username: Optional[str] = None, full_name: Optional[str] = None, email: Optional[str] = None):
+        """Inicializa los datos básicos y el rol de una entidad de usuario."""
+        self.username = username
+        self.full_name = full_name
+        self.email = email
 
-    @abstractmethod
-    def login(self, username, passwd):
-        pass
+    def searchUserByUsername(self, db, username: str) -> dict:
+        """Busca el usuario por nombre de usuario y actualiza esta entidad si existe."""
+        result = users_mng_db.getUserByUsername(db, username, self.role)
+        if result["errorCode"] == 0:
+            self.username = result.get("username")
+            self.full_name = result.get("stud_full_name", result.get("admn_full_name", result.get("staff_full_name", result.get("par_full_name"))))
+            self.email = result.get("admn_email", result.get("staff_email", result.get("par_email")))
+        return result
 
-    @abstractmethod
-    def logout(self, username):
-        pass
+    def searchUserByEmail(self, db, email: str) -> dict:
+        """Busca por correo y actualiza los datos de esta entidad si existe."""
+        result = users_mng_db.getUserByEmail(db, email, self.role)
+        if result["errorCode"] == 0:
+            self.username = result.get("admn_usr", result.get("staff_usr", result.get("par_usr")))
+            self.full_name = result.get("admn_full_name", result.get("staff_full_name", result.get("par_full_name")))
+            self.email = email
+        return result
 
-    @abstractmethod
-    def updatePassword(self, newPassword):
-        pass
+    def updatePassword(self, db, new_password: str) -> dict:
+        """Cambia la contraseña del usuario y revoca su sesión activa."""
+        return users_mng_db.updatePassword(db, self.username, new_password, self.role)
 
 
-class Student (User):
-    def __init_(self):
-        return super().__init_()
+class Student(User):
+    role = "student"
 
-    def searchUserByUsername(self, username):
-        jsonDB = db.getUserByUsername(username, "student")
+    def updateAvatar(self, db, avatar_id: int) -> dict:
+        """Asigna al estudiante el avatar indicado."""
+        return users_mng_db.updateAvatar(db, self.username, avatar_id)
 
-        if jsonDB.errorCode == 0:
-            self.username = jsonDB.username
-        
-        return {jsonDB.errorCode, jsonDB.ErrorMsg}
 
-    def searchUserByEmail(self, email):
-        jsonDB = db.getUserByEmail(email, "student")
+class Admin(User):
+    role = "admin"
 
-        if jsonDB.errorCode == 0:
-            self.email = jsonDB.email
-        
-        return {jsonDB.errorCode, jsonDB.ErrorMsg}
+    def createUser(self, db, username: str, passwd: str, role: str, full_name: str, email: Optional[str] = None) -> dict:
+        """Crea una cuenta con el rol y los datos proporcionados."""
+        return users_mng_db.createUser(db, username, passwd, role, full_name, email)
 
-    def login(self, username, passwd):
-        jsonDB = db.login(username, passwd, "student")
+    def deleteUser(self, db, username: str, role: str) -> dict:
+        """Elimina la cuenta indicada, respetando la regla del último administrador."""
+        return users_mng_db.deleteUser(db, username, role)
 
-        if jsonDB.errorCode == 0:
-            self.username = jsonDB.username
-            self.token = jsonDB.token
-        
-        return {jsonDB.errorCode, jsonDB.errorMsg}
 
-    def logout(self):
-        jsonDB = db.logout(self.username, "student")
+class Staff(User):
+    role = "staff"
 
-        if jsonDB.errorCode == 0:
-            self.token = None
-            self.username = None
-        
-        return {jsonDB.errorCode, jsonDB.errorMsg}
 
-    def updateAvatar(self, avatarID):
-        return db.updateAvatar(self.username, avatarID)
-
-    def updatePassword(self, newPassword, oldPassword):
-        if(oldPassword.hash == db.getPassword(self.username, "student")):
-            return db.updatePassword(self.username, newPassword, "student")
-        else:
-            return {"errorCode": "", "errorMsg": ""}
-
-class Admin (User):
-    def __init_(self):
-        return super().__init_()
-
-    def searchUserByUsername(self, username):
-        jsonDB = db.getUserByUsername(username, "admin")
-
-        if jsonDB.errorCode == 0:
-            self.username = jsonDB.username
-            
-        return {jsonDB.errorCode, jsonDB.errorMs}
-
-    def searchUserByEmail(self, email):
-        jsonDB = db.getUserByEmail(email, "admin")
-
-        if jsonDB.errorCode == 0:
-            self.email = jsonDB.email
-        
-        return {jsonDB.errorCode, jsonDB.ErrorMsg}
-
-    def login(self, username, passwd):
-        jsonDB = db.login(username, passwd, "admin")
-
-        if jsonDB.errorCode == 0:
-            self.username = jsonDB.username
-            self.token = jsonDB.token
-        
-        return {jsonDB.errorCode, jsonDB.errorMsg}
-
-    def logout(self):
-        jsonDB = db.logout(self.username, "admin")
-
-        if jsonDB.errorCode == 0:
-            self.username = None
-            self.token = None
-
-        return {jsonDB.errorCode, jsonDB.errorMsg} 
-
-    def createUser(self, username, passwd, role):
-        return db.createUser(username, passwd, role) 
-
-    def deleteUser(self, username, role):
-        return db.deleteUser(username, role)
-
-    def updateUser(self, username, passwd, role):
-        return db.updateUser(username, passwd, role)
-
-    def updatePassword(self, newPassword, oldPassword):
-        if(oldPassword.hash == db.getPassword(self.username, "admin")):
-            return db.updatePassword(self.username, newPassword, "admin")
-        else:
-            return {"errorCode": "", "errorMsg": ""}
-
-class Staff (User):
-    def __init_(self):
-        return super().__init_()
-
-    def searchUserByUsername(self, username):
-        jsonDB = db.getUserByUsername(username, "staff")
-
-        if jsonDB.errorCode == 0:
-            self.username = jsonDB.username
-        
-        return {jsonDB.errorCode, jsonDB.errorMsg}
-
-    def searchUserByEmail(self, email):
-        jsonDB = db.getUserByEmail(email, "staff")
-
-        if jsonDB.errorCode == 0:
-            self.email = jsonDB.email
-        
-        return {jsonDB.errorCode, jsonDB.ErrorMsg}
-
-    def login(self, username, passwd):
-        jsonDB = db.login(username, passwd, "staff")
-
-        if jsonDB.errorCode == 0:
-            self.username = jsonDB.username
-            self.token = jsonDB.token
-        
-        return {jsonDB.errorCode, jsonDB.errorMsg}
-
-    def logout(self):
-        jsonDB = db.logout(self.username, "staff")
-        if jsonDB.errorCode == 0:
-            self.token = None
-            self.username = None
-        
-        return {jsonDB.errorCode, jsonDB.errorMsg}
-    
-    def updatePassword(self, newPassword, oldPassword):
-        if(oldPassword.hash == db.getPassword(self.username, "staff")):
-            return db.updatePassword(self.username, newPassword, "staff")
-        else:
-            return {"errorCode": "", "errorMsg": "La contraseña no coincide con la actual."
-            " Vuelve a intentarlo"}
-
-class Parent (User):
-    def __init_(self):
-        return super().__init_()
-    
-    def searchUser(self, username):
-        jsonDB = db.getUserByUsername(username, "parent")
-
-        if jsonDB.errorCode == 0:
-            self.username = jsonDB.username
-
-        return {jsonDB.errorCode, jsonDB.errorMsg}
-
-    def searchUserByEmail(self, email):
-        jsonDB = db.getUserByEmail(email, "admin")
-
-        if jsonDB.errorCode == 0:
-            self.email = jsonDB.email
-        
-        return {jsonDB.errorCode, jsonDB.ErrorMsg}
-
-    def login(self, username, passwd):
-        jsonDB = db.login(username, passwd, "parent")
-
-        if jsonDB.errorCode == 0:
-            self.username = jsonDB.username
-            self.token = jsonDB.token
-
-        return {jsonDB.errorCode, jsonDB.errorMsg}
-
-    def logout(self):
-        jsonDB = db.logout(self.username, "parent")
-
-        if jsonDB.errorcode == 0:
-            self.token = None
-            self.username = None
-    
-        return {jsonDB.errorCode, jsonDB.errorMsg}
-
-    def updatePassword(self, newPassword, oldPassword):
-        if(oldPassword.hash == db.getPassword(self.username, "parent")):
-            return db.updatePassword(self.username, newPassword, "parent")
-        else:
-            return {"errorCode": "", "errorMsg": "La contraseña no coincide con la actual."
-            " Vuelve a intentarlo"}
+class Parent(User):
+    role = "parent"
