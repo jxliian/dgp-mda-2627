@@ -23,7 +23,25 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 
 Cerramos y volvemos a abrir la terminal para que los cambios surtan efecto y el sistema reconozca el comando `uv`.
 
-### 3. Iniciar la base de datos
+
+### 3. Creamos archivo .env en la carpeta
+
+
+### 4. Ejecutamos el siguiente comando:
+
+```bash
+uv run python -c "import secrets; print(secrets.token_hex(32))"
+```
+
+
+### 5. Copiamos la clave que devuelve y en el .env escribimos:
+
+```bash
+JWT_SECRET_KEY=<clave_copiada>
+```
+
+
+### 6. Iniciar la base de datos
 
 Nos situamos en la carpeta del proyecto FastAPI, donde se encuentra el archivo `docker-compose.yml`, y ejecutamos:
 
@@ -33,13 +51,15 @@ sudo docker compose up -d
 
 Este comando inicia los servicios definidos en Docker Compose en segundo plano.
 
-### 4. Iniciar FastAPI
+
+### 7. Iniciar FastAPI
 
 Para iniciar el servidor de desarrollo de FastAPI, ejecutamos:
 
 ```bash
 uv run fastapi dev main.py
 ```
+
 
 ---
 
