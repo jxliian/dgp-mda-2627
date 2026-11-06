@@ -6,7 +6,9 @@
 **Entidad Colaboradora / Cliente:** C.E.E. Fundación Purísima Concepción (Granada)  
 **Asignaturas:** Dirección y Gestión de Proyectos (DGP) & Metodologías de Desarrollo Ágil (MDA) - UGR  
 **Fecha:** [DD/MM/AAAA]  
-**Hora Inicio:** [HH:MM] | **Hora Fin:** [HH:MM]  
+**Hora Inicio:** [HH:MM] | **Hora Fin:** [HH:MM] 
+**Tiempo de reunión:**  [Tiempo dentro del tiempo total de trabajo dedicado a discusiones y toma de decisiones]
+**Tiempo de trabajo:** [Tiempo total de trabajo dedicado, incluye tiempo de reunión]
 **Lugar / Modalidad:** [Presencial - C.E.E. Purísima Concepción / Telemática - Google Meet]  
 **Moderador / Convocante:** [Nombre del Moderador del Equipo]  
 **Redactor / Catalogador:** [Nombre del Catalogador del Equipo]  
