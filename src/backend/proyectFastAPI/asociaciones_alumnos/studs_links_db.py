@@ -3,6 +3,8 @@ from typing import Literal
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
+from ..errors import CatalogError, ErrorCode, success_response
+
 # Entidades y tablas de asociación del modelo: Parent <-> Student y Staff <-> Student.
 LINK_CONFIG = {
     "parent": {
@@ -31,7 +33,7 @@ def _config(user_role: str) -> dict:
     try:
         return LINK_CONFIG[user_role]
     except KeyError as exc:
-        raise ValueError("Tipo de usuario asociado desconocido") from exc
+        raise CatalogError(ErrorCode.INVALID_ASSOCIATION_TYPE) from exc
 
 
 def _ensure_user_exists(db: Session, role: Literal["student", "parent", "staff"], username: str) -> None:
@@ -47,8 +49,7 @@ def _ensure_user_exists(db: Session, role: Literal["student", "parent", "staff"]
         {"username": username},
     ).scalar_one_or_none()
     if exists is None:
-        label = {"student": "Alumno", "parent": "Tutor", "staff": "Profesor"}[role]
-        raise LookupError(f"{label} no encontrado")
+        raise CatalogError(ErrorCode.ASSOCIATED_ENTITY_NOT_FOUND)
 
 
 def link_user(db: Session, role: Literal["parent", "staff"], student_username: str, username: str) -> dict:
@@ -67,13 +68,12 @@ def link_user(db: Session, role: Literal["parent", "staff"], student_username: s
     )
     db.commit()
     relation = "tutor" if role == "parent" else "profesor"
-    return {
-        "errorCode": 0,
-        "errorMsg": "Asociación creada" if result.rowcount else "La asociación ya existía",
-        "student_username": student_username,
-        f"{role}_username": username,
-        "relation": relation,
-    }
+    return success_response(
+        association_created=bool(result.rowcount),
+        student_username=student_username,
+        **{f"{role}_username": username},
+        relation=relation,
+    )
 
 
 def unlink_user(db: Session, role: Literal["parent", "staff"], student_username: str, username: str) -> dict:
@@ -88,14 +88,12 @@ def unlink_user(db: Session, role: Literal["parent", "staff"], student_username:
     )
     if not result.rowcount:
         db.rollback()
-        raise LookupError("La asociación no existe")
+        raise CatalogError(ErrorCode.ASSOCIATION_NOT_FOUND)
     db.commit()
-    return {
-        "errorCode": 0,
-        "errorMsg": "Asociación eliminada",
-        "student_username": student_username,
-        f"{role}_username": username,
-    }
+    return success_response(
+        student_username=student_username,
+        **{f"{role}_username": username},
+    )
 
 
 def get_associated_users(db: Session, role: Literal["parent", "staff"], student_username: str) -> list[dict]:

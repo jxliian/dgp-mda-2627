@@ -1,11 +1,12 @@
 from typing import Literal
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from ..DB.database import get_db
+from ..errors import ErrorCode, error_response, error_status, raise_api_error, success_response
 from .auth_db import auth_db
 
 router = APIRouter(prefix="/auth", tags=["authentication"])
@@ -24,8 +25,8 @@ class LoginRequest(BaseModel):
 def _unauthorized() -> HTTPException:
     """Construye la respuesta HTTP 401 para peticiones sin token válido."""
     return HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Token ausente o inválido",
+        status_code=error_status(ErrorCode.INVALID_TOKEN),
+        detail=error_response(ErrorCode.INVALID_TOKEN),
         headers={"WWW-Authenticate": "Bearer"},
     )
 
@@ -47,10 +48,7 @@ def get_current_user(
 def require_admin(user: dict = Depends(get_current_user)) -> dict:
     """Permite la operación únicamente si la sesión pertenece a un administrador."""
     if user["role"] != "admin":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Se requiere una sesión de administrador",
-        )
+        raise_api_error(ErrorCode.ADMIN_REQUIRED)
     return user
 
 
@@ -59,9 +57,9 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)) -> dict:
     """Inicia sesión, reemplaza el token anterior y devuelve el nuevo token Bearer."""
     result = auth_db.login(db, payload.username, payload.password, payload.role)
     if result["errorCode"] != 0:
-        status_code = 500 if result["errorCode"] == 500 else 401
+        status_code = error_status(result["errorCode"])
         headers = {"WWW-Authenticate": "Bearer"} if status_code == 401 else None
-        raise HTTPException(status_code=status_code, detail=result["errorMsg"], headers=headers)
+        raise HTTPException(status_code=status_code, detail=result, headers=headers)
     return result
 
 
@@ -75,9 +73,4 @@ def logout(
     # get_current_user verifies this exact bearer token before it is revoked.
     if credentials is None or not auth_db.logout(db, credentials.credentials):
         raise _unauthorized()
-    return {
-        "errorCode": 0,
-        "errorMsg": "Sesión cerrada",
-        "username": user["username"],
-        "role": user["role"],
-    }
+    return success_response(username=user["username"], role=user["role"])

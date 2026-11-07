@@ -1,0 +1,112 @@
+"""Catálogo y utilidades para respuestas de error consistentes de la API."""
+
+from enum import IntEnum
+
+from fastapi import HTTPException
+
+
+class ErrorCode(IntEnum):
+    """Códigos estables de error que puede interpretar el frontend."""
+
+    SUCCESS = 0
+    INVALID_CREDENTIALS = 1001
+    INVALID_TOKEN = 1002
+    ADMIN_REQUIRED = 1003
+    ASSOCIATION_ACCESS_DENIED = 1004
+    INVALID_REQUEST = 1005
+    USER_NOT_FOUND = 1006
+    EMAIL_UNAVAILABLE = 1007
+    EMAIL_USER_NOT_FOUND = 1008
+    INVALID_ROLE = 1009
+    EMAIL_REQUIRED = 1010
+    LAST_ADMIN = 1011
+    NO_UPDATE_FIELDS = 1012
+    ASSOCIATED_ENTITY_NOT_FOUND = 1013
+    ASSOCIATION_NOT_FOUND = 1014
+    INVALID_ASSOCIATION_TYPE = 1015
+    ROUTE_NOT_FOUND = 1016
+    USER_LOOKUP_FAILED = 1501
+    USER_LIST_FAILED = 1502
+    PASSWORD_UPDATE_FAILED = 1503
+    USER_CREATE_FAILED = 1504
+    USER_DELETE_FAILED = 1505
+    USER_UPDATE_FAILED = 1506
+    AVATAR_UPDATE_FAILED = 1507
+    LOGIN_FAILED = 1508
+    INTERNAL_ERROR = 1500
+
+
+# Each entry defines the public message and HTTP status for one error code.
+ERRORS: dict[ErrorCode, tuple[int, str]] = {
+    ErrorCode.INVALID_CREDENTIALS: (401, "Usuario o contraseña incorrectos"),
+    ErrorCode.INVALID_TOKEN: (401, "Token ausente o inválido"),
+    ErrorCode.ADMIN_REQUIRED: (403, "Se requiere una sesión de administrador"),
+    ErrorCode.ASSOCIATION_ACCESS_DENIED: (403, "Solo puedes consultar los alumnos asociados a tu propia cuenta"),
+    ErrorCode.INVALID_REQUEST: (422, "La solicitud contiene datos inválidos"),
+    ErrorCode.USER_NOT_FOUND: (404, "Usuario no encontrado"),
+    ErrorCode.EMAIL_UNAVAILABLE: (400, "Los estudiantes no tienen correo electrónico"),
+    ErrorCode.EMAIL_USER_NOT_FOUND: (404, "Usuario no encontrado por correo"),
+    ErrorCode.INVALID_ROLE: (400, "Rol no válido"),
+    ErrorCode.EMAIL_REQUIRED: (400, "El correo electrónico es obligatorio"),
+    ErrorCode.LAST_ADMIN: (400, "No se puede eliminar el último administrador"),
+    ErrorCode.NO_UPDATE_FIELDS: (400, "Debe indicarse al menos un campo para editar"),
+    ErrorCode.ASSOCIATED_ENTITY_NOT_FOUND: (404, "No se encontró el usuario o la asociación"),
+    ErrorCode.ASSOCIATION_NOT_FOUND: (404, "La asociación no existe"),
+    ErrorCode.INVALID_ASSOCIATION_TYPE: (400, "Tipo de usuario asociado no válido"),
+    ErrorCode.ROUTE_NOT_FOUND: (404, "Ruta no encontrada"),
+    ErrorCode.USER_LOOKUP_FAILED: (500, "No se pudo consultar el usuario"),
+    ErrorCode.USER_LIST_FAILED: (500, "No se pudo consultar la lista de usuarios"),
+    ErrorCode.PASSWORD_UPDATE_FAILED: (500, "No se pudo actualizar la contraseña"),
+    ErrorCode.USER_CREATE_FAILED: (500, "No se pudo crear el usuario"),
+    ErrorCode.USER_DELETE_FAILED: (500, "No se pudo eliminar el usuario"),
+    ErrorCode.USER_UPDATE_FAILED: (500, "No se pudo editar el usuario"),
+    ErrorCode.AVATAR_UPDATE_FAILED: (500, "No se pudo actualizar el avatar"),
+    ErrorCode.LOGIN_FAILED: (500, "No se pudo iniciar sesión"),
+    ErrorCode.INTERNAL_ERROR: (500, "Error interno del servidor"),
+}
+
+
+def error_response(code: ErrorCode | int) -> dict:
+    """Crea el sobre JSON estándar para un error conocido."""
+    error_code = ErrorCode(code)
+    _, details = ERRORS[error_code]
+    return {"errorCode": int(error_code), "details": details}
+
+
+def success_response(**data) -> dict:
+    """Crea una respuesta correcta con el sobre común de la API."""
+    return {"errorCode": int(ErrorCode.SUCCESS), "details": "successful", **data}
+
+
+def error_status(code: ErrorCode | int) -> int:
+    """Devuelve el estado HTTP asociado al código de error."""
+    return ERRORS[ErrorCode(code)][0]
+
+
+def raise_api_error(code: ErrorCode | int, headers: dict[str, str] | None = None) -> None:
+    """Lanza una excepción HTTP con el estado y mensaje del catálogo."""
+    response = error_response(code)
+    raise HTTPException(status_code=error_status(code), detail=response, headers=headers)
+
+
+class CatalogError(Exception):
+    """Dominio interno para propagar un error catalogado entre capas."""
+
+    def __init__(self, code: ErrorCode):
+        self.code = code
+        super().__init__(int(code))
+
+
+def code_for_http_status(status_code: int) -> ErrorCode:
+    """Traduce estados HTTP de FastAPI a códigos públicos del catálogo."""
+    if status_code == 401:
+        return ErrorCode.INVALID_TOKEN
+    if status_code == 403:
+        return ErrorCode.ADMIN_REQUIRED
+    if status_code == 422:
+        return ErrorCode.INVALID_REQUEST
+    if status_code >= 500:
+        return ErrorCode.INTERNAL_ERROR
+    if status_code == 404:
+        return ErrorCode.ROUTE_NOT_FOUND
+    return ErrorCode.INVALID_REQUEST

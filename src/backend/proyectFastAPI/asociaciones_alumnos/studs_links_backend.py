@@ -1,10 +1,11 @@
 from typing import Callable
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from ..DB.database import get_db
 from ..auth.auth_backend import get_current_user, require_admin
+from ..errors import CatalogError, ErrorCode, raise_api_error, success_response
 from . import studs_links_db as links_db
 
 router = APIRouter(
@@ -16,20 +17,15 @@ router = APIRouter(
 def _require_self_or_admin(user: dict, role: str, username: str) -> None:
     """Permite al usuario consultar sus asociaciones, o al admin consultar cualquiera."""
     if user["role"] != "admin" and (user["role"] != role or user["username"] != username):
-        raise HTTPException(
-            status_code=403,
-            detail="Solo puedes consultar los alumnos asociados a tu propia cuenta",
-        )
+        raise_api_error(ErrorCode.ASSOCIATION_ACCESS_DENIED)
 
 
 def _run_db_operation(operation: Callable, *args):
     """Ejecuta una operación de asociaciones y traduce sus errores a respuestas HTTP."""
     try:
         return operation(*args)
-    except LookupError as exc:
-        raise HTTPException(status_code=404, detail=str(exc)) from exc
-    except ValueError as exc:
-        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except CatalogError as exc:
+        raise_api_error(exc.code)
 
 
 @router.post("/students/{student_username}/parents/{parent_username}", dependencies=[Depends(require_admin)])
@@ -61,7 +57,7 @@ def get_student_links(student_username: str, db: Session = Depends(get_db)) -> d
     """Devuelve los tutores y el staff asociados al alumno."""
     parents = _run_db_operation(links_db.get_associated_users, db, "parent", student_username)
     staff = _run_db_operation(links_db.get_associated_users, db, "staff", student_username)
-    return {"student_username": student_username, "parents": parents, "staff": staff}
+    return success_response(student_username=student_username, parents=parents, staff=staff)
 
 
 @router.get("/parents/{parent_username}/students")
@@ -73,7 +69,7 @@ def get_parent_students(
     """Devuelve los alumnos asociados al tutor indicado."""
     _require_self_or_admin(user, "parent", parent_username)
     students = _run_db_operation(links_db.get_students, db, "parent", parent_username)
-    return {"parent_username": parent_username, "students": students}
+    return success_response(parent_username=parent_username, students=students)
 
 
 @router.get("/staff/{staff_username}/students")
@@ -85,4 +81,4 @@ def get_staff_students(
     """Devuelve los alumnos asociados al miembro del staff indicado."""
     _require_self_or_admin(user, "staff", staff_username)
     students = _run_db_operation(links_db.get_students, db, "staff", staff_username)
-    return {"staff_username": staff_username, "students": students}
+    return success_response(staff_username=staff_username, students=students)

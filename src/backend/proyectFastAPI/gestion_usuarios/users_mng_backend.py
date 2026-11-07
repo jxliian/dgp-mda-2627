@@ -1,11 +1,12 @@
 from typing import Literal
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from ..DB.database import get_db
 from ..auth.auth_backend import require_admin
+from ..errors import raise_api_error
 from .users_mng_db import users_mng_db
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -36,8 +37,7 @@ def create_user(payload: CreateUserRequest, db: Session = Depends(get_db)) -> di
     result = users_mng_db.createUser(db, payload.username, payload.password, payload.role,
                            payload.full_name, payload.email)
     if result["errorCode"] != 0:
-        raise HTTPException(status_code=500 if result["errorCode"] == 500 else 400,
-                            detail=result["errorMsg"])
+        raise_api_error(result["errorCode"])
     return result
 
 
@@ -46,8 +46,7 @@ def get_users(role: Role, db: Session = Depends(get_db)) -> dict:
     """Consulta usuarios de un rol; requiere una sesión de administrador."""
     result = users_mng_db.getUsers(db, role)
     if result["errorCode"] != 0:
-        raise HTTPException(status_code=500 if result["errorCode"] == 500 else 400,
-                            detail=result["errorMsg"])
+        raise_api_error(result["errorCode"])
     return result
 
 
@@ -58,8 +57,7 @@ def edit_user(role: Role, username: str, payload: UpdateUserRequest,
     result = users_mng_db.updateUser(db, username, role, payload.full_name,
                            payload.email, payload.password)
     if result["errorCode"] != 0:
-        raise HTTPException(status_code=500 if result["errorCode"] == 500 else 400,
-                            detail=result["errorMsg"])
+        raise_api_error(result["errorCode"])
     return result
 
 
@@ -68,6 +66,5 @@ def delete_user(role: Role, username: str, db: Session = Depends(get_db)) -> dic
     """Elimina un usuario; requiere administrador y no permite eliminar al último."""
     result = users_mng_db.deleteUser(db, username, role)
     if result["errorCode"] != 0:
-        code = 500 if result["errorCode"] == 500 else 400
-        raise HTTPException(status_code=code, detail=result["errorMsg"])
+        raise_api_error(result["errorCode"])
     return result

@@ -4,6 +4,7 @@ import secrets
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
+from ..errors import ErrorCode, error_response, success_response
 from ..gestion_usuarios.users_mng_db import ROLE_CONFIG, pwd_context
 
 
@@ -36,7 +37,7 @@ class AuthDB:
             ).mappings().first()
 
             if not row or not pwd_context.verify(password, row[cfg["password"]]):
-                return {"errorCode": 1, "errorMsg": "Usuario o contraseña incorrectos"}
+                return error_response(ErrorCode.INVALID_CREDENTIALS)
 
             token = secrets.token_urlsafe(32)
             db.execute(
@@ -52,19 +53,17 @@ class AuthDB:
                 "username": username,
                 "role": role.lower(),
             }
-            return {
-                "errorCode": 0,
-                "errorMsg": "Inicio de sesión correcto",
-                "access_token": token,
-                "token_type": "bearer",
-                "user": user,
-            }
-        except ValueError as exc:
+            return success_response(
+                access_token=token,
+                token_type="bearer",
+                user=user,
+            )
+        except ValueError:
             db.rollback()
-            return {"errorCode": 1, "errorMsg": str(exc)}
+            return error_response(ErrorCode.INVALID_ROLE)
         except Exception:
             db.rollback()
-            return {"errorCode": 500, "errorMsg": "No se pudo iniciar sesión"}
+            return error_response(ErrorCode.LOGIN_FAILED)
 
     def getUserByToken(self, db: Session, token: str) -> dict | None:
         """Busca al usuario cuya sesión activa coincide con el token presentado."""
