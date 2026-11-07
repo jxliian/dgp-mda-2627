@@ -1,3 +1,5 @@
+from importlib import import_module
+
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, Request
 from fastapi.exceptions import RequestValidationError
@@ -14,10 +16,15 @@ from .auth.auth_backend import router as auth_router
 from .errors import ErrorCode, code_for_http_status, error_response, success_response
 from .gestion_usuarios.users_mng_backend import router as users_router
 
+student_tasks_router = import_module(
+    ".tareas alumnos.studs_tasks_backend", package=__package__
+).router
+
 app = FastAPI(title="AUTOVIDA API")
 app.include_router(auth_router)
 app.include_router(users_router)
 app.include_router(student_links_router)
+app.include_router(student_tasks_router)
 
 
 @app.exception_handler(StarletteHTTPException)
