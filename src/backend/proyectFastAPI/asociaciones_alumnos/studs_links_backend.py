@@ -4,14 +4,22 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from ..DB.database import get_db
-from ..auth.auth_backend import require_admin
+from ..auth.auth_backend import get_current_user, require_admin
 from . import studs_links_db as links_db
 
 router = APIRouter(
     prefix="/student-links",
     tags=["student links"],
-    dependencies=[Depends(require_admin)],
 )
+
+
+def _require_self_or_admin(user: dict, role: str, username: str) -> None:
+    """Permite al usuario consultar sus asociaciones, o al admin consultar cualquiera."""
+    if user["role"] != "admin" and (user["role"] != role or user["username"] != username):
+        raise HTTPException(
+            status_code=403,
+            detail="Solo puedes consultar los alumnos asociados a tu propia cuenta",
+        )
 
 
 def _run_db_operation(operation: Callable, *args):
@@ -24,31 +32,31 @@ def _run_db_operation(operation: Callable, *args):
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
-@router.post("/students/{student_username}/parents/{parent_username}")
+@router.post("/students/{student_username}/parents/{parent_username}", dependencies=[Depends(require_admin)])
 def link_parent(student_username: str, parent_username: str, db: Session = Depends(get_db)) -> dict:
     """Asocia un tutor a un alumno."""
     return _run_db_operation(links_db.link_user, db, "parent", student_username, parent_username)
 
 
-@router.delete("/students/{student_username}/parents/{parent_username}")
+@router.delete("/students/{student_username}/parents/{parent_username}", dependencies=[Depends(require_admin)])
 def unlink_parent(student_username: str, parent_username: str, db: Session = Depends(get_db)) -> dict:
     """Elimina la asociación entre un tutor y un alumno."""
     return _run_db_operation(links_db.unlink_user, db, "parent", student_username, parent_username)
 
 
-@router.post("/students/{student_username}/staff/{staff_username}")
+@router.post("/students/{student_username}/staff/{staff_username}", dependencies=[Depends(require_admin)])
 def link_staff(student_username: str, staff_username: str, db: Session = Depends(get_db)) -> dict:
     """Asocia a un miembro del staff con un alumno."""
     return _run_db_operation(links_db.link_user, db, "staff", student_username, staff_username)
 
 
-@router.delete("/students/{student_username}/staff/{staff_username}")
+@router.delete("/students/{student_username}/staff/{staff_username}", dependencies=[Depends(require_admin)])
 def unlink_staff(student_username: str, staff_username: str, db: Session = Depends(get_db)) -> dict:
     """Elimina la asociación entre un miembro del staff y un alumno."""
     return _run_db_operation(links_db.unlink_user, db, "staff", student_username, staff_username)
 
 
-@router.get("/students/{student_username}")
+@router.get("/students/{student_username}", dependencies=[Depends(require_admin)])
 def get_student_links(student_username: str, db: Session = Depends(get_db)) -> dict:
     """Devuelve los tutores y el staff asociados al alumno."""
     parents = _run_db_operation(links_db.get_associated_users, db, "parent", student_username)
@@ -57,14 +65,24 @@ def get_student_links(student_username: str, db: Session = Depends(get_db)) -> d
 
 
 @router.get("/parents/{parent_username}/students")
-def get_parent_students(parent_username: str, db: Session = Depends(get_db)) -> dict:
+def get_parent_students(
+    parent_username: str,
+    db: Session = Depends(get_db),
+    user: dict = Depends(get_current_user),
+) -> dict:
     """Devuelve los alumnos asociados al tutor indicado."""
+    _require_self_or_admin(user, "parent", parent_username)
     students = _run_db_operation(links_db.get_students, db, "parent", parent_username)
     return {"parent_username": parent_username, "students": students}
 
 
 @router.get("/staff/{staff_username}/students")
-def get_staff_students(staff_username: str, db: Session = Depends(get_db)) -> dict:
+def get_staff_students(
+    staff_username: str,
+    db: Session = Depends(get_db),
+    user: dict = Depends(get_current_user),
+) -> dict:
     """Devuelve los alumnos asociados al miembro del staff indicado."""
+    _require_self_or_admin(user, "staff", staff_username)
     students = _run_db_operation(links_db.get_students, db, "staff", staff_username)
     return {"staff_username": staff_username, "students": students}
