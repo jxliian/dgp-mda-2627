@@ -35,6 +35,8 @@ class ErrorCode(IntEnum):
     PARENT_TASK_DURING_SCHOOL_HOURS = 1024
     PARENT_DELETE_DURING_SCHOOL_HOURS = 1025
     STAFF_DELETE_OUTSIDE_SCHOOL_HOURS = 1026
+    USERNAME_TAKEN = 1027
+    EMAIL_TAKEN = 1028
     USER_LOOKUP_FAILED = 1501
     USER_LIST_FAILED = 1502
     PASSWORD_UPDATE_FAILED = 1503
@@ -74,6 +76,8 @@ ERRORS: dict[ErrorCode, tuple[int, str]] = {
     ErrorCode.PARENT_TASK_DURING_SCHOOL_HOURS: (400, "Los tutores solo pueden programar tareas fuera del horario escolar"),
     ErrorCode.PARENT_DELETE_DURING_SCHOOL_HOURS: (400, "Los tutores no pueden eliminar tareas programadas durante el horario escolar"),
     ErrorCode.STAFF_DELETE_OUTSIDE_SCHOOL_HOURS: (400, "El personal no puede eliminar tareas programadas fuera del horario escolar"),
+    ErrorCode.USERNAME_TAKEN: (409, "Ya existe un usuario con ese nombre de usuario"),
+    ErrorCode.EMAIL_TAKEN: (409, "Ya existe un usuario con ese correo electrónico en el rol indicado"),
     ErrorCode.USER_LOOKUP_FAILED: (500, "No se pudo consultar el usuario"),
     ErrorCode.USER_LIST_FAILED: (500, "No se pudo consultar la lista de usuarios"),
     ErrorCode.PASSWORD_UPDATE_FAILED: (500, "No se pudo actualizar la contraseña"),

@@ -24,11 +24,27 @@ class CreateUserRequest(BaseModel):
 
 
 class UpdateUserRequest(BaseModel):
-    """Campos opcionales que puede modificar el endpoint de edición."""
+    """Campos opcionales que puede modificar el administrador en una cuenta."""
 
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "username": "nuevo_usuario",
+                    "role": "staff",
+                    "full_name": "Nombre completo",
+                    "password": "nueva_contraseña",
+                    "email": "nuevo@example.com",
+                }
+            ]
+        }
+    }
+
+    username: str | None = Field(default=None, min_length=1, max_length=50)
+    role: Role | None = None
     full_name: str | None = Field(default=None, min_length=1, max_length=150)
     password: str | None = Field(default=None, min_length=1)
-    email: str | None = None
+    email: str | None = Field(default=None, max_length=254)
 
 
 @router.post("", dependencies=[Depends(require_admin)])
@@ -53,9 +69,17 @@ def get_users(role: Role, db: Session = Depends(get_db)) -> dict:
 @router.put("/{role}/{username}", dependencies=[Depends(require_admin)])
 def edit_user(role: Role, username: str, payload: UpdateUserRequest,
               db: Session = Depends(get_db)) -> dict:
-    """Edita nombre completo, correo o contraseña; requiere una sesión de administrador."""
-    result = users_mng_db.updateUser(db, username, role, payload.full_name,
-                           payload.email, payload.password)
+    """Edita la identidad, el rol o los datos de una cuenta; requiere sesión de administrador."""
+    result = users_mng_db.updateUser(
+        db,
+        username,
+        role,
+        full_name=payload.full_name,
+        email=payload.email,
+        passwd_plain=payload.password,
+        new_username=payload.username,
+        new_role=payload.role,
+    )
     if result["errorCode"] != 0:
         raise_api_error(result["errorCode"])
     return result

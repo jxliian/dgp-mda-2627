@@ -30,20 +30,19 @@ class AuthDB:
             cfg = _config(role)
             row = db.execute(
                 text(
-                    f"SELECT {cfg['password']} FROM {cfg['table']} "
-                    f"WHERE {cfg['username']} = :username"
+                    f"SELECT u.password FROM users AS u JOIN {cfg['table']} AS r "
+                    f"ON r.{cfg['username']} = u.username WHERE u.username = :username"
                 ),
                 {"username": username},
             ).mappings().first()
 
-            if not row or not pwd_context.verify(password, row[cfg["password"]]):
+            if not row or not pwd_context.verify(password, row["password"]):
                 return error_response(ErrorCode.INVALID_CREDENTIALS)
 
             token = secrets.token_urlsafe(32)
             db.execute(
                 text(
-                    f"UPDATE {cfg['table']} SET {cfg['token']} = :token "
-                    f"WHERE {cfg['username']} = :username"
+                    "UPDATE users SET token = :token WHERE username = :username"
                 ),
                 {"token": _token_hash(token), "username": username},
             )
@@ -71,8 +70,9 @@ class AuthDB:
         for role, cfg in ROLE_CONFIG.items():
             row = db.execute(
                 text(
-                    f"SELECT {cfg['username']} AS username, {cfg['name']} AS full_name "
-                    f"FROM {cfg['table']} WHERE {cfg['token']} = :token"
+                    f"SELECT u.username, r.{cfg['name']} AS full_name "
+                    f"FROM users AS u JOIN {cfg['table']} AS r "
+                    f"ON r.{cfg['username']} = u.username WHERE u.token = :token"
                 ),
                 {"token": token_hash},
             ).mappings().first()
@@ -84,17 +84,13 @@ class AuthDB:
         """Revoca la sesión activa asociada al token y devuelve si encontró una."""
         token_hash = _token_hash(token)
         try:
-            for cfg in ROLE_CONFIG.values():
-                result = db.execute(
-                    text(
-                        f"UPDATE {cfg['table']} SET {cfg['token']} = NULL "
-                        f"WHERE {cfg['token']} = :token"
-                    ),
-                    {"token": token_hash},
-                )
-                if result.rowcount:
-                    db.commit()
-                    return True
+            result = db.execute(
+                text("UPDATE users SET token = NULL WHERE token = :token"),
+                {"token": token_hash},
+            )
+            if result.rowcount:
+                db.commit()
+                return True
             db.rollback()
             return False
         except Exception:

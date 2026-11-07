@@ -20,17 +20,17 @@ class User(ABC):
         result = users_mng_db.getUserByUsername(db, username, self.role)
         if result["errorCode"] == 0:
             self.username = result.get("username")
-            self.full_name = result.get("stud_full_name", result.get("admn_full_name", result.get("staff_full_name", result.get("par_full_name"))))
-            self.email = result.get("admn_email", result.get("staff_email", result.get("par_email")))
+            self.full_name = result.get("full_name")
+            self.email = result.get("email")
         return result
 
     def searchUserByEmail(self, db, email: str) -> dict:
         """Busca por correo y actualiza los datos de esta entidad si existe."""
         result = users_mng_db.getUserByEmail(db, email, self.role)
         if result["errorCode"] == 0:
-            self.username = result.get("admn_usr", result.get("staff_usr", result.get("par_usr")))
-            self.full_name = result.get("admn_full_name", result.get("staff_full_name", result.get("par_full_name")))
-            self.email = email
+            self.username = result.get("username")
+            self.full_name = result.get("full_name")
+            self.email = result.get("email")
         return result
 
     def updatePassword(self, db, new_password: str) -> dict:
