@@ -25,6 +25,16 @@ class ErrorCode(IntEnum):
     ASSOCIATION_NOT_FOUND = 1014
     INVALID_ASSOCIATION_TYPE = 1015
     ROUTE_NOT_FOUND = 1016
+    TASK_CREATOR_REQUIRED = 1017
+    TASK_STUDENT_NOT_FOUND = 1018
+    TASK_STUDENT_NOT_ASSOCIATED = 1019
+    ALTERNATIVE_TASK_NOT_FOUND = 1020
+    TASK_NOT_FOUND = 1021
+    ALTERNATIVE_TASK_ALREADY_ASSIGNED = 1022
+    STAFF_TASK_OUTSIDE_SCHOOL_HOURS = 1023
+    PARENT_TASK_DURING_SCHOOL_HOURS = 1024
+    PARENT_DELETE_DURING_SCHOOL_HOURS = 1025
+    STAFF_DELETE_OUTSIDE_SCHOOL_HOURS = 1026
     USER_LOOKUP_FAILED = 1501
     USER_LIST_FAILED = 1502
     PASSWORD_UPDATE_FAILED = 1503
@@ -54,6 +64,16 @@ ERRORS: dict[ErrorCode, tuple[int, str]] = {
     ErrorCode.ASSOCIATION_NOT_FOUND: (404, "La asociación no existe"),
     ErrorCode.INVALID_ASSOCIATION_TYPE: (400, "Tipo de usuario asociado no válido"),
     ErrorCode.ROUTE_NOT_FOUND: (404, "Ruta no encontrada"),
+    ErrorCode.TASK_CREATOR_REQUIRED: (403, "Se requiere una sesión de personal o tutor"),
+    ErrorCode.TASK_STUDENT_NOT_FOUND: (404, "Alumno no encontrado"),
+    ErrorCode.TASK_STUDENT_NOT_ASSOCIATED: (403, "El alumno no está asociado a tu cuenta"),
+    ErrorCode.ALTERNATIVE_TASK_NOT_FOUND: (404, "La tarea alternativa no existe"),
+    ErrorCode.TASK_NOT_FOUND: (404, "Tarea no encontrada"),
+    ErrorCode.ALTERNATIVE_TASK_ALREADY_ASSIGNED: (409, "La tarea alternativa ya está asociada a otra tarea"),
+    ErrorCode.STAFF_TASK_OUTSIDE_SCHOOL_HOURS: (400, "El personal solo puede programar tareas entre las 09:00 y las 15:00"),
+    ErrorCode.PARENT_TASK_DURING_SCHOOL_HOURS: (400, "Los tutores solo pueden programar tareas fuera del horario escolar"),
+    ErrorCode.PARENT_DELETE_DURING_SCHOOL_HOURS: (400, "Los tutores no pueden eliminar tareas programadas durante el horario escolar"),
+    ErrorCode.STAFF_DELETE_OUTSIDE_SCHOOL_HOURS: (400, "El personal no puede eliminar tareas programadas fuera del horario escolar"),
     ErrorCode.USER_LOOKUP_FAILED: (500, "No se pudo consultar el usuario"),
     ErrorCode.USER_LIST_FAILED: (500, "No se pudo consultar la lista de usuarios"),
     ErrorCode.PASSWORD_UPDATE_FAILED: (500, "No se pudo actualizar la contraseña"),
