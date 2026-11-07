@@ -1,8 +1,9 @@
 from datetime import time
 from importlib import import_module
+from typing import Annotated
 
-from fastapi import APIRouter, Depends
-from pydantic import BaseModel, Field
+from fastapi import APIRouter, Depends, Path
+from pydantic import BaseModel, ConfigDict, Field, StrictInt, field_validator
 from sqlalchemy.orm import Session
 
 from ..DB.database import get_db
@@ -23,14 +24,33 @@ def _run_db_operation(operation, *args):
 
 
 class CreateTaskRequest(BaseModel):
-    task_title: str = Field(min_length=1, max_length=100)
+    model_config = ConfigDict(extra="forbid")
+
+    task_title: str = Field(strict=True, min_length=1, max_length=100)
     task_start_hour: time | None = None
-    task_duration: int | None = None
-    alt_task_id_fk: int | None = None
+    task_duration: StrictInt | None = Field(default=None, gt=0)
+    alt_task_id_fk: StrictInt | None = Field(default=None, gt=0)
+
+    @field_validator("task_title")
+    @classmethod
+    def validate_task_title(cls, value: str) -> str:
+        value = value.strip()
+        if not value:
+            raise ValueError("El título no puede estar vacío")
+        return value
+
+    @field_validator("task_start_hour")
+    @classmethod
+    def validate_task_start_hour(cls, value: time | None) -> time | None:
+        if value is not None and value.utcoffset() is not None:
+            raise ValueError("La hora debe expresarse sin zona horaria")
+        return value
 
 
 class SetAlternativeTaskRequest(BaseModel):
-    alt_task_id_fk: int | None
+    model_config = ConfigDict(extra="forbid")
+
+    alt_task_id_fk: StrictInt | None = Field(gt=0)
 
 
 @router.post("/students/{student_username}", status_code=201)
@@ -59,7 +79,7 @@ def create_student_task(
 
 @router.put("/{task_id}/alternative")
 def set_task_alternative(
-    task_id: int,
+    task_id: Annotated[int, Path(gt=0)],
     payload: SetAlternativeTaskRequest,
     db: Session = Depends(get_db),
     user: dict = Depends(get_current_user),
@@ -81,7 +101,7 @@ def set_task_alternative(
 @router.delete("/students/{student_username}/{task_id}")
 def delete_student_task(
     student_username: str,
-    task_id: int,
+    task_id: Annotated[int, Path(gt=0)],
     db: Session = Depends(get_db),
     user: dict = Depends(get_current_user),
 ) -> dict:
