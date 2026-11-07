@@ -1,4 +1,4 @@
-from datetime import time
+from datetime import date, time
 
 from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError
@@ -20,6 +20,8 @@ def create_task(
     creator_username: str,
     student_username: str,
     task_title: str,
+    task_date: date,
+    task_index: int,
     task_start_hour: time | None,
     task_duration: int | None,
     alt_task_id_fk: int | None,
@@ -86,11 +88,28 @@ def create_task(
             },
         ).mappings().one()
         db.execute(
-            text("INSERT INTO studs_tasks (task_id_fk, stud_usr_fk) VALUES (:task_id, :student_username)"),
-            {"task_id": task["task_id"], "student_username": student_username},
+            text("INSERT INTO Generic_Task (task_id_fk) VALUES (:task_id)"),
+            {"task_id": task["task_id"]},
+        )
+        db.execute(
+            text(
+                "INSERT INTO stud_task (stud_usr_fk, task_id_fk, task_index, task_date) "
+                "VALUES (:student_username, :task_id, :task_index, :task_date)"
+            ),
+            {
+                "task_id": task["task_id"],
+                "student_username": student_username,
+                "task_index": task_index,
+                "task_date": task_date,
+            },
         )
         db.commit()
-        return success_response(**dict(task), stud_usr_fk=student_username)
+        return success_response(
+            **dict(task),
+            stud_usr_fk=student_username,
+            task_index=task_index,
+            task_date=task_date,
+        )
     except IntegrityError as exc:
         db.rollback()
         constraint = getattr(getattr(exc.orig, "diag", None), "constraint_name", "") or ""
@@ -119,7 +138,7 @@ def set_alternative_task(
             "SELECT 1 FROM Tasks task "
             "WHERE task.task_id = :task_id AND task.task_creator = :creator_username "
             "AND EXISTS ("
-            "SELECT 1 FROM studs_tasks assigned "
+            "SELECT 1 FROM stud_task assigned "
             f"JOIN {association['table']} links "
             f"ON links.{association['creator_fk']} = :creator_username "
             "AND links.stud_usr_fk = assigned.stud_usr_fk "
@@ -180,6 +199,8 @@ def delete_student_task(
     creator_username: str,
     student_username: str,
     task_id: int,
+    task_date: date,
+    task_index: int,
 ) -> dict:
     """Retira una tarea de la agenda si el usuario puede gestionar al alumno y su horario."""
     association = CREATOR_ASSOCIATIONS.get(creator_role)
@@ -208,10 +229,16 @@ def delete_student_task(
         text(
             "SELECT task.task_start_hour "
             "FROM Tasks task "
-            "JOIN studs_tasks assigned ON assigned.task_id_fk = task.task_id "
-            "WHERE task.task_id = :task_id AND assigned.stud_usr_fk = :student_username"
+            "JOIN stud_task assigned ON assigned.task_id_fk = task.task_id "
+            "WHERE task.task_id = :task_id AND assigned.stud_usr_fk = :student_username "
+            "AND assigned.task_date = :task_date AND assigned.task_index = :task_index"
         ),
-        {"task_id": task_id, "student_username": student_username},
+        {
+            "task_id": task_id,
+            "student_username": student_username,
+            "task_date": task_date,
+            "task_index": task_index,
+        },
     ).mappings().first()
     if task is None:
         raise CatalogError(ErrorCode.TASK_NOT_FOUND)
@@ -226,14 +253,25 @@ def delete_student_task(
 
     result = db.execute(
         text(
-            "DELETE FROM studs_tasks "
-            "WHERE task_id_fk = :task_id AND stud_usr_fk = :student_username"
+            "DELETE FROM stud_task "
+            "WHERE task_id_fk = :task_id AND stud_usr_fk = :student_username "
+            "AND task_date = :task_date AND task_index = :task_index"
         ),
-        {"task_id": task_id, "student_username": student_username},
+        {
+            "task_id": task_id,
+            "student_username": student_username,
+            "task_date": task_date,
+            "task_index": task_index,
+        },
     )
     if not result.rowcount:
         db.rollback()
         raise CatalogError(ErrorCode.TASK_NOT_FOUND)
 
     db.commit()
-    return success_response(task_id=task_id, stud_usr_fk=student_username)
+    return success_response(
+        task_id=task_id,
+        stud_usr_fk=student_username,
+        task_date=task_date,
+        task_index=task_index,
+    )

@@ -1,8 +1,8 @@
-from datetime import time
+from datetime import date, time
 from importlib import import_module
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Path
+from fastapi import APIRouter, Depends, Path, Query
 from pydantic import BaseModel, ConfigDict, Field, StrictInt, field_validator
 from sqlalchemy.orm import Session
 
@@ -27,6 +27,8 @@ class CreateTaskRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     task_title: str = Field(strict=True, min_length=1, max_length=100)
+    task_date: date
+    task_index: StrictInt = Field(ge=0)
     task_start_hour: time | None = None
     task_duration: StrictInt | None = Field(default=None, gt=0)
     alt_task_id_fk: StrictInt | None = Field(default=None, gt=0)
@@ -71,6 +73,8 @@ def create_student_task(
         user["username"],
         student_username,
         payload.task_title,
+        payload.task_date,
+        payload.task_index,
         payload.task_start_hour,
         payload.task_duration,
         payload.alt_task_id_fk,
@@ -102,6 +106,8 @@ def set_task_alternative(
 def delete_student_task(
     student_username: str,
     task_id: Annotated[int, Path(gt=0)],
+    task_date: date,
+    task_index: Annotated[int, Query(ge=0)],
     db: Session = Depends(get_db),
     user: dict = Depends(get_current_user),
 ) -> dict:
@@ -116,4 +122,6 @@ def delete_student_task(
         user["username"],
         student_username,
         task_id,
+        task_date,
+        task_index,
     )

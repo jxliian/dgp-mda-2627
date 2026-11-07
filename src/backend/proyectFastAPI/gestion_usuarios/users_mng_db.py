@@ -323,6 +323,15 @@ class UsersManagementDB:
                     text(f"UPDATE users SET {', '.join(user_updates)} WHERE username = :username"),
                     parameters,
                 )
+                if target_username != username:
+                    db.execute(
+                        text("UPDATE Tasks SET task_creator = :new_username WHERE task_creator = :username"),
+                        {"new_username": target_username, "username": username},
+                    )
+                    db.execute(
+                        text("UPDATE Alt_Tasks SET alt_task_creator = :new_username WHERE alt_task_creator = :username"),
+                        {"new_username": target_username, "username": username},
+                    )
 
             if target_role != source_role:
                 target_fields = [target_cfg["username"], target_cfg["name"]]
