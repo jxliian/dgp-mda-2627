@@ -30,8 +30,10 @@ class AuthDB:
             cfg = _config(role)
             row = db.execute(
                 text(
-                    f"SELECT u.password FROM users AS u JOIN {cfg['table']} AS r "
-                    f"ON r.{cfg['username']} = u.username WHERE u.username = :username"
+                    f"SELECT account.password FROM users AS account "
+                    f"JOIN {cfg['table']} AS profile "
+                    f"ON profile.{cfg['username']} = account.username "
+                    "WHERE account.username = :username"
                 ),
                 {"username": username},
             ).mappings().first()
@@ -70,9 +72,10 @@ class AuthDB:
         for role, cfg in ROLE_CONFIG.items():
             row = db.execute(
                 text(
-                    f"SELECT u.username, r.{cfg['name']} AS full_name "
-                    f"FROM users AS u JOIN {cfg['table']} AS r "
-                    f"ON r.{cfg['username']} = u.username WHERE u.token = :token"
+                    "SELECT account.username, account.full_name "
+                    f"FROM users AS account JOIN {cfg['table']} AS profile "
+                    f"ON profile.{cfg['username']} = account.username "
+                    "WHERE account.token = :token"
                 ),
                 {"token": token_hash},
             ).mappings().first()

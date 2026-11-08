@@ -39,7 +39,11 @@ def create_task(
             raise CatalogError(ErrorCode.PARENT_TASK_DURING_SCHOOL_HOURS)
 
     student_exists = db.execute(
-        text("SELECT 1 FROM Student WHERE stud_usr = :student_username"),
+        text(
+            "SELECT 1 FROM users AS account JOIN Student AS student_profile "
+            "ON student_profile.stud_usr = account.username "
+            "WHERE account.username = :student_username"
+        ),
         {"student_username": student_username},
     ).scalar_one_or_none()
     if student_exists is None:
@@ -208,7 +212,11 @@ def delete_student_task(
         raise CatalogError(ErrorCode.TASK_CREATOR_REQUIRED)
 
     student_exists = db.execute(
-        text("SELECT 1 FROM Student WHERE stud_usr = :student_username"),
+        text(
+            "SELECT 1 FROM users AS account JOIN Student AS student_profile "
+            "ON student_profile.stud_usr = account.username "
+            "WHERE account.username = :student_username"
+        ),
         {"student_username": student_username},
     ).scalar_one_or_none()
     if student_exists is None:

@@ -1,6 +1,7 @@
 -- Tabla común de cuentas. Cada fila tendrá una sola especialización de rol.
 CREATE TABLE users (
     username VARCHAR(50) PRIMARY KEY,
+    full_name VARCHAR(150) NOT NULL,
     password VARCHAR(255) NOT NULL,
     token VARCHAR(64) NULL
 );
@@ -8,14 +9,12 @@ CREATE TABLE users (
 -- Tablas de especialización: su PK es también FK a users.username.
 CREATE TABLE Admn (
     admn_usr VARCHAR(50) PRIMARY KEY,
-    admn_full_name VARCHAR(150) NOT NULL,
     admn_email VARCHAR(254) NOT NULL UNIQUE,
     CONSTRAINT fk_admn_user FOREIGN KEY (admn_usr) REFERENCES users(username) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE Staff (
     staff_usr VARCHAR(50) PRIMARY KEY,
-    staff_full_name VARCHAR(150) NOT NULL,
     staff_email VARCHAR(254) NOT NULL UNIQUE,
     CONSTRAINT fk_staff_user FOREIGN KEY (staff_usr) REFERENCES users(username) ON UPDATE CASCADE ON DELETE CASCADE
 );
@@ -28,20 +27,19 @@ CREATE TABLE Avatar (
 
 CREATE TABLE Student (
     stud_usr VARCHAR(50) PRIMARY KEY,
-    stud_full_name VARCHAR(150) NOT NULL,
     stud_class VARCHAR(50),
-    stud_access_main_col VARCHAR(50),
-    stud_access_sec_col VARCHAR(50),
-    stud_access_ntasks_visible INT,
-    stud_access_pictograms BOOLEAN,
-    stud_access_contrast BOOLEAN,
-    stud_access_fontsize INT,
-    stud_access_ndays_visible INT,
-    stud_access_filters BOOLEAN,
-    stud_access_time_bar BOOLEAN,
-    stud_access_talkback BOOLEAN,
-    stud_access_profile_mod BOOLEAN,
-    stud_access_tasks_mod BOOLEAN,
+    stud_access_main_col VARCHAR(50) NOT NULL,
+    stud_access_sec_col VARCHAR(50) NOT NULL,
+    stud_access_ntasks_visible INT NOT NULL,
+    stud_access_pictograms BOOLEAN NOT NULL,
+    stud_access_contrast BOOLEAN NOT NULL,
+    stud_access_fontsize INT NOT NULL,
+    stud_access_ndays_visible INT NOT NULL,
+    stud_access_filters BOOLEAN NOT NULL,
+    stud_access_time_bar BOOLEAN NOT NULL,
+    stud_access_talkback BOOLEAN NOT NULL,
+    stud_access_profile_mod BOOLEAN NOT NULL,
+    stud_access_tasks_mod BOOLEAN NOT NULL,
     avatar_id_fk INT,
     CONSTRAINT fk_student_user FOREIGN KEY (stud_usr) REFERENCES users(username) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT fk_student_avatar FOREIGN KEY (avatar_id_fk) REFERENCES Avatar(avatar_id) ON DELETE SET NULL
@@ -49,7 +47,6 @@ CREATE TABLE Student (
 
 CREATE TABLE Parents (
     par_usr VARCHAR(50) PRIMARY KEY,
-    par_full_name VARCHAR(150) NOT NULL,
     par_email VARCHAR(254) NOT NULL UNIQUE,
     CONSTRAINT fk_parents_user FOREIGN KEY (par_usr) REFERENCES users(username) ON UPDATE CASCADE ON DELETE CASCADE
 );

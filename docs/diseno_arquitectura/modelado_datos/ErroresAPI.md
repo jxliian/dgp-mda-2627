@@ -47,6 +47,7 @@ en la respuesta. Por ejemplo, `errorCode: 1002` se devuelve con HTTP 401.
 | 1026 | El personal no puede eliminar tareas programadas fuera del horario escolar | 400 | Un miembro del staff intentó eliminar una tarea fuera del horario permitido. |
 | 1027 | Ya existe un usuario con ese nombre de usuario | 409 | El nombre de usuario ya está ocupado en `users`, por lo que no puede repetirse en ninguna especialización de rol. |
 | 1028 | Ya existe un usuario con ese correo electrónico en el rol indicado | 409 | El correo ya está ocupado por otra cuenta del rol de destino. |
+| 1029 | No tienes permiso para modificar este perfil | 403 | La cuenta intentó editar un perfil ajeno o un estudiante cuyo `stud_access_profile_mod` está desactivado intentó modificar sus datos. |
 
 ## Errores internos
 

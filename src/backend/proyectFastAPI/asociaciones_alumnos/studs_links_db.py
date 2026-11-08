@@ -10,18 +10,16 @@ LINK_CONFIG = {
     "parent": {
         "table": "par_stud",
         "user_fk": "par_usr_fk",
-        "user_table": "Parents",
+        "profile_table": "Parents",
         "user_username": "par_usr",
-        "user_full_name": "par_full_name",
         "user_email": "par_email",
         "user_role": "parent",
     },
     "staff": {
         "table": "staff_stud",
         "user_fk": "staff_usr_fk",
-        "user_table": "Staff",
+        "profile_table": "Staff",
         "user_username": "staff_usr",
-        "user_full_name": "staff_full_name",
         "user_email": "staff_email",
         "user_role": "staff",
     },
@@ -37,15 +35,19 @@ def _config(user_role: str) -> dict:
 
 
 def _ensure_user_exists(db: Session, role: Literal["student", "parent", "staff"], username: str) -> None:
-    """Comprueba que existe una cuenta con el rol y nombre de usuario indicados."""
+    """Comprueba que existe la cuenta común y su fila en la tabla hija del rol."""
     if role == "student":
-        table, username_column = "Student", "stud_usr"
+        profile_table, profile_username = "Student", "stud_usr"
     else:
         cfg = _config(role)
-        table, username_column = cfg["user_table"], cfg["user_username"]
+        profile_table, profile_username = cfg["profile_table"], cfg["user_username"]
 
     exists = db.execute(
-        text(f"SELECT 1 FROM {table} WHERE {username_column} = :username"),
+        text(
+            f"SELECT 1 FROM users AS account JOIN {profile_table} AS profile "
+            f"ON profile.{profile_username} = account.username "
+            "WHERE account.username = :username"
+        ),
         {"username": username},
     ).scalar_one_or_none()
     if exists is None:
@@ -102,13 +104,15 @@ def get_associated_users(db: Session, role: Literal["parent", "staff"], student_
     _ensure_user_exists(db, "student", student_username)
     rows = db.execute(
         text(
-            f"SELECT users.{cfg['user_username']} AS username, "
-            f"users.{cfg['user_full_name']} AS full_name, "
-            f"users.{cfg['user_email']} AS email "
+            f"SELECT profile.{cfg['user_username']} AS username, "
+            "account.full_name, "
+            f"profile.{cfg['user_email']} AS email "
             f"FROM {cfg['table']} links "
-            f"JOIN {cfg['user_table']} users ON users.{cfg['user_username']} = links.{cfg['user_fk']} "
+            f"JOIN {cfg['profile_table']} AS profile "
+            f"ON profile.{cfg['user_username']} = links.{cfg['user_fk']} "
+            f"JOIN users AS account ON account.username = profile.{cfg['user_username']} "
             "WHERE links.stud_usr_fk = :student_username "
-            f"ORDER BY users.{cfg['user_username']}"
+            f"ORDER BY profile.{cfg['user_username']}"
         ),
         {"student_username": student_username},
     ).mappings().all()
@@ -121,11 +125,19 @@ def get_students(db: Session, role: Literal["parent", "staff"], username: str) -
     _ensure_user_exists(db, role, username)
     rows = db.execute(
         text(
-            "SELECT students.stud_usr AS username, students.stud_full_name AS full_name "
+            "SELECT student_profile.stud_usr AS username, "
+            "student_account.full_name "
             f"FROM {cfg['table']} links "
-            "JOIN Student students ON students.stud_usr = links.stud_usr_fk "
+            "JOIN Student AS student_profile "
+            "ON student_profile.stud_usr = links.stud_usr_fk "
+            "JOIN users AS student_account "
+            "ON student_account.username = student_profile.stud_usr "
+            f"JOIN {cfg['profile_table']} AS related_profile "
+            f"ON related_profile.{cfg['user_username']} = links.{cfg['user_fk']} "
+            f"JOIN users AS related_account "
+            f"ON related_account.username = related_profile.{cfg['user_username']} "
             f"WHERE links.{cfg['user_fk']} = :username "
-            "ORDER BY students.stud_usr"
+            "ORDER BY student_profile.stud_usr"
         ),
         {"username": username},
     ).mappings().all()

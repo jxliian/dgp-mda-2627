@@ -37,6 +37,7 @@ class ErrorCode(IntEnum):
     STAFF_DELETE_OUTSIDE_SCHOOL_HOURS = 1026
     USERNAME_TAKEN = 1027
     EMAIL_TAKEN = 1028
+    PROFILE_UPDATE_DENIED = 1029
     USER_LOOKUP_FAILED = 1501
     USER_LIST_FAILED = 1502
     PASSWORD_UPDATE_FAILED = 1503
@@ -78,6 +79,7 @@ ERRORS: dict[ErrorCode, tuple[int, str]] = {
     ErrorCode.STAFF_DELETE_OUTSIDE_SCHOOL_HOURS: (400, "El personal no puede eliminar tareas programadas fuera del horario escolar"),
     ErrorCode.USERNAME_TAKEN: (409, "Ya existe un usuario con ese nombre de usuario"),
     ErrorCode.EMAIL_TAKEN: (409, "Ya existe un usuario con ese correo electrónico en el rol indicado"),
+    ErrorCode.PROFILE_UPDATE_DENIED: (403, "No tienes permiso para modificar este perfil"),
     ErrorCode.USER_LOOKUP_FAILED: (500, "No se pudo consultar el usuario"),
     ErrorCode.USER_LIST_FAILED: (500, "No se pudo consultar la lista de usuarios"),
     ErrorCode.PASSWORD_UPDATE_FAILED: (500, "No se pudo actualizar la contraseña"),
