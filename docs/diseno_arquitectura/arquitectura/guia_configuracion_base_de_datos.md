@@ -24,24 +24,18 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 Cerramos y volvemos a abrir la terminal para que los cambios surtan efecto y el sistema reconozca el comando `uv`.
 
 
-### 3. Creamos archivo .env en la carpeta
-
-
-### 4. Ejecutamos el siguiente comando:
+### 3. Editamos archivo .env en la carpeta
 
 ```bash
-uv run python -c "import secrets; print(secrets.token_hex(32))"
+DB_USER=autovida_admin
+DB_PASSWORD=<contraseña acordada>
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=autovida_db
 ```
 
 
-### 5. Copiamos la clave que devuelve y en el .env escribimos:
-
-```bash
-JWT_SECRET_KEY=<clave_copiada>
-```
-
-
-### 6. Iniciar la base de datos
+### 4. Iniciar la base de datos
 
 Nos situamos en la carpeta del proyecto FastAPI, donde se encuentra el archivo `docker-compose.yml`, y ejecutamos:
 
@@ -52,7 +46,7 @@ sudo docker compose up -d
 Este comando inicia los servicios definidos en Docker Compose en segundo plano.
 
 
-### 7. Iniciar FastAPI
+### 5. Iniciar FastAPI
 
 Para iniciar el servidor de desarrollo de FastAPI, ejecutamos:
 
