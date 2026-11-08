@@ -36,7 +36,7 @@ Requiere un Bearer válido. La dependencia primero verifica que el token corresp
 
 - `get_current_user` valida el Bearer y aporta `username` y `role` a la operación. Un token ausente o inválido impide acceder con HTTP 401.
 - `require_admin` además exige el rol `admin`; el resto recibe `ADMIN_REQUIRED` (HTTP 403).
-- Un token nuevo invalida el anterior para ese usuario, y cambiar contraseña, username o rol también revoca la sesión al actualizar `users.token`.
+- Un token nuevo invalida el anterior para ese usuario. Cambiar contraseña o username también revoca la sesión al actualizar `users.token`.
 
 ## Gestión de usuarios
 
@@ -54,6 +54,8 @@ Para `admin`, `staff` y `parent`, también es obligatorio `email`, que debe tene
 
 La operación inserta la fila común en `users` (incluido el hash bcrypt de la contraseña y `full_name`) y después la especialización del rol en `Admn`, `Staff`, `Student` o `Parents`, con los datos de email o accesibilidad que correspondan. Se confirman ambas inserciones conjuntamente. El username es único en la tabla común, por lo que no puede repetirse entre roles. Según el conflicto, se devuelve `USERNAME_TAKEN` o `EMAIL_TAKEN` (HTTP 409); otros errores de creación usan `USER_CREATE_FAILED` (HTTP 500).
 
+El rol se fija al crear la cuenta y es inmutable. Ni el propio usuario ni un administrador pueden cambiarlo después; para cambiar el rol hay que crear una cuenta nueva con el rol correcto.
+
 ### `GET /users` y `GET /users?role=<rol>`
 
 Solo administrador. Sin `role`, reúne usuarios de las cuatro tablas hijas; con `role`, filtra a un solo rol. Cada resultado contiene username, full name, rol y email cuando el rol tiene correo. Para estudiantes también incluye sus atributos de accesibilidad. La lista se ordena por username. No devuelve contraseñas ni tokens.
@@ -62,19 +64,31 @@ Un rol inválido devuelve `INVALID_ROLE` (HTTP 400); fallos de consulta devuelve
 
 ### `PUT /users/{role}/{username}`
 
-Requiere autenticación. Un administrador puede editar cualquier cuenta. Un `parent`, `staff` o `student` solo puede editar su propio perfil y no puede enviar `username`, `full_name` ni `role`. Para estudiantes, además se comprueba que `stud_access_profile_mod` sea verdadero; si es falso, se rechaza la edición propia. Un admin puede editar todos los campos autorizados y cualquier usuario.
+Requiere autenticación. Un administrador puede editar cualquier cuenta. Un `parent`, `staff` o `student` solo puede editar su propio perfil y no puede enviar `username`, `full_name` ni `role`. Para estudiantes, además se comprueba que `stud_access_profile_mod` sea verdadero; si es falso, se rechaza la edición propia. Ningún usuario puede cambiar el rol de una cuenta: un administrador que envíe un `role` distinto del actual recibe `ROLE_CHANGE_DENIED` (HTTP 403); un usuario no administrador que envíe `role` recibe `PROFILE_UPDATE_DENIED` (HTTP 403).
 
 El JSON acepta campos opcionales: `username`, `role`, `full_name`, `password`, `email` y campos `stud_access_*`. No se aceptan propiedades extra. Debe haber al menos un campo que modificar. El username y el nombre completo aplican validaciones iguales a las de creación; la contraseña está limitada a 72 bytes.
 
-Cambiar username o rol convierte la identidad/especialización: actualiza username común cuando corresponda, crea la nueva fila hija y elimina la especialización anterior. El username debe seguir siendo globalmente único. Cambiar username también actualiza `Tasks.task_creator` y `Alt_Tasks.alt_task_creator`. Cambiar rol o username invalida el token activo. Cambiar contraseña también lo invalida. Cambiar solo `full_name`, email o accesibilidad no lo invalida.
+Cambiar username actualiza la clave común y las referencias en cascada; también actualiza `Tasks.task_creator` y `Alt_Tasks.alt_task_creator`. Cambiar username o contraseña invalida el token activo. Cambiar solo `full_name`, email o accesibilidad no invalida el token. El rol y su fila de especialización no se modifican mediante esta ruta.
 
-Al pasar un usuario a `student`, deben suministrarse todos los campos de accesibilidad. Los roles con email deben conservar o recibir un email válido; estudiantes no admiten email. No se puede degradar al único administrador ni eliminar el único administrador mediante cambio de rol. La respuesta de éxito devuelve el nuevo `username` y `role`.
+Los roles con email deben conservar o recibir un email válido; estudiantes no admiten email. La respuesta de éxito devuelve el `username` y el rol resultante.
 
-Errores relevantes: `PROFILE_UPDATE_DENIED` (403), `USER_NOT_FOUND` (404), `USERNAME_TAKEN`/`EMAIL_TAKEN` (409), `NO_UPDATE_FIELDS`, `INVALID_REQUEST`, `EMAIL_REQUIRED`, `EMAIL_UNAVAILABLE` y `LAST_ADMIN` (400 según catálogo).
+Errores relevantes: `PROFILE_UPDATE_DENIED` (403), `ROLE_CHANGE_DENIED` (403), `USER_NOT_FOUND` (404), `USERNAME_TAKEN`/`EMAIL_TAKEN` (409), `NO_UPDATE_FIELDS`, `INVALID_REQUEST`, `EMAIL_REQUIRED`, `EMAIL_UNAVAILABLE` y `LAST_ADMIN` (400 según catálogo).
 
 ### `DELETE /users/{role}/{username}`
 
 Solo administrador. Borra la cuenta de `users` únicamente si existe la especialización indicada en la tabla hija del rol. Las claves foráneas determinan la eliminación de los datos dependientes. Para administradores, bloquea la tabla de administradores y comprueba que no sea el último antes de borrar. Si la cuenta no existe devuelve `USER_NOT_FOUND`; si se intenta borrar el último admin, `LAST_ADMIN`. El token de la cuenta borrada deja de poder validarse al desaparecer el usuario.
+
+### `PUT /users/students/me/avatar`
+
+Requiere token de alumno. Recibe `multipart/form-data` con el archivo en el campo `file`. Admite PNG, JPEG y WebP de hasta 5 MB; el backend comprueba la firma y estructura básica del formato, y rechaza formatos no admitidos o archivos demasiado grandes con `AVATAR_INVALID_IMAGE` (HTTP 422) o `AVATAR_TOO_LARGE` (HTTP 413). La subida también requiere `stud_access_profile_mod = true`.
+
+La imagen se guarda en `Avatar.avatar_bin` y su clave se vincula a `Student.avatar_id_fk` en una transacción. Al reemplazar una foto anterior, el backend la elimina si ya no está vinculada a ningún alumno. La respuesta JSON incluye `avatar_id`, `media_type` y `avatar_url`.
+
+El cliente puede abrir el selector de imágenes del dispositivo (por ejemplo, la galería) y enviar el archivo en `file`. Tras una respuesta correcta debe mostrar la foto nueva inmediatamente, usando la URL devuelta o `GET /users/students/me/avatar`; esta ruta evita caché con `Cache-Control: no-store`. El control para cambiarla debe ser visible, tener un área de pulsación amplia, un icono comprensible y un nombre accesible para lectores de pantalla. Si la subida falla por tamaño o formato, la interfaz debe conservar la foto que ya tenía el perfil y mostrar un mensaje de error sencillo. Estos requisitos describen el contrato esperado del cliente; esta guía documenta el backend y no implica que exista aquí una interfaz frontend implementada.
+
+### `GET /users/students/me/avatar`
+
+Requiere token de alumno y devuelve directamente la imagen con su tipo MIME. Si el alumno todavía no tiene una foto válida, devuelve una silueta SVG predeterminada para que el perfil siempre pueda mostrar una imagen. La respuesta usa `Cache-Control: no-store` para que una foto recién actualizada no se quede en caché.
 
 ## Asociaciones alumno–tutor/personal
 
@@ -116,13 +130,15 @@ Prefijo `/student-tasks`. En estas rutas solo pueden actuar usuarios autenticado
 
 ### `POST /student-tasks/students/{student_username}`
 
-Responde HTTP 201. El JSON requiere `task_title`, `task_date` y `task_index`. El título se recorta y debe contener entre 1 y 100 caracteres; el índice debe ser un entero no negativo. Son opcionales `task_start_hour` (hora local sin zona), `task_duration` (entero positivo) y `alt_task_id_fk` (entero positivo). No admite propiedades adicionales.
+Responde HTTP 201. El JSON requiere `task_title`, `task_date`, `task_index` y `task_duration`. El título se recorta y debe contener entre 1 y 100 caracteres; el índice debe ser un entero no negativo y la duración un entero positivo. Son opcionales `task_start_hour` (hora local sin zona) y `alt_task_id_fk` (entero positivo). Si falta la duración, es `null` o no es positiva, FastAPI rechaza la petición con error de validación `1005` (HTTP 422). No admite propiedades adicionales.
 
 El alumno debe existir y el usuario autenticado debe estar asociado a él según su rol. Si se indica hora, las tareas de `staff` deben comenzar desde las 09:00 hasta antes de las 15:00; las de `parent` deben quedar fuera de ese intervalo. Si se indica alternativa, esta debe existir y no estar ya enlazada a otra tarea.
 
-La operación inserta en `Tasks` con `task_creator` igual al username del creador y `task_finished = false`, añade el subtipo `Generic_Task` y crea la asignación `stud_task` con alumno, tarea, índice y fecha. Todo se confirma en una transacción. La respuesta incluye datos de tarea y de asignación.
+La operación inserta en `Tasks` con `task_creator` igual al username del creador, `task_duration` positiva y `task_finished = false`, añade el subtipo `Generic_Task` y crea la asignación `stud_task` con alumno, tarea, índice y fecha. Todo se confirma en una transacción. La respuesta incluye datos de tarea y de asignación. El esquema también impone `NOT NULL` y `CHECK (> 0)` en `Tasks.task_duration` y `Alt_Tasks.alt_task_duration`; las alternativas ya almacenadas deben cumplirlo aunque esta API solo las asocie.
 
-La hora y duración son opcionales y el backend actual no exige que se elija exactamente una modalidad. La regla horaria solo puede comprobarse si se envía `task_start_hour`; si se omite, no se aplica.
+`CreacionTablas.sqlscript` recrea el esquema completo: elimina primero las tablas existentes y después vuelve a crearlas. Es destructivo y borra todos los datos de esas tablas; se debe ejecutar solo cuando se quiera reiniciar la base de datos.
+
+La hora de inicio es opcional, pero la duración siempre es obligatoria. La regla horaria solo puede comprobarse si se envía `task_start_hour`; si se omite, no se aplica.
 
 ### `PUT /student-tasks/{task_id}/alternative`
 
@@ -172,9 +188,9 @@ Requiere staff asignado a la clase. Elimina solo la inscripción indicada. Si la
 
 ### `POST /classes/{class_name}/tasks`
 
-Requiere staff asignado a la clase. Recibe los mismos campos de tarea que la creación individual: título, fecha e índice obligatorios; hora, duración y alternativa opcionales. Valida título/hora y alternativa como el endpoint individual. El personal solo puede indicar una hora entre 09:00 y antes de las 15:00.
+Requiere staff asignado a la clase. Recibe los mismos campos de tarea que la creación individual: título, fecha, índice y duración positiva obligatorios; hora y alternativa opcionales. Si falta la duración o no es positiva, devuelve el error de validación `1005` (HTTP 422). Valida título/hora y alternativa como el endpoint individual. El personal solo puede indicar una hora entre 09:00 y antes de las 15:00.
 
-La clase debe tener al menos un alumno inscrito; de lo contrario devuelve `CLASS_HAS_NO_STUDENTS`. Crea una sola tarea con `task_creator` igual al username del miembro del personal, un registro `Generic_Task` y una fila `stud_task` por cada alumno inscrito, con la fecha e índice solicitados. La operación es transaccional y responde HTTP 201 con la lista de alumnos incluidos. El backend actual tampoco exige escoger entre hora y duración.
+La clase debe tener al menos un alumno inscrito; de lo contrario devuelve `CLASS_HAS_NO_STUDENTS`. Crea una sola tarea con `task_creator` igual al username del miembro del personal, la duración obligatoria, un registro `Generic_Task` y una fila `stud_task` por cada alumno inscrito, con la fecha e índice solicitados. La operación es transaccional y responde HTTP 201 con la lista de alumnos incluidos.
 
 ## Errores y lectura del estado
 
@@ -185,7 +201,7 @@ Las listas y consultas de asociaciones, clases y tareas se generan desde las rel
 ## Interacciones entre módulos
 
 1. **Identidad y especialización:** `users` contiene los campos comunes (`username`, `full_name`, contraseña y token); `Admn`, `Staff`, `Student` y `Parents` determinan el rol y mantienen campos propios. Login y autorización unen la cuenta común con la especialización del rol.
-2. **Sesiones y cambios de usuario:** las rutas protegidas consultan el token guardado en `users`. Editar contraseña, username o rol revoca ese token. El login siguiente genera uno nuevo.
+2. **Sesiones y cambios de usuario:** las rutas protegidas consultan el token guardado en `users`. Editar contraseña o username revoca ese token. Los roles son inmutables después de crear la cuenta; el login siguiente genera un token nuevo.
 3. **Permisos y asociaciones:** `par_stud` y `staff_stud` son la fuente efectiva para las rutas de tareas individuales. Las consultas de alumnos asociados y las autorizaciones usan estas relaciones actuales.
 4. **Agenda:** `Tasks` contiene los datos comunes de tarea, `Generic_Task` su especialización actual y `stud_task` enlaza tarea, alumno, fecha e índice. Eliminar una asignación individual solo borra `stud_task`; una tarea de clase crea varias asignaciones a partir de `class_stud`.
 5. **Clases y asociaciones alumno-persona:** la pertenencia a clase (`class_stud`) es independiente de la relación tutor/alumno (`par_stud`) y personal/alumno (`staff_stud`). Añadir o quitar a un alumno de una clase no crea ni elimina sus asociaciones personales; borrar una clase tampoco borra cuentas.

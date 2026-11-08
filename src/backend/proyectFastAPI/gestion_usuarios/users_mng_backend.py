@@ -1,6 +1,6 @@
 from typing import Annotated, Literal, Union
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, File, Response, UploadFile
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 from sqlalchemy.orm import Session
 
@@ -11,6 +11,39 @@ from .users_mng_db import users_mng_db
 
 router = APIRouter(prefix="/users", tags=["users"])
 Role = Literal["admin", "staff", "student", "parent"]
+MAX_AVATAR_BYTES = 5 * 1024 * 1024
+DEFAULT_AVATAR_SVG = b'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Avatar predeterminado">
+<rect width="128" height="128" rx="64" fill="#e5e7eb"/>
+<circle cx="64" cy="45" r="23" fill="#9ca3af"/>
+<path d="M22 113c4-25 19-38 42-38s38 13 42 38" fill="#9ca3af"/>
+</svg>'''
+
+
+def _image_media_type(image: bytes) -> str | None:
+    """Detecta PNG, JPEG o WebP por su firma y estructura básica."""
+    if image.startswith(b"\x89PNG\r\n\x1a\n") and len(image) >= 45:
+        width = int.from_bytes(image[16:20], "big")
+        height = int.from_bytes(image[20:24], "big")
+        if (
+            image[12:16] == b"IHDR"
+            and width > 0
+            and height > 0
+            and width * height <= 40_000_000
+            and image[-12:-8] == b"IEND"
+            and image[-8:] == b"\xaeB`\x82"
+        ):
+            return "image/png"
+    if len(image) >= 8 and image.startswith(b"\xff\xd8\xff") and image.endswith(b"\xff\xd9"):
+        return "image/jpeg"
+    if (
+        len(image) >= 20
+        and image[:4] == b"RIFF"
+        and image[8:12] == b"WEBP"
+        and int.from_bytes(image[4:8], "little") == len(image) - 8
+        and image[12:16] in {b"VP8 ", b"VP8L", b"VP8X"}
+    ):
+        return "image/webp"
+    return None
 
 
 def _validate_username(value: str | None) -> str | None:
@@ -108,7 +141,7 @@ class UpdateUserRequest(BaseModel):
             "examples": [
                 {
                     "username": "nuevo_usuario",
-                    "role": "student",
+                    "role": "admin",
                     "full_name": "Nombre completo",
                     "stud_access_main_col": "#ffffff",
                     "stud_access_sec_col": "#000000",
@@ -231,3 +264,57 @@ def delete_user(role: Role, username: str, db: Session = Depends(get_db)) -> dic
     if result["errorCode"] != 0:
         raise_api_error(result["errorCode"])
     return result
+
+
+@router.put("/students/me/avatar", status_code=200)
+async def update_my_avatar(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    user: dict = Depends(get_current_user),
+) -> dict:
+    """Guarda la foto del alumno autenticado tras validar tipo y tamaño."""
+    if user["role"] != "student":
+        raise_api_error(ErrorCode.PROFILE_UPDATE_DENIED)
+    try:
+        image = await file.read(MAX_AVATAR_BYTES + 1)
+        if len(image) > MAX_AVATAR_BYTES:
+            raise_api_error(ErrorCode.AVATAR_TOO_LARGE)
+        media_type = _image_media_type(image)
+        if media_type is None:
+            raise_api_error(ErrorCode.AVATAR_INVALID_IMAGE)
+        result = users_mng_db.updateAvatar(db, user["username"], image)
+        if result["errorCode"] != 0:
+            raise_api_error(result["errorCode"])
+        return {
+            **result,
+            "media_type": media_type,
+            "avatar_url": "/users/students/me/avatar",
+        }
+    finally:
+        await file.close()
+
+
+@router.get("/students/me/avatar")
+def get_my_avatar(
+    db: Session = Depends(get_db),
+    user: dict = Depends(get_current_user),
+) -> Response:
+    """Devuelve la foto del alumno o un avatar SVG predeterminado."""
+    if user["role"] != "student":
+        raise_api_error(ErrorCode.PROFILE_UPDATE_DENIED)
+    result = users_mng_db.getAvatar(db, user["username"])
+    if result["errorCode"] != 0:
+        raise_api_error(result["errorCode"])
+    image = result.get("avatar_bin")
+    media_type = _image_media_type(image) if image else None
+    if media_type is None:
+        return Response(
+            content=DEFAULT_AVATAR_SVG,
+            media_type="image/svg+xml",
+            headers={"Cache-Control": "no-store"},
+        )
+    return Response(
+        content=image,
+        media_type=media_type,
+        headers={"Cache-Control": "no-store"},
+    )

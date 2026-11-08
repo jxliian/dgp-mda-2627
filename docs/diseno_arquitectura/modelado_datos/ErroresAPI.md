@@ -29,7 +29,7 @@ en la respuesta. Por ejemplo, `errorCode: 1002` se devuelve con HTTP 401.
 | 1008 | Usuario no encontrado por correo | 404 | No hay una cuenta del rol indicado con ese correo. |
 | 1009 | Rol no válido | 400 | El rol no es uno de `admin`, `staff`, `student` o `parent`. |
 | 1010 | El correo electrónico es obligatorio | 400 | Se intentó crear una cuenta de un rol que requiere correo sin proporcionar uno. |
-| 1011 | No se puede eliminar ni cambiar el rol del último administrador | 400 | La operación dejaría el sistema sin administradores. |
+| 1011 | No se puede eliminar el último administrador | 400 | La operación dejaría el sistema sin administradores. |
 | 1012 | Debe indicarse al menos un campo para editar | 400 | La petición de edición no contiene ningún campo modificable. |
 | 1013 | No se encontró el usuario o la asociación | 404 | No se encontró el alumno, tutor o miembro del staff necesario para gestionar la asociación. |
 | 1014 | La asociación no existe | 404 | Se intentó desenlazar una asociación que no está registrada. |
@@ -54,6 +54,9 @@ en la respuesta. Por ejemplo, `errorCode: 1002` se devuelve con HTTP 401.
 | 1033 | El alumno ya pertenece a otra clase | 409 | Se intentó inscribir a un alumno que ya está inscrito en otra clase. |
 | 1034 | No se encontró el miembro del personal | 404 | El usuario indicado no tiene perfil de personal. |
 | 1035 | No se pueden asignar tareas a una clase sin alumnos | 400 | Se intentó asignar una tarea grupal sin alumnos inscritos. |
+| 1036 | El archivo debe ser una imagen PNG, JPEG o WebP válida | 422 | El alumno intentó actualizar su foto con un archivo que no se reconoce como imagen compatible. |
+| 1037 | La imagen no puede superar los 5 MB | 413 | El archivo de foto supera el tamaño máximo permitido. |
+| 1038 | No se permite cambiar el rol de un usuario | 403 | Un administrador intentó cambiar el rol de una cuenta. Los usuarios no administradores reciben `PROFILE_UPDATE_DENIED` si intentan enviar un rol. |
 
 ## Errores internos
 

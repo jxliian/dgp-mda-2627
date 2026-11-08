@@ -214,11 +214,13 @@ def assign_task(
     task_date: date,
     task_index: int,
     task_start_hour: time | None,
-    task_duration: int | None,
+    task_duration: int,
     alt_task_id_fk: int | None,
 ) -> dict:
     """Crea una tarea y la asigna a todos los alumnos inscritos en la clase."""
     _ensure_staff_class(db, class_name, staff_username)
+    if task_duration is None or task_duration <= 0:
+        raise CatalogError(ErrorCode.INVALID_REQUEST)
     if task_start_hour is not None and not SCHOOL_START <= task_start_hour < SCHOOL_END:
         raise CatalogError(ErrorCode.STAFF_TASK_OUTSIDE_SCHOOL_HOURS)
 

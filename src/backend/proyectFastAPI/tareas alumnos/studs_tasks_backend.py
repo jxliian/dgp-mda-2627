@@ -30,7 +30,7 @@ class CreateTaskRequest(BaseModel):
     task_date: date
     task_index: StrictInt = Field(ge=0)
     task_start_hour: time | None = None
-    task_duration: StrictInt | None = Field(default=None, gt=0)
+    task_duration: StrictInt = Field(gt=0)
     alt_task_id_fk: StrictInt | None = Field(default=None, gt=0)
 
     @field_validator("task_title")

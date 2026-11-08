@@ -1,3 +1,28 @@
+-- ATENCIÓN: este script borra los datos existentes y recrea el esquema desde cero.
+-- Ejecutar solo cuando se quiera reiniciar la base de datos completa.
+BEGIN;
+
+DROP TABLE IF EXISTS canteen_stud CASCADE;
+DROP TABLE IF EXISTS stud_task CASCADE;
+DROP TABLE IF EXISTS par_stud CASCADE;
+DROP TABLE IF EXISTS staff_stud CASCADE;
+DROP TABLE IF EXISTS class_stud CASCADE;
+DROP TABLE IF EXISTS class_staff CASCADE;
+DROP TABLE IF EXISTS Class CASCADE;
+
+DROP TABLE IF EXISTS Steps CASCADE;
+DROP TABLE IF EXISTS Canteen_Task CASCADE;
+DROP TABLE IF EXISTS Generic_Task CASCADE;
+DROP TABLE IF EXISTS Tasks CASCADE;
+DROP TABLE IF EXISTS Alt_Tasks CASCADE;
+
+DROP TABLE IF EXISTS Parents CASCADE;
+DROP TABLE IF EXISTS Student CASCADE;
+DROP TABLE IF EXISTS Avatar CASCADE;
+DROP TABLE IF EXISTS Staff CASCADE;
+DROP TABLE IF EXISTS Admn CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+
 -- Tabla común de cuentas. Cada fila tendrá una sola especialización de rol.
 CREATE TABLE users (
     username VARCHAR(50) PRIMARY KEY,
@@ -58,7 +83,7 @@ CREATE TABLE Parents (
 CREATE TABLE Alt_Tasks (
     alt_task_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     alt_task_start_hour TIME,
-    alt_task_duration INT,
+    alt_task_duration INT NOT NULL CHECK (alt_task_duration > 0),
     alt_task_creator VARCHAR(50)
 );
 
@@ -67,7 +92,7 @@ CREATE TABLE Tasks (
     task_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     task_title VARCHAR(100),
     task_start_hour TIME,
-    task_duration INT,
+    task_duration INT NOT NULL CHECK (task_duration > 0),
     task_creator VARCHAR(50),
     task_finished BOOLEAN,
     alt_task_id_fk INT UNIQUE,
@@ -154,3 +179,5 @@ CREATE TABLE canteen_stud (
     CONSTRAINT fk_canteen_stud_canteen FOREIGN KEY (task_id_fk) REFERENCES Canteen_Task(task_id_fk) ON DELETE CASCADE,
     CONSTRAINT fk_canteen_stud_student FOREIGN KEY (stud_usr_fk) REFERENCES Student(stud_usr) ON UPDATE CASCADE ON DELETE CASCADE
 );
+
+COMMIT;

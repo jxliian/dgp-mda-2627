@@ -23,13 +23,15 @@ def create_task(
     task_date: date,
     task_index: int,
     task_start_hour: time | None,
-    task_duration: int | None,
+    task_duration: int,
     alt_task_id_fk: int | None,
 ) -> dict:
     """Crea una tarea solo si el alumno está asociado al staff o tutor autenticado."""
     association = CREATOR_ASSOCIATIONS.get(creator_role)
     if association is None:
         raise CatalogError(ErrorCode.TASK_CREATOR_REQUIRED)
+    if task_duration is None or task_duration <= 0:
+        raise CatalogError(ErrorCode.INVALID_REQUEST)
 
     if task_start_hour is not None:
         during_school_hours = SCHOOL_START <= task_start_hour < SCHOOL_END

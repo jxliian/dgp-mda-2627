@@ -280,32 +280,29 @@ class UsersManagementDB:
                    new_username: Optional[str] = None, new_role: Optional[str] = None,
                    access_settings: Optional[dict] = None, actor_username: Optional[str] = None,
                    actor_role: Optional[str] = None) -> dict:
-        """Edita una cuenta común y su tipo de usuario, revocando sesión si cambia su identidad."""
+        """Edita la cuenta y mantiene inmutable el rol asignado al crearla."""
         try:
             source_role = role.lower()
-            target_role = (new_role or role).lower()
+            if new_role is not None and new_role.lower() != source_role:
+                return _error(ErrorCode.ROLE_CHANGE_DENIED)
+            target_role = source_role
             source_cfg = _config(source_role)
-            target_cfg = _config(target_role)
+            target_cfg = source_cfg
             target_username = new_username or username
-            identity_changed = source_role != target_role or username != target_username
-            access_settings = access_settings or {}
-            unknown_access_fields = set(access_settings) - set(STUDENT_ACCESS_FIELDS)
-            if unknown_access_fields:
-                return _error(ErrorCode.INVALID_REQUEST)
+            identity_changed = username != target_username
 
+            access_settings = access_settings or {}
+            if set(access_settings) - set(STUDENT_ACCESS_FIELDS):
+                return _error(ErrorCode.INVALID_REQUEST)
             if actor_role is not None and actor_role.lower() != "admin":
                 if actor_role.lower() != source_role or actor_username != username:
                     return _error(ErrorCode.PROFILE_UPDATE_DENIED)
                 if new_username is not None or new_role is not None or full_name is not None:
                     return _error(ErrorCode.PROFILE_UPDATE_DENIED)
-
             if all(value is None for value in (full_name, email, passwd_plain, new_username, new_role)) and not access_settings:
                 return _error(ErrorCode.NO_UPDATE_FIELDS)
             if any(value is None for value in access_settings.values()):
                 return _error(ErrorCode.INVALID_REQUEST)
-
-            if source_role == "admin" and target_role != "admin":
-                db.execute(text("LOCK TABLE Admn IN EXCLUSIVE MODE"))
 
             selected_fields = ["u.username"]
             if "email" in source_cfg:
@@ -324,27 +321,12 @@ class UsersManagementDB:
             if old_row is None:
                 db.rollback()
                 return _error(ErrorCode.USER_NOT_FOUND)
-
-            if actor_role is not None and actor_role.lower() == "student":
-                if old_row["stud_access_profile_mod"] is not True:
-                    db.rollback()
-                    return _error(ErrorCode.PROFILE_UPDATE_DENIED)
-
+            if actor_role is not None and actor_role.lower() == "student" and old_row["stud_access_profile_mod"] is not True:
+                db.rollback()
+                return _error(ErrorCode.PROFILE_UPDATE_DENIED)
             if access_settings and target_role != "student":
                 db.rollback()
                 return _error(ErrorCode.INVALID_REQUEST)
-            if target_role == "student" and source_role != "student":
-                if any(field not in access_settings or access_settings[field] is None
-                       for field in STUDENT_ACCESS_FIELDS):
-                    db.rollback()
-                    return _error(ErrorCode.INVALID_REQUEST)
-
-            if source_role == "admin" and target_role != "admin":
-                admin_count = db.execute(text("SELECT COUNT(*) FROM Admn")).scalar_one()
-                if admin_count <= 1:
-                    db.rollback()
-                    return _error(ErrorCode.LAST_ADMIN)
-
             if target_username != username and _username_exists(db, target_username):
                 db.rollback()
                 return _error(ErrorCode.USERNAME_TAKEN)
@@ -360,15 +342,13 @@ class UsersManagementDB:
                 if not target_email:
                     db.rollback()
                     return _error(ErrorCode.EMAIL_REQUIRED)
-
-                excluded_email_username = username if source_role == target_role else target_username
+                excluded_username = username
                 email_exists = db.execute(
                     text(
-                        f"SELECT 1 FROM {target_cfg['table']} "
-                        f"WHERE {target_cfg['email']} = :email "
+                        f"SELECT 1 FROM {target_cfg['table']} WHERE {target_cfg['email']} = :email "
                         f"AND {target_cfg['username']} <> :excluded_username"
                     ),
-                    {"email": target_email, "excluded_username": excluded_email_username},
+                    {"email": target_email, "excluded_username": excluded_username},
                 ).scalar_one_or_none()
                 if email_exists is not None:
                     db.rollback()
@@ -407,54 +387,20 @@ class UsersManagementDB:
                         {"new_username": target_username, "username": username},
                     )
 
-            if target_role != source_role:
-                target_fields = [target_cfg["username"]]
-                target_values = [":username"]
-                target_parameters = {"username": target_username}
-                if "email" in target_cfg:
-                    target_fields.append(target_cfg["email"])
-                    target_values.append(":email")
-                    target_parameters["email"] = target_email
-                if target_role == "student":
-                    target_fields.extend(STUDENT_ACCESS_FIELDS)
-                    target_values.extend(f":{field}" for field in STUDENT_ACCESS_FIELDS)
-                    target_parameters.update(
-                        {field: access_settings[field] for field in STUDENT_ACCESS_FIELDS}
-                    )
+            if email is not None:
                 db.execute(
                     text(
-                        f"INSERT INTO {target_cfg['table']} ({', '.join(target_fields)}) "
-                        f"VALUES ({', '.join(target_values)})"
-                    ),
-                    target_parameters,
-                )
-                db.execute(
-                    text(
-                        f"DELETE FROM {source_cfg['table']} "
+                        f"UPDATE {source_cfg['table']} SET {source_cfg['email']} = :email "
                         f"WHERE {source_cfg['username']} = :username"
                     ),
-                    {"username": target_username},
+                    {"email": email, "username": target_username},
                 )
-            else:
-                profile_updates = []
-                profile_parameters = {"username": target_username}
-                if email is not None:
-                    profile_updates.append(f"{source_cfg['email']} = :email")
-                    profile_parameters["email"] = email
-                if profile_updates:
-                    db.execute(
-                        text(
-                            f"UPDATE {source_cfg['table']} SET {', '.join(profile_updates)} "
-                            f"WHERE {source_cfg['username']} = :username"
-                        ),
-                        profile_parameters,
-                    )
-                if access_settings:
-                    assignments = ", ".join(f"{field} = :{field}" for field in access_settings)
-                    db.execute(
-                        text(f"UPDATE Student SET {assignments} WHERE stud_usr = :username"),
-                        {**access_settings, "username": target_username},
-                    )
+            if access_settings:
+                assignments = ", ".join(f"{field} = :{field}" for field in access_settings)
+                db.execute(
+                    text(f"UPDATE Student SET {assignments} WHERE stud_usr = :username"),
+                    {**access_settings, "username": target_username},
+                )
 
             db.commit()
             return _ok(username=target_username, role=target_role)
@@ -468,18 +414,70 @@ class UsersManagementDB:
             db.rollback()
             return _error(ErrorCode.USER_UPDATE_FAILED)
 
-    def updateAvatar(self, db: Session, username: str, avatar_id: int) -> dict:
-        """Actualiza el avatar asociado al estudiante indicado."""
+    def updateAvatar(self, db: Session, username: str, image: bytes) -> dict:
+        """Guarda la imagen y la vincula al alumno si puede editar su perfil."""
         try:
-            result = db.execute(text("UPDATE Student SET avatar_id_fk = :avatar_id WHERE stud_usr = :username"), {"avatar_id": avatar_id, "username": username})
-            if not result.rowcount:
+            student = db.execute(
+                text(
+                    "SELECT avatar_id_fk, stud_access_profile_mod "
+                    "FROM Student WHERE stud_usr = :username FOR UPDATE"
+                ),
+                {"username": username},
+            ).mappings().first()
+            if student is None:
                 db.rollback()
                 return _error(ErrorCode.USER_NOT_FOUND)
+            if student["stud_access_profile_mod"] is not True:
+                db.rollback()
+                return _error(ErrorCode.PROFILE_UPDATE_DENIED)
+
+            avatar_id = db.execute(
+                text(
+                    "INSERT INTO Avatar (avatar_alt, avatar_bin) "
+                    "VALUES (:avatar_alt, :avatar_bin) RETURNING avatar_id"
+                ),
+                {"avatar_alt": "Foto de perfil", "avatar_bin": image},
+            ).scalar_one()
+            db.execute(
+                text("UPDATE Student SET avatar_id_fk = :avatar_id WHERE stud_usr = :username"),
+                {"avatar_id": avatar_id, "username": username},
+            )
+            old_avatar_id = student["avatar_id_fk"]
+            if old_avatar_id is not None:
+                db.execute(
+                    text(
+                        "DELETE FROM Avatar avatar WHERE avatar.avatar_id = :avatar_id "
+                        "AND NOT EXISTS (SELECT 1 FROM Student s "
+                        "WHERE s.avatar_id_fk = avatar.avatar_id)"
+                    ),
+                    {"avatar_id": old_avatar_id},
+                )
             db.commit()
-            return _ok()
+            return _ok(avatar_id=avatar_id, avatar_url="/users/students/me/avatar")
         except Exception:
             db.rollback()
             return _error(ErrorCode.AVATAR_UPDATE_FAILED)
+
+    def getAvatar(self, db: Session, username: str) -> dict:
+        """Obtiene la imagen de perfil del alumno sin exponer datos de otras cuentas."""
+        try:
+            row = db.execute(
+                text(
+                    "SELECT s.avatar_id_fk AS avatar_id, a.avatar_bin "
+                    "FROM Student s LEFT JOIN Avatar a ON a.avatar_id = s.avatar_id_fk "
+                    "WHERE s.stud_usr = :username"
+                ),
+                {"username": username},
+            ).mappings().first()
+            if row is None:
+                return _error(ErrorCode.USER_NOT_FOUND)
+            image = row["avatar_bin"]
+            return _ok(
+                avatar_id=row["avatar_id"],
+                avatar_bin=bytes(image) if image is not None else None,
+            )
+        except Exception:
+            return _error(ErrorCode.USER_LOOKUP_FAILED)
 
 
 users_mng_db = UsersManagementDB()

@@ -44,6 +44,9 @@ class ErrorCode(IntEnum):
     STUDENT_ALREADY_IN_CLASS = 1033
     CLASS_STAFF_NOT_FOUND = 1034
     CLASS_HAS_NO_STUDENTS = 1035
+    AVATAR_INVALID_IMAGE = 1036
+    AVATAR_TOO_LARGE = 1037
+    ROLE_CHANGE_DENIED = 1038
     USER_LOOKUP_FAILED = 1501
     USER_LIST_FAILED = 1502
     PASSWORD_UPDATE_FAILED = 1503
@@ -92,6 +95,9 @@ ERRORS: dict[ErrorCode, tuple[int, str]] = {
     ErrorCode.STUDENT_ALREADY_IN_CLASS: (409, "El alumno ya pertenece a otra clase"),
     ErrorCode.CLASS_STAFF_NOT_FOUND: (404, "No se encontró el miembro del personal"),
     ErrorCode.CLASS_HAS_NO_STUDENTS: (400, "No se pueden asignar tareas a una clase sin alumnos"),
+    ErrorCode.AVATAR_INVALID_IMAGE: (422, "El archivo debe ser una imagen PNG, JPEG o WebP válida"),
+    ErrorCode.AVATAR_TOO_LARGE: (413, "La imagen no puede superar los 5 MB"),
+    ErrorCode.ROLE_CHANGE_DENIED: (403, "No se permite cambiar el rol de un usuario"),
     ErrorCode.USER_LOOKUP_FAILED: (500, "No se pudo consultar el usuario"),
     ErrorCode.USER_LIST_FAILED: (500, "No se pudo consultar la lista de usuarios"),
     ErrorCode.PASSWORD_UPDATE_FAILED: (500, "No se pudo actualizar la contraseña"),
