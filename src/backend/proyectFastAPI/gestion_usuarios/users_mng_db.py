@@ -11,10 +11,10 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # Identifiers are internal constants; never accept table or column names from a request.
 ROLE_CONFIG = {
-    "admin": {"table": "Admn", "username": "admn_usr"},
-    "staff": {"table": "Staff", "username": "staff_usr", "email": "staff_email"},
-    "student": {"table": "Student", "username": "stud_usr"},
-    "parent": {"table": "Parents", "username": "par_usr", "email": "par_email"},
+    "admin": {"table": "Admn", "username": "admn_usr", "name_key": "admn_full_name", "email": "admn_email"},
+    "staff": {"table": "Staff", "username": "staff_usr", "name_key": "staff_full_name", "email": "staff_email"},
+    "student": {"table": "Student", "username": "stud_usr", "name_key": "stud_full_name"},
+    "parent": {"table": "Parents", "username": "par_usr", "name_key": "par_full_name", "email": "par_email"},
 }
 
 STUDENT_ACCESS_FIELDS = (
@@ -24,13 +24,12 @@ STUDENT_ACCESS_FIELDS = (
     "stud_access_pictograms",
     "stud_access_contrast",
     "stud_access_fontsize",
-    "stud_access_filters",
     "stud_access_ndays_visible",
-    "stud_access_prof_mod",
-    "stud_access_timebar",
+    "stud_access_filters",
+    "stud_access_time_bar",
     "stud_access_talkback",
     "stud_access_profile_mod",
-    "stud_access_task_mod",
+    "stud_access_tasks_mod",
 )
 
 
@@ -125,7 +124,7 @@ class UsersManagementDB:
         """Lista las cuentas de un rol sin incluir hashes de contraseña ni tokens."""
         try:
             cfg = _config(role)
-            fields = [f"r.{cfg['username']}", "u.full_name"]
+            fields = [f"r.{cfg['username']}", f"u.full_name AS {cfg['name_key']}"]
             if "email" in cfg:
                 fields.append(f"r.{cfg['email']}")
             if role.lower() == "student":

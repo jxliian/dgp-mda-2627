@@ -13,7 +13,6 @@ load_dotenv()
 from .DB.database import get_db
 from .asociaciones_alumnos.studs_links_backend import router as student_links_router
 from .auth.auth_backend import router as auth_router
-from .clases.clases_backend import router as classes_router
 from .errors import ErrorCode, code_for_http_status, error_response, success_response
 from .gestion_usuarios.users_mng_backend import router as users_router
 
@@ -26,7 +25,6 @@ app.include_router(auth_router)
 app.include_router(users_router)
 app.include_router(student_links_router)
 app.include_router(student_tasks_router)
-app.include_router(classes_router)
 
 
 @app.exception_handler(StarletteHTTPException)

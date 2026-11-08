@@ -9,6 +9,7 @@ CREATE TABLE users (
 -- Tablas de especialización: su PK es también FK a users.username.
 CREATE TABLE Admn (
     admn_usr VARCHAR(50) PRIMARY KEY,
+    admn_email VARCHAR(254) NOT NULL UNIQUE,
     CONSTRAINT fk_admn_user FOREIGN KEY (admn_usr) REFERENCES users(username) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
@@ -16,10 +17,6 @@ CREATE TABLE Staff (
     staff_usr VARCHAR(50) PRIMARY KEY,
     staff_email VARCHAR(254) NOT NULL UNIQUE,
     CONSTRAINT fk_staff_user FOREIGN KEY (staff_usr) REFERENCES users(username) ON UPDATE CASCADE ON DELETE CASCADE
-);
-
-CREATE TABLE Class (
-    class_name VARCHAR(50) PRIMARY KEY
 );
 
 CREATE TABLE Avatar (
@@ -30,19 +27,19 @@ CREATE TABLE Avatar (
 
 CREATE TABLE Student (
     stud_usr VARCHAR(50) PRIMARY KEY,
+    stud_class VARCHAR(50),
     stud_access_main_col VARCHAR(50) NOT NULL,
     stud_access_sec_col VARCHAR(50) NOT NULL,
     stud_access_ntasks_visible INT NOT NULL,
     stud_access_pictograms BOOLEAN NOT NULL,
     stud_access_contrast BOOLEAN NOT NULL,
     stud_access_fontsize INT NOT NULL,
-    stud_access_filters BOOLEAN NOT NULL,
     stud_access_ndays_visible INT NOT NULL,
-    stud_access_prof_mod BOOLEAN NOT NULL,
-    stud_access_timebar BOOLEAN NOT NULL,
+    stud_access_filters BOOLEAN NOT NULL,
+    stud_access_time_bar BOOLEAN NOT NULL,
     stud_access_talkback BOOLEAN NOT NULL,
     stud_access_profile_mod BOOLEAN NOT NULL,
-    stud_access_task_mod BOOLEAN NOT NULL,
+    stud_access_tasks_mod BOOLEAN NOT NULL,
     avatar_id_fk INT,
     CONSTRAINT fk_student_user FOREIGN KEY (stud_usr) REFERENCES users(username) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT fk_student_avatar FOREIGN KEY (avatar_id_fk) REFERENCES Avatar(avatar_id) ON DELETE SET NULL
@@ -106,23 +103,6 @@ CREATE TABLE staff_stud (
     PRIMARY KEY (staff_usr_fk, stud_usr_fk),
     CONSTRAINT fk_staff_stud_staff FOREIGN KEY (staff_usr_fk) REFERENCES Staff(staff_usr) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT fk_staff_stud_student FOREIGN KEY (stud_usr_fk) REFERENCES Student(stud_usr) ON UPDATE CASCADE ON DELETE CASCADE
-);
-
--- Un profesor puede estar en varias clases; una clase puede tener varios profesores.
-CREATE TABLE class_staff (
-    class_name_fk VARCHAR(50) NOT NULL,
-    staff_usr_fk VARCHAR(50) NOT NULL,
-    PRIMARY KEY (class_name_fk, staff_usr_fk),
-    CONSTRAINT fk_class_staff_class FOREIGN KEY (class_name_fk) REFERENCES Class(class_name) ON UPDATE CASCADE ON DELETE CASCADE,
-    CONSTRAINT fk_class_staff_staff FOREIGN KEY (staff_usr_fk) REFERENCES Staff(staff_usr) ON UPDATE CASCADE ON DELETE CASCADE
-);
-
--- La PK en stud_usr_fk garantiza que cada alumno pertenezca como máximo a una clase.
-CREATE TABLE class_stud (
-    class_name_fk VARCHAR(50) NOT NULL,
-    stud_usr_fk VARCHAR(50) PRIMARY KEY,
-    CONSTRAINT fk_class_stud_class FOREIGN KEY (class_name_fk) REFERENCES Class(class_name) ON UPDATE CASCADE ON DELETE CASCADE,
-    CONSTRAINT fk_class_stud_student FOREIGN KEY (stud_usr_fk) REFERENCES Student(stud_usr) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 -- Relación N:M entre Parents y Student

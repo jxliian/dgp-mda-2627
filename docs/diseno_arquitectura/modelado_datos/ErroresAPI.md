@@ -48,12 +48,6 @@ en la respuesta. Por ejemplo, `errorCode: 1002` se devuelve con HTTP 401.
 | 1027 | Ya existe un usuario con ese nombre de usuario | 409 | El nombre de usuario ya está ocupado en `users`, por lo que no puede repetirse en ninguna especialización de rol. |
 | 1028 | Ya existe un usuario con ese correo electrónico en el rol indicado | 409 | El correo ya está ocupado por otra cuenta del rol de destino. |
 | 1029 | No tienes permiso para modificar este perfil | 403 | La cuenta intentó editar un perfil ajeno o un estudiante cuyo `stud_access_profile_mod` está desactivado intentó modificar sus datos. |
-| 1030 | Clase no encontrada | 404 | No existe la clase solicitada. |
-| 1031 | Ya existe una clase con ese nombre | 409 | Se intentó crear o renombrar una clase con un nombre ya registrado. |
-| 1032 | No tienes permiso para gestionar esta clase | 403 | La cuenta no es personal asignado a la clase, o el rol no está autorizado para la operación. |
-| 1033 | El alumno ya pertenece a otra clase | 409 | Se intentó inscribir a un alumno que ya está inscrito en otra clase. |
-| 1034 | No se encontró el miembro del personal | 404 | El usuario indicado no tiene perfil de personal. |
-| 1035 | No se pueden asignar tareas a una clase sin alumnos | 400 | Se intentó asignar una tarea grupal sin alumnos inscritos. |
 
 ## Errores internos
 
