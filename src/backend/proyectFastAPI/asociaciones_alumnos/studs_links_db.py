@@ -5,31 +5,28 @@ from sqlalchemy.orm import Session
 
 from ..errors import CatalogError, ErrorCode, success_response
 
-# Entidades y tablas de asociación del modelo: Parent <-> Student y Staff <-> Student.
-LINK_CONFIG = {
-    "parent": {
-        "table": "par_stud",
-        "user_fk": "par_usr_fk",
-        "profile_table": "Parents",
-        "user_username": "par_usr",
-        "user_email": "par_email",
-        "user_role": "parent",
-    },
+# Los tutores se asocian directamente; el personal se deriva de la clase compartida.
+PARENT_CONFIG = {
+    "table": "par_stud",
+    "user_fk": "par_usr_fk",
+    "profile_table": "Parents",
+    "user_username": "par_usr",
+    "user_email": "par_email",
+}
+ROLE_CONFIG = {
+    "parent": PARENT_CONFIG,
     "staff": {
-        "table": "staff_stud",
-        "user_fk": "staff_usr_fk",
         "profile_table": "Staff",
         "user_username": "staff_usr",
         "user_email": "staff_email",
-        "user_role": "staff",
     },
 }
 
 
 def _config(user_role: str) -> dict:
-    """Obtiene la configuración de tablas y columnas para el rol asociado."""
+    """Obtiene tablas de perfil para los roles que pueden asociarse a estudiantes."""
     try:
-        return LINK_CONFIG[user_role]
+        return ROLE_CONFIG[user_role]
     except KeyError as exc:
         raise CatalogError(ErrorCode.INVALID_ASSOCIATION_TYPE) from exc
 
@@ -54,9 +51,11 @@ def _ensure_user_exists(db: Session, role: Literal["student", "parent", "staff"]
         raise CatalogError(ErrorCode.ASSOCIATED_ENTITY_NOT_FOUND)
 
 
-def link_user(db: Session, role: Literal["parent", "staff"], student_username: str, username: str) -> dict:
-    """Crea la asociación entre un alumno y un tutor o miembro del staff."""
-    cfg = _config(role)
+def link_user(db: Session, role: Literal["parent"], student_username: str, username: str) -> dict:
+    """Crea la asociación directa entre un alumno y su tutor."""
+    if role != "parent":
+        raise CatalogError(ErrorCode.INVALID_ASSOCIATION_TYPE)
+    cfg = PARENT_CONFIG
     _ensure_user_exists(db, "student", student_username)
     _ensure_user_exists(db, role, username)
 
@@ -69,18 +68,19 @@ def link_user(db: Session, role: Literal["parent", "staff"], student_username: s
         {"username": username, "student_username": student_username},
     )
     db.commit()
-    relation = "tutor" if role == "parent" else "profesor"
     return success_response(
         association_created=bool(result.rowcount),
         student_username=student_username,
         **{f"{role}_username": username},
-        relation=relation,
+        relation="tutor",
     )
 
 
-def unlink_user(db: Session, role: Literal["parent", "staff"], student_username: str, username: str) -> dict:
-    """Elimina la asociación entre un alumno y un tutor o miembro del staff."""
-    cfg = _config(role)
+def unlink_user(db: Session, role: Literal["parent"], student_username: str, username: str) -> dict:
+    """Elimina la asociación directa entre un alumno y su tutor."""
+    if role != "parent":
+        raise CatalogError(ErrorCode.INVALID_ASSOCIATION_TYPE)
+    cfg = PARENT_CONFIG
     result = db.execute(
         text(
             f"DELETE FROM {cfg['table']} WHERE {cfg['user_fk']} = :username "
@@ -99,46 +99,59 @@ def unlink_user(db: Session, role: Literal["parent", "staff"], student_username:
 
 
 def get_associated_users(db: Session, role: Literal["parent", "staff"], student_username: str) -> list[dict]:
-    """Lista los tutores o miembros del staff asociados a un alumno."""
-    cfg = _config(role)
+    """Lista tutores directos o personal que imparte la clase del alumno."""
+    _config(role)
     _ensure_user_exists(db, "student", student_username)
-    rows = db.execute(
-        text(
-            f"SELECT profile.{cfg['user_username']} AS username, "
-            "account.full_name, "
-            f"profile.{cfg['user_email']} AS email "
-            f"FROM {cfg['table']} links "
-            f"JOIN {cfg['profile_table']} AS profile "
-            f"ON profile.{cfg['user_username']} = links.{cfg['user_fk']} "
-            f"JOIN users AS account ON account.username = profile.{cfg['user_username']} "
+    if role == "parent":
+        query = text(
+            "SELECT profile.par_usr AS username, account.full_name, profile.par_email AS email "
+            "FROM par_stud links "
+            "JOIN Parents profile ON profile.par_usr = links.par_usr_fk "
+            "JOIN users account ON account.username = profile.par_usr "
             "WHERE links.stud_usr_fk = :student_username "
-            f"ORDER BY profile.{cfg['user_username']}"
-        ),
-        {"student_username": student_username},
-    ).mappings().all()
+            "ORDER BY profile.par_usr"
+        )
+    else:
+        query = text(
+            "SELECT DISTINCT profile.staff_usr AS username, "
+            "account.full_name, profile.staff_email AS email "
+            "FROM class_stud enrollment "
+            "JOIN class_staff teaching ON teaching.class_name_fk = enrollment.class_name_fk "
+            "JOIN Staff profile ON profile.staff_usr = teaching.staff_usr_fk "
+            "JOIN users account ON account.username = profile.staff_usr "
+            "WHERE enrollment.stud_usr_fk = :student_username "
+            "ORDER BY profile.staff_usr"
+        )
+    rows = db.execute(query, {"student_username": student_username}).mappings().all()
     return [dict(row) for row in rows]
 
 
 def get_students(db: Session, role: Literal["parent", "staff"], username: str) -> list[dict]:
-    """Lista los alumnos asociados al tutor o miembro del staff indicado."""
-    cfg = _config(role)
+    """Lista alumnos del tutor o alumnos de las clases impartidas por el staff."""
     _ensure_user_exists(db, role, username)
-    rows = db.execute(
-        text(
+    if role == "parent":
+        query = text(
             "SELECT student_profile.stud_usr AS username, "
             "student_account.full_name "
-            f"FROM {cfg['table']} links "
+            "FROM par_stud links "
             "JOIN Student AS student_profile "
             "ON student_profile.stud_usr = links.stud_usr_fk "
             "JOIN users AS student_account "
             "ON student_account.username = student_profile.stud_usr "
-            f"JOIN {cfg['profile_table']} AS related_profile "
-            f"ON related_profile.{cfg['user_username']} = links.{cfg['user_fk']} "
-            f"JOIN users AS related_account "
-            f"ON related_account.username = related_profile.{cfg['user_username']} "
-            f"WHERE links.{cfg['user_fk']} = :username "
+            "JOIN Parents AS parent_profile ON parent_profile.par_usr = links.par_usr_fk "
+            "WHERE links.par_usr_fk = :username "
             "ORDER BY student_profile.stud_usr"
-        ),
-        {"username": username},
-    ).mappings().all()
+        )
+    else:
+        query = text(
+            "SELECT DISTINCT student_profile.stud_usr AS username, "
+            "student_account.full_name "
+            "FROM class_staff teaching "
+            "JOIN class_stud enrollment ON enrollment.class_name_fk = teaching.class_name_fk "
+            "JOIN Student AS student_profile ON student_profile.stud_usr = enrollment.stud_usr_fk "
+            "JOIN users AS student_account ON student_account.username = student_profile.stud_usr "
+            "WHERE teaching.staff_usr_fk = :username "
+            "ORDER BY student_profile.stud_usr"
+        )
+    rows = db.execute(query, {"username": username}).mappings().all()
     return [dict(row) for row in rows]

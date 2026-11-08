@@ -1,28 +1,3 @@
--- ATENCIÓN: este script borra los datos existentes y recrea el esquema desde cero.
--- Ejecutar solo cuando se quiera reiniciar la base de datos completa.
-BEGIN;
-
-DROP TABLE IF EXISTS canteen_stud CASCADE;
-DROP TABLE IF EXISTS stud_task CASCADE;
-DROP TABLE IF EXISTS par_stud CASCADE;
-DROP TABLE IF EXISTS staff_stud CASCADE;
-DROP TABLE IF EXISTS class_stud CASCADE;
-DROP TABLE IF EXISTS class_staff CASCADE;
-DROP TABLE IF EXISTS Class CASCADE;
-
-DROP TABLE IF EXISTS Steps CASCADE;
-DROP TABLE IF EXISTS Canteen_Task CASCADE;
-DROP TABLE IF EXISTS Generic_Task CASCADE;
-DROP TABLE IF EXISTS Tasks CASCADE;
-DROP TABLE IF EXISTS Alt_Tasks CASCADE;
-
-DROP TABLE IF EXISTS Parents CASCADE;
-DROP TABLE IF EXISTS Student CASCADE;
-DROP TABLE IF EXISTS Avatar CASCADE;
-DROP TABLE IF EXISTS Staff CASCADE;
-DROP TABLE IF EXISTS Admn CASCADE;
-DROP TABLE IF EXISTS users CASCADE;
-
 -- Tabla común de cuentas. Cada fila tendrá una sola especialización de rol.
 CREATE TABLE users (
     username VARCHAR(50) PRIMARY KEY,
@@ -123,15 +98,6 @@ CREATE TABLE Steps (
 -- -----------------------------------------------------
 -- TABLAS INTERMEDIAS (RELACIONES MUCHOS A MUCHOS)
 -- -----------------------------------------------------
-
--- Relación N:M entre Staff y Student
-CREATE TABLE staff_stud (
-    staff_usr_fk VARCHAR(50),
-    stud_usr_fk VARCHAR(50),
-    PRIMARY KEY (staff_usr_fk, stud_usr_fk),
-    CONSTRAINT fk_staff_stud_staff FOREIGN KEY (staff_usr_fk) REFERENCES Staff(staff_usr) ON UPDATE CASCADE ON DELETE CASCADE,
-    CONSTRAINT fk_staff_stud_student FOREIGN KEY (stud_usr_fk) REFERENCES Student(stud_usr) ON UPDATE CASCADE ON DELETE CASCADE
-);
 
 -- Un profesor puede estar en varias clases; una clase puede tener varios profesores.
 CREATE TABLE class_staff (

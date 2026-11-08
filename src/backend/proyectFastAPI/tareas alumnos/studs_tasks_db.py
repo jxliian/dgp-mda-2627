@@ -7,12 +7,52 @@ from sqlalchemy.orm import Session
 from ..errors import CatalogError, ErrorCode, success_response
 from ..task_schedule import validate_task_schedule
 
-CREATOR_ASSOCIATIONS = {
-    "staff": {"table": "staff_stud", "creator_fk": "staff_usr_fk"},
-    "parent": {"table": "par_stud", "creator_fk": "par_usr_fk"},
-}
 SCHOOL_START = time(9, 0)
 SCHOOL_END = time(15, 0)
+
+
+def _has_student_relationship(
+    db: Session, creator_role: str, creator_username: str, student_username: str
+) -> bool:
+    """Comprueba relación parent directa o relación staff por una clase compartida."""
+    if creator_role == "parent":
+        query = text(
+            "SELECT 1 FROM par_stud "
+            "WHERE par_usr_fk = :creator_username AND stud_usr_fk = :student_username"
+        )
+    elif creator_role == "staff":
+        query = text(
+            "SELECT 1 FROM class_staff teaching "
+            "JOIN class_stud enrollment "
+            "ON enrollment.class_name_fk = teaching.class_name_fk "
+            "WHERE teaching.staff_usr_fk = :creator_username "
+            "AND enrollment.stud_usr_fk = :student_username"
+        )
+    else:
+        return False
+    return db.execute(
+        query,
+        {"creator_username": creator_username, "student_username": student_username},
+    ).scalar_one_or_none() is not None
+
+
+def _assigned_student_relationship_sql(creator_role: str) -> str:
+    """Devuelve la subconsulta que valida la relación con una tarea asignada."""
+    if creator_role == "parent":
+        return (
+            "EXISTS (SELECT 1 FROM par_stud links "
+            "WHERE links.par_usr_fk = :creator_username "
+            "AND links.stud_usr_fk = assigned.stud_usr_fk)"
+        )
+    if creator_role == "staff":
+        return (
+            "EXISTS (SELECT 1 FROM class_stud enrollment "
+            "JOIN class_staff teaching "
+            "ON teaching.class_name_fk = enrollment.class_name_fk "
+            "WHERE enrollment.stud_usr_fk = assigned.stud_usr_fk "
+            "AND teaching.staff_usr_fk = :creator_username)"
+        )
+    raise CatalogError(ErrorCode.TASK_CREATOR_REQUIRED)
 
 
 def create_task(
@@ -28,8 +68,7 @@ def create_task(
     alt_task_id_fk: int | None,
 ) -> dict:
     """Crea una tarea asociada al usuario autorizado que la solicita."""
-    association = CREATOR_ASSOCIATIONS.get(creator_role)
-    if association is None and creator_role != "student":
+    if creator_role not in {"staff", "parent", "student"}:
         raise CatalogError(ErrorCode.TASK_CREATOR_REQUIRED)
     if creator_role == "student" and student_username != creator_username:
         raise CatalogError(ErrorCode.TASK_NOT_FOUND)
@@ -59,15 +98,7 @@ def create_task(
         if student_exists is None:
             raise CatalogError(ErrorCode.TASK_STUDENT_NOT_FOUND)
 
-        is_associated = db.execute(
-            text(
-                f"SELECT 1 FROM {association['table']} "
-                f"WHERE {association['creator_fk']} = :creator_username "
-                "AND stud_usr_fk = :student_username"
-            ),
-            {"creator_username": creator_username, "student_username": student_username},
-        ).scalar_one_or_none()
-        if is_associated is None:
+        if not _has_student_relationship(db, creator_role, creator_username, student_username):
             raise CatalogError(ErrorCode.TASK_STUDENT_NOT_ASSOCIATED)
 
     if alt_task_id_fk is not None:
@@ -143,21 +174,19 @@ def set_alternative_task(
     alt_task_id_fk: int | None,
 ) -> dict:
     """Actualiza la alternativa de una tarea principal creada por el staff o tutor."""
-    association = CREATOR_ASSOCIATIONS.get(creator_role)
-    if association is None:
+    if creator_role not in {"staff", "parent"}:
         raise CatalogError(ErrorCode.TASK_CREATOR_REQUIRED)
 
+    assigned_student_relationship = _assigned_student_relationship_sql(creator_role)
     task_exists = db.execute(
         text(
             "SELECT 1 FROM Tasks task "
             "WHERE task.task_id = :task_id AND task.task_creator = :creator_username "
             "AND EXISTS ("
             "SELECT 1 FROM stud_task assigned "
-            f"JOIN {association['table']} links "
-            f"ON links.{association['creator_fk']} = :creator_username "
-            "AND links.stud_usr_fk = assigned.stud_usr_fk "
-            "WHERE assigned.task_id_fk = task.task_id"
-            ")"
+            "WHERE assigned.task_id_fk = task.task_id AND "
+            + assigned_student_relationship
+            + ")"
         ),
         {"task_id": task_id, "creator_username": creator_username},
     ).scalar_one_or_none()
@@ -217,8 +246,7 @@ def delete_student_task(
     task_index: int,
 ) -> dict:
     """Retira una tarea de la agenda si el usuario puede gestionar al alumno y su horario."""
-    association = CREATOR_ASSOCIATIONS.get(creator_role)
-    if association is None and creator_role != "student":
+    if creator_role not in {"staff", "parent", "student"}:
         raise CatalogError(ErrorCode.TASK_CREATOR_REQUIRED)
     if creator_role == "student" and student_username != creator_username:
         raise CatalogError(ErrorCode.TASK_NOT_FOUND)
@@ -247,15 +275,7 @@ def delete_student_task(
         if student_exists is None:
             raise CatalogError(ErrorCode.TASK_STUDENT_NOT_FOUND)
 
-        student_is_associated = db.execute(
-            text(
-                f"SELECT 1 FROM {association['table']} "
-                f"WHERE {association['creator_fk']} = :creator_username "
-                "AND stud_usr_fk = :student_username"
-            ),
-            {"creator_username": creator_username, "student_username": student_username},
-        ).scalar_one_or_none()
-        if student_is_associated is None:
+        if not _has_student_relationship(db, creator_role, creator_username, student_username):
             raise CatalogError(ErrorCode.TASK_STUDENT_NOT_ASSOCIATED)
 
     task = db.execute(

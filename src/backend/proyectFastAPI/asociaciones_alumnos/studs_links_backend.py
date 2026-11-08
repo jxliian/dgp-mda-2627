@@ -40,21 +40,9 @@ def unlink_parent(student_username: str, parent_username: str, db: Session = Dep
     return _run_db_operation(links_db.unlink_user, db, "parent", student_username, parent_username)
 
 
-@router.post("/students/{student_username}/staff/{staff_username}", dependencies=[Depends(require_admin)])
-def link_staff(student_username: str, staff_username: str, db: Session = Depends(get_db)) -> dict:
-    """Asocia a un miembro del staff con un alumno."""
-    return _run_db_operation(links_db.link_user, db, "staff", student_username, staff_username)
-
-
-@router.delete("/students/{student_username}/staff/{staff_username}", dependencies=[Depends(require_admin)])
-def unlink_staff(student_username: str, staff_username: str, db: Session = Depends(get_db)) -> dict:
-    """Elimina la asociación entre un miembro del staff y un alumno."""
-    return _run_db_operation(links_db.unlink_user, db, "staff", student_username, staff_username)
-
-
 @router.get("/students/{student_username}", dependencies=[Depends(require_admin)])
 def get_student_links(student_username: str, db: Session = Depends(get_db)) -> dict:
-    """Devuelve los tutores y el staff asociados al alumno."""
+    """Devuelve los tutores del alumno y el personal que imparte su clase."""
     parents = _run_db_operation(links_db.get_associated_users, db, "parent", student_username)
     staff = _run_db_operation(links_db.get_associated_users, db, "staff", student_username)
     return success_response(student_username=student_username, parents=parents, staff=staff)

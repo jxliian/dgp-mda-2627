@@ -33,11 +33,11 @@ en la respuesta. Por ejemplo, `errorCode: 1002` se devuelve con HTTP 401.
 | 1012 | Debe indicarse al menos un campo para editar | 400 | La petición de edición no contiene ningún campo modificable. |
 | 1013 | No se encontró el usuario o la asociación | 404 | No se encontró el alumno, tutor o miembro del staff necesario para gestionar la asociación. |
 | 1014 | La asociación no existe | 404 | Se intentó desenlazar una asociación que no está registrada. |
-| 1015 | Tipo de usuario asociado no válido | 400 | La operación de asociaciones recibió un tipo distinto de tutor (`parent`) o staff. |
+| 1015 | Tipo de asociación directa no válido; solo se pueden asociar tutores (parent) | 400 | Las relaciones con tutores se gestionan directamente; las relaciones con staff se derivan de las clases. |
 | 1016 | Ruta no encontrada | 404 | La URL no corresponde a ningún endpoint disponible. |
 | 1017 | Se requiere una sesión autorizada de personal, tutor o alumno | 403 | La ruta no admite el rol autenticado; los alumnos solo tienen acceso a las rutas para sus propias tareas. |
 | 1018 | Alumno no encontrado | 404 | No existe el alumno indicado en la operación de tareas. |
-| 1019 | El alumno no está asociado a tu cuenta | 403 | El tutor o miembro del staff no está vinculado al alumno solicitado. |
+| 1019 | El alumno no está asociado a tu cuenta o a una de tus clases | 403 | El tutor no está vinculado directamente al alumno o el miembro del staff no comparte una clase con él. |
 | 1020 | La tarea alternativa no existe | 404 | No se encontró la tarea alternativa solicitada. |
 | 1021 | Tarea no encontrada | 404 | No se encontró la tarea solicitada. |
 | 1022 | La tarea alternativa ya está asociada a otra tarea | 409 | La tarea alternativa ya tiene una asociación incompatible. |

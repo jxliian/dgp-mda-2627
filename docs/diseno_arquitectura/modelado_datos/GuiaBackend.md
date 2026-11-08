@@ -33,7 +33,7 @@ Recibe JSON con `username`, `password` y `role`. El usuario y contraseña deben 
 
 El servidor busca la cuenta en `users` junto a la tabla hija correspondiente al rol y compara la contraseña recibida con el hash bcrypt almacenado. Si coincide, genera un token aleatorio, guarda su hash SHA-256 en `users.token` y confirma el cambio. El token anterior de ese usuario deja de servir. La respuesta incluye `access_token`, `token_type: "bearer"` y la identidad `{username, role}`.
 
-Una contraseña incorrecta o una combinación de usuario/rol que no corresponde devuelve `INVALID_CREDENTIALS` (HTTP 401). Un rol no admitido devuelve `INVALID_ROLE` (HTTP 400). Un fallo de infraestructura de autenticación devuelve `LOGIN_FAILED` (HTTP 500).
+Una contraseña incorrecta o una combinación de usuario/rol que no corresponde devuelve `INVALID_CREDENTIALS` (HTTP 401). El endpoint limita `role` a los cuatro valores admitidos; un valor distinto falla la validación de FastAPI y devuelve `INVALID_REQUEST` (HTTP 422). Un fallo de infraestructura de autenticación devuelve `LOGIN_FAILED` (HTTP 500).
 
 **JSON de entrada:**
 ```json
@@ -104,7 +104,7 @@ El rol se fija al crear la cuenta y es inmutable. Ni el propio usuario ni un adm
 
 Solo administrador. Sin `role`, reúne usuarios de las cuatro tablas hijas; con `role`, filtra a un solo rol. Cada resultado contiene username, full name, rol y email cuando el rol tiene correo. Para estudiantes también incluye sus atributos de accesibilidad. La lista se ordena por username. No devuelve contraseñas ni tokens.
 
-Un rol inválido devuelve `INVALID_ROLE` (HTTP 400); fallos de consulta devuelven `USER_LIST_FAILED` (HTTP 500).
+El parámetro `role` se valida contra los cuatro roles admitidos; un valor distinto devuelve `INVALID_REQUEST` (HTTP 422). Los fallos de consulta devuelven `USER_LIST_FAILED` (HTTP 500).
 
 **Entrada:** sin cuerpo. Filtro opcional en query, por ejemplo `?role=student`.
 
@@ -171,7 +171,7 @@ Requiere token de alumno y devuelve directamente la imagen con su tipo MIME. Si 
 
 ## Asociaciones alumno–tutor/personal
 
-Todas las rutas usan el prefijo `/student-links`. Las relaciones se almacenan en `par_stud` (tutores, rol `parent`) y `staff_stud` (personal, rol `staff`). No crean ni borran cuentas.
+Todas las rutas usan el prefijo `/student-links`. La relación alumno-tutor se almacena directamente en `par_stud`. La relación de un alumno con el personal se deriva de `class_stud` y `class_staff`: el alumno y los miembros del personal que imparten su clase quedan relacionados sin una tabla de enlace directa. No se crean ni borran cuentas desde este módulo.
 
 ### `POST /student-links/students/{student_username}/parents/{parent_username}` — Asociar tutor a alumno
 
@@ -195,31 +195,9 @@ Solo administrador. Elimina únicamente esa relación de `par_stud`. Si no exist
 {"errorCode":0,"details":"successful","student_username":"luis","parent_username":"ana"}
 ```
 
-### `POST /student-links/students/{student_username}/staff/{staff_username}` — Asociar personal a alumno
-
-Solo administrador. Comprueba que existen el alumno y el miembro del personal, e inserta en `staff_stud`. Evita duplicados de la misma forma que el endpoint de tutores e informa con `association_created`.
-
-**Entrada:** sin cuerpo; usernames en la ruta.
-
-**Respuesta JSON:**
-```json
-{"errorCode":0,"details":"successful","association_created":true,"student_username":"luis","staff_username":"marta","relation":"profesor"}
-```
-
-### `DELETE /student-links/students/{student_username}/staff/{staff_username}` — Desasociar personal de alumno
-
-Solo administrador. Elimina solamente esa relación de `staff_stud`; una relación inexistente devuelve `ASSOCIATION_NOT_FOUND`.
-
-**Entrada:** sin cuerpo; usernames en la ruta.
-
-**Respuesta JSON:**
-```json
-{"errorCode":0,"details":"successful","student_username":"luis","staff_username":"marta"}
-```
-
 ### `GET /student-links/students/{student_username}` — Consultar tutores y personal de un alumno
 
-Solo administrador. Devuelve dos listas actuales: `parents` y `staff`. Cada entrada incluye username, full name y email del usuario relacionado. Si no existe el alumno, devuelve `ASSOCIATED_ENTITY_NOT_FOUND` (HTTP 404). Las listas reflejan las filas de asociación vigentes en la base de datos.
+Solo administrador. Devuelve dos listas actuales: `parents` y `staff`. Cada entrada incluye username, full name y email. Los padres salen de `par_stud`; el personal se obtiene de la clase a la que pertenece el alumno y sus filas en `class_staff`. Si el alumno aún no tiene clase, `staff` será una lista vacía. Si no existe el alumno, devuelve `ASSOCIATED_ENTITY_NOT_FOUND` (HTTP 404).
 
 **Entrada:** sin cuerpo; username en la ruta.
 
@@ -241,7 +219,7 @@ Requiere token. Un tutor consulta su propio listado; un administrador puede cons
 
 ### `GET /student-links/staff/{staff_username}/students` — Consultar alumnos de un miembro del personal
 
-Igual que la consulta de tutores, pero para personal. Staff consulta su propio listado; admin puede consultar cualquiera. Devuelve `username` y `full_name`; un resultado vacío es `students: []`.
+Staff consulta su propio listado; admin puede consultar cualquier miembro del personal. Devuelve los alumnos inscritos en cualquiera de las clases que imparte ese miembro del personal, con `username` y `full_name`, sin duplicados. Un resultado vacío es `students: []`.
 
 **Entrada:** sin cuerpo; cabecera Bearer y username del miembro del personal en la ruta.
 
@@ -250,11 +228,11 @@ Igual que la consulta de tutores, pero para personal. Staff consulta su propio l
 {"errorCode":0,"details":"successful","staff_username":"marta","students":[{"username":"luis","full_name":"Luis Pérez"}]}
 ```
 
-Las asociaciones también son una condición de autorización en las operaciones de tareas individuales: quitar una relación impide a ese tutor o miembro del personal seguir creando, editando alternativa o retirando tareas de ese alumno mediante esas rutas.
+Las relaciones vigentes también controlan las tareas individuales. El tutor debe seguir asociado al alumno mediante `par_stud`; el personal debe compartir con el alumno una clase vigente, comprobada mediante `class_staff` y `class_stud`. Al retirar al alumno de la clase o al personal de ella, desaparece ese acceso derivado. El cambio no afecta a relaciones con padres ni a otras clases.
 
 ## Tareas individuales de alumnos
 
-Prefijo `/student-tasks`. El personal (`staff`) y los tutores (`parent`) pueden crear tareas para alumnos asociados. El alumno puede crear y eliminar solo sus propias tareas mediante las rutas `/me`, si `stud_access_task_mod` está activado. El administrador no está autorizado por este router. Las rutas de edición de tareas alternativas siguen reservadas a `staff` y `parent`.
+Prefijo `/student-tasks`. El personal (`staff`) puede crear tareas para alumnos inscritos en alguna clase que imparte; los tutores (`parent`) pueden hacerlo para alumnos enlazados mediante `par_stud`. El alumno puede crear y eliminar solo sus propias tareas mediante las rutas `/me`, si `stud_access_task_mod` está activado. El administrador no está autorizado por este router. Las rutas de edición de tareas alternativas siguen reservadas a `staff` y `parent`; también validan la relación actual con al menos un alumno asignado a la tarea.
 
 ### `POST /student-tasks/students/{student_username}` — Crear tarea en la agenda de un alumno
 
@@ -268,6 +246,16 @@ La operación inserta en `Tasks` con `task_creator` igual al username del creado
 
 La hora de inicio es opcional, pero la duración siempre es obligatoria. Si se omite `task_start_hour`, no hay un intervalo horario que comprobar y no se aplica esta regla.
 
+**JSON de entrada:**
+```json
+{"task_title":"Leer un cuento","task_date":"2026-11-10","task_index":0,"task_duration":20,"task_start_hour":"16:30:00","alt_task_id_fk":3}
+```
+
+**Respuesta JSON (valores de ejemplo):**
+```json
+{"errorCode":0,"details":"successful","task_id":41,"task_title":"Leer un cuento","task_start_hour":"16:30:00","task_duration":20,"task_creator":"ana","task_finished":false,"alt_task_id_fk":3,"stud_usr_fk":"luis","task_index":0,"task_date":"2026-11-10"}
+```
+
 ### `POST /student-tasks/me` — Crear una tarea propia
 
 Requiere token de alumno. El JSON acepta los campos de creación individual, pero exige también `task_start_hour`, ya que el alumno solo puede crear tareas fuera del horario escolar. La duración es obligatoria y positiva, en minutos. El alumno debe tener `stud_access_task_mod = true`; si no, responde `STUDENT_TASK_MODIFICATION_DENIED` (HTTP 403). Se crea una tarea `Generic_Task` con `task_creator` igual al username del alumno y una asignación en `stud_task` para ese mismo alumno. La hora de inicio más la duración no puede solaparse con `[09:00, 15:00)`; si se solapa, responde `STUDENT_TASK_OUTSIDE_SCHOOL_HOURS` (HTTP 400). Devuelve HTTP 201.
@@ -280,16 +268,6 @@ Requiere token de alumno. El JSON acepta los campos de creación individual, per
 **Respuesta JSON (valores de ejemplo):**
 ```json
 {"errorCode":0,"details":"successful","task_id":42,"task_title":"Dibujar","task_start_hour":"16:30:00","task_duration":20,"task_creator":"luis","task_finished":false,"alt_task_id_fk":null,"stud_usr_fk":"luis","task_index":0,"task_date":"2026-11-10"}
-```
-
-**JSON de entrada:**
-```json
-{"task_title":"Leer un cuento","task_date":"2026-11-10","task_index":0,"task_duration":20,"task_start_hour":"16:30:00","alt_task_id_fk":3}
-```
-
-**Respuesta JSON (valores de ejemplo):**
-```json
-{"errorCode":0,"details":"successful","task_id":41,"task_title":"Leer un cuento","task_start_hour":"16:30:00","task_duration":20,"task_creator":"ana","task_finished":false,"alt_task_id_fk":3,"stud_usr_fk":"luis","task_index":0,"task_date":"2026-11-10"}
 ```
 
 ### `PUT /student-tasks/{task_id}/alternative` — Cambiar tarea alternativa
@@ -326,6 +304,11 @@ Si se conoce la hora de inicio, un tutor no puede quitar una tarea dentro del ho
 Requiere token de alumno y `stud_access_task_mod = true`. Comprueba que la asignación corresponda al alumno autenticado y que `Tasks.task_creator` también sea su username, para impedir que borre tareas de personal o tutores. La tarea debe tener una hora de inicio y su intervalo completo (hora más duración) debe quedar fuera de `[09:00, 15:00)`; si invade ese tramo o carece de hora, responde `STUDENT_TASK_OUTSIDE_SCHOOL_HOURS` (HTTP 400). Sin permiso de modificación responde `STUDENT_TASK_MODIFICATION_DENIED` (HTTP 403). Elimina la asignación indicada y, si la tarea propia ya no tiene ninguna otra asignación, elimina también su fila de `Tasks` y el `Generic_Task` asociado. Devuelve los identificadores de la asignación eliminada.
 
 **Entrada:** sin cuerpo. Ejemplo: `DELETE /student-tasks/me/42?task_date=2026-11-10&task_index=0`.
+
+**Respuesta JSON:**
+```json
+{"errorCode":0,"details":"successful","task_id":42,"stud_usr_fk":"luis","task_date":"2026-11-10","task_index":0}
+```
 
 ## Clases
 
@@ -427,7 +410,7 @@ Requiere staff asignado a la clase. Elimina solo la inscripción indicada. Si la
 
 ### `POST /classes/{class_name}/tasks` — Crear tarea para toda la clase
 
-Requiere staff asignado a la clase. Recibe los mismos campos de tarea que la creación individual: título, fecha, índice y duración positiva en minutos obligatorios; hora y alternativa opcionales. Si falta la duración o no es positiva, devuelve el error de validación `1005` (HTTP 422). Si se proporciona la hora, la suma de hora de inicio y duración debe dejar la tarea completa dentro del horario escolar: desde las 09:00 inclusive hasta las 15:00 inclusive como hora de fin. También valida título y alternativa como el endpoint individual.
+Requiere staff asignado a la clase. Recibe los mismos campos de tarea que la creación individual: título, fecha, índice y duración positiva en minutos obligatorios; hora y alternativa opcionales. Si falta la duración o no es positiva, devuelve el error de validación `1005` (HTTP 422). Si se proporciona `task_start_hour`, comprueba que la hora de inicio esté entre las 09:00 inclusive y antes de las 15:00; esta ruta no comprueba que la duración completa termine antes de las 15:00. También valida el título y que la alternativa exista y no esté ya asignada.
 
 La clase debe tener al menos un alumno inscrito; de lo contrario devuelve `CLASS_HAS_NO_STUDENTS`. Crea una sola tarea con `task_creator` igual al username del miembro del personal, la duración obligatoria, un registro `Generic_Task` y una fila `stud_task` por cada alumno inscrito, con la fecha e índice solicitados. La operación es transaccional y responde HTTP 201 con la lista de alumnos incluidos.
 
@@ -451,9 +434,9 @@ Las listas y consultas de asociaciones, clases y tareas se generan desde las rel
 
 1. **Identidad y especialización:** `users` contiene los campos comunes (`username`, `full_name`, contraseña y token); `Admn`, `Staff`, `Student` y `Parents` determinan el rol y mantienen campos propios. Login y autorización unen la cuenta común con la especialización del rol.
 2. **Sesiones y cambios de usuario:** las rutas protegidas consultan el token guardado en `users`. Editar contraseña o username revoca ese token. Los roles son inmutables después de crear la cuenta; el login siguiente genera un token nuevo.
-3. **Permisos y asociaciones:** `par_stud` y `staff_stud` son la fuente efectiva para las rutas de tareas individuales. Las consultas de alumnos asociados y las autorizaciones usan estas relaciones actuales.
-4. **Agenda:** `Tasks` contiene los datos comunes de tarea, `Generic_Task` su especialización actual y `stud_task` enlaza tarea, alumno, fecha e índice. Eliminar una asignación individual solo borra `stud_task`; una tarea de clase crea varias asignaciones a partir de `class_stud`.
-5. **Clases y asociaciones alumno-persona:** la pertenencia a clase (`class_stud`) es independiente de la relación tutor/alumno (`par_stud`) y personal/alumno (`staff_stud`). Añadir o quitar a un alumno de una clase no crea ni elimina sus asociaciones personales; borrar una clase tampoco borra cuentas.
+3. **Permisos y asociaciones:** `par_stud` es la fuente de la relación directa tutor-alumno. El acceso del personal a los alumnos se deriva por la cadena `class_staff` → `class_stud`. Las consultas de asociaciones y las autorizaciones de tareas usan esas relaciones vigentes.
+4. **Agenda:** `Tasks` contiene los datos comunes de tarea, `Generic_Task` su especialización actual y `stud_task` enlaza tarea, alumno, fecha e índice. Eliminar una asignación individual de staff/parent solo borra `stud_task`; eliminar una tarea propia de estudiante borra además `Tasks` y, por cascada, `Generic_Task`, cuando ya no quedan asignaciones. Una tarea de clase crea varias asignaciones a partir de `class_stud`.
+5. **Clases y asociaciones alumno-persona:** cada alumno puede estar en una clase como máximo; un profesor puede impartir varias clases y cada clase puede tener varios profesores. Por eso todo el personal de una clase comparte acceso derivado a sus alumnos. La relación tutor-alumno permanece separada en `par_stud`. Cambiar las asignaciones de clase modifica el acceso derivado del personal, pero no las cuentas ni las relaciones con padres.
 6. **Tareas alternativas:** `alt_task_id_fk` referencia `Alt_Tasks`; el backend impide usar la misma alternativa en más de una tarea. Cambiar username de un usuario actualiza la autoría guardada en `Tasks` y `Alt_Tasks`.
 
 ## Archivos de implementación
