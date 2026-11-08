@@ -479,5 +479,18 @@ class UsersManagementDB:
         except Exception:
             return _error(ErrorCode.USER_LOOKUP_FAILED)
 
+    def staffCanViewStudentAvatar(self, db: Session, staff_username: str, student_username: str) -> bool:
+        """Comprueba que el miembro del personal comparte una clase con el alumno."""
+        return db.execute(
+            text(
+                "SELECT 1 FROM class_staff teaching "
+                "JOIN class_stud enrollment "
+                "ON enrollment.class_name_fk = teaching.class_name_fk "
+                "WHERE teaching.staff_usr_fk = :staff_username "
+                "AND enrollment.stud_usr_fk = :student_username"
+            ),
+            {"staff_username": staff_username, "student_username": student_username},
+        ).scalar_one_or_none() is not None
+
 
 users_mng_db = UsersManagementDB()

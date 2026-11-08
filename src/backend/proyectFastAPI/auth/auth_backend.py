@@ -2,7 +2,7 @@ from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from sqlalchemy.orm import Session
 
 from ..DB.database import get_db
@@ -17,9 +17,26 @@ Role = Literal["admin", "staff", "student", "parent"]
 class LoginRequest(BaseModel):
     """Datos de acceso requeridos para iniciar una sesión de usuario."""
 
-    username: str = Field(min_length=1, max_length=50)
-    password: str = Field(min_length=1)
+    model_config = ConfigDict(extra="forbid")
+
+    username: str = Field(strict=True, min_length=1, max_length=50)
+    password: str = Field(strict=True, min_length=1)
     role: Role
+
+    @field_validator("username")
+    @classmethod
+    def validate_username(cls, value: str) -> str:
+        value = value.strip()
+        if not value or any(character.isspace() for character in value):
+            raise ValueError("El username no puede estar vacío ni contener espacios")
+        return value
+
+    @field_validator("password")
+    @classmethod
+    def validate_password_length(cls, value: str) -> str:
+        if len(value.encode("utf-8")) > 72:
+            raise ValueError("La contraseña no puede superar los 72 bytes")
+        return value
 
 
 def _unauthorized() -> HTTPException:

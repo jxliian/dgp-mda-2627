@@ -1,6 +1,6 @@
-from typing import Callable
+from typing import Annotated, Callable
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Path
 from sqlalchemy.orm import Session
 
 from ..DB.database import get_db
@@ -12,6 +12,7 @@ router = APIRouter(
     prefix="/student-links",
     tags=["student links"],
 )
+UsernamePath = Annotated[str, Path(min_length=1, max_length=50, pattern=r"^\S+$")]
 
 
 def _require_self_or_admin(user: dict, role: str, username: str) -> None:
@@ -29,19 +30,19 @@ def _run_db_operation(operation: Callable, *args):
 
 
 @router.post("/students/{student_username}/parents/{parent_username}", dependencies=[Depends(require_admin)])
-def link_parent(student_username: str, parent_username: str, db: Session = Depends(get_db)) -> dict:
+def link_parent(student_username: UsernamePath, parent_username: UsernamePath, db: Session = Depends(get_db)) -> dict:
     """Asocia un tutor a un alumno."""
     return _run_db_operation(links_db.link_user, db, "parent", student_username, parent_username)
 
 
 @router.delete("/students/{student_username}/parents/{parent_username}", dependencies=[Depends(require_admin)])
-def unlink_parent(student_username: str, parent_username: str, db: Session = Depends(get_db)) -> dict:
+def unlink_parent(student_username: UsernamePath, parent_username: UsernamePath, db: Session = Depends(get_db)) -> dict:
     """Elimina la asociación entre un tutor y un alumno."""
     return _run_db_operation(links_db.unlink_user, db, "parent", student_username, parent_username)
 
 
 @router.get("/students/{student_username}", dependencies=[Depends(require_admin)])
-def get_student_links(student_username: str, db: Session = Depends(get_db)) -> dict:
+def get_student_links(student_username: UsernamePath, db: Session = Depends(get_db)) -> dict:
     """Devuelve los tutores del alumno y el personal que imparte su clase."""
     parents = _run_db_operation(links_db.get_associated_users, db, "parent", student_username)
     staff = _run_db_operation(links_db.get_associated_users, db, "staff", student_username)
@@ -50,7 +51,7 @@ def get_student_links(student_username: str, db: Session = Depends(get_db)) -> d
 
 @router.get("/parents/{parent_username}/students")
 def get_parent_students(
-    parent_username: str,
+    parent_username: UsernamePath,
     db: Session = Depends(get_db),
     user: dict = Depends(get_current_user),
 ) -> dict:
@@ -62,7 +63,7 @@ def get_parent_students(
 
 @router.get("/staff/{staff_username}/students")
 def get_staff_students(
-    staff_username: str,
+    staff_username: UsernamePath,
     db: Session = Depends(get_db),
     user: dict = Depends(get_current_user),
 ) -> dict:

@@ -9,6 +9,7 @@ CREATE TABLE users (
 -- Tablas de especialización: su PK es también FK a users.username.
 CREATE TABLE Admn (
     admn_usr VARCHAR(50) PRIMARY KEY,
+    admn_email VARCHAR(254) NOT NULL UNIQUE,
     CONSTRAINT fk_admn_user FOREIGN KEY (admn_usr) REFERENCES users(username) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
@@ -30,14 +31,16 @@ CREATE TABLE Avatar (
 
 CREATE TABLE Student (
     stud_usr VARCHAR(50) PRIMARY KEY,
-    stud_access_main_col VARCHAR(50) NOT NULL,
-    stud_access_sec_col VARCHAR(50) NOT NULL,
-    stud_access_ntasks_visible INT NOT NULL,
+    stud_access_main_col VARCHAR(50) NOT NULL
+        CHECK (stud_access_main_col ~ '^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$'),
+    stud_access_sec_col VARCHAR(50) NOT NULL
+        CHECK (stud_access_sec_col ~ '^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$'),
+    stud_access_ntasks_visible INT NOT NULL CHECK (stud_access_ntasks_visible >= 0),
     stud_access_pictograms BOOLEAN NOT NULL,
     stud_access_contrast BOOLEAN NOT NULL,
-    stud_access_fontsize INT NOT NULL,
+    stud_access_fontsize INT NOT NULL CHECK (stud_access_fontsize > 0),
     stud_access_filters BOOLEAN NOT NULL,
-    stud_access_ndays_visible INT NOT NULL,
+    stud_access_ndays_visible INT NOT NULL CHECK (stud_access_ndays_visible >= 0),
     stud_access_prof_mod BOOLEAN NOT NULL,
     stud_access_timebar BOOLEAN NOT NULL,
     stud_access_talkback BOOLEAN NOT NULL,
@@ -126,14 +129,27 @@ CREATE TABLE par_stud (
 );
 
 -- Relación N:M entre Student y Tasks
+-- Tarea asignada a una clase. La tarea existe aunque no tenga alumnos matriculados.
+CREATE TABLE class_task (
+    class_name_fk VARCHAR(50) NOT NULL,
+    task_id_fk INT PRIMARY KEY,
+    task_date DATE NOT NULL,
+    UNIQUE (class_name_fk, task_id_fk),
+    CONSTRAINT fk_class_task_class FOREIGN KEY (class_name_fk) REFERENCES Class(class_name) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT fk_class_task_task FOREIGN KEY (task_id_fk) REFERENCES Tasks(task_id) ON DELETE CASCADE
+);
+
+-- Una asignación de alumno puede ser directa (class_name_fk NULL) o proceder de una clase.
 CREATE TABLE stud_task (
     stud_usr_fk VARCHAR(50),
     task_id_fk INT,
     task_index INT,
     task_date DATE,
+    class_name_fk VARCHAR(50),
     PRIMARY KEY (stud_usr_fk, task_id_fk, task_index, task_date),
     CONSTRAINT fk_stud_task_student FOREIGN KEY (stud_usr_fk) REFERENCES Student(stud_usr) ON UPDATE CASCADE ON DELETE CASCADE,
-    CONSTRAINT fk_stud_task_tasks FOREIGN KEY (task_id_fk) REFERENCES Tasks(task_id) ON DELETE CASCADE
+    CONSTRAINT fk_stud_task_tasks FOREIGN KEY (task_id_fk) REFERENCES Tasks(task_id) ON DELETE CASCADE,
+    CONSTRAINT fk_stud_task_class_task FOREIGN KEY (class_name_fk, task_id_fk) REFERENCES class_task(class_name_fk, task_id_fk) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 -- Relación N:M entre Canteen_Task y Student

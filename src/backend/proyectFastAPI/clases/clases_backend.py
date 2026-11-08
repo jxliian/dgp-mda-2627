@@ -1,6 +1,7 @@
 from datetime import date, time
+from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Path
 from pydantic import BaseModel, ConfigDict, Field, StrictInt, field_validator
 from sqlalchemy.orm import Session
 
@@ -10,6 +11,8 @@ from ..errors import CatalogError, ErrorCode, raise_api_error, success_response
 from . import clases_db
 
 router = APIRouter(prefix="/classes", tags=["classes"])
+ClassNamePath = Annotated[str, Path(min_length=1, max_length=50, pattern=r"^\S(?:.*\S)?$")]
+UsernamePath = Annotated[str, Path(min_length=1, max_length=50, pattern=r"^\S+$")]
 
 
 def _run_db_operation(operation, *args):
@@ -40,8 +43,7 @@ class CreateClassTaskRequest(BaseModel):
 
     task_title: str = Field(strict=True, min_length=1, max_length=100)
     task_date: date
-    task_index: StrictInt = Field(ge=0)
-    task_start_hour: time | None = None
+    task_start_hour: time
     task_duration: StrictInt = Field(gt=0)
     alt_task_id_fk: StrictInt | None = Field(default=None, gt=0)
 
@@ -73,19 +75,23 @@ def create_class(payload: ClassRequest, db: Session = Depends(get_db)) -> dict:
 def list_classes(
     db: Session = Depends(get_db), user: dict = Depends(get_current_user)
 ) -> dict:
-    """Lista las clases asignadas al miembro del personal autenticado."""
+    """Admin lista todas las clases y staff solo las clases que tiene asignadas."""
+    if user["role"] == "admin":
+        return success_response(classes=clases_db.list_classes(db))
     if user["role"] != "staff":
         raise_api_error(ErrorCode.CLASS_ACCESS_DENIED)
-    return success_response(classes=clases_db.list_staff_classes(db, user["username"]))
+    return success_response(classes=clases_db.list_classes(db, user["username"]))
 
 
 @router.get("/{class_name}")
 def get_class(
-    class_name: str,
+    class_name: ClassNamePath,
     db: Session = Depends(get_db),
     user: dict = Depends(get_current_user),
 ) -> dict:
-    """Consulta una clase y sus alumnos y profesores asignados."""
+    """Admin consulta cualquier clase; staff solo consulta las clases asignadas."""
+    if user["role"] == "admin":
+        return _run_db_operation(clases_db.get_class, db, class_name)
     if user["role"] != "staff":
         raise_api_error(ErrorCode.CLASS_ACCESS_DENIED)
     return _run_db_operation(clases_db.get_class, db, class_name, user["username"])
@@ -93,21 +99,21 @@ def get_class(
 
 @router.put("/{current_class_name}", dependencies=[Depends(require_admin)])
 def update_class(
-    current_class_name: str, payload: ClassRequest, db: Session = Depends(get_db)
+    current_class_name: ClassNamePath, payload: ClassRequest, db: Session = Depends(get_db)
 ) -> dict:
     """Edita el nombre de una clase; solo los administradores pueden hacerlo."""
     return _run_db_operation(clases_db.update_class, db, current_class_name, payload.class_name)
 
 
 @router.delete("/{class_name}", dependencies=[Depends(require_admin)])
-def delete_class(class_name: str, db: Session = Depends(get_db)) -> dict:
+def delete_class(class_name: ClassNamePath, db: Session = Depends(get_db)) -> dict:
     """Elimina una clase y sus asignaciones de alumnos y profesores."""
     return _run_db_operation(clases_db.delete_class, db, class_name)
 
 
 @router.post("/{class_name}/staff/{staff_username}", dependencies=[Depends(require_admin)])
 def add_staff_to_class(
-    class_name: str, staff_username: str, db: Session = Depends(get_db)
+    class_name: ClassNamePath, staff_username: UsernamePath, db: Session = Depends(get_db)
 ) -> dict:
     """Asigna un miembro del personal a una clase; solo un administrador puede hacerlo."""
     return _run_db_operation(clases_db.add_staff, db, class_name, staff_username)
@@ -115,8 +121,8 @@ def add_staff_to_class(
 
 @router.post("/{class_name}/students/{student_username}", status_code=201)
 def add_student_to_class(
-    class_name: str,
-    student_username: str,
+    class_name: ClassNamePath,
+    student_username: UsernamePath,
     db: Session = Depends(get_db),
     user: dict = Depends(get_current_user),
 ) -> dict:
@@ -130,8 +136,8 @@ def add_student_to_class(
 
 @router.delete("/{class_name}/students/{student_username}")
 def remove_student_from_class(
-    class_name: str,
-    student_username: str,
+    class_name: ClassNamePath,
+    student_username: UsernamePath,
     db: Session = Depends(get_db),
     user: dict = Depends(get_current_user),
 ) -> dict:
@@ -145,7 +151,7 @@ def remove_student_from_class(
 
 @router.post("/{class_name}/tasks", status_code=201)
 def assign_task_to_class(
-    class_name: str,
+    class_name: ClassNamePath,
     payload: CreateClassTaskRequest,
     db: Session = Depends(get_db),
     user: dict = Depends(get_current_user),
@@ -160,8 +166,59 @@ def assign_task_to_class(
         user["username"],
         payload.task_title,
         payload.task_date,
-        payload.task_index,
         payload.task_start_hour,
         payload.task_duration,
         payload.alt_task_id_fk,
+    )
+
+
+@router.get("/{class_name}/tasks")
+def get_class_tasks(
+    class_name: ClassNamePath,
+    db: Session = Depends(get_db),
+    user: dict = Depends(get_current_user),
+) -> dict:
+    """Lista las tareas vinculadas a una clase para su personal asignado."""
+    if user["role"] != "staff":
+        raise_api_error(ErrorCode.CLASS_ACCESS_DENIED)
+    return _run_db_operation(clases_db.list_class_tasks, db, class_name, user["username"])
+
+
+@router.put("/{class_name}/tasks/{task_id}")
+def edit_class_task(
+    class_name: ClassNamePath,
+    task_id: Annotated[int, Path(gt=0)],
+    payload: CreateClassTaskRequest,
+    db: Session = Depends(get_db),
+    user: dict = Depends(get_current_user),
+) -> dict:
+    """Edita una tarea grupal y actualiza sus asignaciones a la clase."""
+    if user["role"] != "staff":
+        raise_api_error(ErrorCode.CLASS_ACCESS_DENIED)
+    return _run_db_operation(
+        clases_db.update_class_task,
+        db,
+        class_name,
+        user["username"],
+        task_id,
+        payload.task_title,
+        payload.task_date,
+        payload.task_start_hour,
+        payload.task_duration,
+        payload.alt_task_id_fk,
+    )
+
+
+@router.delete("/{class_name}/tasks/{task_id}")
+def delete_class_task(
+    class_name: ClassNamePath,
+    task_id: Annotated[int, Path(gt=0)],
+    db: Session = Depends(get_db),
+    user: dict = Depends(get_current_user),
+) -> dict:
+    """Elimina la asignación grupal sin borrar vínculos individuales."""
+    if user["role"] != "staff":
+        raise_api_error(ErrorCode.CLASS_ACCESS_DENIED)
+    return _run_db_operation(
+        clases_db.delete_class_task, db, class_name, user["username"], task_id
     )

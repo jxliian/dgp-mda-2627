@@ -5,6 +5,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from ..errors import CatalogError, ErrorCode, success_response
+from ..task_indexing import calculate_task_index, lock_student_agendas
 from ..task_schedule import validate_task_schedule
 
 SCHOOL_START = time(9, 0)
@@ -62,7 +63,6 @@ def create_task(
     student_username: str,
     task_title: str,
     task_date: date,
-    task_index: int,
     task_start_hour: time | None,
     task_duration: int,
     alt_task_id_fk: int | None,
@@ -116,6 +116,10 @@ def create_task(
             raise CatalogError(ErrorCode.ALTERNATIVE_TASK_ALREADY_ASSIGNED)
 
     try:
+        lock_student_agendas(db, [student_username])
+        task_index = calculate_task_index(
+            db, student_username, task_date, task_start_hour
+        )
         task = db.execute(
             text(
                 "INSERT INTO Tasks "
@@ -243,7 +247,6 @@ def delete_student_task(
     student_username: str,
     task_id: int,
     task_date: date,
-    task_index: int,
 ) -> dict:
     """Retira una tarea de la agenda si el usuario puede gestionar al alumno y su horario."""
     if creator_role not in {"staff", "parent", "student"}:
@@ -280,21 +283,22 @@ def delete_student_task(
 
     task = db.execute(
         text(
-            "SELECT task.task_start_hour, task.task_duration, task.task_creator "
+            "SELECT task.task_start_hour, task.task_duration, task.task_creator, assigned.task_index "
             "FROM Tasks task "
             "JOIN stud_task assigned ON assigned.task_id_fk = task.task_id "
             "WHERE task.task_id = :task_id AND assigned.stud_usr_fk = :student_username "
-            "AND assigned.task_date = :task_date AND assigned.task_index = :task_index"
+            "AND assigned.task_date = :task_date ORDER BY assigned.task_index LIMIT 1 "
+            "FOR UPDATE OF assigned"
         ),
         {
             "task_id": task_id,
             "student_username": student_username,
             "task_date": task_date,
-            "task_index": task_index,
         },
     ).mappings().first()
     if task is None:
         raise CatalogError(ErrorCode.TASK_NOT_FOUND)
+    task_index = task["task_index"]
 
     task_start_hour = task["task_start_hour"]
     if creator_role == "student":

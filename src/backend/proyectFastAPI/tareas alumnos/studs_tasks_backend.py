@@ -2,7 +2,7 @@ from datetime import date, time
 from importlib import import_module
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Path, Query
+from fastapi import APIRouter, Depends, Path
 from pydantic import BaseModel, ConfigDict, Field, StrictInt, field_validator
 from sqlalchemy.orm import Session
 
@@ -13,6 +13,7 @@ from ..errors import CatalogError, ErrorCode, raise_api_error
 tasks_db = import_module(".studs_tasks_db", package=__package__)
 
 router = APIRouter(prefix="/student-tasks", tags=["student tasks"])
+UsernamePath = Annotated[str, Path(min_length=1, max_length=50, pattern=r"^\S+$")]
 
 
 def _run_db_operation(operation, *args):
@@ -28,7 +29,6 @@ class CreateTaskRequest(BaseModel):
 
     task_title: str = Field(strict=True, min_length=1, max_length=100)
     task_date: date
-    task_index: StrictInt = Field(ge=0)
     task_start_hour: time | None = None
     task_duration: StrictInt = Field(gt=0)
     alt_task_id_fk: StrictInt | None = Field(default=None, gt=0)
@@ -49,12 +49,6 @@ class CreateTaskRequest(BaseModel):
         return value
 
 
-class CreateOwnTaskRequest(CreateTaskRequest):
-    """Datos de una tarea propia, con hora necesaria para validar su horario."""
-
-    task_start_hour: time
-
-
 class SetAlternativeTaskRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -63,7 +57,7 @@ class SetAlternativeTaskRequest(BaseModel):
 
 @router.post("/students/{student_username}", status_code=201)
 def create_student_task(
-    student_username: str,
+    student_username: UsernamePath,
     payload: CreateTaskRequest,
     db: Session = Depends(get_db),
     user: dict = Depends(get_current_user),
@@ -80,7 +74,6 @@ def create_student_task(
         student_username,
         payload.task_title,
         payload.task_date,
-        payload.task_index,
         payload.task_start_hour,
         payload.task_duration,
         payload.alt_task_id_fk,
@@ -89,11 +82,11 @@ def create_student_task(
 
 @router.post("/me", status_code=201)
 def create_my_task(
-    payload: CreateOwnTaskRequest,
+    payload: CreateTaskRequest,
     db: Session = Depends(get_db),
     user: dict = Depends(get_current_user),
 ) -> dict:
-    """Crea una tarea para el alumno autenticado fuera del horario escolar."""
+    """Crea una tarea para el alumno autenticado con horario o solo duración."""
     if user["role"] != "student":
         raise_api_error(ErrorCode.TASK_CREATOR_REQUIRED)
 
@@ -105,7 +98,6 @@ def create_my_task(
         user["username"],
         payload.task_title,
         payload.task_date,
-        payload.task_index,
         payload.task_start_hour,
         payload.task_duration,
         payload.alt_task_id_fk,
@@ -135,10 +127,9 @@ def set_task_alternative(
 
 @router.delete("/students/{student_username}/{task_id}")
 def delete_student_task(
-    student_username: str,
+    student_username: UsernamePath,
     task_id: Annotated[int, Path(gt=0)],
     task_date: date,
-    task_index: Annotated[int, Query(ge=0)],
     db: Session = Depends(get_db),
     user: dict = Depends(get_current_user),
 ) -> dict:
@@ -154,7 +145,6 @@ def delete_student_task(
         student_username,
         task_id,
         task_date,
-        task_index,
     )
 
 
@@ -162,7 +152,6 @@ def delete_student_task(
 def delete_my_task(
     task_id: Annotated[int, Path(gt=0)],
     task_date: date,
-    task_index: Annotated[int, Query(ge=0)],
     db: Session = Depends(get_db),
     user: dict = Depends(get_current_user),
 ) -> dict:
@@ -178,5 +167,4 @@ def delete_my_task(
         user["username"],
         task_id,
         task_date,
-        task_index,
     )

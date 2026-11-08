@@ -12,12 +12,12 @@ def validate_task_schedule(
     task_start_hour: time | None,
     task_duration_minutes: int,
 ) -> None:
-    """Valida el intervalo completo de la tarea respecto al horario escolar."""
+    """Valida el intervalo de una tarea según el horario permitido para su rol."""
     if task_duration_minutes is None or task_duration_minutes <= 0:
         raise CatalogError(ErrorCode.INVALID_REQUEST)
     if task_start_hour is None:
-        if creator_role == "student":
-            raise CatalogError(ErrorCode.STUDENT_TASK_OUTSIDE_SCHOOL_HOURS)
+        if creator_role == "staff":
+            raise CatalogError(ErrorCode.STAFF_TASK_OUTSIDE_SCHOOL_HOURS)
         return
 
     start_seconds = (

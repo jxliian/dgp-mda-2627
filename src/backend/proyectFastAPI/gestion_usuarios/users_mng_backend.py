@@ -1,7 +1,7 @@
 from typing import Annotated, Literal, Union
 
-from fastapi import APIRouter, Depends, File, Response, UploadFile
-from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
+from fastapi import APIRouter, Depends, File, Path, Response, UploadFile
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, StrictBool, StrictInt, field_validator
 from sqlalchemy.orm import Session
 
 from ..DB.database import get_db
@@ -11,6 +11,7 @@ from .users_mng_db import users_mng_db
 
 router = APIRouter(prefix="/users", tags=["users"])
 Role = Literal["admin", "staff", "student", "parent"]
+UsernamePath = Annotated[str, Path(min_length=1, max_length=50, pattern=r"^\S+$")]
 MAX_AVATAR_BYTES = 5 * 1024 * 1024
 DEFAULT_AVATAR_SVG = b'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Avatar predeterminado">
 <rect width="128" height="128" rx="64" fill="#e5e7eb"/>
@@ -80,9 +81,9 @@ class CreateUserBase(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    username: str = Field(min_length=1, max_length=50)
-    full_name: str = Field(min_length=1, max_length=150)
-    password: str = Field(min_length=1)
+    username: str = Field(strict=True, min_length=1, max_length=50)
+    full_name: str = Field(strict=True, min_length=1, max_length=150)
+    password: str = Field(strict=True, min_length=1)
 
     @field_validator("username")
     @classmethod
@@ -104,26 +105,26 @@ class CreateStudentRequest(CreateUserBase):
     """Campos de creación de estudiante, incluidos sus ajustes de accesibilidad."""
 
     role: Literal["student"]
-    stud_access_main_col: str = Field(min_length=1, max_length=50)
-    stud_access_sec_col: str = Field(min_length=1, max_length=50)
-    stud_access_ntasks_visible: int = Field(ge=0)
-    stud_access_pictograms: bool
-    stud_access_contrast: bool
-    stud_access_fontsize: int = Field(gt=0)
-    stud_access_filters: bool
-    stud_access_ndays_visible: int = Field(ge=0)
-    stud_access_prof_mod: bool
-    stud_access_timebar: bool
-    stud_access_talkback: bool
-    stud_access_profile_mod: bool
-    stud_access_task_mod: bool
+    stud_access_main_col: str = Field(strict=True, min_length=4, max_length=7, pattern=r"^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$")
+    stud_access_sec_col: str = Field(strict=True, min_length=4, max_length=7, pattern=r"^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$")
+    stud_access_ntasks_visible: StrictInt = Field(ge=0)
+    stud_access_pictograms: StrictBool
+    stud_access_contrast: StrictBool
+    stud_access_fontsize: StrictInt = Field(gt=0)
+    stud_access_filters: StrictBool
+    stud_access_ndays_visible: StrictInt = Field(ge=0)
+    stud_access_prof_mod: StrictBool
+    stud_access_timebar: StrictBool
+    stud_access_talkback: StrictBool
+    stud_access_profile_mod: StrictBool
+    stud_access_task_mod: StrictBool
 
 
 class CreateEmailUserRequest(CreateUserBase):
     """Campos de creación para roles que requieren un correo válido."""
 
     role: Literal["admin", "staff", "parent"]
-    email: EmailStr
+    email: EmailStr = Field(max_length=254)
 
 
 CreateUserRequest = Annotated[
@@ -161,24 +162,24 @@ class UpdateUserRequest(BaseModel):
         },
     )
 
-    username: str | None = Field(default=None, min_length=1, max_length=50)
+    username: str | None = Field(default=None, strict=True, min_length=1, max_length=50)
     role: Role | None = None
-    full_name: str | None = Field(default=None, min_length=1, max_length=150)
-    password: str | None = Field(default=None, min_length=1)
-    email: EmailStr | None = None
-    stud_access_main_col: str | None = Field(default=None, min_length=1, max_length=50)
-    stud_access_sec_col: str | None = Field(default=None, min_length=1, max_length=50)
-    stud_access_ntasks_visible: int | None = Field(default=None, ge=0)
-    stud_access_pictograms: bool | None = None
-    stud_access_contrast: bool | None = None
-    stud_access_fontsize: int | None = Field(default=None, gt=0)
-    stud_access_filters: bool | None = None
-    stud_access_ndays_visible: int | None = Field(default=None, ge=0)
-    stud_access_prof_mod: bool | None = None
-    stud_access_timebar: bool | None = None
-    stud_access_talkback: bool | None = None
-    stud_access_profile_mod: bool | None = None
-    stud_access_task_mod: bool | None = None
+    full_name: str | None = Field(default=None, strict=True, min_length=1, max_length=150)
+    password: str | None = Field(default=None, strict=True, min_length=1)
+    email: EmailStr | None = Field(default=None, max_length=254)
+    stud_access_main_col: str | None = Field(default=None, strict=True, min_length=4, max_length=7, pattern=r"^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$")
+    stud_access_sec_col: str | None = Field(default=None, strict=True, min_length=4, max_length=7, pattern=r"^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$")
+    stud_access_ntasks_visible: StrictInt | None = Field(default=None, ge=0)
+    stud_access_pictograms: StrictBool | None = None
+    stud_access_contrast: StrictBool | None = None
+    stud_access_fontsize: StrictInt | None = Field(default=None, gt=0)
+    stud_access_filters: StrictBool | None = None
+    stud_access_ndays_visible: StrictInt | None = Field(default=None, ge=0)
+    stud_access_prof_mod: StrictBool | None = None
+    stud_access_timebar: StrictBool | None = None
+    stud_access_talkback: StrictBool | None = None
+    stud_access_profile_mod: StrictBool | None = None
+    stud_access_task_mod: StrictBool | None = None
 
     @field_validator("username")
     @classmethod
@@ -223,7 +224,7 @@ def get_users(role: Role | None = None, db: Session = Depends(get_db)) -> dict:
 
 
 @router.put("/{role}/{username}")
-def edit_user(role: Role, username: str, payload: UpdateUserRequest,
+def edit_user(role: Role, username: UsernamePath, payload: UpdateUserRequest,
               db: Session = Depends(get_db), user: dict = Depends(get_current_user)) -> dict:
     """Permite actualizar el perfil propio y reserva username, nombre y rol a administradores."""
     fields = payload.model_dump(exclude_unset=True)
@@ -258,7 +259,7 @@ def edit_user(role: Role, username: str, payload: UpdateUserRequest,
 
 
 @router.delete("/{role}/{username}", dependencies=[Depends(require_admin)])
-def delete_user(role: Role, username: str, db: Session = Depends(get_db)) -> dict:
+def delete_user(role: Role, username: UsernamePath, db: Session = Depends(get_db)) -> dict:
     """Elimina un usuario; requiere administrador y no permite eliminar al último."""
     result = users_mng_db.deleteUser(db, username, role)
     if result["errorCode"] != 0:
@@ -303,6 +304,37 @@ def get_my_avatar(
     if user["role"] != "student":
         raise_api_error(ErrorCode.PROFILE_UPDATE_DENIED)
     result = users_mng_db.getAvatar(db, user["username"])
+    if result["errorCode"] != 0:
+        raise_api_error(result["errorCode"])
+    image = result.get("avatar_bin")
+    media_type = _image_media_type(image) if image else None
+    if media_type is None:
+        return Response(
+            content=DEFAULT_AVATAR_SVG,
+            media_type="image/svg+xml",
+            headers={"Cache-Control": "no-store"},
+        )
+    return Response(
+        content=image,
+        media_type=media_type,
+        headers={"Cache-Control": "no-store"},
+    )
+
+
+@router.get("/students/{student_username}/avatar-image")
+def get_class_student_avatar(
+    student_username: UsernamePath,
+    db: Session = Depends(get_db),
+    user: dict = Depends(get_current_user),
+) -> Response:
+    """Sirve el avatar a admin o a personal que comparte clase con el alumno."""
+    if user["role"] != "admin" and not (
+        user["role"] == "staff"
+        and users_mng_db.staffCanViewStudentAvatar(db, user["username"], student_username)
+    ):
+        raise_api_error(ErrorCode.ASSOCIATION_ACCESS_DENIED)
+
+    result = users_mng_db.getAvatar(db, student_username)
     if result["errorCode"] != 0:
         raise_api_error(result["errorCode"])
     image = result.get("avatar_bin")

@@ -41,7 +41,7 @@ en la respuesta. Por ejemplo, `errorCode: 1002` se devuelve con HTTP 401.
 | 1020 | La tarea alternativa no existe | 404 | No se encontró la tarea alternativa solicitada. |
 | 1021 | Tarea no encontrada | 404 | No se encontró la tarea solicitada. |
 | 1022 | La tarea alternativa ya está asociada a otra tarea | 409 | La tarea alternativa ya tiene una asociación incompatible. |
-| 1023 | La tarea completa del personal debe quedar entre las 09:00 y las 15:00 | 400 | La hora de inicio o el final calculado con la duración deja la tarea de staff fuera del horario escolar. |
+| 1023 | Las tareas del personal requieren hora de inicio y deben quedar entre las 09:00 y las 15:00 | 400 | Una tarea de staff no incluye hora de inicio, empieza antes de las 09:00 o termina después de las 15:00. |
 | 1024 | La tarea completa del tutor no puede coincidir con el horario escolar | 400 | El intervalo de la tarea del tutor se solapa con el horario escolar. |
 | 1025 | Los tutores no pueden eliminar tareas programadas durante el horario escolar | 400 | Un tutor intentó eliminar una tarea dentro del horario escolar. |
 | 1026 | El personal no puede eliminar tareas programadas fuera del horario escolar | 400 | Un miembro del staff intentó eliminar una tarea fuera del horario permitido. |
@@ -58,7 +58,7 @@ en la respuesta. Por ejemplo, `errorCode: 1002` se devuelve con HTTP 401.
 | 1037 | La imagen no puede superar los 5 MB | 413 | El archivo de foto supera el tamaño máximo permitido. |
 | 1038 | No se permite cambiar el rol de un usuario | 403 | Un administrador intentó cambiar el rol de una cuenta. Los usuarios no administradores reciben `PROFILE_UPDATE_DENIED` si intentan enviar un rol. |
 | 1039 | El alumno no tiene permiso para modificar sus tareas | 403 | `stud_access_task_mod` está desactivado para el alumno que intenta crear o eliminar una tarea propia. |
-| 1040 | La tarea del alumno debe quedar fuera del horario escolar | 400 | El intervalo de la tarea del alumno coincide con el horario `[09:00, 15:00)` o no se indicó hora al crearla. |
+| 1040 | La tarea del alumno con hora de inicio no puede solaparse con el horario escolar | 400 | El intervalo de una tarea de estudiante con hora se solapa con el horario `[09:00, 15:00)`. Las tareas sin hora se permiten y se colocan al final de la agenda. |
 
 ## Errores internos
 
