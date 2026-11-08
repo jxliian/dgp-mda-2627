@@ -1,65 +1,67 @@
--- 1. Tabla Admn
+-- Tabla común de cuentas. Cada fila tendrá una sola especialización de rol.
+CREATE TABLE users (
+    username VARCHAR(50) PRIMARY KEY,
+    full_name VARCHAR(150) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    token VARCHAR(64) NULL
+);
+
+-- Tablas de especialización: su PK es también FK a users.username.
 CREATE TABLE Admn (
     admn_usr VARCHAR(50) PRIMARY KEY,
-    admn_full_name VARCHAR(150) NOT NULL,
     admn_email VARCHAR(254) NOT NULL UNIQUE,
-    admn_passwd VARCHAR(255) NOT NULL,
-    token VARCHAR(64) NULL
+    CONSTRAINT fk_admn_user FOREIGN KEY (admn_usr) REFERENCES users(username) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
--- 2. Tabla Staff
 CREATE TABLE Staff (
     staff_usr VARCHAR(50) PRIMARY KEY,
-    staff_full_name VARCHAR(150) NOT NULL,
     staff_email VARCHAR(254) NOT NULL UNIQUE,
-    staff_passwd VARCHAR(255) NOT NULL,
-    token VARCHAR(64) NULL
+    CONSTRAINT fk_staff_user FOREIGN KEY (staff_usr) REFERENCES users(username) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
--- 3. Tabla Avatar
+CREATE TABLE Class (
+    class_name VARCHAR(50) PRIMARY KEY
+);
+
 CREATE TABLE Avatar (
     avatar_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     avatar_alt VARCHAR(255),
     avatar_bin BYTEA
 );
 
--- 4. Tabla Student
 CREATE TABLE Student (
     stud_usr VARCHAR(50) PRIMARY KEY,
-    stud_full_name VARCHAR(150) NOT NULL,
-    stud_password VARCHAR(255) NOT NULL,
-    token VARCHAR(64) NULL,
-    stud_class VARCHAR(50),
-    stud_access_main_col VARCHAR(50),
-    stud_access_sec_col VARCHAR(50),
-    stud_access_ntasks_visible INT,
-    stud_access_pictograms BOOLEAN,
-    stud_access_contrast BOOLEAN,
-    stud_access_fontsize INT,
-    stud_access_ndays_visible INT,
-    stud_access_filters BOOLEAN,
-    stud_access_time_bar BOOLEAN,
-    stud_access_talkback BOOLEAN,
-    stud_access_profile_mod BOOLEAN,
-    stud_access_tasks_mod BOOLEAN,
+    stud_access_main_col VARCHAR(50) NOT NULL
+        CHECK (stud_access_main_col ~ '^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$'),
+    stud_access_sec_col VARCHAR(50) NOT NULL
+        CHECK (stud_access_sec_col ~ '^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$'),
+    stud_access_ntasks_visible INT NOT NULL CHECK (stud_access_ntasks_visible >= 0),
+    stud_access_pictograms BOOLEAN NOT NULL,
+    stud_access_contrast BOOLEAN NOT NULL,
+    stud_access_fontsize INT NOT NULL CHECK (stud_access_fontsize > 0),
+    stud_access_filters BOOLEAN NOT NULL,
+    stud_access_ndays_visible INT NOT NULL CHECK (stud_access_ndays_visible >= 0),
+    stud_access_prof_mod BOOLEAN NOT NULL,
+    stud_access_timebar BOOLEAN NOT NULL,
+    stud_access_talkback BOOLEAN NOT NULL,
+    stud_access_profile_mod BOOLEAN NOT NULL,
+    stud_access_task_mod BOOLEAN NOT NULL,
     avatar_id_fk INT,
+    CONSTRAINT fk_student_user FOREIGN KEY (stud_usr) REFERENCES users(username) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT fk_student_avatar FOREIGN KEY (avatar_id_fk) REFERENCES Avatar(avatar_id) ON DELETE SET NULL
 );
 
--- 5. Tabla Parents
 CREATE TABLE Parents (
     par_usr VARCHAR(50) PRIMARY KEY,
-    par_full_name VARCHAR(150) NOT NULL,
     par_email VARCHAR(254) NOT NULL UNIQUE,
-    par_passwd VARCHAR(255) NOT NULL,
-    token VARCHAR(64) NULL
+    CONSTRAINT fk_parents_user FOREIGN KEY (par_usr) REFERENCES users(username) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
--- 6. Tabla Alt_tasks
+-- El esquema de tareas se conserva; las FK de username aceptan renombrados de alumnos.
 CREATE TABLE Alt_Tasks (
     alt_task_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     alt_task_start_hour TIME,
-    alt_task_duration INT,
+    alt_task_duration INT NOT NULL CHECK (alt_task_duration > 0),
     alt_task_creator VARCHAR(50)
 );
 
@@ -68,7 +70,7 @@ CREATE TABLE Tasks (
     task_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     task_title VARCHAR(100),
     task_start_hour TIME,
-    task_duration INT,
+    task_duration INT NOT NULL CHECK (task_duration > 0),
     task_creator VARCHAR(50),
     task_finished BOOLEAN,
     alt_task_id_fk INT UNIQUE,
@@ -100,13 +102,21 @@ CREATE TABLE Steps (
 -- TABLAS INTERMEDIAS (RELACIONES MUCHOS A MUCHOS)
 -- -----------------------------------------------------
 
--- Relación N:M entre Staff y Student
-CREATE TABLE staff_stud (
-    staff_usr_fk VARCHAR(50),
-    stud_usr_fk VARCHAR(50),
-    PRIMARY KEY (staff_usr_fk, stud_usr_fk),
-    CONSTRAINT fk_staff_stud_staff FOREIGN KEY (staff_usr_fk) REFERENCES Staff(staff_usr) ON DELETE CASCADE,
-    CONSTRAINT fk_staff_stud_student FOREIGN KEY (stud_usr_fk) REFERENCES Student(stud_usr) ON DELETE CASCADE
+-- Un profesor puede estar en varias clases; una clase puede tener varios profesores.
+CREATE TABLE class_staff (
+    class_name_fk VARCHAR(50) NOT NULL,
+    staff_usr_fk VARCHAR(50) NOT NULL,
+    PRIMARY KEY (class_name_fk, staff_usr_fk),
+    CONSTRAINT fk_class_staff_class FOREIGN KEY (class_name_fk) REFERENCES Class(class_name) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT fk_class_staff_staff FOREIGN KEY (staff_usr_fk) REFERENCES Staff(staff_usr) ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+-- La PK en stud_usr_fk garantiza que cada alumno pertenezca como máximo a una clase.
+CREATE TABLE class_stud (
+    class_name_fk VARCHAR(50) NOT NULL,
+    stud_usr_fk VARCHAR(50) PRIMARY KEY,
+    CONSTRAINT fk_class_stud_class FOREIGN KEY (class_name_fk) REFERENCES Class(class_name) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT fk_class_stud_student FOREIGN KEY (stud_usr_fk) REFERENCES Student(stud_usr) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 -- Relación N:M entre Parents y Student
@@ -114,19 +124,32 @@ CREATE TABLE par_stud (
     par_usr_fk VARCHAR(50),
     stud_usr_fk VARCHAR(50),
     PRIMARY KEY (par_usr_fk, stud_usr_fk),
-    CONSTRAINT fk_par_stud_parents FOREIGN KEY (par_usr_fk) REFERENCES Parents(par_usr) ON DELETE CASCADE,
-    CONSTRAINT fk_par_stud_student FOREIGN KEY (stud_usr_fk) REFERENCES Student(stud_usr) ON DELETE CASCADE
+    CONSTRAINT fk_par_stud_parents FOREIGN KEY (par_usr_fk) REFERENCES Parents(par_usr) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT fk_par_stud_student FOREIGN KEY (stud_usr_fk) REFERENCES Student(stud_usr) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 -- Relación N:M entre Student y Tasks
+-- Tarea asignada a una clase. La tarea existe aunque no tenga alumnos matriculados.
+CREATE TABLE class_task (
+    class_name_fk VARCHAR(50) NOT NULL,
+    task_id_fk INT PRIMARY KEY,
+    task_date DATE NOT NULL,
+    UNIQUE (class_name_fk, task_id_fk),
+    CONSTRAINT fk_class_task_class FOREIGN KEY (class_name_fk) REFERENCES Class(class_name) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT fk_class_task_task FOREIGN KEY (task_id_fk) REFERENCES Tasks(task_id) ON DELETE CASCADE
+);
+
+-- Una asignación de alumno puede ser directa (class_name_fk NULL) o proceder de una clase.
 CREATE TABLE stud_task (
     stud_usr_fk VARCHAR(50),
     task_id_fk INT,
     task_index INT,
     task_date DATE,
+    class_name_fk VARCHAR(50),
     PRIMARY KEY (stud_usr_fk, task_id_fk, task_index, task_date),
-    CONSTRAINT fk_stud_task_student FOREIGN KEY (stud_usr_fk) REFERENCES Student(stud_usr) ON DELETE CASCADE,
-    CONSTRAINT fk_stud_task_tasks FOREIGN KEY (task_id_fk) REFERENCES Tasks(task_id) ON DELETE CASCADE
+    CONSTRAINT fk_stud_task_student FOREIGN KEY (stud_usr_fk) REFERENCES Student(stud_usr) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT fk_stud_task_tasks FOREIGN KEY (task_id_fk) REFERENCES Tasks(task_id) ON DELETE CASCADE,
+    CONSTRAINT fk_stud_task_class_task FOREIGN KEY (class_name_fk, task_id_fk) REFERENCES class_task(class_name_fk, task_id_fk) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 -- Relación N:M entre Canteen_Task y Student
@@ -136,5 +159,7 @@ CREATE TABLE canteen_stud (
     canteen_date DATE,
     PRIMARY KEY (task_id_fk, stud_usr_fk),
     CONSTRAINT fk_canteen_stud_canteen FOREIGN KEY (task_id_fk) REFERENCES Canteen_Task(task_id_fk) ON DELETE CASCADE,
-    CONSTRAINT fk_canteen_stud_student FOREIGN KEY (stud_usr_fk) REFERENCES Student(stud_usr) ON DELETE CASCADE
+    CONSTRAINT fk_canteen_stud_student FOREIGN KEY (stud_usr_fk) REFERENCES Student(stud_usr) ON UPDATE CASCADE ON DELETE CASCADE
 );
+
+COMMIT;

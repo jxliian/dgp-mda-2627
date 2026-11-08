@@ -25,3 +25,11 @@ backend/
 ```
 
 > **Nota:** La tecnología definitiva será definida y documentada en la Propuesta Técnica y en la Planificación de la Iteración 1.
+
+## Foto de perfil del alumno
+
+Con una sesión Bearer de alumno, `PUT /users/students/me/avatar` recibe un archivo
+multipart en el campo `file`. Admite imágenes PNG, JPEG y WebP de hasta 5 MB. La
+respuesta incluye `avatar_url`; `GET /users/students/me/avatar` devuelve la imagen
+actual o una silueta SVG predeterminada si todavía no hay foto. La subida requiere
+que `stud_access_profile_mod` permita editar el perfil.

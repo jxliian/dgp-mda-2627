@@ -4,9 +4,9 @@ services:
     container_name: autovida_postgres
     restart: always
     environment:
-      POSTGRES_USER: autovida_admin
-      POSTGRES_PASSWORD: Clench1234
-      POSTGRES_DB: autovida_db
+      POSTGRES_USER: ${DB_USER:-autovida_admin}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Define DB_PASSWORD en el archivo .env}
+      POSTGRES_DB: ${DB_NAME:-autovida_db}
     ports:
       - "5432:5432"
     volumes:
