@@ -49,6 +49,12 @@ class CreateTaskRequest(BaseModel):
         return value
 
 
+class CreateOwnTaskRequest(CreateTaskRequest):
+    """Datos de una tarea propia, con hora necesaria para validar su horario."""
+
+    task_start_hour: time
+
+
 class SetAlternativeTaskRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -72,6 +78,31 @@ def create_student_task(
         user["role"],
         user["username"],
         student_username,
+        payload.task_title,
+        payload.task_date,
+        payload.task_index,
+        payload.task_start_hour,
+        payload.task_duration,
+        payload.alt_task_id_fk,
+    )
+
+
+@router.post("/me", status_code=201)
+def create_my_task(
+    payload: CreateOwnTaskRequest,
+    db: Session = Depends(get_db),
+    user: dict = Depends(get_current_user),
+) -> dict:
+    """Crea una tarea para el alumno autenticado fuera del horario escolar."""
+    if user["role"] != "student":
+        raise_api_error(ErrorCode.TASK_CREATOR_REQUIRED)
+
+    return _run_db_operation(
+        tasks_db.create_task,
+        db,
+        "student",
+        user["username"],
+        user["username"],
         payload.task_title,
         payload.task_date,
         payload.task_index,
@@ -121,6 +152,30 @@ def delete_student_task(
         user["role"],
         user["username"],
         student_username,
+        task_id,
+        task_date,
+        task_index,
+    )
+
+
+@router.delete("/me/{task_id}")
+def delete_my_task(
+    task_id: Annotated[int, Path(gt=0)],
+    task_date: date,
+    task_index: Annotated[int, Query(ge=0)],
+    db: Session = Depends(get_db),
+    user: dict = Depends(get_current_user),
+) -> dict:
+    """Elimina una tarea propia del alumno si está fuera del horario escolar."""
+    if user["role"] != "student":
+        raise_api_error(ErrorCode.TASK_CREATOR_REQUIRED)
+
+    return _run_db_operation(
+        tasks_db.delete_student_task,
+        db,
+        "student",
+        user["username"],
+        user["username"],
         task_id,
         task_date,
         task_index,

@@ -254,7 +254,7 @@ Las asociaciones también son una condición de autorización en las operaciones
 
 ## Tareas individuales de alumnos
 
-Prefijo `/student-tasks`. En estas rutas solo pueden actuar usuarios autenticados con rol `parent` o `staff`. El administrador y el estudiante no están autorizados por este router.
+Prefijo `/student-tasks`. El personal (`staff`) y los tutores (`parent`) pueden crear tareas para alumnos asociados. El alumno puede crear y eliminar solo sus propias tareas mediante las rutas `/me`, si `stud_access_task_mod` está activado. El administrador no está autorizado por este router. Las rutas de edición de tareas alternativas siguen reservadas a `staff` y `parent`.
 
 ### `POST /student-tasks/students/{student_username}` — Crear tarea en la agenda de un alumno
 
@@ -267,6 +267,20 @@ La operación inserta en `Tasks` con `task_creator` igual al username del creado
 `CreacionTablas.sqlscript` recrea el esquema completo: elimina primero las tablas existentes y después vuelve a crearlas. Es destructivo y borra todos los datos de esas tablas; se debe ejecutar solo cuando se quiera reiniciar la base de datos.
 
 La hora de inicio es opcional, pero la duración siempre es obligatoria. Si se omite `task_start_hour`, no hay un intervalo horario que comprobar y no se aplica esta regla.
+
+### `POST /student-tasks/me` — Crear una tarea propia
+
+Requiere token de alumno. El JSON acepta los campos de creación individual, pero exige también `task_start_hour`, ya que el alumno solo puede crear tareas fuera del horario escolar. La duración es obligatoria y positiva, en minutos. El alumno debe tener `stud_access_task_mod = true`; si no, responde `STUDENT_TASK_MODIFICATION_DENIED` (HTTP 403). Se crea una tarea `Generic_Task` con `task_creator` igual al username del alumno y una asignación en `stud_task` para ese mismo alumno. La hora de inicio más la duración no puede solaparse con `[09:00, 15:00)`; si se solapa, responde `STUDENT_TASK_OUTSIDE_SCHOOL_HOURS` (HTTP 400). Devuelve HTTP 201.
+
+**JSON de entrada:**
+```json
+{"task_title":"Dibujar","task_date":"2026-11-10","task_index":0,"task_start_hour":"16:30:00","task_duration":20}
+```
+
+**Respuesta JSON (valores de ejemplo):**
+```json
+{"errorCode":0,"details":"successful","task_id":42,"task_title":"Dibujar","task_start_hour":"16:30:00","task_duration":20,"task_creator":"luis","task_finished":false,"alt_task_id_fk":null,"stud_usr_fk":"luis","task_index":0,"task_date":"2026-11-10"}
+```
 
 **JSON de entrada:**
 ```json
@@ -306,6 +320,12 @@ Si se conoce la hora de inicio, un tutor no puede quitar una tarea dentro del ho
 ```json
 {"errorCode":0,"details":"successful","task_id":41,"stud_usr_fk":"luis","task_date":"2026-11-10","task_index":0}
 ```
+
+### `DELETE /student-tasks/me/{task_id}?task_date=AAAA-MM-DD&task_index=N` — Eliminar una tarea propia
+
+Requiere token de alumno y `stud_access_task_mod = true`. Comprueba que la asignación corresponda al alumno autenticado y que `Tasks.task_creator` también sea su username, para impedir que borre tareas de personal o tutores. La tarea debe tener una hora de inicio y su intervalo completo (hora más duración) debe quedar fuera de `[09:00, 15:00)`; si invade ese tramo o carece de hora, responde `STUDENT_TASK_OUTSIDE_SCHOOL_HOURS` (HTTP 400). Sin permiso de modificación responde `STUDENT_TASK_MODIFICATION_DENIED` (HTTP 403). Elimina la asignación indicada y, si la tarea propia ya no tiene ninguna otra asignación, elimina también su fila de `Tasks` y el `Generic_Task` asociado. Devuelve los identificadores de la asignación eliminada.
+
+**Entrada:** sin cuerpo. Ejemplo: `DELETE /student-tasks/me/42?task_date=2026-11-10&task_index=0`.
 
 ## Clases
 

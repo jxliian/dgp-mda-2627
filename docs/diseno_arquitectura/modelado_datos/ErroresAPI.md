@@ -35,7 +35,7 @@ en la respuesta. Por ejemplo, `errorCode: 1002` se devuelve con HTTP 401.
 | 1014 | La asociación no existe | 404 | Se intentó desenlazar una asociación que no está registrada. |
 | 1015 | Tipo de usuario asociado no válido | 400 | La operación de asociaciones recibió un tipo distinto de tutor (`parent`) o staff. |
 | 1016 | Ruta no encontrada | 404 | La URL no corresponde a ningún endpoint disponible. |
-| 1017 | Se requiere una sesión de personal o tutor | 403 | La operación de tareas solo admite usuarios con rol `staff` o `parent`. |
+| 1017 | Se requiere una sesión autorizada de personal, tutor o alumno | 403 | La ruta no admite el rol autenticado; los alumnos solo tienen acceso a las rutas para sus propias tareas. |
 | 1018 | Alumno no encontrado | 404 | No existe el alumno indicado en la operación de tareas. |
 | 1019 | El alumno no está asociado a tu cuenta | 403 | El tutor o miembro del staff no está vinculado al alumno solicitado. |
 | 1020 | La tarea alternativa no existe | 404 | No se encontró la tarea alternativa solicitada. |
@@ -57,6 +57,8 @@ en la respuesta. Por ejemplo, `errorCode: 1002` se devuelve con HTTP 401.
 | 1036 | El archivo debe ser una imagen PNG, JPEG o WebP válida | 422 | El alumno intentó actualizar su foto con un archivo que no se reconoce como imagen compatible. |
 | 1037 | La imagen no puede superar los 5 MB | 413 | El archivo de foto supera el tamaño máximo permitido. |
 | 1038 | No se permite cambiar el rol de un usuario | 403 | Un administrador intentó cambiar el rol de una cuenta. Los usuarios no administradores reciben `PROFILE_UPDATE_DENIED` si intentan enviar un rol. |
+| 1039 | El alumno no tiene permiso para modificar sus tareas | 403 | `stud_access_task_mod` está desactivado para el alumno que intenta crear o eliminar una tarea propia. |
+| 1040 | La tarea del alumno debe quedar fuera del horario escolar | 400 | El intervalo de la tarea del alumno coincide con el horario `[09:00, 15:00)` o no se indicó hora al crearla. |
 
 ## Errores internos
 

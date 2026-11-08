@@ -16,6 +16,8 @@ def validate_task_schedule(
     if task_duration_minutes is None or task_duration_minutes <= 0:
         raise CatalogError(ErrorCode.INVALID_REQUEST)
     if task_start_hour is None:
+        if creator_role == "student":
+            raise CatalogError(ErrorCode.STUDENT_TASK_OUTSIDE_SCHOOL_HOURS)
         return
 
     start_seconds = (
@@ -31,7 +33,7 @@ def validate_task_schedule(
             raise CatalogError(ErrorCode.STAFF_TASK_OUTSIDE_SCHOOL_HOURS)
         return
 
-    if creator_role == "parent":
+    if creator_role in {"parent", "student"}:
         if start_seconds < SCHOOL_START_SECONDS:
             overlaps_school = end_seconds > SCHOOL_START_SECONDS
         elif start_seconds < SCHOOL_END_SECONDS:
@@ -40,4 +42,9 @@ def validate_task_schedule(
             next_school_start = DAY_SECONDS + SCHOOL_START_SECONDS
             overlaps_school = end_seconds > next_school_start
         if overlaps_school:
-            raise CatalogError(ErrorCode.PARENT_TASK_DURING_SCHOOL_HOURS)
+            error_code = (
+                ErrorCode.STUDENT_TASK_OUTSIDE_SCHOOL_HOURS
+                if creator_role == "student"
+                else ErrorCode.PARENT_TASK_DURING_SCHOOL_HOURS
+            )
+            raise CatalogError(error_code)

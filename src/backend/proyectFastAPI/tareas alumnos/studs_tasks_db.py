@@ -27,33 +27,48 @@ def create_task(
     task_duration: int,
     alt_task_id_fk: int | None,
 ) -> dict:
-    """Crea una tarea solo si el alumno está asociado al staff o tutor autenticado."""
+    """Crea una tarea asociada al usuario autorizado que la solicita."""
     association = CREATOR_ASSOCIATIONS.get(creator_role)
-    if association is None:
+    if association is None and creator_role != "student":
         raise CatalogError(ErrorCode.TASK_CREATOR_REQUIRED)
+    if creator_role == "student" and student_username != creator_username:
+        raise CatalogError(ErrorCode.TASK_NOT_FOUND)
     validate_task_schedule(creator_role, task_start_hour, task_duration)
 
-    student_exists = db.execute(
-        text(
-            "SELECT 1 FROM users AS account JOIN Student AS student_profile "
-            "ON student_profile.stud_usr = account.username "
-            "WHERE account.username = :student_username"
-        ),
-        {"student_username": student_username},
-    ).scalar_one_or_none()
-    if student_exists is None:
-        raise CatalogError(ErrorCode.TASK_STUDENT_NOT_FOUND)
+    if creator_role == "student":
+        task_permission = db.execute(
+            text(
+                "SELECT stud_access_task_mod FROM Student "
+                "WHERE stud_usr = :student_username FOR UPDATE"
+            ),
+            {"student_username": student_username},
+        ).scalar_one_or_none()
+        if task_permission is None:
+            raise CatalogError(ErrorCode.TASK_STUDENT_NOT_FOUND)
+        if task_permission is not True:
+            raise CatalogError(ErrorCode.STUDENT_TASK_MODIFICATION_DENIED)
+    else:
+        student_exists = db.execute(
+            text(
+                "SELECT 1 FROM users AS account JOIN Student AS student_profile "
+                "ON student_profile.stud_usr = account.username "
+                "WHERE account.username = :student_username"
+            ),
+            {"student_username": student_username},
+        ).scalar_one_or_none()
+        if student_exists is None:
+            raise CatalogError(ErrorCode.TASK_STUDENT_NOT_FOUND)
 
-    is_associated = db.execute(
-        text(
-            f"SELECT 1 FROM {association['table']} "
-            f"WHERE {association['creator_fk']} = :creator_username "
-            "AND stud_usr_fk = :student_username"
-        ),
-        {"creator_username": creator_username, "student_username": student_username},
-    ).scalar_one_or_none()
-    if is_associated is None:
-        raise CatalogError(ErrorCode.TASK_STUDENT_NOT_ASSOCIATED)
+        is_associated = db.execute(
+            text(
+                f"SELECT 1 FROM {association['table']} "
+                f"WHERE {association['creator_fk']} = :creator_username "
+                "AND stud_usr_fk = :student_username"
+            ),
+            {"creator_username": creator_username, "student_username": student_username},
+        ).scalar_one_or_none()
+        if is_associated is None:
+            raise CatalogError(ErrorCode.TASK_STUDENT_NOT_ASSOCIATED)
 
     if alt_task_id_fk is not None:
         alt_task_exists = db.execute(
@@ -203,34 +218,49 @@ def delete_student_task(
 ) -> dict:
     """Retira una tarea de la agenda si el usuario puede gestionar al alumno y su horario."""
     association = CREATOR_ASSOCIATIONS.get(creator_role)
-    if association is None:
+    if association is None and creator_role != "student":
         raise CatalogError(ErrorCode.TASK_CREATOR_REQUIRED)
+    if creator_role == "student" and student_username != creator_username:
+        raise CatalogError(ErrorCode.TASK_NOT_FOUND)
 
-    student_exists = db.execute(
-        text(
-            "SELECT 1 FROM users AS account JOIN Student AS student_profile "
-            "ON student_profile.stud_usr = account.username "
-            "WHERE account.username = :student_username"
-        ),
-        {"student_username": student_username},
-    ).scalar_one_or_none()
-    if student_exists is None:
-        raise CatalogError(ErrorCode.TASK_STUDENT_NOT_FOUND)
+    if creator_role == "student":
+        task_permission = db.execute(
+            text(
+                "SELECT stud_access_task_mod FROM Student "
+                "WHERE stud_usr = :student_username FOR UPDATE"
+            ),
+            {"student_username": student_username},
+        ).scalar_one_or_none()
+        if task_permission is None:
+            raise CatalogError(ErrorCode.TASK_STUDENT_NOT_FOUND)
+        if task_permission is not True:
+            raise CatalogError(ErrorCode.STUDENT_TASK_MODIFICATION_DENIED)
+    else:
+        student_exists = db.execute(
+            text(
+                "SELECT 1 FROM users AS account JOIN Student AS student_profile "
+                "ON student_profile.stud_usr = account.username "
+                "WHERE account.username = :student_username"
+            ),
+            {"student_username": student_username},
+        ).scalar_one_or_none()
+        if student_exists is None:
+            raise CatalogError(ErrorCode.TASK_STUDENT_NOT_FOUND)
 
-    student_is_associated = db.execute(
-        text(
-            f"SELECT 1 FROM {association['table']} "
-            f"WHERE {association['creator_fk']} = :creator_username "
-            "AND stud_usr_fk = :student_username"
-        ),
-        {"creator_username": creator_username, "student_username": student_username},
-    ).scalar_one_or_none()
-    if student_is_associated is None:
-        raise CatalogError(ErrorCode.TASK_STUDENT_NOT_ASSOCIATED)
+        student_is_associated = db.execute(
+            text(
+                f"SELECT 1 FROM {association['table']} "
+                f"WHERE {association['creator_fk']} = :creator_username "
+                "AND stud_usr_fk = :student_username"
+            ),
+            {"creator_username": creator_username, "student_username": student_username},
+        ).scalar_one_or_none()
+        if student_is_associated is None:
+            raise CatalogError(ErrorCode.TASK_STUDENT_NOT_ASSOCIATED)
 
     task = db.execute(
         text(
-            "SELECT task.task_start_hour "
+            "SELECT task.task_start_hour, task.task_duration, task.task_creator "
             "FROM Tasks task "
             "JOIN stud_task assigned ON assigned.task_id_fk = task.task_id "
             "WHERE task.task_id = :task_id AND assigned.stud_usr_fk = :student_username "
@@ -247,7 +277,11 @@ def delete_student_task(
         raise CatalogError(ErrorCode.TASK_NOT_FOUND)
 
     task_start_hour = task["task_start_hour"]
-    if task_start_hour is not None:
+    if creator_role == "student":
+        if task["task_creator"] != creator_username:
+            raise CatalogError(ErrorCode.TASK_NOT_FOUND)
+        validate_task_schedule("student", task_start_hour, task["task_duration"])
+    elif task_start_hour is not None:
         during_school_hours = SCHOOL_START <= task_start_hour < SCHOOL_END
         if creator_role == "parent" and during_school_hours:
             raise CatalogError(ErrorCode.PARENT_DELETE_DURING_SCHOOL_HOURS)
@@ -270,6 +304,15 @@ def delete_student_task(
     if not result.rowcount:
         db.rollback()
         raise CatalogError(ErrorCode.TASK_NOT_FOUND)
+
+    if creator_role == "student":
+        db.execute(
+            text(
+                "DELETE FROM Tasks WHERE task_id = :task_id AND task_creator = :creator_username "
+                "AND NOT EXISTS (SELECT 1 FROM stud_task WHERE task_id_fk = :task_id)"
+            ),
+            {"task_id": task_id, "creator_username": creator_username},
+        )
 
     db.commit()
     return success_response(

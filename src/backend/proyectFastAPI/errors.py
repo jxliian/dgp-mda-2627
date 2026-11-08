@@ -47,6 +47,8 @@ class ErrorCode(IntEnum):
     AVATAR_INVALID_IMAGE = 1036
     AVATAR_TOO_LARGE = 1037
     ROLE_CHANGE_DENIED = 1038
+    STUDENT_TASK_MODIFICATION_DENIED = 1039
+    STUDENT_TASK_OUTSIDE_SCHOOL_HOURS = 1040
     USER_LOOKUP_FAILED = 1501
     USER_LIST_FAILED = 1502
     PASSWORD_UPDATE_FAILED = 1503
@@ -76,7 +78,7 @@ ERRORS: dict[ErrorCode, tuple[int, str]] = {
     ErrorCode.ASSOCIATION_NOT_FOUND: (404, "La asociación no existe"),
     ErrorCode.INVALID_ASSOCIATION_TYPE: (400, "Tipo de usuario asociado no válido"),
     ErrorCode.ROUTE_NOT_FOUND: (404, "Ruta no encontrada"),
-    ErrorCode.TASK_CREATOR_REQUIRED: (403, "Se requiere una sesión de personal o tutor"),
+    ErrorCode.TASK_CREATOR_REQUIRED: (403, "Se requiere una sesión autorizada de personal, tutor o alumno"),
     ErrorCode.TASK_STUDENT_NOT_FOUND: (404, "Alumno no encontrado"),
     ErrorCode.TASK_STUDENT_NOT_ASSOCIATED: (403, "El alumno no está asociado a tu cuenta"),
     ErrorCode.ALTERNATIVE_TASK_NOT_FOUND: (404, "La tarea alternativa no existe"),
@@ -98,6 +100,8 @@ ERRORS: dict[ErrorCode, tuple[int, str]] = {
     ErrorCode.AVATAR_INVALID_IMAGE: (422, "El archivo debe ser una imagen PNG, JPEG o WebP válida"),
     ErrorCode.AVATAR_TOO_LARGE: (413, "La imagen no puede superar los 5 MB"),
     ErrorCode.ROLE_CHANGE_DENIED: (403, "No se permite cambiar el rol de un usuario"),
+    ErrorCode.STUDENT_TASK_MODIFICATION_DENIED: (403, "El alumno no tiene permiso para modificar sus tareas"),
+    ErrorCode.STUDENT_TASK_OUTSIDE_SCHOOL_HOURS: (400, "La tarea del alumno debe quedar fuera del horario escolar"),
     ErrorCode.USER_LOOKUP_FAILED: (500, "No se pudo consultar el usuario"),
     ErrorCode.USER_LIST_FAILED: (500, "No se pudo consultar la lista de usuarios"),
     ErrorCode.PASSWORD_UPDATE_FAILED: (500, "No se pudo actualizar la contraseña"),
