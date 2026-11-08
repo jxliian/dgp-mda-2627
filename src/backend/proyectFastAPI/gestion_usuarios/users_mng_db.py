@@ -11,7 +11,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # Identifiers are internal constants; never accept table or column names from a request.
 ROLE_CONFIG = {
-    "admin": {"table": "Admn", "username": "admn_usr"},
+    "admin": {"table": "Admn", "username": "admn_usr", "name_key": "admn_full_name", "email": "admn_email"},
     "staff": {"table": "Staff", "username": "staff_usr", "email": "staff_email"},
     "student": {"table": "Student", "username": "stud_usr"},
     "parent": {"table": "Parents", "username": "par_usr", "email": "par_email"},
@@ -125,7 +125,7 @@ class UsersManagementDB:
         """Lista las cuentas de un rol sin incluir hashes de contraseña ni tokens."""
         try:
             cfg = _config(role)
-            fields = [f"r.{cfg['username']}", "u.full_name"]
+            fields = [f"r.{cfg['username']}", f"u.full_name AS {cfg['name_key']}"]
             if "email" in cfg:
                 fields.append(f"r.{cfg['email']}")
             if role.lower() == "student":

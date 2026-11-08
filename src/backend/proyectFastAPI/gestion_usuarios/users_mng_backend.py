@@ -23,7 +23,6 @@ class CreateUserBase(BaseModel):
     password: str = Field(min_length=1)
     role: Role
 
-
 class CreateStudentRequest(CreateUserBase):
     """Campos de creación de estudiante, incluidos sus ajustes de accesibilidad."""
 
