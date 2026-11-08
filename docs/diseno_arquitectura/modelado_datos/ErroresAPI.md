@@ -41,8 +41,8 @@ en la respuesta. Por ejemplo, `errorCode: 1002` se devuelve con HTTP 401.
 | 1020 | La tarea alternativa no existe | 404 | No se encontró la tarea alternativa solicitada. |
 | 1021 | Tarea no encontrada | 404 | No se encontró la tarea solicitada. |
 | 1022 | La tarea alternativa ya está asociada a otra tarea | 409 | La tarea alternativa ya tiene una asociación incompatible. |
-| 1023 | El personal solo puede programar tareas entre las 09:00 y las 15:00 | 400 | Un miembro del staff intentó crear una tarea fuera del horario permitido. |
-| 1024 | Los tutores solo pueden programar tareas fuera del horario escolar | 400 | Un tutor intentó crear una tarea dentro del horario escolar. |
+| 1023 | La tarea completa del personal debe quedar entre las 09:00 y las 15:00 | 400 | La hora de inicio o el final calculado con la duración deja la tarea de staff fuera del horario escolar. |
+| 1024 | La tarea completa del tutor no puede coincidir con el horario escolar | 400 | El intervalo de la tarea del tutor se solapa con el horario escolar. |
 | 1025 | Los tutores no pueden eliminar tareas programadas durante el horario escolar | 400 | Un tutor intentó eliminar una tarea dentro del horario escolar. |
 | 1026 | El personal no puede eliminar tareas programadas fuera del horario escolar | 400 | Un miembro del staff intentó eliminar una tarea fuera del horario permitido. |
 | 1027 | Ya existe un usuario con ese nombre de usuario | 409 | El nombre de usuario ya está ocupado en `users`, por lo que no puede repetirse en ninguna especialización de rol. |

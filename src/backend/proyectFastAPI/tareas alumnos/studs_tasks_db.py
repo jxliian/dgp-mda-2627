@@ -5,6 +5,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from ..errors import CatalogError, ErrorCode, success_response
+from ..task_schedule import validate_task_schedule
 
 CREATOR_ASSOCIATIONS = {
     "staff": {"table": "staff_stud", "creator_fk": "staff_usr_fk"},
@@ -30,15 +31,7 @@ def create_task(
     association = CREATOR_ASSOCIATIONS.get(creator_role)
     if association is None:
         raise CatalogError(ErrorCode.TASK_CREATOR_REQUIRED)
-    if task_duration is None or task_duration <= 0:
-        raise CatalogError(ErrorCode.INVALID_REQUEST)
-
-    if task_start_hour is not None:
-        during_school_hours = SCHOOL_START <= task_start_hour < SCHOOL_END
-        if creator_role == "staff" and not during_school_hours:
-            raise CatalogError(ErrorCode.STAFF_TASK_OUTSIDE_SCHOOL_HOURS)
-        if creator_role == "parent" and during_school_hours:
-            raise CatalogError(ErrorCode.PARENT_TASK_DURING_SCHOOL_HOURS)
+    validate_task_schedule(creator_role, task_start_hour, task_duration)
 
     student_exists = db.execute(
         text(

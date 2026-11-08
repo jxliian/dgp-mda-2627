@@ -258,15 +258,15 @@ Prefijo `/student-tasks`. En estas rutas solo pueden actuar usuarios autenticado
 
 ### `POST /student-tasks/students/{student_username}` — Crear tarea en la agenda de un alumno
 
-Responde HTTP 201. El JSON requiere `task_title`, `task_date`, `task_index` y `task_duration`. El título se recorta y debe contener entre 1 y 100 caracteres; el índice debe ser un entero no negativo y la duración un entero positivo. Son opcionales `task_start_hour` (hora local sin zona) y `alt_task_id_fk` (entero positivo). Si falta la duración, es `null` o no es positiva, FastAPI rechaza la petición con error de validación `1005` (HTTP 422). No admite propiedades adicionales.
+Responde HTTP 201. El JSON requiere `task_title`, `task_date`, `task_index` y `task_duration`. El título se recorta y debe contener entre 1 y 100 caracteres; el índice debe ser un entero no negativo y la duración un entero positivo expresado en minutos. Son opcionales `task_start_hour` (hora local sin zona) y `alt_task_id_fk` (entero positivo). Si falta la duración, es `null` o no es positiva, FastAPI rechaza la petición con error de validación `1005` (HTTP 422). No admite propiedades adicionales.
 
-El alumno debe existir y el usuario autenticado debe estar asociado a él según su rol. Si se indica hora, las tareas de `staff` deben comenzar desde las 09:00 hasta antes de las 15:00; las de `parent` deben quedar fuera de ese intervalo. Si se indica alternativa, esta debe existir y no estar ya enlazada a otra tarea.
+El alumno debe existir y el usuario autenticado debe estar asociado a él según su rol. Cuando se indica `task_start_hour`, el backend comprueba el intervalo completo `[hora de inicio, hora de inicio + duración)`: la tarea de `staff` debe empezar a las 09:00 o después y terminar a las 15:00 o antes; la de `parent` no puede solaparse con el horario escolar `[09:00, 15:00)`. Por ejemplo, una tarea de personal que comienza a las 14:45 y dura 30 minutos se rechaza, igual que una de tutor que empieza a las 08:45 y dura 30 minutos. En los límites, terminar exactamente a las 09:00 o empezar exactamente a las 15:00 no se considera solapamiento para tutores; el personal sí puede terminar exactamente a las 15:00. Si se indica alternativa, esta debe existir y no estar ya enlazada a otra tarea.
 
 La operación inserta en `Tasks` con `task_creator` igual al username del creador, `task_duration` positiva y `task_finished = false`, añade el subtipo `Generic_Task` y crea la asignación `stud_task` con alumno, tarea, índice y fecha. Todo se confirma en una transacción. La respuesta incluye datos de tarea y de asignación. El esquema también impone `NOT NULL` y `CHECK (> 0)` en `Tasks.task_duration` y `Alt_Tasks.alt_task_duration`; las alternativas ya almacenadas deben cumplirlo aunque esta API solo las asocie.
 
 `CreacionTablas.sqlscript` recrea el esquema completo: elimina primero las tablas existentes y después vuelve a crearlas. Es destructivo y borra todos los datos de esas tablas; se debe ejecutar solo cuando se quiera reiniciar la base de datos.
 
-La hora de inicio es opcional, pero la duración siempre es obligatoria. La regla horaria solo puede comprobarse si se envía `task_start_hour`; si se omite, no se aplica.
+La hora de inicio es opcional, pero la duración siempre es obligatoria. Si se omite `task_start_hour`, no hay un intervalo horario que comprobar y no se aplica esta regla.
 
 **JSON de entrada:**
 ```json
@@ -407,7 +407,7 @@ Requiere staff asignado a la clase. Elimina solo la inscripción indicada. Si la
 
 ### `POST /classes/{class_name}/tasks` — Crear tarea para toda la clase
 
-Requiere staff asignado a la clase. Recibe los mismos campos de tarea que la creación individual: título, fecha, índice y duración positiva obligatorios; hora y alternativa opcionales. Si falta la duración o no es positiva, devuelve el error de validación `1005` (HTTP 422). Valida título/hora y alternativa como el endpoint individual. El personal solo puede indicar una hora entre 09:00 y antes de las 15:00.
+Requiere staff asignado a la clase. Recibe los mismos campos de tarea que la creación individual: título, fecha, índice y duración positiva en minutos obligatorios; hora y alternativa opcionales. Si falta la duración o no es positiva, devuelve el error de validación `1005` (HTTP 422). Si se proporciona la hora, la suma de hora de inicio y duración debe dejar la tarea completa dentro del horario escolar: desde las 09:00 inclusive hasta las 15:00 inclusive como hora de fin. También valida título y alternativa como el endpoint individual.
 
 La clase debe tener al menos un alumno inscrito; de lo contrario devuelve `CLASS_HAS_NO_STUDENTS`. Crea una sola tarea con `task_creator` igual al username del miembro del personal, la duración obligatoria, un registro `Generic_Task` y una fila `stud_task` por cada alumno inscrito, con la fecha e índice solicitados. La operación es transaccional y responde HTTP 201 con la lista de alumnos incluidos.
 

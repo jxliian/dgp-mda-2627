@@ -5,10 +5,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from ..errors import CatalogError, ErrorCode, success_response
-
-SCHOOL_START = time(9, 0)
-SCHOOL_END = time(15, 0)
-
+from ..task_schedule import validate_task_schedule
 
 def _ensure_class(db: Session, class_name: str) -> dict:
     """Comprueba que exista la clase y devuelve su nombre."""
@@ -219,10 +216,7 @@ def assign_task(
 ) -> dict:
     """Crea una tarea y la asigna a todos los alumnos inscritos en la clase."""
     _ensure_staff_class(db, class_name, staff_username)
-    if task_duration is None or task_duration <= 0:
-        raise CatalogError(ErrorCode.INVALID_REQUEST)
-    if task_start_hour is not None and not SCHOOL_START <= task_start_hour < SCHOOL_END:
-        raise CatalogError(ErrorCode.STAFF_TASK_OUTSIDE_SCHOOL_HOURS)
+    validate_task_schedule("staff", task_start_hour, task_duration)
 
     students = db.execute(
         text("SELECT stud_usr_fk FROM class_stud WHERE class_name_fk = :class_name ORDER BY stud_usr_fk"),
