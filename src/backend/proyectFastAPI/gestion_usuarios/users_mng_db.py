@@ -11,7 +11,8 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # Identifiers are internal constants; never accept table or column names from a request.
 ROLE_CONFIG = {
-    "admin": {"table": "Admn", "username": "admn_usr", "name_key": "admn_full_name", "email": "admn_email"},
+
+    "admin": {"table": "Admn", "username": "admn_usr", "email": "admn_email"},
     "staff": {"table": "Staff", "username": "staff_usr", "email": "staff_email"},
     "student": {"table": "Student", "username": "stud_usr"},
     "parent": {"table": "Parents", "username": "par_usr", "email": "par_email"},
@@ -121,24 +122,34 @@ class UsersManagementDB:
         except Exception:
             return _error(ErrorCode.USER_LOOKUP_FAILED)
 
-    def getUsers(self, db: Session, role: str) -> dict:
-        """Lista las cuentas de un rol sin incluir hashes de contraseña ni tokens."""
+    def getUsers(self, db: Session, role: Optional[str] = None) -> dict:
+        """Lista todas las cuentas o las de un rol, con username, nombre y rol."""
         try:
-            cfg = _config(role)
-            fields = [f"r.{cfg['username']}", f"u.full_name AS {cfg['name_key']}"]
-            if "email" in cfg:
-                fields.append(f"r.{cfg['email']}")
-            if role.lower() == "student":
-                fields.extend(f"r.{field}" for field in STUDENT_ACCESS_FIELDS)
-            rows = db.execute(
-                text(
-                    f"SELECT {', '.join(fields)} "
-                    f"FROM {cfg['table']} AS r JOIN users AS u "
-                    f"ON u.username = r.{cfg['username']} "
-                    f"ORDER BY r.{cfg['username']}"
-                )
-            ).mappings().all()
-            return _ok(users=[dict(row) for row in rows])
+            selected_roles = [role.lower()] if role is not None else list(ROLE_CONFIG)
+            users = []
+            for selected_role in selected_roles:
+                cfg = _config(selected_role)
+                fields = [
+                    f"r.{cfg['username']} AS username",
+                    "u.full_name AS full_name",
+                    ":role AS role",
+                ]
+                if "email" in cfg:
+                    fields.append(f"r.{cfg['email']} AS email")
+                if selected_role == "student":
+                    fields.extend(f"r.{field}" for field in STUDENT_ACCESS_FIELDS)
+                rows = db.execute(
+                    text(
+                        f"SELECT {', '.join(fields)} "
+                        f"FROM {cfg['table']} AS r JOIN users AS u "
+                        f"ON u.username = r.{cfg['username']} "
+                        f"ORDER BY r.{cfg['username']}"
+                    ),
+                    {"role": selected_role},
+                ).mappings().all()
+                users.extend(dict(row) for row in rows)
+            users.sort(key=lambda user: user["username"])
+            return _ok(users=users)
         except ValueError as exc:
             return _error(ErrorCode.INVALID_ROLE)
         except Exception:
@@ -285,7 +296,7 @@ class UsersManagementDB:
             if actor_role is not None and actor_role.lower() != "admin":
                 if actor_role.lower() != source_role or actor_username != username:
                     return _error(ErrorCode.PROFILE_UPDATE_DENIED)
-                if new_username is not None or new_role is not None:
+                if new_username is not None or new_role is not None or full_name is not None:
                     return _error(ErrorCode.PROFILE_UPDATE_DENIED)
 
             if all(value is None for value in (full_name, email, passwd_plain, new_username, new_role)) and not access_settings:
