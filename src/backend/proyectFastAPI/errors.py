@@ -38,6 +38,12 @@ class ErrorCode(IntEnum):
     USERNAME_TAKEN = 1027
     EMAIL_TAKEN = 1028
     PROFILE_UPDATE_DENIED = 1029
+    CLASS_NOT_FOUND = 1030
+    CLASS_NAME_TAKEN = 1031
+    CLASS_ACCESS_DENIED = 1032
+    STUDENT_ALREADY_IN_CLASS = 1033
+    CLASS_STAFF_NOT_FOUND = 1034
+    CLASS_HAS_NO_STUDENTS = 1035
     USER_LOOKUP_FAILED = 1501
     USER_LIST_FAILED = 1502
     PASSWORD_UPDATE_FAILED = 1503
@@ -80,6 +86,12 @@ ERRORS: dict[ErrorCode, tuple[int, str]] = {
     ErrorCode.USERNAME_TAKEN: (409, "Ya existe un usuario con ese nombre de usuario"),
     ErrorCode.EMAIL_TAKEN: (409, "Ya existe un usuario con ese correo electrónico en el rol indicado"),
     ErrorCode.PROFILE_UPDATE_DENIED: (403, "No tienes permiso para modificar este perfil"),
+    ErrorCode.CLASS_NOT_FOUND: (404, "Clase no encontrada"),
+    ErrorCode.CLASS_NAME_TAKEN: (409, "Ya existe una clase con ese nombre"),
+    ErrorCode.CLASS_ACCESS_DENIED: (403, "No tienes permiso para gestionar esta clase"),
+    ErrorCode.STUDENT_ALREADY_IN_CLASS: (409, "El alumno ya pertenece a otra clase"),
+    ErrorCode.CLASS_STAFF_NOT_FOUND: (404, "No se encontró el miembro del personal"),
+    ErrorCode.CLASS_HAS_NO_STUDENTS: (400, "No se pueden asignar tareas a una clase sin alumnos"),
     ErrorCode.USER_LOOKUP_FAILED: (500, "No se pudo consultar el usuario"),
     ErrorCode.USER_LIST_FAILED: (500, "No se pudo consultar la lista de usuarios"),
     ErrorCode.PASSWORD_UPDATE_FAILED: (500, "No se pudo actualizar la contraseña"),

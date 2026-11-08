@@ -15,11 +15,13 @@ Role = Literal["admin", "staff", "student", "parent"]
 
 class CreateUserBase(BaseModel):
     """Campos comunes requeridos al crear cualquier cuenta."""
+
+    model_config = {"extra": "forbid"}
+
     username: str = Field(min_length=1, max_length=50)
     full_name: str = Field(min_length=1, max_length=150)
     password: str = Field(min_length=1)
     role: Role
-    email: str | None = None
 
 
 class CreateStudentRequest(CreateUserBase):
@@ -32,22 +34,31 @@ class CreateStudentRequest(CreateUserBase):
     stud_access_pictograms: bool
     stud_access_contrast: bool
     stud_access_fontsize: int = Field(gt=0)
-    stud_access_ndays_visible: int = Field(ge=0)
     stud_access_filters: bool
-    stud_access_time_bar: bool
+    stud_access_ndays_visible: int = Field(ge=0)
+    stud_access_prof_mod: bool
+    stud_access_timebar: bool
     stud_access_talkback: bool
     stud_access_profile_mod: bool
-    stud_access_tasks_mod: bool
+    stud_access_task_mod: bool
 
 
-class CreateOtherUserRequest(CreateUserBase):
-    """Campos de creación para roles distintos de estudiante."""
+class CreateAdminRequest(CreateUserBase):
+    role: Literal["admin"]
 
-    role: Literal["admin", "staff", "parent"]
+
+class CreateStaffRequest(CreateUserBase):
+    role: Literal["staff"]
+    email: str = Field(min_length=1, max_length=254)
+
+
+class CreateParentRequest(CreateUserBase):
+    role: Literal["parent"]
+    email: str = Field(min_length=1, max_length=254)
 
 
 CreateUserRequest = Annotated[
-    Union[CreateStudentRequest, CreateOtherUserRequest],
+    Union[CreateStudentRequest, CreateAdminRequest, CreateStaffRequest, CreateParentRequest],
     Field(discriminator="role"),
 ]
 
@@ -56,6 +67,7 @@ class UpdateUserRequest(BaseModel):
     """Campos de perfil o administración que se pueden modificar."""
 
     model_config = {
+        "extra": "forbid",
         "json_schema_extra": {
             "examples": [
                 {
@@ -68,12 +80,13 @@ class UpdateUserRequest(BaseModel):
                     "stud_access_pictograms": True,
                     "stud_access_contrast": False,
                     "stud_access_fontsize": 18,
-                    "stud_access_ndays_visible": 7,
                     "stud_access_filters": True,
-                    "stud_access_time_bar": True,
+                    "stud_access_ndays_visible": 7,
+                    "stud_access_prof_mod": False,
+                    "stud_access_timebar": True,
                     "stud_access_talkback": False,
                     "stud_access_profile_mod": True,
-                    "stud_access_tasks_mod": True,
+                    "stud_access_task_mod": True,
                 }
             ]
         }
@@ -90,12 +103,13 @@ class UpdateUserRequest(BaseModel):
     stud_access_pictograms: bool | None = None
     stud_access_contrast: bool | None = None
     stud_access_fontsize: int | None = Field(default=None, gt=0)
-    stud_access_ndays_visible: int | None = Field(default=None, ge=0)
     stud_access_filters: bool | None = None
-    stud_access_time_bar: bool | None = None
+    stud_access_ndays_visible: int | None = Field(default=None, ge=0)
+    stud_access_prof_mod: bool | None = None
+    stud_access_timebar: bool | None = None
     stud_access_talkback: bool | None = None
     stud_access_profile_mod: bool | None = None
-    stud_access_tasks_mod: bool | None = None
+    stud_access_task_mod: bool | None = None
 
 
 @router.post("", dependencies=[Depends(require_admin)])
@@ -108,7 +122,7 @@ def create_user(payload: CreateUserRequest, db: Session = Depends(get_db)) -> di
     )
     result = users_mng_db.createUser(
         db, payload.username, payload.password, payload.role, payload.full_name,
-        payload.email, access_settings=access_settings,
+        getattr(payload, "email", None), access_settings=access_settings,
     )
     if result["errorCode"] != 0:
         raise_api_error(result["errorCode"])
