@@ -14,13 +14,20 @@ Esta guía describe las rutas HTTP que registra actualmente `proyectFastAPI/main
 
 ## Salud de la API
 
-### `GET /`
+### `GET /` — Comprobar conexión con la base de datos
 
 No requiere autenticación. Ejecuta `SELECT 1` en PostgreSQL y devuelve `estado: "ok"` y `mensaje: "API conectada a PostgreSQL"` dentro del sobre de éxito. Si no se puede ejecutar la consulta, la respuesta pasa por el manejador de error interno.
 
+**Entrada:** sin cuerpo ni parámetros.
+
+**Respuesta JSON:**
+```json
+{"errorCode": 0, "details": "successful", "estado": "ok", "mensaje": "API conectada a PostgreSQL"}
+```
+
 ## Autenticación
 
-### `POST /auth/login`
+### `POST /auth/login` — Iniciar sesión
 
 Recibe JSON con `username`, `password` y `role`. El usuario y contraseña deben estar presentes; el rol debe ser uno de los cuatro roles admitidos.
 
@@ -28,9 +35,31 @@ El servidor busca la cuenta en `users` junto a la tabla hija correspondiente al 
 
 Una contraseña incorrecta o una combinación de usuario/rol que no corresponde devuelve `INVALID_CREDENTIALS` (HTTP 401). Un rol no admitido devuelve `INVALID_ROLE` (HTTP 400). Un fallo de infraestructura de autenticación devuelve `LOGIN_FAILED` (HTTP 500).
 
-### `POST /auth/logout`
+**JSON de entrada:**
+```json
+{"username": "ana", "password": "contraseña", "role": "parent"}
+```
+
+**Respuesta correcta (el token real es aleatorio):**
+```json
+{"errorCode": 0, "details": "successful", "access_token": "<token>", "token_type": "bearer", "user": {"username": "ana", "role": "parent"}}
+```
+
+**Ejemplo de error:**
+```json
+{"errorCode": 1001, "details": "Usuario o contraseña incorrectos"}
+```
+
+### `POST /auth/logout` — Cerrar sesión
 
 Requiere un Bearer válido. La dependencia primero verifica que el token corresponde a una sesión activa. Después, el endpoint guarda `NULL` en `users.token` para ese token y confirma la transacción. La respuesta identifica el usuario y rol cuya sesión se cerró. Si falta el token, no es válido o ya fue revocado, devuelve `INVALID_TOKEN` (HTTP 401).
+
+**Entrada:** sin cuerpo. Cabecera: `Authorization: Bearer <token>`.
+
+**Respuesta JSON:**
+```json
+{"errorCode": 0, "details": "successful", "username": "ana", "role": "parent"}
+```
 
 ### Dependencias de autenticación utilizadas por otras rutas
 
@@ -42,7 +71,7 @@ Requiere un Bearer válido. La dependencia primero verifica que el token corresp
 
 Todas las rutas de este grupo tienen prefijo `/users`.
 
-### `POST /users`
+### `POST /users` — Crear usuario
 
 Solo administrador. Recibe un objeto JSON discriminado por `role`.
 
@@ -56,13 +85,35 @@ La operación inserta la fila común en `users` (incluido el hash bcrypt de la c
 
 El rol se fija al crear la cuenta y es inmutable. Ni el propio usuario ni un administrador pueden cambiarlo después; para cambiar el rol hay que crear una cuenta nueva con el rol correcto.
 
-### `GET /users` y `GET /users?role=<rol>`
+**JSON de entrada para estudiante:**
+```json
+{"username":"luis","full_name":"Luis Pérez","password":"clave","role":"student","stud_access_main_col":"#ffffff","stud_access_sec_col":"#000000","stud_access_ntasks_visible":5,"stud_access_pictograms":true,"stud_access_contrast":false,"stud_access_fontsize":18,"stud_access_filters":true,"stud_access_ndays_visible":7,"stud_access_prof_mod":false,"stud_access_timebar":true,"stud_access_talkback":false,"stud_access_profile_mod":true,"stud_access_task_mod":true}
+```
+
+**JSON de entrada para admin, staff o parent:**
+```json
+{"username":"ana","full_name":"Ana López","password":"clave","role":"parent","email":"ana@example.com"}
+```
+
+**Respuesta correcta:**
+```json
+{"errorCode": 0, "details": "successful"}
+```
+
+### `GET /users` y `GET /users?role=<rol>` — Listar usuarios
 
 Solo administrador. Sin `role`, reúne usuarios de las cuatro tablas hijas; con `role`, filtra a un solo rol. Cada resultado contiene username, full name, rol y email cuando el rol tiene correo. Para estudiantes también incluye sus atributos de accesibilidad. La lista se ordena por username. No devuelve contraseñas ni tokens.
 
 Un rol inválido devuelve `INVALID_ROLE` (HTTP 400); fallos de consulta devuelven `USER_LIST_FAILED` (HTTP 500).
 
-### `PUT /users/{role}/{username}`
+**Entrada:** sin cuerpo. Filtro opcional en query, por ejemplo `?role=student`.
+
+**Respuesta JSON (ejemplo abreviado):**
+```json
+{"errorCode":0,"details":"successful","users":[{"username":"ana","full_name":"Ana López","role":"parent","email":"ana@example.com"},{"username":"luis","full_name":"Luis Pérez","role":"student","stud_access_main_col":"#ffffff","stud_access_sec_col":"#000000","stud_access_ntasks_visible":5,"stud_access_pictograms":true,"stud_access_contrast":false,"stud_access_fontsize":18,"stud_access_filters":true,"stud_access_ndays_visible":7,"stud_access_prof_mod":false,"stud_access_timebar":true,"stud_access_talkback":false,"stud_access_profile_mod":true,"stud_access_task_mod":true}]}
+```
+
+### `PUT /users/{role}/{username}` — Editar perfil o datos de usuario
 
 Requiere autenticación. Un administrador puede editar cualquier cuenta. Un `parent`, `staff` o `student` solo puede editar su propio perfil y no puede enviar `username`, `full_name` ni `role`. Para estudiantes, además se comprueba que `stud_access_profile_mod` sea verdadero; si es falso, se rechaza la edición propia. Ningún usuario puede cambiar el rol de una cuenta: un administrador que envíe un `role` distinto del actual recibe `ROLE_CHANGE_DENIED` (HTTP 403); un usuario no administrador que envíe `role` recibe `PROFILE_UPDATE_DENIED` (HTTP 403).
 
@@ -74,11 +125,28 @@ Los roles con email deben conservar o recibir un email válido; estudiantes no a
 
 Errores relevantes: `PROFILE_UPDATE_DENIED` (403), `ROLE_CHANGE_DENIED` (403), `USER_NOT_FOUND` (404), `USERNAME_TAKEN`/`EMAIL_TAKEN` (409), `NO_UPDATE_FIELDS`, `INVALID_REQUEST`, `EMAIL_REQUIRED`, `EMAIL_UNAVAILABLE` y `LAST_ADMIN` (400 según catálogo).
 
-### `DELETE /users/{role}/{username}`
+**JSON de entrada (ejemplo de cambios parciales; solo se envían los campos que se desean modificar):**
+```json
+{"full_name":"Nombre actualizado","email":"nuevo@example.com","password":"nueva-clave"}
+```
+
+**Respuesta correcta:**
+```json
+{"errorCode":0,"details":"successful","username":"ana","role":"parent"}
+```
+
+### `DELETE /users/{role}/{username}` — Eliminar usuario
 
 Solo administrador. Borra la cuenta de `users` únicamente si existe la especialización indicada en la tabla hija del rol. Las claves foráneas determinan la eliminación de los datos dependientes. Para administradores, bloquea la tabla de administradores y comprueba que no sea el último antes de borrar. Si la cuenta no existe devuelve `USER_NOT_FOUND`; si se intenta borrar el último admin, `LAST_ADMIN`. El token de la cuenta borrada deja de poder validarse al desaparecer el usuario.
 
-### `PUT /users/students/me/avatar`
+**Entrada:** sin cuerpo. Ejemplo: `DELETE /users/parent/ana`.
+
+**Respuesta correcta:**
+```json
+{"errorCode":0,"details":"successful"}
+```
+
+### `PUT /users/students/me/avatar` — Actualizar mi avatar
 
 Requiere token de alumno. Recibe `multipart/form-data` con el archivo en el campo `file`. Admite PNG, JPEG y WebP de hasta 5 MB; el backend comprueba la firma y estructura básica del formato, y rechaza formatos no admitidos o archivos demasiado grandes con `AVATAR_INVALID_IMAGE` (HTTP 422) o `AVATAR_TOO_LARGE` (HTTP 413). La subida también requiere `stud_access_profile_mod = true`.
 
@@ -86,41 +154,101 @@ La imagen se guarda en `Avatar.avatar_bin` y su clave se vincula a `Student.avat
 
 El cliente puede abrir el selector de imágenes del dispositivo (por ejemplo, la galería) y enviar el archivo en `file`. Tras una respuesta correcta debe mostrar la foto nueva inmediatamente, usando la URL devuelta o `GET /users/students/me/avatar`; esta ruta evita caché con `Cache-Control: no-store`. El control para cambiarla debe ser visible, tener un área de pulsación amplia, un icono comprensible y un nombre accesible para lectores de pantalla. Si la subida falla por tamaño o formato, la interfaz debe conservar la foto que ya tenía el perfil y mostrar un mensaje de error sencillo. Estos requisitos describen el contrato esperado del cliente; esta guía documenta el backend y no implica que exista aquí una interfaz frontend implementada.
 
-### `GET /users/students/me/avatar`
+**Entrada:** `multipart/form-data`, campo `file` con los bytes de la imagen; no es JSON.
+
+**Respuesta JSON:**
+```json
+{"errorCode":0,"details":"successful","avatar_id":12,"media_type":"image/png","avatar_url":"/users/students/me/avatar"}
+```
+
+### `GET /users/students/me/avatar` — Obtener mi avatar
 
 Requiere token de alumno y devuelve directamente la imagen con su tipo MIME. Si el alumno todavía no tiene una foto válida, devuelve una silueta SVG predeterminada para que el perfil siempre pueda mostrar una imagen. La respuesta usa `Cache-Control: no-store` para que una foto recién actualizada no se quede en caché.
+
+**Entrada:** sin cuerpo. Cabecera: `Authorization: Bearer <token>`.
+
+**Respuesta:** contenido binario de imagen (PNG, JPEG o WebP), o SVG predeterminado; no devuelve JSON. El encabezado `Content-Type` indica el formato y `Cache-Control: no-store` evita caché.
 
 ## Asociaciones alumno–tutor/personal
 
 Todas las rutas usan el prefijo `/student-links`. Las relaciones se almacenan en `par_stud` (tutores, rol `parent`) y `staff_stud` (personal, rol `staff`). No crean ni borran cuentas.
 
-### `POST /student-links/students/{student_username}/parents/{parent_username}`
+### `POST /student-links/students/{student_username}/parents/{parent_username}` — Asociar tutor a alumno
 
 Solo administrador. Comprueba que existen el alumno y el tutor en `users` y sus tablas de rol. Inserta la relación alumno–tutor. Si ya existe, `ON CONFLICT DO NOTHING` evita duplicarla; la respuesta sigue siendo exitosa e indica `association_created: false`. Si se creó, indica `true`.
 
-### `DELETE /student-links/students/{student_username}/parents/{parent_username}`
+**Entrada:** sin cuerpo; usernames en la ruta.
+
+**Respuesta JSON:**
+```json
+{"errorCode":0,"details":"successful","association_created":true,"student_username":"luis","parent_username":"ana","relation":"tutor"}
+```
+
+### `DELETE /student-links/students/{student_username}/parents/{parent_username}` — Desasociar tutor de alumno
 
 Solo administrador. Elimina únicamente esa relación de `par_stud`. Si no existía, devuelve `ASSOCIATION_NOT_FOUND` (HTTP 404). No borra el alumno, el tutor ni otras relaciones.
 
-### `POST /student-links/students/{student_username}/staff/{staff_username}`
+**Entrada:** sin cuerpo; usernames en la ruta.
+
+**Respuesta JSON:**
+```json
+{"errorCode":0,"details":"successful","student_username":"luis","parent_username":"ana"}
+```
+
+### `POST /student-links/students/{student_username}/staff/{staff_username}` — Asociar personal a alumno
 
 Solo administrador. Comprueba que existen el alumno y el miembro del personal, e inserta en `staff_stud`. Evita duplicados de la misma forma que el endpoint de tutores e informa con `association_created`.
 
-### `DELETE /student-links/students/{student_username}/staff/{staff_username}`
+**Entrada:** sin cuerpo; usernames en la ruta.
+
+**Respuesta JSON:**
+```json
+{"errorCode":0,"details":"successful","association_created":true,"student_username":"luis","staff_username":"marta","relation":"profesor"}
+```
+
+### `DELETE /student-links/students/{student_username}/staff/{staff_username}` — Desasociar personal de alumno
 
 Solo administrador. Elimina solamente esa relación de `staff_stud`; una relación inexistente devuelve `ASSOCIATION_NOT_FOUND`.
 
-### `GET /student-links/students/{student_username}`
+**Entrada:** sin cuerpo; usernames en la ruta.
+
+**Respuesta JSON:**
+```json
+{"errorCode":0,"details":"successful","student_username":"luis","staff_username":"marta"}
+```
+
+### `GET /student-links/students/{student_username}` — Consultar tutores y personal de un alumno
 
 Solo administrador. Devuelve dos listas actuales: `parents` y `staff`. Cada entrada incluye username, full name y email del usuario relacionado. Si no existe el alumno, devuelve `ASSOCIATED_ENTITY_NOT_FOUND` (HTTP 404). Las listas reflejan las filas de asociación vigentes en la base de datos.
 
-### `GET /student-links/parents/{parent_username}/students`
+**Entrada:** sin cuerpo; username en la ruta.
+
+**Respuesta JSON:**
+```json
+{"errorCode":0,"details":"successful","student_username":"luis","parents":[{"username":"ana","full_name":"Ana López","email":"ana@example.com"}],"staff":[{"username":"marta","full_name":"Marta Ruiz","email":"marta@example.com"}]}
+```
+
+### `GET /student-links/parents/{parent_username}/students` — Consultar alumnos de un tutor
 
 Requiere token. Un tutor consulta su propio listado; un administrador puede consultar cualquier tutor. Otros roles, o un tutor que intente consultar otro username, reciben `ASSOCIATION_ACCESS_DENIED` (HTTP 403). Devuelve `username` y `full_name` de cada alumno asociado, ordenados por username. Sin asociaciones, devuelve `students: []`.
 
-### `GET /student-links/staff/{staff_username}/students`
+**Entrada:** sin cuerpo; cabecera Bearer y username del tutor en la ruta.
+
+**Respuesta JSON:**
+```json
+{"errorCode":0,"details":"successful","parent_username":"ana","students":[{"username":"luis","full_name":"Luis Pérez"}]}
+```
+
+### `GET /student-links/staff/{staff_username}/students` — Consultar alumnos de un miembro del personal
 
 Igual que la consulta de tutores, pero para personal. Staff consulta su propio listado; admin puede consultar cualquiera. Devuelve `username` y `full_name`; un resultado vacío es `students: []`.
+
+**Entrada:** sin cuerpo; cabecera Bearer y username del miembro del personal en la ruta.
+
+**Respuesta JSON:**
+```json
+{"errorCode":0,"details":"successful","staff_username":"marta","students":[{"username":"luis","full_name":"Luis Pérez"}]}
+```
 
 Las asociaciones también son una condición de autorización en las operaciones de tareas individuales: quitar una relación impide a ese tutor o miembro del personal seguir creando, editando alternativa o retirando tareas de ese alumno mediante esas rutas.
 
@@ -128,7 +256,7 @@ Las asociaciones también son una condición de autorización en las operaciones
 
 Prefijo `/student-tasks`. En estas rutas solo pueden actuar usuarios autenticados con rol `parent` o `staff`. El administrador y el estudiante no están autorizados por este router.
 
-### `POST /student-tasks/students/{student_username}`
+### `POST /student-tasks/students/{student_username}` — Crear tarea en la agenda de un alumno
 
 Responde HTTP 201. El JSON requiere `task_title`, `task_date`, `task_index` y `task_duration`. El título se recorta y debe contener entre 1 y 100 caracteres; el índice debe ser un entero no negativo y la duración un entero positivo. Son opcionales `task_start_hour` (hora local sin zona) y `alt_task_id_fk` (entero positivo). Si falta la duración, es `null` o no es positiva, FastAPI rechaza la petición con error de validación `1005` (HTTP 422). No admite propiedades adicionales.
 
@@ -140,57 +268,158 @@ La operación inserta en `Tasks` con `task_creator` igual al username del creado
 
 La hora de inicio es opcional, pero la duración siempre es obligatoria. La regla horaria solo puede comprobarse si se envía `task_start_hour`; si se omite, no se aplica.
 
-### `PUT /student-tasks/{task_id}/alternative`
+**JSON de entrada:**
+```json
+{"task_title":"Leer un cuento","task_date":"2026-11-10","task_index":0,"task_duration":20,"task_start_hour":"16:30:00","alt_task_id_fk":3}
+```
+
+**Respuesta JSON (valores de ejemplo):**
+```json
+{"errorCode":0,"details":"successful","task_id":41,"task_title":"Leer un cuento","task_start_hour":"16:30:00","task_duration":20,"task_creator":"ana","task_finished":false,"alt_task_id_fk":3,"stud_usr_fk":"luis","task_index":0,"task_date":"2026-11-10"}
+```
+
+### `PUT /student-tasks/{task_id}/alternative` — Cambiar tarea alternativa
 
 Requiere JSON con `alt_task_id_fk`: un entero positivo para asociar una alternativa o `null` para quitarla. Solo permite modificar una tarea que haya creado el usuario autenticado y que esté asignada al menos a un alumno que siga asociado a él. La alternativa debe existir y no estar asignada a otra tarea. Devuelve los datos actualizados de la tarea. Si la alternativa está ocupada, devuelve `ALTERNATIVE_TASK_ALREADY_ASSIGNED` (HTTP 409); si la tarea principal no es accesible o no existe, devuelve `TASK_NOT_FOUND`.
 
-### `DELETE /student-tasks/students/{student_username}/{task_id}?task_date=AAAA-MM-DD&task_index=N`
+**JSON de entrada:**
+```json
+{"alt_task_id_fk":3}
+```
+
+Para quitar la alternativa: `{"alt_task_id_fk": null}`.
+
+**Respuesta JSON:**
+```json
+{"errorCode":0,"details":"successful","task_id":41,"task_title":"Leer un cuento","task_start_hour":"16:30:00","task_duration":20,"task_creator":"ana","task_finished":false,"alt_task_id_fk":3}
+```
+
+### `DELETE /student-tasks/students/{student_username}/{task_id}?task_date=AAAA-MM-DD&task_index=N` — Quitar tarea de la agenda del alumno
 
 El `task_date` y `task_index` de la query identifican una asignación concreta de la tarea en la agenda del alumno. Comprueba que el alumno exista, que siga asociado al usuario y que exista una fila `stud_task` con la combinación completa de alumno, tarea, fecha e índice.
 
 Si se conoce la hora de inicio, un tutor no puede quitar una tarea dentro del horario escolar y el personal no puede quitarla fuera del horario escolar (09:00 inclusive, 15:00 exclusive). Si la hora es `NULL`, se omite esa regla. La operación elimina únicamente la fila `stud_task`, por lo que deja de estar asignada a ese alumno, pero no borra la tarea de `Tasks` ni el registro genérico. Devuelve los identificadores de la asignación quitada.
 
+**Entrada:** sin cuerpo. Ejemplo de ruta y query: `DELETE /student-tasks/students/luis/41?task_date=2026-11-10&task_index=0`.
+
+**Respuesta JSON:**
+```json
+{"errorCode":0,"details":"successful","task_id":41,"stud_usr_fk":"luis","task_date":"2026-11-10","task_index":0}
+```
+
 ## Clases
 
 Prefijo `/classes`. Las clases se guardan en `Class`; `class_staff` asocia personal a clases y `class_stud` inscribe alumnos. El personal solo puede consultar o administrar una clase si está asignado a ella. Solo el administrador gestiona el catálogo de clases y asigna personal.
 
-### `POST /classes`
+### `POST /classes` — Crear clase
 
 Solo administrador. JSON `{ "class_name": "..." }`. El nombre se recorta, debe quedar no vacío y no superar 50 caracteres. Crea la clase; si ya existe, devuelve `CLASS_NAME_TAKEN` (HTTP 409). Responde HTTP 201.
 
-### `GET /classes`
+**JSON de entrada:**
+```json
+{"class_name":"Primero A"}
+```
+
+**Respuesta JSON:**
+```json
+{"errorCode":0,"details":"successful","class_name":"Primero A"}
+```
+
+### `GET /classes` — Listar mis clases
 
 Requiere token de staff. Devuelve las clases asignadas a ese miembro del personal y el número de alumnos inscritos en cada una. Otros roles reciben `CLASS_ACCESS_DENIED` (HTTP 403). Puede devolver una lista vacía.
 
-### `GET /classes/{class_name}`
+**Entrada:** sin cuerpo. Cabecera Bearer.
+
+**Respuesta JSON:**
+```json
+{"errorCode":0,"details":"successful","classes":[{"class_name":"Primero A","student_count":18}]}
+```
+
+### `GET /classes/{class_name}` — Consultar detalle de clase
 
 Requiere token de staff asignado a esa clase. Devuelve el nombre, los alumnos inscritos (`username`, `full_name`) y el personal asignado (`username`, `full_name`). Una clase inexistente da `CLASS_NOT_FOUND`; una clase existente a la que ese staff no está asignado da `CLASS_ACCESS_DENIED`.
 
-### `PUT /classes/{current_class_name}`
+**Entrada:** sin cuerpo; cabecera Bearer y nombre de clase en la ruta.
+
+**Respuesta JSON:**
+```json
+{"errorCode":0,"details":"successful","class_name":"Primero A","students":[{"username":"luis","full_name":"Luis Pérez"}],"staff":[{"username":"marta","full_name":"Marta Ruiz"}]}
+```
+
+### `PUT /classes/{current_class_name}` — Renombrar clase
 
 Solo administrador. Recibe el nuevo nombre en `{ "class_name": "..." }`. Renombra la clase; las relaciones conservan el vínculo mediante la clave foránea. Si la clase original no existe, devuelve `CLASS_NOT_FOUND`; si el nombre nuevo ya existe, `CLASS_NAME_TAKEN`.
 
-### `DELETE /classes/{class_name}`
+**JSON de entrada:**
+```json
+{"class_name":"Primero B"}
+```
+
+**Respuesta JSON:**
+```json
+{"errorCode":0,"details":"successful","class_name":"Primero B"}
+```
+
+### `DELETE /classes/{class_name}` — Eliminar clase
 
 Solo administrador. Elimina la clase y sus asociaciones de alumnos y personal (según las claves foráneas). No elimina las cuentas de alumnos ni de personal. Si no existe, devuelve `CLASS_NOT_FOUND`.
 
-### `POST /classes/{class_name}/staff/{staff_username}`
+**Entrada:** sin cuerpo; nombre de clase en la ruta.
+
+**Respuesta JSON:**
+```json
+{"errorCode":0,"details":"successful","class_name":"Primero A"}
+```
+
+### `POST /classes/{class_name}/staff/{staff_username}` — Asignar personal a clase
 
 Solo administrador. Comprueba la clase y que la cuenta exista como miembro de `Staff`, y la añade a `class_staff`. La inserción repetida no crea duplicado y responde correctamente. Errores: `CLASS_NOT_FOUND` o `CLASS_STAFF_NOT_FOUND`.
 
-### `POST /classes/{class_name}/students/{student_username}`
+**Entrada:** sin cuerpo; clase y username en la ruta.
+
+**Respuesta JSON:**
+```json
+{"errorCode":0,"details":"successful","class_name":"Primero A","staff_username":"marta"}
+```
+
+### `POST /classes/{class_name}/students/{student_username}` — Inscribir alumno en clase
 
 Requiere staff autenticado y asignado a la clase. Inscribe al alumno en `class_stud`. Comprueba que sea un alumno existente y que no esté inscrito en otra clase. Repetir la asignación a la misma clase no genera otra fila. Responde HTTP 201. Si ya está en otra clase, `STUDENT_ALREADY_IN_CLASS` (HTTP 409); si no existe como alumno, `TASK_STUDENT_NOT_FOUND`.
 
-### `DELETE /classes/{class_name}/students/{student_username}`
+**Entrada:** sin cuerpo; clase y username en la ruta.
+
+**Respuesta JSON:**
+```json
+{"errorCode":0,"details":"successful","class_name":"Primero A","student_username":"luis"}
+```
+
+### `DELETE /classes/{class_name}/students/{student_username}` — Retirar alumno de clase
 
 Requiere staff asignado a la clase. Elimina solo la inscripción indicada. Si la relación no existe, devuelve `ASSOCIATION_NOT_FOUND`. No elimina al alumno ni sus tareas.
 
-### `POST /classes/{class_name}/tasks`
+**Entrada:** sin cuerpo; clase y username en la ruta.
+
+**Respuesta JSON:**
+```json
+{"errorCode":0,"details":"successful","class_name":"Primero A","student_username":"luis"}
+```
+
+### `POST /classes/{class_name}/tasks` — Crear tarea para toda la clase
 
 Requiere staff asignado a la clase. Recibe los mismos campos de tarea que la creación individual: título, fecha, índice y duración positiva obligatorios; hora y alternativa opcionales. Si falta la duración o no es positiva, devuelve el error de validación `1005` (HTTP 422). Valida título/hora y alternativa como el endpoint individual. El personal solo puede indicar una hora entre 09:00 y antes de las 15:00.
 
 La clase debe tener al menos un alumno inscrito; de lo contrario devuelve `CLASS_HAS_NO_STUDENTS`. Crea una sola tarea con `task_creator` igual al username del miembro del personal, la duración obligatoria, un registro `Generic_Task` y una fila `stud_task` por cada alumno inscrito, con la fecha e índice solicitados. La operación es transaccional y responde HTTP 201 con la lista de alumnos incluidos.
+
+**JSON de entrada:**
+```json
+{"task_title":"Lectura","task_date":"2026-11-10","task_index":0,"task_duration":20,"task_start_hour":"10:00:00","alt_task_id_fk":3}
+```
+
+**Respuesta JSON (alumnos y valores de ejemplo):**
+```json
+{"errorCode":0,"details":"successful","task_id":41,"task_title":"Lectura","task_start_hour":"10:00:00","task_duration":20,"task_creator":"marta","task_finished":false,"alt_task_id_fk":3,"class_name":"Primero A","students":["luis","sofia"],"task_index":0,"task_date":"2026-11-10"}
+```
 
 ## Errores y lectura del estado
 
