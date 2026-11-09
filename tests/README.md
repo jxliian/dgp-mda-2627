@@ -2,7 +2,7 @@
 
 Este documento describe las pruebas automáticas del backend: qué comprueban, cómo se ejecutan y qué resultado dan.
 
-**Última ejecución:** 09/11/2026 · **Total:** 135 casos · **Resultado:** 130 correctos y 5 fallos esperados (ver [Funcionalidad pendiente](#funcionalidad-pendiente-fallos-esperados)).
+**Última ejecución:** 09/11/2026 · **Total:** 135 casos · **Resultado:** 130 correctos y 5 fallos esperados.
 
 ## 1. Alcance
 
