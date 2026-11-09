@@ -41,8 +41,8 @@ def test_la_cuenta_eliminada_no_puede_entrar(client):
 
 def test_no_se_puede_eliminar_al_ultimo_admin(client, count):
     r = client.delete("/users/admin/admin", headers=as_user("admin"))
-    assert r.status_code == 400
-    assert error_code(r) == 1011
+    assert r.status_code == 403
+    assert error_code(r) == 1042
     assert count("Admn") == 1
 
 

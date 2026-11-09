@@ -125,7 +125,7 @@ class _AgendaScreenState extends State<AgendaScreen> {
                       ? ContentPicture(
                           bytes: task.image,
                           icon: taskIcon(task.title),
-                          size: 76,
+                          size: 170,
                         )
                       : null,
                   trailing: Wrap(
@@ -150,7 +150,12 @@ class _AgendaScreenState extends State<AgendaScreen> {
                   onTap: () async {
                     await openPage(
                       context,
-                      TaskDetailScreen(student: widget.student, task: task),
+                      own && !task.finished && task.steps.isNotEmpty
+                          ? TaskRunScreen(student: widget.student, task: task)
+                          : TaskDetailScreen(
+                              student: widget.student,
+                              task: task,
+                            ),
                     );
                     if (mounted) setState(() => revision++);
                   },
@@ -298,7 +303,13 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
         timer: timer,
       ),
     );
-    if (result != null && mounted) setState(() => task = result);
+    if (result != null && mounted) {
+      if (result.finished) {
+        Navigator.pop(context, result);
+      } else {
+        setState(() => task = result);
+      }
+    }
   }
 
   Future<void> complete() async {
@@ -312,10 +323,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
       ).repository.progress(widget.student.username, task, complete: true);
       timer.pause();
       if (mounted) {
-        setState(() {
-          task = result;
-          message = '¡Muy bien! Has completado tu tarea.';
-        });
+        Navigator.pop(context, result);
       }
     } on Object catch (e) {
       if (mounted) setState(() => error = e.toString());
@@ -367,7 +375,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                   ? ContentPicture(
                       bytes: step.image,
                       icon: taskIcon(task.title),
-                      size: 72,
+                      size: 160,
                     )
                   : null,
               trailing: talk
@@ -385,13 +393,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
               children: [
                 if (task.steps.isNotEmpty)
                   FilledButton.icon(
-                    onPressed: busy
-                        ? null
-                        : () => run(
-                            task.steps
-                                .indexWhere((s) => !s.finished)
-                                .clamp(0, task.steps.length - 1),
-                          ),
+                    onPressed: busy ? null : () => run(0),
                     icon: const Icon(Icons.play_arrow),
                     label: const Text('Empezar'),
                   ),
@@ -420,13 +422,13 @@ class TaskRunScreen extends StatefulWidget {
     super.key,
     required this.student,
     required this.task,
-    required this.initialIndex,
-    required this.timer,
+    this.initialIndex = 0,
+    this.timer,
   });
   final AppUser student;
   final AgendaTask task;
   final int initialIndex;
-  final TaskTimer timer;
+  final TaskTimer? timer;
   @override
   State<TaskRunScreen> createState() => _TaskRunScreenState();
 }
@@ -435,6 +437,7 @@ class _TaskRunScreenState extends State<TaskRunScreen>
     with WidgetsBindingObserver {
   late AgendaTask task;
   late int index;
+  late final TaskTimer timer;
   bool busy = false;
   String? error;
   @override
@@ -442,16 +445,23 @@ class _TaskRunScreenState extends State<TaskRunScreen>
     super.initState();
     task = widget.task;
     index = widget.initialIndex;
+    timer = widget.timer ?? TaskTimer(task.duration * 60);
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && AppScope.of(context).student) widget.timer.start();
+      if (mounted && AppScope.of(context).student && !task.finished) {
+        timer.start();
+      }
     });
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    widget.timer.pause();
+    if (widget.timer == null) {
+      timer.dispose();
+    } else {
+      timer.pause();
+    }
     super.dispose();
   }
 
@@ -459,7 +469,7 @@ class _TaskRunScreenState extends State<TaskRunScreen>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.inactive ||
         state == AppLifecycleState.paused) {
-      widget.timer.pause();
+      timer.pause();
     }
   }
 
@@ -475,8 +485,14 @@ class _TaskRunScreenState extends State<TaskRunScreen>
         task,
         stepId: task.steps[index].id,
         finished: true,
+        complete: index == task.steps.length - 1,
       );
       if (mounted) {
+        if (result.finished) {
+          timer.pause();
+          Navigator.pop(context, result);
+          return;
+        }
         setState(() {
           task = result;
           if (index < task.steps.length - 1) index++;
@@ -490,7 +506,7 @@ class _TaskRunScreenState extends State<TaskRunScreen>
   }
 
   void leave() {
-    widget.timer.pause();
+    timer.pause();
     Navigator.pop(context, task);
   }
 
@@ -520,31 +536,29 @@ class _TaskRunScreenState extends State<TaskRunScreen>
               onPressed: busy
                   ? null
                   : () {
-                      widget.timer.reset();
-                      if (state.student) widget.timer.start();
+                      timer.reset();
+                      if (state.student && !task.finished) timer.start();
                     },
               icon: const Icon(Icons.restart_alt),
               label: const Text('Reiniciar reloj'),
             ),
             if (state.student)
               ListenableBuilder(
-                listenable: widget.timer,
+                listenable: timer,
                 builder: (context, _) => FilledButton.icon(
                   onPressed: busy
                       ? null
-                      : () => widget.timer.running
-                            ? widget.timer.pause()
-                            : widget.timer.start(),
-                  icon: Icon(
-                    widget.timer.running ? Icons.pause : Icons.play_arrow,
-                  ),
-                  label: Text(widget.timer.running ? 'Pausar' : 'Continuar'),
+                      : () => timer.running ? timer.pause() : timer.start(),
+                  icon: Icon(timer.running ? Icons.pause : Icons.play_arrow),
+                  label: Text(timer.running ? 'Pausar' : 'Continuar'),
                 ),
               ),
             OutlinedButton.icon(
               onPressed: busy ? null : leave,
               icon: const Icon(Icons.arrow_back),
-              label: const Text('Volver a los pasos'),
+              label: Text(
+                state.student ? 'Volver a mis tareas' : 'Volver a los pasos',
+              ),
             ),
           ],
         ),
@@ -552,7 +566,7 @@ class _TaskRunScreenState extends State<TaskRunScreen>
           children: [
             if (state.access.flag('timebar'))
               ListenableBuilder(
-                listenable: widget.timer,
+                listenable: timer,
                 builder: (context, _) => Column(
                   children: [
                     SizedBox(
@@ -563,14 +577,15 @@ class _TaskRunScreenState extends State<TaskRunScreen>
                         children: [
                           SizedBox.expand(
                             child: CircularProgressIndicator(
-                              value: widget.timer.fraction,
+                              value: timer.fraction,
                               strokeWidth: 12,
-                              semanticsLabel: 'Tiempo restante',
-                              semanticsValue: widget.timer.label,
+                              semanticsLabel: 'Tiempo restante: ${timer.label}',
+                              semanticsValue:
+                                  '${(timer.fraction * 100).round()}',
                             ),
                           ),
                           Text(
-                            widget.timer.label,
+                            timer.label,
                             style: const TextStyle(
                               fontSize: 30,
                               fontWeight: FontWeight.w700,
@@ -584,9 +599,8 @@ class _TaskRunScreenState extends State<TaskRunScreen>
                 ),
               ),
             ListenableBuilder(
-              listenable: widget.timer,
-              builder: (_, _) =>
-                  widget.timer.remainingSeconds == 0 && !task.finished
+              listenable: timer,
+              builder: (_, _) => timer.remainingSeconds == 0 && !task.finished
                   ? const Notice(
                       'El tiempo ha terminado. La tarea sigue pendiente. Puedes pedir ayuda o continuar con calma.',
                     )
@@ -611,7 +625,7 @@ class _TaskRunScreenState extends State<TaskRunScreen>
                       ContentPicture(
                         bytes: step.image,
                         icon: taskIcon(task.title),
-                        size: 150,
+                        size: 280,
                       ),
                       const SizedBox(height: 24),
                     ],
@@ -622,12 +636,16 @@ class _TaskRunScreenState extends State<TaskRunScreen>
                     const SizedBox(height: 24),
                     if (step.finished)
                       const Notice('Este paso está completado.'),
-                    if (state.student && !step.finished)
+                    if (state.student && !task.finished)
                       FilledButton.icon(
                         onPressed: busy ? null : finishStep,
                         icon: const Icon(Icons.check),
                         label: Text(
-                          busy ? 'Guardando…' : 'He terminado este paso',
+                          busy
+                              ? 'Guardando…'
+                              : index == task.steps.length - 1
+                              ? 'He terminado · Finalizar tarea'
+                              : 'He terminado · Siguiente paso',
                         ),
                       ),
                   ],
@@ -653,9 +671,13 @@ class _TaskRunScreenState extends State<TaskRunScreen>
                   ),
                 ),
                 IconButton.filledTonal(
-                  tooltip: 'Paso siguiente',
+                  tooltip: state.student
+                      ? 'Completar paso y continuar'
+                      : 'Paso siguiente',
                   onPressed: busy || index == task.steps.length - 1
                       ? null
+                      : state.student
+                      ? finishStep
                       : () => setState(() => index++),
                   icon: const Icon(Icons.chevron_right),
                 ),

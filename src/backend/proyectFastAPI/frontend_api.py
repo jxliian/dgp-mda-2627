@@ -8,7 +8,7 @@ from importlib import import_module
 from typing import Annotated
 from urllib.parse import quote
 
-from fastapi import APIRouter, Depends, Path, Response
+from fastapi import APIRouter, Depends, File, Path, Response, UploadFile
 from pydantic import BaseModel, ConfigDict, StrictBool, StrictInt
 from sqlalchemy import text
 from sqlalchemy.orm import Session
@@ -17,8 +17,9 @@ from .DB.database import get_db
 from .activity_content import has_content, save_content, task_content
 from .auth.auth_backend import get_current_user, require_admin
 from .clases.clases_db import _ensure_class, add_student, remove_student
+from .clases.class_media import class_image
 from .errors import CatalogError, ErrorCode, raise_api_error, success_response
-from .gestion_usuarios.users_mng_backend import DEFAULT_AVATAR_SVG, _image_media_type
+from .gestion_usuarios.users_mng_backend import DEFAULT_AVATAR_SVG, MAX_AVATAR_BYTES, _image_media_type
 from .gestion_usuarios.users_mng_db import users_mng_db
 from .task_indexing import calculate_task_index, lock_student_agendas
 from .task_schedule import validate_task_schedule
@@ -79,7 +80,26 @@ def student_directory(db: Session = Depends(get_db)) -> dict:
             classroom['students'].append({'username': row['username'],
                 'full_name': row['full_name'].split(' ')[0],
                 'avatar_url': f"/auth/student-directory/{quote(row['username'], safe='')}/avatar"})
+    for classroom in classes.values():
+        classroom['class_image'] = class_image(db, classroom['class_name'])
     return success_response(classes=list(classes.values()))
+
+
+@router.put('/admin/students/{student_username}/avatar', dependencies=[Depends(require_admin)])
+async def admin_student_avatar(student_username: Username, file: UploadFile = File(...),
+                               db: Session = Depends(get_db)) -> dict:
+    try:
+        image = await file.read(MAX_AVATAR_BYTES + 1)
+        if len(image) > MAX_AVATAR_BYTES:
+            raise_api_error(ErrorCode.AVATAR_TOO_LARGE)
+        if _image_media_type(image) is None:
+            raise_api_error(ErrorCode.AVATAR_INVALID_IMAGE)
+        result = users_mng_db.updateAvatar(db, student_username, image, as_admin=True)
+        if result['errorCode']:
+            raise_api_error(result['errorCode'])
+        return success_response(avatar_url=f'/users/students/{quote(student_username, safe="")}/avatar-image')
+    finally:
+        await file.close()
 
 
 @router.get('/auth/student-directory/{student_username}/avatar')

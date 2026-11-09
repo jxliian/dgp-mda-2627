@@ -21,7 +21,12 @@ abstract class AutovidaRepository {
   Future<void> deleteUser(AppUser user);
   Future<List<Classroom>> classes();
   Future<Classroom> classDetail(String name);
-  Future<void> saveClass(String name, {String? previous});
+  Future<void> saveClass(
+    String name, {
+    String? previous,
+    Uint8List? image,
+    bool imageChanged = false,
+  });
   Future<void> deleteClass(String name);
   Future<void> addStaff(String classroom, String username);
   Future<void> removeStaff(String classroom, String username);
@@ -47,7 +52,11 @@ abstract class AutovidaRepository {
     bool complete = false,
   });
   Future<Uint8List?> avatar(AppUser user);
-  Future<void> uploadAvatar(Uint8List image, String filename);
+  Future<void> uploadAvatar(
+    Uint8List image,
+    String filename, {
+    AppUser? student,
+  });
   void close();
 }
 
@@ -219,6 +228,11 @@ class LiveRepository implements AutovidaRepository {
 
   @override
   Future<void> deleteUser(AppUser user) async {
+    if (user.role == UserRole.admin && user.username == _user?.username) {
+      throw const ApiException(
+        'No puedes eliminar tu propia cuenta de administrador.',
+      );
+    }
     await api.request(
       'DELETE',
       '/users/${user.role.name}/${segment(user.username)}',
@@ -237,11 +251,20 @@ class LiveRepository implements AutovidaRepository {
   Future<Classroom> classDetail(String name) async =>
       Classroom.fromJson(await api.request('GET', '/classes/${segment(name)}'));
   @override
-  Future<void> saveClass(String name, {String? previous}) async {
+  Future<void> saveClass(
+    String name, {
+    String? previous,
+    Uint8List? image,
+    bool imageChanged = false,
+  }) async {
     await api.request(
       previous == null ? 'POST' : 'PUT',
       previous == null ? '/classes' : '/classes/${segment(previous)}',
-      body: {'class_name': name},
+      body: {
+        'class_name': name,
+        if (imageChanged)
+          'class_image': image == null ? null : base64Encode(image),
+      },
     );
   }
 
@@ -551,8 +574,17 @@ class LiveRepository implements AutovidaRepository {
               '/users/students/${segment(user.username)}/avatar-image',
   );
   @override
-  Future<void> uploadAvatar(Uint8List image, String filename) =>
-      api.uploadAvatar(image, filename);
+  Future<void> uploadAvatar(
+    Uint8List image,
+    String filename, {
+    AppUser? student,
+  }) => api.uploadAvatar(
+    image,
+    filename,
+    path: student == null
+        ? '/users/students/me/avatar'
+        : '/admin/students/${segment(student.username)}/avatar',
+  );
   @override
   void close() {
     _agendaCache.clear();

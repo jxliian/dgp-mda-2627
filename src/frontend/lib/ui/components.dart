@@ -403,6 +403,8 @@ class ActionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final narrow = MediaQuery.sizeOf(context).width < 600;
+    final stacked = vertical || narrow;
     final picture =
         leading ??
         Container(
@@ -415,23 +417,50 @@ class ActionTile extends StatelessWidget {
         );
     final text = Column(
       mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: vertical
+      crossAxisAlignment: stacked
           ? CrossAxisAlignment.center
           : CrossAxisAlignment.start,
       children: [
         Text(
           title,
-          textAlign: vertical ? TextAlign.center : TextAlign.start,
+          textAlign: stacked ? TextAlign.center : TextAlign.start,
           style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
         ),
         if (subtitle != null) ...[
           const SizedBox(height: 5),
           Text(
             subtitle!,
-            textAlign: vertical ? TextAlign.center : TextAlign.start,
+            textAlign: stacked ? TextAlign.center : TextAlign.start,
           ),
         ],
       ],
+    );
+    final body = Semantics(
+      button: onTap != null,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(22),
+          child: stacked
+              ? Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ExcludeSemantics(child: picture),
+                    const SizedBox(height: 20),
+                    text,
+                  ],
+                )
+              : Row(
+                  children: [
+                    ExcludeSemantics(child: picture),
+                    const SizedBox(width: 22),
+                    Expanded(child: text),
+                    if (trailing == null && onTap != null)
+                      const Icon(Icons.chevron_right),
+                  ],
+                ),
+        ),
+      ),
     );
     return Card(
       elevation: 0,
@@ -442,44 +471,31 @@ class ActionTile extends StatelessWidget {
       ),
       margin: const EdgeInsets.only(bottom: 16),
       clipBehavior: Clip.antiAlias,
-      child: Row(
-        children: [
-          Expanded(
-            child: Semantics(
-              button: onTap != null,
-              child: InkWell(
-                onTap: onTap,
-                child: Padding(
-                  padding: const EdgeInsets.all(22),
-                  child: vertical
-                      ? Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            ExcludeSemantics(child: picture),
-                            const SizedBox(height: 20),
-                            text,
-                          ],
-                        )
-                      : Row(
-                          children: [
-                            ExcludeSemantics(child: picture),
-                            const SizedBox(width: 22),
-                            Expanded(child: text),
-                            if (trailing == null && onTap != null)
-                              const Icon(Icons.chevron_right),
-                          ],
-                        ),
-                ),
-              ),
+      child: narrow
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                body,
+                if (trailing != null)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: trailing,
+                    ),
+                  ),
+              ],
+            )
+          : Row(
+              children: [
+                Expanded(child: body),
+                if (trailing != null)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 16),
+                    child: trailing!,
+                  ),
+              ],
             ),
-          ),
-          if (trailing != null)
-            Padding(
-              padding: const EdgeInsets.only(right: 16),
-              child: trailing!,
-            ),
-        ],
-      ),
     );
   }
 }
@@ -518,11 +534,7 @@ class _PagedItemsState<T> extends State<PagedItems<T>> {
             if (!widget.grid) {
               return Column(children: items.map(widget.builder).toList());
             }
-            final columns = c.maxWidth < 460
-                ? 1
-                : c.maxWidth < 760
-                ? 2
-                : 4;
+            final columns = (c.maxWidth / 250).floor().clamp(1, 4);
             final width = (c.maxWidth - (columns - 1) * 18) / columns;
             return Wrap(
               spacing: 18,

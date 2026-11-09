@@ -202,9 +202,6 @@ class UsersManagementDB:
                                            for field in STUDENT_ACCESS_FIELDS)
             ):
                 return _error(ErrorCode.INVALID_REQUEST)
-            if "email" in cfg:
-                if not email:
-                    return _error(ErrorCode.EMAIL_REQUIRED)
             if _username_exists(db, username):
                 db.rollback()
                 return _error(ErrorCode.USERNAME_TAKEN)
@@ -339,9 +336,6 @@ class UsersManagementDB:
                 else:
                     db.rollback()
                     return _error(ErrorCode.EMAIL_REQUIRED)
-                if not target_email:
-                    db.rollback()
-                    return _error(ErrorCode.EMAIL_REQUIRED)
                 excluded_username = username
                 email_exists = db.execute(
                     text(
@@ -414,7 +408,7 @@ class UsersManagementDB:
             db.rollback()
             return _error(ErrorCode.USER_UPDATE_FAILED)
 
-    def updateAvatar(self, db: Session, username: str, image: bytes) -> dict:
+    def updateAvatar(self, db: Session, username: str, image: bytes, *, as_admin: bool = False) -> dict:
         """Guarda la imagen y la vincula al alumno si puede editar su perfil."""
         try:
             student = db.execute(
@@ -427,7 +421,7 @@ class UsersManagementDB:
             if student is None:
                 db.rollback()
                 return _error(ErrorCode.USER_NOT_FOUND)
-            if student["stud_access_profile_mod"] is not True:
+            if not as_admin and student["stud_access_profile_mod"] is not True:
                 db.rollback()
                 return _error(ErrorCode.PROFILE_UPDATE_DENIED)
 

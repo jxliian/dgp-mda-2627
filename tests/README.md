@@ -2,7 +2,7 @@
 
 Este documento describe las pruebas automáticas del backend: qué comprueban, cómo se ejecutan y qué resultado dan.
 
-**Última ejecución:** 09/11/2026 · **Total:** 162 casos · **Resultado:** 158 correctos y 4 fallos esperados.
+**Última ejecución:** 09/11/2026 · **Total:** 171 casos · **Resultado:** 167 correctos y 4 fallos esperados.
 
 La ampliación para Flutter añade `test_frontend_flow.py`: perfiles, directorio visual, imágenes PNG, tareas con pasos, transacciones, agenda por permisos, progreso independiente por alumno y fecha, CORS y matrículas administrativas. Se ejecutan con PostgreSQL y la migración adicional de `src/backend/proyectFastAPI/migrations/`. La retirada de personal de un aula ya está implementada y su prueba deja de ser un fallo esperado. Las pruebas Flutter y los comandos de arranque están en `src/frontend/README.md`.
 
@@ -36,7 +36,7 @@ Son **pruebas de integración**. Cada prueba envía una petición HTTP a la API 
 uv run --with pytest python -m pytest ../../../tests/integration -v
 ```
 
-**Resultado esperado:** `158 passed, 4 xfailed`.
+**Resultado esperado:** `167 passed, 4 xfailed`.
 
 Las pruebas no modifican la base de datos de desarrollo (`autovida_db`). Trabajan en otra base, `autovida_test`, que se elimina y se crea de nuevo en cada ejecución con el script oficial `docs/diseno_arquitectura/modelado_datos/CreacionTablas.sqlscript`. Se usa PostgreSQL porque el backend emplea instrucciones que no existen en otros motores más ligeros, como `FOR UPDATE` y `LOCK TABLE`.
 
@@ -117,7 +117,7 @@ No contiene pruebas. `pytest` lo carga automáticamente antes de ejecutarlas.
 | `test_eliminar_un_alumno_borra_sus_vinculos_y_nada_mas` | Efecto del borrado en las relaciones | Desaparecen sus vínculos, el resto de cuentas sigue |
 | `test_la_cuenta_eliminada_pierde_su_sesion` | La sesión deja de valer | 401 |
 | `test_la_cuenta_eliminada_no_puede_entrar` | No se puede volver a iniciar sesión | 401 |
-| `test_no_se_puede_eliminar_al_ultimo_admin` | Siempre queda un administrador | 400, código 1011 |
+| `test_no_se_puede_eliminar_al_ultimo_admin` | El administrador no puede eliminarse a sí mismo | 403, código 1042 |
 | `test_con_dos_admins_se_puede_eliminar_uno` | Si hay más de uno, se permite | 200 |
 | `test_eliminar_cuenta_inexistente` | La cuenta no existe | 404, código 1006 |
 | `test_eliminar_con_rol_equivocado_no_borra_nada` | La cuenta existe con otro rol | 404, la cuenta sigue |
@@ -232,6 +232,8 @@ La regla se aplica sobre la hora programada de la tarea: el personal elimina las
 | `test_eliminar_no_deja_la_tarea_huerfana` | La fila de `Tasks` se elimina | **Fallo esperado** (F5) |
 
 ## 6. Funcionalidad pendiente (fallos esperados)
+
+`test_screen_refinements.py` añade nueve casos para cuentas sin correo, fotos de aulas conservadas al renombrar, fotos de alumnos gestionadas por administración, prohibición de cambiar contraseña para alumnos, bloqueo del autoborrado incluso con dos administradores y finalización de la tarea al confirmar su último paso. Se aplican todas las migraciones de `src/backend/proyectFastAPI/migrations/` sobre la base de pruebas.
 
 Estas cuatro pruebas describen un comportamiento que el backend todavía no ofrece, o que el equipo debe confirmar. Están marcadas con `@pytest.mark.xfail`, por lo que aparecen como `xfailed` y no interrumpen la ejecución. Si el comportamiento se implementa, `pytest` lo notifica para retirar la marca.
 

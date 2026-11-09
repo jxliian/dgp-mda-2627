@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'dart:typed_data';
 import '../models/domain.dart';
 import '../models/validation.dart';
 import '../state/app_state.dart';
 import '../ui/components.dart';
 import '../ui/navigation.dart';
 import 'settings_screen.dart';
+import '../services/image_picker.dart';
 
 class AdminScreen extends StatefulWidget {
   const AdminScreen({super.key});
@@ -146,6 +148,11 @@ class _AdminScreenState extends State<AdminScreen> {
                 empty: 'No hay aulas que coincidan con la búsqueda.',
                 builder: (c) => ActionTile(
                   title: c.name,
+                  leading: ContentPicture(
+                    bytes: c.image,
+                    icon: Icons.school_outlined,
+                    size: 192,
+                  ),
                   subtitle: '${c.students.length} alumnos',
                   icon: Icons.school_outlined,
                   onTap: busy ? null : () => editClass(c),
@@ -180,11 +187,13 @@ class _AdminScreenState extends State<AdminScreen> {
                       ? UserAvatar(user: u)
                       : null,
                   onTap: busy ? null : () => editUser(u),
-                  trailing: IconButton(
-                    tooltip: 'Eliminar a ${u.displayName}',
-                    onPressed: busy ? null : () => remove(user: u),
-                    icon: const Icon(Icons.delete_outline),
-                  ),
+                  trailing: u.username == state.user!.username
+                      ? const Chip(label: Text('Tu cuenta'))
+                      : IconButton(
+                          tooltip: 'Eliminar a ${u.displayName}',
+                          onPressed: busy ? null : () => remove(user: u),
+                          icon: const Icon(Icons.delete_outline),
+                        ),
                 ),
               ),
             ),
@@ -212,21 +221,35 @@ class UserEditorScreen extends StatefulWidget {
 class _UserEditorScreenState extends State<UserEditorScreen> {
   final form = GlobalKey<FormState>();
   final username = TextEditingController();
-  final fullName = TextEditingController();
-  final email = TextEditingController();
+  final firstName = TextEditingController();
+  final firstSurname = TextEditingController();
+  final secondSurname = TextEditingController();
   final password = TextEditingController();
   final confirmation = TextEditingController();
   late UserRole role;
   late AccessSettings settings;
+  AppUser? account;
+  Uint8List? photo;
   bool busy = false;
   String? error;
   @override
   void initState() {
     super.initState();
     final user = widget.user;
+    account = user;
     username.text = user?.username ?? '';
-    fullName.text = user?.fullName ?? '';
-    email.text = user?.email ?? '';
+    final parts = (user?.fullName ?? '')
+        .split(' ')
+        .where((p) => p.isNotEmpty)
+        .toList();
+    if (parts.length >= 3) {
+      firstName.text = parts.take(parts.length - 2).join(' ');
+      firstSurname.text = parts[parts.length - 2];
+      secondSurname.text = parts.last;
+    } else {
+      firstName.text = parts.firstOrNull ?? '';
+      firstSurname.text = parts.length == 2 ? parts.last : '';
+    }
     role = user?.role ?? UserRole.student;
     settings = user?.access.copy() ?? AccessSettings();
   }
@@ -234,8 +257,9 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
   @override
   void dispose() {
     username.dispose();
-    fullName.dispose();
-    email.dispose();
+    firstName.dispose();
+    firstSurname.dispose();
+    secondSurname.dispose();
     password.dispose();
     confirmation.dispose();
     super.dispose();
@@ -248,24 +272,53 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
       busy = true;
       error = null;
     });
+    final fullName =
+        '${firstName.text.trim()} ${firstSurname.text.trim()} ${secondSurname.text.trim()}';
+    if (fullNameError(fullName) != null) {
+      setState(() {
+        busy = false;
+        error = 'El nombre y los apellidos no pueden superar 150 caracteres.';
+      });
+      return;
+    }
     final payload = <String, dynamic>{
       'username': username.text.trim(),
-      'full_name': fullName.text.trim(),
-      if (widget.user == null) 'role': role.name,
+      'full_name': fullName,
+      if (account == null) 'role': role.name,
       if (password.text.isNotEmpty) 'password': password.text,
-      if (role == UserRole.student)
-        ...settings.toJson()
-      else
-        'email': email.text.trim(),
+      if (role == UserRole.student) ...settings.toJson(),
     };
+    bool accountSaved = false;
     try {
-      await state.repository.saveUser(payload, previous: widget.user);
+      await state.repository.saveUser(payload, previous: account);
+      accountSaved = true;
+      account = AppUser.fromJson({
+        ...?account?.toJson(),
+        ...payload,
+        'role': role.name,
+      });
+      password.clear();
+      confirmation.clear();
+      if (role == UserRole.student && photo != null) {
+        await state.repository.uploadAvatar(
+          photo!,
+          'foto-perfil',
+          student: account,
+        );
+        state.photoChanged();
+      }
       if (state.user != null && widget.user?.username == state.user?.username) {
         await state.refreshProfile();
       }
       if (mounted) Navigator.pop(context, true);
     } on Object catch (e) {
-      if (mounted) setState(() => error = e.toString());
+      if (mounted) {
+        setState(
+          () => error = accountSaved && photo != null
+              ? 'La cuenta está guardada, pero no se ha podido actualizar la foto. Vuelve a guardar para reintentar. ${e.toString()}'
+              : e.toString(),
+        );
+      }
     } finally {
       if (mounted) setState(() => busy = false);
     }
@@ -280,8 +333,40 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (widget.user?.role == UserRole.student)
-            Center(child: UserAvatar(user: widget.user!, size: 110)),
+          if (role == UserRole.student)
+            Center(
+              child: Column(
+                children: [
+                  if (photo != null)
+                    ContentPicture(
+                      bytes: photo,
+                      icon: Icons.person_outline,
+                      size: 190,
+                    )
+                  else if (account != null)
+                    UserAvatar(user: account!, size: 190)
+                  else
+                    const ContentPicture(icon: Icons.person_outline, size: 190),
+                  const SizedBox(height: 12),
+                  OutlinedButton.icon(
+                    onPressed: busy
+                        ? null
+                        : () async {
+                            try {
+                              final value = await pickPicture();
+                              if (mounted && value != null) {
+                                setState(() => photo = value);
+                              }
+                            } on Object catch (e) {
+                              if (mounted) setState(() => error = e.toString());
+                            }
+                          },
+                    icon: const Icon(Icons.add_a_photo_outlined),
+                    label: const Text('Elegir foto del alumno'),
+                  ),
+                ],
+              ),
+            ),
           const SizedBox(height: 16),
           TextFormField(
             controller: username,
@@ -292,15 +377,20 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
             decoration: const InputDecoration(labelText: 'Nombre de usuario *'),
           ),
           const SizedBox(height: 18),
-          TextFormField(
-            controller: fullName,
-            enabled: !busy,
-            validator: fullNameError,
-            maxLength: 150,
-            decoration: const InputDecoration(
-              labelText: 'Nombre y apellidos *',
+          for (final field in [
+            (firstName, 'Nombre *'),
+            (firstSurname, 'Primer apellido *'),
+            (secondSurname, 'Segundo apellido *'),
+          ]) ...[
+            TextFormField(
+              controller: field.$1,
+              enabled: !busy,
+              validator: fullNameError,
+              maxLength: 50,
+              decoration: InputDecoration(labelText: field.$2),
             ),
-          ),
+            const SizedBox(height: 14),
+          ],
           const SizedBox(height: 18),
           DropdownButtonFormField<UserRole>(
             initialValue: role,
@@ -308,7 +398,7 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
             items: UserRole.values
                 .map((r) => DropdownMenuItem(value: r, child: Text(r.label)))
                 .toList(),
-            onChanged: widget.user != null || busy
+            onChanged: account != null || busy
                 ? null
                 : (r) => setState(() => role = r!),
           ),
@@ -319,27 +409,15 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
                 'El rol se fija al crear la cuenta y no se puede cambiar.',
               ),
             ),
-          if (role != UserRole.student) ...[
-            const SizedBox(height: 18),
-            TextFormField(
-              controller: email,
-              enabled: !busy,
-              validator: emailError,
-              keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(
-                labelText: 'Correo electrónico *',
-              ),
-            ),
-          ],
           const SizedBox(height: 18),
           TextFormField(
             controller: password,
             enabled: !busy,
             obscureText: true,
             validator: (v) =>
-                widget.user != null && v!.isEmpty ? null : passwordError(v),
+                account != null && v!.isEmpty ? null : passwordError(v),
             decoration: InputDecoration(
-              labelText: widget.user == null
+              labelText: account == null
                   ? 'Contraseña *'
                   : 'Nueva contraseña (opcional)',
               helperText: role == UserRole.student
@@ -537,12 +615,15 @@ class _ClassEditorScreenState extends State<ClassEditorScreen> {
   final name = TextEditingController();
   String? currentName, selectedStaff, selectedStudent, error, message;
   bool busy = false;
+  Uint8List? image;
+  bool imageChanged = false;
   int revision = 0;
   @override
   void initState() {
     super.initState();
     currentName = widget.classroom?.name;
     name.text = currentName ?? '';
+    image = widget.classroom?.image;
   }
 
   @override
@@ -559,10 +640,16 @@ class _ClassEditorScreenState extends State<ClassEditorScreen> {
       error = null;
     });
     try {
-      await repository.saveClass(name.text.trim(), previous: currentName);
+      await repository.saveClass(
+        name.text.trim(),
+        previous: currentName,
+        image: image,
+        imageChanged: imageChanged,
+      );
       if (mounted) {
         setState(() {
           currentName = name.text.trim();
+          imageChanged = false;
           revision++;
           message = 'Aula guardada. Ya puedes asignar su personal.';
         });
@@ -641,6 +728,48 @@ class _ClassEditorScreenState extends State<ClassEditorScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Center(
+              child: Column(
+                children: [
+                  ContentPicture(
+                    bytes: image,
+                    icon: Icons.school_outlined,
+                    size: 240,
+                  ),
+                  const SizedBox(height: 12),
+                  OutlinedButton.icon(
+                    onPressed: busy
+                        ? null
+                        : () async {
+                            try {
+                              final value = await pickPicture();
+                              if (mounted && value != null) {
+                                setState(() {
+                                  image = value;
+                                  imageChanged = true;
+                                });
+                              }
+                            } on Object catch (e) {
+                              if (mounted) setState(() => error = e.toString());
+                            }
+                          },
+                    icon: const Icon(Icons.add_photo_alternate_outlined),
+                    label: const Text('Elegir foto del aula'),
+                  ),
+                  if (image != null)
+                    TextButton(
+                      onPressed: busy
+                          ? null
+                          : () => setState(() {
+                              image = null;
+                              imageChanged = true;
+                            }),
+                      child: const Text('Quitar foto del aula'),
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
             TextFormField(
               controller: name,
               maxLength: 50,

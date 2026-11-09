@@ -6,10 +6,11 @@ from pydantic import BaseModel, ConfigDict, Field, StrictInt, field_validator
 from sqlalchemy.orm import Session
 
 from ..DB.database import get_db
-from ..activity_content import ActivityFields, has_content, save_content, task_content
+from ..activity_content import ActivityFields, decode_image, has_content, save_content, task_content
 from ..auth.auth_backend import get_current_user, require_admin
 from ..errors import CatalogError, ErrorCode, raise_api_error, success_response
 from . import clases_db
+from .class_media import save_class_image
 
 router = APIRouter(prefix="/classes", tags=["classes"])
 ClassNamePath = Annotated[str, Path(min_length=1, max_length=50, pattern=r"^\S(?:.*\S)?$")]
@@ -28,6 +29,13 @@ class ClassRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     class_name: str = Field(strict=True, min_length=1, max_length=50)
+    class_image: str | None = Field(default=None, max_length=7_000_000)
+
+    @field_validator('class_image')
+    @classmethod
+    def validate_class_image(cls, value: str | None) -> str | None:
+        decode_image(value)
+        return value
 
     @field_validator("class_name")
     @classmethod
@@ -69,7 +77,9 @@ class CreateClassTaskRequest(ActivityFields):
 @router.post("", status_code=201, dependencies=[Depends(require_admin)])
 def create_class(payload: ClassRequest, db: Session = Depends(get_db)) -> dict:
     """Crea una clase; solo los administradores pueden hacerlo."""
-    return _run_db_operation(clases_db.create_class, db, payload.class_name)
+    result = _run_db_operation(clases_db.create_class, db, payload.class_name,
+                               commit='class_image' not in payload.model_fields_set)
+    return _finish_class_image(db, result, payload)
 
 
 @router.get("")
@@ -102,8 +112,22 @@ def get_class(
 def update_class(
     current_class_name: ClassNamePath, payload: ClassRequest, db: Session = Depends(get_db)
 ) -> dict:
-    """Edita el nombre de una clase; solo los administradores pueden hacerlo."""
-    return _run_db_operation(clases_db.update_class, db, current_class_name, payload.class_name)
+    """Edita el nombre y la foto de una clase; requiere administrador."""
+    result = _run_db_operation(clases_db.update_class, db, current_class_name, payload.class_name,
+                               commit='class_image' not in payload.model_fields_set)
+    return _finish_class_image(db, result, payload)
+
+
+def _finish_class_image(db: Session, result: dict, payload: ClassRequest) -> dict:
+    if 'class_image' in payload.model_fields_set:
+        try:
+            save_class_image(db, result['class_name'], payload.class_image)
+            result['class_image'] = payload.class_image
+            db.commit()
+        except Exception:
+            db.rollback()
+            raise
+    return result
 
 
 @router.delete("/{class_name}", dependencies=[Depends(require_admin)])

@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from ..errors import CatalogError, ErrorCode, success_response
 from ..task_indexing import calculate_task_index, lock_student_agendas
 from ..task_schedule import validate_task_schedule
+from .class_media import class_image
 
 def _ensure_class(db: Session, class_name: str) -> dict:
     """Comprueba que exista la clase y devuelve su nombre."""
@@ -45,7 +46,7 @@ def _lock_class(db: Session, class_name: str) -> None:
         raise CatalogError(ErrorCode.CLASS_NOT_FOUND)
 
 
-def create_class(db: Session, class_name: str) -> dict:
+def create_class(db: Session, class_name: str, commit: bool = True) -> dict:
     """Crea una clase nueva y rechaza nombres que ya estén registrados."""
     try:
         row = db.execute(
@@ -58,14 +59,15 @@ def create_class(db: Session, class_name: str) -> dict:
         if row is None:
             db.rollback()
             raise CatalogError(ErrorCode.CLASS_NAME_TAKEN)
-        db.commit()
+        if commit:
+            db.commit()
         return success_response(**dict(row))
     except Exception:
         db.rollback()
         raise
 
 
-def update_class(db: Session, current_class_name: str, new_class_name: str) -> dict:
+def update_class(db: Session, current_class_name: str, new_class_name: str, commit: bool = True) -> dict:
     """Renombra la clase y conserva sus asociaciones mediante la clave foránea."""
     _ensure_class(db, current_class_name)
     try:
@@ -76,7 +78,8 @@ def update_class(db: Session, current_class_name: str, new_class_name: str) -> d
             ),
             {"current_class_name": current_class_name, "new_class_name": new_class_name},
         ).mappings().first()
-        db.commit()
+        if commit:
+            db.commit()
         return success_response(**dict(row))
     except IntegrityError as exc:
         db.rollback()
@@ -180,6 +183,7 @@ def list_classes(db: Session, staff_username: str | None = None) -> list[dict]:
         classes.append(
             {
                 "class_name": row["class_name"],
+                "class_image": class_image(db, row['class_name']),
                 "student_count": len(students),
                 "students": students,
             }
@@ -206,6 +210,7 @@ def get_class(db: Session, class_name: str, staff_username: str | None = None) -
     ).mappings().all()
     return success_response(
         **class_info,
+        class_image=class_image(db, class_name),
         students=students,
         staff=[dict(row) for row in teachers],
     )

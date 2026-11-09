@@ -82,12 +82,17 @@ class Classroom {
     required this.name,
     this.students = const [],
     this.staff = const [],
+    this.image,
   });
   final String name;
   final List<AppUser> students;
   final List<AppUser> staff;
+  final Uint8List? image;
   factory Classroom.fromJson(Json json) => Classroom(
     name: json['class_name'] as String,
+    image: json['class_image'] == null
+        ? null
+        : base64Decode(json['class_image'] as String),
     students: (json['students'] as List? ?? [])
         .map(
           (e) => AppUser.fromJson(

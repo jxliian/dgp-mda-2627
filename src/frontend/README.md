@@ -2,6 +2,8 @@
 
 Frontend basado en `docs/Pantallas/flujo-pantallas.png`, los bocetos de Figma y los bocetos a mano. La documentación original se conserva sin cambios.
 
+Para Ubuntu, consulta la [guía completa de instalación y arranque](../../README_UBUNTU.md), que integra la base de datos, el backend y el frontend con comandos de consola desde cero.
+
 ## Ejecutar
 
 Con Flutter estable instalado y disponible en el PATH:
@@ -12,9 +14,9 @@ flutter pub get
 flutter run -d chrome --web-port=5173 --dart-define=API_BASE_URL=http://127.0.0.1:8000
 ```
 
-La dirección también puede cambiarse en **Conexión al servidor**, antes de iniciar sesión. La API debe estar arrancada y la base de datos debe tener aplicada la migración de esta implementación.
+La dirección se configura con `API_BASE_URL`. La portada muestra únicamente los accesos por perfil. La API debe estar arrancada y la base de datos debe tener aplicadas las migraciones de esta implementación.
 
-Para revisar todas las pantallas sin servidor, pulsa **Explorar demostración** o ejecuta:
+Para revisar todas las pantallas sin servidor, ejecuta:
 
 ```powershell
 flutter run -d chrome --web-port=5173 --dart-define=DEMO=true
@@ -40,7 +42,11 @@ uv run --project proyectFastAPI python -m proyectFastAPI.migrate
 uv run --project proyectFastAPI python -m uvicorn proyectFastAPI.main:app --host 0.0.0.0 --port 8000
 ```
 
-La migración `proyectFastAPI/migrations/001_frontend.sql` se aplica en una transacción y registra su versión. No se ejecuta al importar la API ni modifica archivos de `docs`. Añade contenido de tareas y pasos y progreso independiente por alumno, tarea y fecha. Al retirar una asignación se limpia su progreso; completar una actividad grupal no completa la de otro alumno.
+El comando aplica en orden las migraciones pendientes de `proyectFastAPI/migrations/`, en una transacción y registrando su versión. No se ejecutan al importar la API ni modifican archivos de `docs`:
+
+- `001_frontend.sql`: contenido de tareas y pasos y progreso independiente por alumno, tarea y fecha. Al retirar una asignación se limpia su progreso; completar una actividad grupal no completa la de otro alumno.
+- `002_class_images.sql`: fotografías personalizables de las aulas, conservadas al renombrarlas.
+- `003_optional_account_email.sql`: permite crear cuentas sin correo, conservando los correos existentes y su unicidad.
 
 Variables adicionales:
 
@@ -94,6 +100,10 @@ La selección de varios días crea una tarea independiente por fecha de la seman
 
 La administración dispone de rutas adicionales para gestionar matrículas desde el editor de aulas; las rutas originales del personal mantienen sus restricciones. Solo administración concede permisos de modificar perfiles o crear tareas.
 
+Los formularios de usuarios piden nombre de usuario, nombre, primer apellido, segundo apellido, rol y contraseña; no solicitan correo. El nombre y los apellidos se guardan en el campo existente `full_name`. Administración puede subir la foto de un alumno al crear o modificar su cuenta y no puede eliminar su propia cuenta. El alumno puede cambiar su foto si tiene permiso para modificar su perfil, pero no puede cambiar su contraseña; administración puede restablecerla.
+
+Al abrir una tarea pendiente con pasos desde la agenda del alumno, aparece automáticamente el primero. **He terminado · Siguiente paso** confirma el paso actual y avanza; la última confirmación termina la tarea y vuelve a **Mis tareas**. Las fotos de aulas, alumnos, tareas y pasos tienen un tamaño ampliado.
+
 ## API ampliada
 
 | Función | Ruta |
@@ -108,8 +118,11 @@ La administración dispone de rutas adicionales para gestionar matrículas desde
 | Progreso propio | `PATCH /student-tasks/me/{task_id}/progress?task_date=AAAA-MM-DD` |
 | Retirar personal | `DELETE /classes/{class_name}/staff/{staff_username}` |
 | Matrículas administrativas | `POST` / `DELETE /admin/classes/{class_name}/students/{student_username}` |
+| Foto de alumno desde administración | `PUT /admin/students/{student_username}/avatar` |
 
 Creación y edición de tareas aceptan `steps` y `task_image`. Las imágenes se codifican en base64: PNG, JPEG o WebP de hasta 5 MB por imagen. Cada paso contiene `step_title`, `step_description`, `step_duration`, `step_required` y `step_image`; el array determina el orden. El alumno no puede terminar con pasos obligatorios pendientes.
+
+Las rutas de creación y edición de aulas aceptan `class_image` con los mismos formatos y límite. Omitir el campo conserva la foto y enviar `null` la elimina. La foto del alumno se sube como fichero multipart.
 
 El cliente reconoce las ampliaciones mediante OpenAPI y avisa al conectarse a un servidor anterior. El token Bearer permanece en memoria y se elimina al salir o caducar. Cambiar usuario o contraseña revoca la sesión. Se corrigieron además la validación de PNG y la referencia incorrecta a los campos de accesibilidad en creación/edición de usuarios.
 
@@ -124,6 +137,8 @@ La autenticación requiere conexión y el token no se persiste. Después de rein
 ## Accesibilidad y límites
 
 Interfaz en español, controles amplios, etiquetas de acciones, teclado, texto escalable, estados con texto e iconos, colores configurables, contraste alto y lectura en voz cuando esté habilitada. Las fotos se cargan según los permisos y el alumno puede actualizar la suya desde Ajustes.
+
+Los colores de fondo y botones se eligen mediante muestras grandes con nombre, marca de selección y vista previa, sin escribir códigos de color. Las opciones combinan fondos claros con botones oscuros y texto contrastado; el modo de alto contraste sigue disponible.
 
 Los apoyos predeterminados son iconos Material y fotos subidas, no pictogramas ARASAAC. Se pueden adjuntar los materiales específicos del centro a tareas y pasos con su atribución y permisos. La voz depende de las voces españolas del dispositivo; no sustituye una grabación familiar. Queda pendiente la validación con TalkBack, ayudas motrices y alumnado real.
 
@@ -157,4 +172,4 @@ Estas pruebas crean exclusivamente `autovida_test` con el esquema y la migració
 
 Capturas de Chrome con datos ficticios: [portada](previews/portada.png), [administración](previews/administracion.png), [editor de tareas](previews/crear_tarea.png) y [ejecución de un paso](previews/paso.png).
 
-Validación realizada: `flutter analyze` sin incidencias; 15 pruebas Flutter superadas; compilación web completada; 158 pruebas PostgreSQL superadas y cuatro fallos esperados anteriores. También se recorrieron en Chrome el acceso visual, la finalización de pasos/tarea, la creación de una cuenta y de una tarea con un paso, y el envío de progreso después de desconectar y recuperar la red. No se ha validado Android ni el uso con alumnado real.
+Validación realizada: `flutter analyze` sin incidencias; 18 pruebas Flutter superadas; compilación web completada; 167 pruebas PostgreSQL superadas y cuatro fallos esperados anteriores. Las pruebas cubren también las cuentas sin correo, las fotos de aulas y alumnos, la prohibición de cambiar contraseña para alumnos, el bloqueo del autoborrado administrativo y la finalización automática de tareas. No se ha validado Android ni el uso con alumnado real.

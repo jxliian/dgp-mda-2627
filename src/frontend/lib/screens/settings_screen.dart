@@ -44,7 +44,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       if (user.role == UserRole.student)
         for (final entry in settings.toJson().entries)
           if (entry.value != original.values[entry.key]) entry.key: entry.value,
-      if (password.text.isNotEmpty) 'password': password.text,
+      if (user.role != UserRole.student && password.text.isNotEmpty)
+        'password': password.text,
     };
     if (changes.isEmpty) {
       setState(() => message = 'No hay cambios para guardar.');
@@ -57,7 +58,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     });
     try {
       await state.repository.saveUser(changes, previous: user);
-      if (password.text.isNotEmpty) {
+      if (user.role != UserRole.student && password.text.isNotEmpty) {
         if (state.user != null) state.expire();
         return;
       }
@@ -125,7 +126,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Center(
                 child: Column(
                   children: [
-                    UserAvatar(user: user, size: 130),
+                    UserAvatar(user: user, size: 180),
                     const SizedBox(height: 12),
                     OutlinedButton.icon(
                       onPressed: busy || !canEdit ? null : changePhoto,
@@ -145,35 +146,37 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               AccessEditor(settings: settings, enabled: canEdit && !busy),
             ],
-            const SizedBox(height: 28),
-            const Text(
-              'Cambiar contraseña',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: password,
-              obscureText: true,
-              enabled: canEdit && !busy,
-              decoration: const InputDecoration(
-                labelText: 'Nueva contraseña (opcional)',
+            if (user.role != UserRole.student) ...[
+              const SizedBox(height: 28),
+              const Text(
+                'Cambiar contraseña',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
               ),
-              validator: (v) => v!.isEmpty ? null : passwordError(v),
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: confirmation,
-              obscureText: true,
-              enabled: canEdit && !busy,
-              decoration: const InputDecoration(
-                labelText: 'Repite la nueva contraseña',
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: password,
+                obscureText: true,
+                enabled: canEdit && !busy,
+                decoration: const InputDecoration(
+                  labelText: 'Nueva contraseña (opcional)',
+                ),
+                validator: (v) => v!.isEmpty ? null : passwordError(v),
               ),
-              validator: (v) =>
-                  v == password.text ? null : 'Las contraseñas no coinciden.',
-            ),
-            const Text(
-              'Después de cambiarla tendrás que iniciar sesión de nuevo.',
-            ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: confirmation,
+                obscureText: true,
+                enabled: canEdit && !busy,
+                decoration: const InputDecoration(
+                  labelText: 'Repite la nueva contraseña',
+                ),
+                validator: (v) =>
+                    v == password.text ? null : 'Las contraseñas no coinciden.',
+              ),
+              const Text(
+                'Después de cambiarla tendrás que iniciar sesión de nuevo.',
+              ),
+            ],
             if (error != null) Notice(error!, error: true),
             if (message != null) Notice(message!),
             FormActions(
@@ -202,6 +205,110 @@ class AccessEditor extends StatefulWidget {
   State<AccessEditor> createState() => _AccessEditorState();
 }
 
+class ColorPalette extends StatelessWidget {
+  const ColorPalette({
+    super.key,
+    required this.label,
+    required this.selected,
+    required this.onChanged,
+    required this.background,
+    this.enabled = true,
+  });
+  final String label;
+  final String selected;
+  final ValueChanged<String> onChanged;
+  final bool background;
+  final bool enabled;
+  @override
+  Widget build(BuildContext context) {
+    final colors = background
+        ? <String, String>{
+            '#ffffff': 'Blanco',
+            '#fff4d6': 'Crema',
+            '#e3f2fd': 'Azul claro',
+            '#e8f5e9': 'Verde claro',
+            '#fce4ec': 'Rosa claro',
+            '#eceff1': 'Gris claro',
+          }
+        : <String, String>{
+            '#00695c': 'Verde',
+            '#1565c0': 'Azul',
+            '#6a1b9a': 'Morado',
+            '#9b1c31': 'Granate',
+            '#5d4037': 'Marrón',
+            '#000000': 'Negro',
+          };
+    if (!colors.containsKey(selected.toLowerCase())) {
+      colors[selected] = 'Color actual';
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Semantics(
+          header: true,
+          child: Text(
+            label,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 12,
+          runSpacing: 12,
+          children: colors.entries.map((entry) {
+            final chosen = entry.key.toLowerCase() == selected.toLowerCase();
+            final color = parseColor(entry.key);
+            final ink = color.computeLuminance() > .179
+                ? Colors.black
+                : Colors.white;
+            return Semantics(
+              selected: chosen,
+              label: '$label: ${entry.value}${chosen ? ', seleccionado' : ''}',
+              child: SizedBox(
+                width: 122,
+                child: OutlinedButton(
+                  onPressed: enabled ? () => onChanged(entry.key) : null,
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.all(10),
+                    minimumSize: const Size(110, 110),
+                    side: BorderSide(
+                      color: chosen
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.outline,
+                      width: chosen ? 3 : 1,
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      Container(
+                        width: 68,
+                        height: 45,
+                        decoration: BoxDecoration(
+                          color: color,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.grey),
+                        ),
+                        child: chosen ? Icon(Icons.check, color: ink) : null,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(entry.value, textAlign: TextAlign.center),
+                      if (chosen)
+                        const Text(
+                          'Elegido',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+}
+
 class _AccessEditorState extends State<AccessEditor> {
   @override
   Widget build(BuildContext context) => Column(
@@ -213,32 +320,69 @@ class _AccessEditorState extends State<AccessEditor> {
         style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
       ),
       const SizedBox(height: 18),
+      for (final entry in {
+        'main_col': 'Color de fondo',
+        'sec_col': 'Color de los botones',
+      }.entries) ...[
+        ColorPalette(
+          label: entry.value,
+          selected: widget.settings.color(entry.key),
+          enabled: widget.enabled,
+          background: entry.key == 'main_col',
+          onChanged: (color) => setState(
+            () => widget.settings.values['stud_access_${entry.key}'] = color,
+          ),
+        ),
+        const SizedBox(height: 22),
+      ],
+      Builder(
+        builder: (context) {
+          final background = widget.settings.flag('contrast')
+              ? Colors.white
+              : parseColor(widget.settings.color('main_col'));
+          final accent = widget.settings.flag('contrast')
+              ? Colors.black
+              : parseColor(widget.settings.color('sec_col'));
+          return Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: background,
+              border: Border.all(color: Colors.grey),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              children: [
+                Text(
+                  'Vista previa',
+                  style: TextStyle(
+                    color: background.computeLuminance() > .179
+                        ? Colors.black
+                        : Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                FilledButton.icon(
+                  onPressed: () {},
+                  style: FilledButton.styleFrom(
+                    backgroundColor: accent,
+                    foregroundColor: accent.computeLuminance() > .179
+                        ? Colors.black
+                        : Colors.white,
+                  ),
+                  icon: const Icon(Icons.check),
+                  label: const Text('Así se verá mi botón'),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+      const SizedBox(height: 22),
       Wrap(
         spacing: 20,
         runSpacing: 20,
         children: [
-          for (final entry in {
-            'main_col': 'Color de fondo',
-            'sec_col': 'Color de los botones',
-          }.entries)
-            SizedBox(
-              width: 260,
-              child: TextFormField(
-                initialValue: widget.settings.color(entry.key),
-                enabled: widget.enabled,
-                decoration: InputDecoration(
-                  labelText: '${entry.value} (#RRGGBB)',
-                ),
-                validator: (v) =>
-                    RegExp(
-                      r'^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$',
-                    ).hasMatch(v ?? '')
-                    ? null
-                    : 'Usa un color como #00695c.',
-                onChanged: (v) =>
-                    widget.settings.values['stud_access_${entry.key}'] = v,
-              ),
-            ),
           for (final entry in {
             'fontsize': 'Tamaño de letra',
             'ntasks_visible': 'Tareas por página',

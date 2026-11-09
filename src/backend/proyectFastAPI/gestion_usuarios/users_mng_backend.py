@@ -119,15 +119,15 @@ class CreateStudentRequest(CreateUserBase):
     stud_access_task_mod: StrictBool
 
 
-class CreateEmailUserRequest(CreateUserBase):
-    """Campos de creación para roles que requieren un correo válido."""
+class CreateNonStudentRequest(CreateUserBase):
+    """El correo legado es opcional; el formulario actual no lo solicita."""
 
     role: Literal["admin", "staff", "parent"]
-    email: EmailStr = Field(max_length=254)
+    email: EmailStr | None = Field(default=None, max_length=254)
 
 
 CreateUserRequest = Annotated[
-    Union[CreateStudentRequest, CreateEmailUserRequest],
+    Union[CreateStudentRequest, CreateNonStudentRequest],
     Field(discriminator="role"),
 ]
 
@@ -229,6 +229,8 @@ def edit_user(role: Role, username: UsernamePath, payload: UpdateUserRequest,
     fields = payload.model_dump(exclude_unset=True)
     is_admin = user["role"] == "admin"
     if not is_admin:
+        if user['role'] == 'student' and 'password' in fields:
+            raise_api_error(ErrorCode.PROFILE_UPDATE_DENIED)
         if user["role"] != role or user["username"] != username:
             raise_api_error(ErrorCode.PROFILE_UPDATE_DENIED)
         if any(field in fields for field in ("username", "full_name", "role")):
@@ -261,9 +263,12 @@ def edit_user(role: Role, username: UsernamePath, payload: UpdateUserRequest,
     return result
 
 
-@router.delete("/{role}/{username}", dependencies=[Depends(require_admin)])
-def delete_user(role: Role, username: UsernamePath, db: Session = Depends(get_db)) -> dict:
-    """Elimina un usuario; requiere administrador y no permite eliminar al último."""
+@router.delete("/{role}/{username}")
+def delete_user(role: Role, username: UsernamePath, db: Session = Depends(get_db),
+                user: dict = Depends(require_admin)) -> dict:
+    """Elimina otra cuenta; impide el autoborrado y eliminar al último administrador."""
+    if role == 'admin' and username == user['username']:
+        raise_api_error(ErrorCode.ADMIN_SELF_DELETE_DENIED)
     result = users_mng_db.deleteUser(db, username, role)
     if result["errorCode"] != 0:
         raise_api_error(result["errorCode"])

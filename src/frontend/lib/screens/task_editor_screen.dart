@@ -1,27 +1,11 @@
 import 'dart:typed_data';
-import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/domain.dart';
 import '../models/validation.dart';
 import '../state/app_state.dart';
 import '../ui/components.dart';
-
-Future<Uint8List?> pickPicture() async {
-  final file = await openFile(
-    acceptedTypeGroups: [
-      const XTypeGroup(
-        label: 'Imágenes',
-        extensions: ['png', 'jpg', 'jpeg', 'webp'],
-      ),
-    ],
-  );
-  if (file == null) return null;
-  if (await file.length() > 5 * 1024 * 1024) {
-    throw StateError('La imagen no puede superar los 5 MB.');
-  }
-  return file.readAsBytes();
-}
+import '../services/image_picker.dart';
 
 class TaskEditorScreen extends StatefulWidget {
   const TaskEditorScreen({
@@ -228,49 +212,54 @@ class _TaskEditorScreenState extends State<TaskEditorScreen> {
               const Notice(
                 'El servidor admite el título, la fecha, la hora y la duración. El guardado de pasos e imágenes requiere la ampliación de la API.',
               ),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Column(
-                  children: [
-                    ContentPicture(
-                      bytes: image,
-                      icon: taskIcon(title.text),
-                      size: 100,
-                    ),
-                    IconButton(
-                      tooltip: 'Elegir imagen de la tarea',
-                      onPressed: locked
-                          ? null
-                          : () async {
-                              try {
-                                final value = await pickPicture();
-                                if (mounted && value != null) {
-                                  setState(() => image = value);
+            LayoutBuilder(
+              builder: (context, constraints) => Wrap(
+                spacing: 20,
+                runSpacing: 20,
+                children: [
+                  Column(
+                    children: [
+                      ContentPicture(
+                        bytes: image,
+                        icon: taskIcon(title.text),
+                        size: 160,
+                      ),
+                      IconButton(
+                        tooltip: 'Elegir imagen de la tarea',
+                        onPressed: locked
+                            ? null
+                            : () async {
+                                try {
+                                  final value = await pickPicture();
+                                  if (mounted && value != null) {
+                                    setState(() => image = value);
+                                  }
+                                } on Object catch (e) {
+                                  if (mounted) {
+                                    setState(() => error = e.toString());
+                                  }
                                 }
-                              } on Object catch (e) {
-                                if (mounted) {
-                                  setState(() => error = e.toString());
-                                }
-                              }
-                            },
-                      icon: const Icon(Icons.add_photo_alternate_outlined),
-                    ),
-                  ],
-                ),
-                const SizedBox(width: 20),
-                Expanded(
-                  child: TextFormField(
-                    controller: title,
-                    enabled: !locked,
-                    maxLength: 100,
-                    validator: requiredText,
-                    decoration: const InputDecoration(
-                      labelText: 'Nombre de la tarea *',
+                              },
+                        icon: const Icon(Icons.add_photo_alternate_outlined),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    width: constraints.maxWidth < 600
+                        ? constraints.maxWidth
+                        : constraints.maxWidth - 180,
+                    child: TextFormField(
+                      controller: title,
+                      enabled: !locked,
+                      maxLength: 100,
+                      validator: requiredText,
+                      decoration: const InputDecoration(
+                        labelText: 'Nombre de la tarea *',
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
             const SizedBox(height: 20),
             Wrap(
@@ -503,7 +492,7 @@ class _StepEditorScreenState extends State<StepEditorScreen> {
             child: ContentPicture(
               bytes: image,
               icon: Icons.image_outlined,
-              size: 150,
+              size: 260,
             ),
           ),
           Center(

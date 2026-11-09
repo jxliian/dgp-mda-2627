@@ -31,6 +31,7 @@ class DemoRepository implements AutovidaRepository {
   final Map<String, Set<String>> _parents = {};
   final Map<String, List<AgendaTask>> _tasks = {};
   final Map<String, Uint8List> _photos = {};
+  final Map<String, Uint8List> _classPhotos = {};
   int _nextTask = 100;
 
   void _seed() {
@@ -217,6 +218,7 @@ class DemoRepository implements AutovidaRepository {
 
   Classroom _classroom(String name) => Classroom(
     name: name,
+    image: _classPhotos[name],
     students: (_students[name] ?? {}).map((s) => _users[s]!).toList(),
     staff: (_staff[name] ?? {}).map((s) => _users[s]!).toList(),
   );
@@ -238,6 +240,9 @@ class DemoRepository implements AutovidaRepository {
   @override
   Future<void> saveUser(Json payload, {AppUser? previous}) async {
     _signedIn();
+    if (_current!.role == UserRole.student && payload.containsKey('password')) {
+      throw const ApiException('El alumno no puede cambiar su contraseña.');
+    }
     final own = _current!.username == previous?.username;
     if (_current!.role != UserRole.admin &&
         (!own ||
@@ -284,6 +289,11 @@ class DemoRepository implements AutovidaRepository {
   @override
   Future<void> deleteUser(AppUser user) async {
     _admin();
+    if (user.username == _current!.username) {
+      throw const ApiException(
+        'No puedes eliminar tu propia cuenta de administrador.',
+      );
+    }
     if (user.role == UserRole.admin &&
         _users.values.where((u) => u.role == UserRole.admin).length == 1) {
       throw const ApiException('No se puede eliminar al último administrador.');
@@ -325,13 +335,21 @@ class DemoRepository implements AutovidaRepository {
   }
 
   @override
-  Future<void> saveClass(String name, {String? previous}) async {
+  Future<void> saveClass(
+    String name, {
+    String? previous,
+    Uint8List? image,
+    bool imageChanged = false,
+  }) async {
     _admin();
     if (name != previous && _students.containsKey(name)) {
       throw const ApiException('Ya existe un aula con ese nombre.');
     }
     _students[name] = previous == null ? {} : _students.remove(previous)!;
     _staff[name] = previous == null ? {} : _staff.remove(previous)!;
+    final oldPhoto = previous == null ? null : _classPhotos.remove(previous);
+    final photo = imageChanged ? image : oldPhoto;
+    if (photo != null) _classPhotos[name] = photo;
   }
 
   @override
@@ -339,6 +357,7 @@ class DemoRepository implements AutovidaRepository {
     _admin();
     _students.remove(name);
     _staff.remove(name);
+    _classPhotos.remove(name);
     for (final tasks in _tasks.values) {
       tasks.removeWhere((t) => t.className == name);
     }
@@ -574,15 +593,20 @@ class DemoRepository implements AutovidaRepository {
   @override
   Future<Uint8List?> avatar(AppUser user) async => _photos[user.username];
   @override
-  Future<void> uploadAvatar(Uint8List image, String filename) async {
+  Future<void> uploadAvatar(
+    Uint8List image,
+    String filename, {
+    AppUser? student,
+  }) async {
     _signedIn();
-    if (!_current!.access.flag('profile_mod')) {
+    if (student != null) _admin();
+    if (student == null && !_current!.access.flag('profile_mod')) {
       throw const ApiException('No puedes cambiar tu foto.');
     }
     if (image.length > 5 * 1024 * 1024) {
       throw const ApiException('La imagen no puede superar los 5 MB.');
     }
-    _photos[_current!.username] = image;
+    _photos[student?.username ?? _current!.username] = image;
   }
 
   @override

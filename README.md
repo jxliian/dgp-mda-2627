@@ -1,5 +1,7 @@
 # Sistema de Agenda y Gestión de Tareas Accesible (AUTOVIDA)
 
+Para ejecutar el proyecto completo en Ubuntu, sigue el [README de instalación y arranque](README_UBUNTU.md): incluye PostgreSQL, backend FastAPI, frontend Flutter, cuentas de prueba y solución de problemas desde cero.
+
 [![UGR](https://img.shields.io/badge/UGR-Universidad%20de%20Granada-blue.svg)](https://www.ugr.es/)
 [![Curso](https://img.shields.io/badge/Curso-2026%2F2027-brightgreen.svg)]()
 [![Asignaturas](https://img.shields.io/badge/Asignaturas-DGP%20%7C%20MDA-orange.svg)]()

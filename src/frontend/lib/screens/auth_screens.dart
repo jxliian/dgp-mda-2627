@@ -12,25 +12,6 @@ class WelcomeScreen extends StatelessWidget {
     return PageShell(
       title: 'Bienvenido a tu agenda',
       showBack: false,
-      footer: Wrap(
-        alignment: WrapAlignment.center,
-        spacing: 20,
-        children: [
-          TextButton.icon(
-            onPressed: () => openPage(context, const ConnectionScreen()),
-            icon: const Icon(Icons.dns_outlined),
-            label: const Text('Conexión al servidor'),
-          ),
-          TextButton(
-            onPressed: () => state.setDemo(!state.demo),
-            child: Text(
-              state.demo
-                  ? 'Conectar con datos reales'
-                  : 'Explorar demostración',
-            ),
-          ),
-        ],
-      ),
       child: Column(
         children: [
           const SizedBox(height: 32),
@@ -254,7 +235,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 const Brand(),
                 const SizedBox(height: 32),
                 if (widget.student != null) ...[
-                  UserAvatar(user: widget.student!, size: 95),
+                  UserAvatar(user: widget.student!, size: 150),
                   const SizedBox(height: 12),
                   Text(
                     widget.student!.displayName,
@@ -443,6 +424,11 @@ class StudentClassesScreen extends StatelessWidget {
             empty: 'Todavía no hay aulas disponibles.',
             builder: (c) => ActionTile(
               title: c.name,
+              leading: ContentPicture(
+                bytes: c.image,
+                icon: Icons.school_outlined,
+                size: 192,
+              ),
               icon: Icons.school_outlined,
               onTap: () =>
                   openPage(context, StudentSelectionScreen(classroom: c)),
@@ -479,7 +465,7 @@ class StudentSelectionScreen extends StatelessWidget {
         title: u.displayName,
         icon: Icons.person_outline,
         vertical: true,
-        leading: UserAvatar(user: u, size: 105),
+        leading: UserAvatar(user: u, size: 155),
         onTap: () => openPage(context, LoginScreen(student: u)),
       ),
     ),

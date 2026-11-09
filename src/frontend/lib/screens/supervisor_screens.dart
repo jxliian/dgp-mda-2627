@@ -40,6 +40,11 @@ class _StaffClassesScreenState extends State<StaffClassesScreen> {
             empty: 'No hay aulas asignadas que coincidan con la búsqueda.',
             builder: (c) => ActionTile(
               title: c.name,
+              leading: ContentPicture(
+                bytes: c.image,
+                icon: Icons.school_outlined,
+                size: 192,
+              ),
               subtitle: '${c.students.length} alumnos',
               icon: Icons.school_outlined,
               onTap: () =>
@@ -85,7 +90,7 @@ class StudentGrid extends StatelessWidget {
       subtitle: 'Consultar tareas',
       icon: Icons.person_outline,
       vertical: true,
-      leading: UserAvatar(user: u, size: 105),
+      leading: UserAvatar(user: u, size: 155),
       onTap: () async {
         await openPage(context, AgendaScreen(student: u));
         onChanged?.call();
