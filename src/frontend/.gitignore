@@ -1,0 +1,11 @@
+!lib/
+!lib/**
+.dart_tool/
+.flutter-plugins*
+build/
+android/local.properties
+android/.gradle/
+android/app/debug/
+android/app/profile/
+android/app/release/
+*.iml
