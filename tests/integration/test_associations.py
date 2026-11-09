@@ -163,7 +163,6 @@ def test_el_personal_saca_a_un_alumno_de_su_clase(client):
     assert alumnos == []
 
 
-@pytest.mark.xfail(strict=True, reason="HU-07/08: no existe ruta para quitar a un profesor de una clase")
 def test_admin_quita_personal_de_una_clase(client, count):
     r = client.delete("/classes/1A/staff/lucia", headers=as_user("admin"))
     assert r.status_code == 200
