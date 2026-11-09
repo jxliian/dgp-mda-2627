@@ -141,6 +141,28 @@ def add_staff(db: Session, class_name: str, staff_username: str) -> dict:
     return success_response(class_name=class_name, staff_username=staff_username)
 
 
+def remove_staff(db: Session, class_name: str, staff_username: str) -> dict:
+    """Retira de una clase a un miembro del personal asignado."""
+    _ensure_class(db, class_name)
+    _lock_class(db, class_name)
+    try:
+        row = db.execute(
+            text(
+                "DELETE FROM class_staff "
+                "WHERE class_name_fk = :class_name AND staff_usr_fk = :staff_username "
+                "RETURNING class_name_fk, staff_usr_fk"
+            ),
+            {"class_name": class_name, "staff_username": staff_username},
+        ).mappings().first()
+        if row is None:
+            raise CatalogError(ErrorCode.CLASS_STAFF_NOT_FOUND)
+        db.commit()
+        return success_response(class_name=row["class_name_fk"], staff_username=row["staff_usr_fk"])
+    except Exception:
+        db.rollback()
+        raise
+
+
 def _list_class_students(db: Session, class_name: str) -> list[dict]:
     """Devuelve los alumnos actuales de una clase con una URL de avatar."""
     rows = db.execute(

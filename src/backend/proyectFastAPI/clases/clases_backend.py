@@ -119,6 +119,14 @@ def add_staff_to_class(
     return _run_db_operation(clases_db.add_staff, db, class_name, staff_username)
 
 
+@router.delete("/{class_name}/staff/{staff_username}", dependencies=[Depends(require_admin)])
+def remove_staff_from_class(
+    class_name: ClassNamePath, staff_username: UsernamePath, db: Session = Depends(get_db)
+) -> dict:
+    """Retira un miembro del personal de una clase; solo un administrador puede hacerlo."""
+    return _run_db_operation(clases_db.remove_staff, db, class_name, staff_username)
+
+
 @router.post("/{class_name}/students/{student_username}", status_code=201)
 def add_student_to_class(
     class_name: ClassNamePath,
