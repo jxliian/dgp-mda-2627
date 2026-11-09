@@ -45,24 +45,51 @@ void main() {
     expect(timer.remainingSeconds, 60);
     timer.dispose();
   });
-  test('task submission uses strict field names and ordered step payloads', () {
+  test('task submission uses strict field names and keeps the task as a unit', () {
     final draft = TaskDraft(
       title: 'Leer',
       date: DateTime(2026, 11, 9),
       duration: 20,
-      steps: [
-        TaskStep(
-          id: -1,
-          title: 'Abrir libro',
-          description: 'Busca la primera página.',
-          index: 0,
-        ),
-      ],
+      description: 'Busca la primera página.',
     );
     final json = jsonDecode(jsonEncode(draft.toApiJson())) as Map;
     expect(json['task_date'], '2026-11-09');
     expect(json['task_duration'], isA<int>());
-    expect((json['steps'] as List).first['step_required'], true);
-    expect((json['steps'] as List).first.containsKey('step_finished'), false);
+    expect(json.containsKey('task_image'), false);
+    // La descripción viaja como un único paso no obligatorio.
+    final steps = json['steps'] as List;
+    expect(steps.length, 1);
+    expect(steps.first['step_description'], 'Busca la primera página.');
+    expect(steps.first['step_title'], 'Leer');
+    expect(steps.first['step_required'], false);
+    expect(steps.first.containsKey('step_finished'), false);
+  });
+  test('a task without description sends no steps at all', () {
+    final draft = TaskDraft(
+      title: 'Leer',
+      date: DateTime(2026, 11, 9),
+      duration: 20,
+    );
+    expect(draft.steps, isEmpty);
+    expect(draft.toApiJson()['steps'], isEmpty);
+  });
+  test('the description of a stored task reads its step text', () {
+    final task = AgendaTask(
+      id: 1,
+      title: 'Leer',
+      date: DateTime(2026, 11, 9),
+      duration: 20,
+      creator: 'lucia',
+      steps: [
+        TaskStep(
+          id: 5,
+          title: 'Leer',
+          description: 'Busca la primera página.',
+          index: 0,
+          required: false,
+        ),
+      ],
+    );
+    expect(task.description, 'Busca la primera página.');
   });
 }

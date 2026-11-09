@@ -1,29 +1,32 @@
 import 'package:flutter/material.dart';
-import '../screens/settings_screen.dart';
-import '../state/app_state.dart';
-import 'components.dart';
+import '../../screens/settings_screen.dart';
+import '../../state/app_state.dart';
+import '../routes.dart';
+import 'notice.dart';
 
+/// Barra de navegación de una sesión iniciada: inicio, ajustes y salir.
 class AppFooter extends StatefulWidget {
   const AppFooter({super.key});
+
   @override
   State<AppFooter> createState() => _AppFooterState();
 }
 
 class _AppFooterState extends State<AppFooter> {
-  bool busy = false;
+  bool saliendo = false;
   String? error;
-  Future<void> logout() async {
+
+  Future<void> cerrarSesion() async {
     setState(() {
-      busy = true;
+      saliendo = true;
       error = null;
     });
-    final state = AppScope.of(context);
     try {
-      await state.logout();
+      await AppScope.of(context).logout();
     } on Object catch (e) {
       if (mounted) {
         setState(() {
-          busy = false;
+          saliendo = false;
           error = e.toString();
         });
       }
@@ -37,8 +40,9 @@ class _AppFooterState extends State<AppFooter> {
       if (error != null) Notice(error!, error: true),
       Wrap(
         alignment: WrapAlignment.spaceEvenly,
-        spacing: 30,
-        runSpacing: 8,
+        spacing: 24,
+        runSpacing: 10,
+        crossAxisAlignment: WrapCrossAlignment.center,
         children: [
           TextButton.icon(
             onPressed: () => goHome(context),
@@ -50,10 +54,10 @@ class _AppFooterState extends State<AppFooter> {
             icon: const Icon(Icons.settings_outlined),
             label: const Text('Ajustes'),
           ),
-          TextButton.icon(
-            onPressed: busy ? null : logout,
+          OutlinedButton.icon(
+            onPressed: saliendo ? null : cerrarSesion,
             icon: const Icon(Icons.logout),
-            label: Text(busy ? 'Saliendo…' : 'Salir'),
+            label: Text(saliendo ? 'Saliendo…' : 'Salir'),
           ),
         ],
       ),

@@ -6,6 +6,7 @@ analyzer:
     - build/**
     - android/**
     - web/**
+    - linux/**
 linter:
   rules:
     use_build_context_synchronously: true

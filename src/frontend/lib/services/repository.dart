@@ -6,8 +6,31 @@ import 'api_client.dart';
 
 abstract class AutovidaRepository {
   bool get isDemo;
+
+  // Lo que sabe hacer el servidor con el que se ha iniciado sesión. La
+  // interfaz las consulta para ofrecer solo lo que de verdad funciona, en
+  // lugar de enseñar un botón que acaba en error.
+  /// Guarda la descripción de una tarea.
   bool get supportsTaskContent;
+
+  /// Devuelve el perfil completo de la sesión.
   bool get supportsProfileRead;
+
+  /// Lista las tareas de la agenda de un alumno.
+  bool get canReadAgenda;
+
+  /// Registra que el alumno ha terminado una tarea.
+  bool get canTrackProgress;
+
+  /// Ofrece el directorio de aulas y fotos para que el alumno se busque.
+  bool get canBrowseDirectory;
+
+  /// Permite a la sesión actual matricular o retirar alumnos de un aula.
+  bool get canEnrollStudents;
+
+  /// Permite retirar a un miembro del personal de un aula.
+  bool get canRemoveStaff;
+
   bool get offline;
   int get pendingChanges;
   Future<void> synchronize();
@@ -51,6 +74,39 @@ abstract class AutovidaRepository {
   void close();
 }
 
+extension AutovidaRepositoryActions on AutovidaRepository {
+  /// Aula a la que pertenece un alumno, o `null` si no consta ninguna.
+  ///
+  /// Se obtiene del directorio del centro, que es la única vista de aulas
+  /// disponible para una sesión de alumno.
+  Future<String?> classOf(String student) async {
+    try {
+      final aulas = await directory();
+      for (final aula in aulas) {
+        if (aula.students.any((alumno) => alumno.username == student)) {
+          return aula.name;
+        }
+      }
+    } on Object {
+      // El directorio es opcional: sin él, simplemente no se muestra el aula.
+    }
+    return null;
+  }
+
+  /// Da una tarea por terminada tratándola como una unidad.
+  ///
+  /// Las tareas creadas antes de la Iteración 1 pueden conservar pasos
+  /// obligatorios que el servidor exige confirmar; se confirman primero para
+  /// que el alumno no quede bloqueado ante una pantalla sin pasos.
+  Future<AgendaTask> completeTask(String student, AgendaTask task) async {
+    var actual = task;
+    for (final paso in task.steps.where((p) => p.required && !p.finished)) {
+      actual = await progress(student, actual, stepId: paso.id, finished: true);
+    }
+    return progress(student, actual, complete: true);
+  }
+}
+
 /// Only currently implemented routes are enabled by default. Optional extensions
 /// must be advertised by OpenAPI before the client can call them.
 class LiveRepository implements AutovidaRepository {
@@ -77,6 +133,26 @@ class LiveRepository implements AutovidaRepository {
       supports('get', '/student-tasks/students/{student_username}');
   @override
   bool get supportsProfileRead => supports('get', '/users/me');
+  @override
+  bool get canReadAgenda => _user?.role == UserRole.student
+      ? supports('get', '/student-tasks/me')
+      : supports('get', '/student-tasks/students/{student_username}');
+  @override
+  bool get canTrackProgress =>
+      supports('patch', '/student-tasks/me/{task_id}/progress');
+  @override
+  bool get canBrowseDirectory => supports('get', '/auth/student-directory');
+  @override
+  bool get canEnrollStudents => supports('post', _rutaDeMatricula);
+  @override
+  bool get canRemoveStaff =>
+      supports('delete', '/classes/{class_name}/staff/{staff_username}');
+
+  /// La matrícula tiene ruta propia para administración en los servidores que
+  /// la ofrecen; en el resto solo la hace el personal del aula.
+  String get _rutaDeMatricula => _user?.role == UserRole.admin
+      ? '/admin/classes/{class_name}/students/{student_username}'
+      : '/classes/{class_name}/students/{student_username}';
   @override
   AppUser? get currentUser => _user;
 
@@ -366,12 +442,6 @@ class LiveRepository implements AutovidaRepository {
         'Necesitas conexión para crear o modificar tareas.',
       );
     }
-    if (!supportsTaskContent &&
-        (draft.steps.isNotEmpty || draft.image != null)) {
-      throw const FeatureUnavailable(
-        'El guardado de imágenes y pasos de una tarea',
-      );
-    }
     final own = _user?.role == UserRole.student;
     if (previous != null &&
         classroom == null &&
@@ -387,10 +457,9 @@ class LiveRepository implements AutovidaRepository {
         ? '/classes/${segment(classroom)}/tasks${previous == null ? '' : '/${previous.id}'}'
         : '${own ? '/student-tasks/me' : '/student-tasks/students/${segment(student)}'}${previous == null ? '' : '/${previous.id}'}';
     final body = draft.toApiJson();
-    if (!supportsTaskContent) {
-      body.remove('steps');
-      body.remove('task_image');
-    }
+    // La descripción viaja en el esquema de pasos: si el servidor todavía no
+    // lo admite, la tarea se guarda con sus datos básicos.
+    if (!supportsTaskContent) body.remove('steps');
     final data = await api.request(
       previous == null ? 'POST' : 'PUT',
       path,

@@ -6,6 +6,60 @@ import 'package:autovida/services/demo_repository.dart';
 import 'package:autovida/state/app_state.dart';
 
 void main() {
+  testWidgets('the welcome screen offers the three ways in', (tester) async {
+    tester.view.physicalSize = const Size(1366, 1024);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final state = AppState(repository: DemoRepository());
+    await tester.pumpWidget(AutovidaApp(state: state));
+    await tester.pumpAndSettle();
+    expect(find.text('¿Qué tipo de usuario eres?'), findsOneWidget);
+    expect(find.text('Soy alumno'), findsOneWidget);
+    expect(find.text('Soy tutor o personal del centro'), findsOneWidget);
+    expect(find.text('Administración'), findsOneWidget);
+
+    // Personal y familias comparten pantalla de credenciales.
+    await tester.tap(find.text('Soy tutor o personal del centro'));
+    await tester.pumpAndSettle();
+    expect(find.text(UserRole.staff.label), findsOneWidget);
+    expect(find.text(UserRole.parent.label), findsOneWidget);
+    await tester.enterText(find.byType(TextField).first, 'lucia');
+    await tester.enterText(find.byType(TextField).at(1), '1234');
+    await tester.ensureVisible(find.text('Iniciar sesión').last);
+    await tester.tap(find.text('Iniciar sesión').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Mis aulas'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+    state.dispose();
+  });
+
+  testWidgets('administration has its own entry from the welcome screen', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1366, 1024);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final state = AppState(repository: DemoRepository());
+    await tester.pumpWidget(AutovidaApp(state: state));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Administración'));
+    await tester.pumpAndSettle();
+    // Sin selector de perfil: la portada ya ha decidido el camino.
+    expect(find.text(UserRole.staff.label), findsNothing);
+    await tester.enterText(find.byType(TextField).first, 'admin');
+    await tester.enterText(find.byType(TextField).at(1), '1234');
+    await tester.ensureVisible(find.text('Iniciar sesión').last);
+    await tester.tap(find.text('Iniciar sesión').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Gestión de usuarios y aulas'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+    state.dispose();
+  });
+
   testWidgets(
     'student follows classroom, own photo, visual password and agenda',
     (tester) async {
@@ -31,8 +85,8 @@ void main() {
         await tester.tap(find.text(label));
         await tester.pump();
       }
-      await tester.ensureVisible(find.text('Entrar'));
-      await tester.tap(find.text('Entrar'));
+      await tester.ensureVisible(find.text('Iniciar sesión'));
+      await tester.tap(find.text('Iniciar sesión'));
       await tester.pumpAndSettle();
       expect(find.text('Mis tareas'), findsOneWidget);
       expect(find.text('Preparar la mochila'), findsOneWidget);
@@ -41,6 +95,112 @@ void main() {
       state.dispose();
     },
   );
+
+  testWidgets('sprint 1 handles a task as a unit, with no steps or timer', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1366, 1024);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final repo = DemoRepository();
+    await repo.login('pablo', '1234', UserRole.student);
+    final state = AppState(repository: repo);
+    await tester.pumpWidget(AutovidaApp(state: state));
+    await tester.pumpAndSettle();
+
+    // El detalle muestra la tarea completa, sin pasos ni cronómetro.
+    await tester.tap(find.text('Preparar la mochila').first);
+    await tester.pumpAndSettle();
+    expect(find.text('¿Qué hay que hacer?'), findsOneWidget);
+    expect(find.textContaining('Cierra la cremallera'), findsOneWidget);
+    expect(find.text('Empezar'), findsNothing);
+    expect(find.textContaining('Paso 1 de'), findsNothing);
+    expect(find.text('He terminado la tarea'), findsOneWidget);
+    await tester.tap(find.text('He terminado la tarea'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Has completado tu tarea'), findsOneWidget);
+    await tester.tap(find.text('Volver'));
+    await tester.pumpAndSettle();
+
+    // El editor maneja título, descripción, fecha, hora y duración.
+    await tester.ensureVisible(find.text('Añadir mi tarea'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Añadir mi tarea'));
+    await tester.pumpAndSettle();
+    expect(find.text('Crear tarea'), findsOneWidget);
+    expect(find.text('Añadir paso'), findsNothing);
+    expect(find.text('Pasos de la tarea'), findsNothing);
+    expect(find.text('Descripción de la tarea'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+    state.dispose();
+  });
+
+  testWidgets('staff manages its classes, enrolments and group tasks', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1280, 960);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final repo = DemoRepository();
+    await repo.login('lucia', '1234', UserRole.staff);
+    final state = AppState(repository: repo);
+    await tester.pumpWidget(AutovidaApp(state: state));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Aula de la autonomía'));
+    await tester.pumpAndSettle();
+    expect(find.text('Pablo García'), findsOneWidget);
+    await tester.tap(find.text('Gestionar matrículas'));
+    await tester.pumpAndSettle();
+    expect(find.text('Matrículas del aula'), findsOneWidget);
+    await tester.tap(find.text('Tareas de toda el aula'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Crear tarea para toda el aula'));
+    await tester.pumpAndSettle();
+    expect(find.text('Crear tarea'), findsOneWidget);
+    expect(find.text('Añadir paso'), findsNothing);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+    state.dispose();
+  });
+
+  testWidgets('administration opens the user and classroom editors', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1280, 960);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final repo = DemoRepository();
+    await repo.login('admin', '1234', UserRole.admin);
+    final state = AppState(repository: repo);
+    await tester.pumpWidget(AutovidaApp(state: state));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Lucía Martín'));
+    await tester.pumpAndSettle();
+    expect(find.text('Modificar usuario'), findsOneWidget);
+    await tester.tap(find.text('Gestionar asociaciones'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Asociaciones de'), findsOneWidget);
+    await tester.tap(find.text('Volver').first);
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Cancelar'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Cancelar'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Aulas'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Aula de la autonomía'));
+    await tester.pumpAndSettle();
+    expect(find.text('Modificar aula'), findsOneWidget);
+    expect(find.text('Personal del aula'), findsOneWidget);
+    expect(find.text('Alumnos del aula'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+    state.dispose();
+  });
 
   for (final role in [
     UserRole.student,
@@ -88,7 +248,7 @@ void main() {
         date: DateTime.now(),
         duration: 10,
         startHour: '10:00:00',
-        steps: [],
+        description: 'Trabajamos todos juntos en la mesa grande.',
       ),
       classroom: 'Aula de la autonomía',
     );

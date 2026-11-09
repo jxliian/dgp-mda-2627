@@ -16,6 +16,16 @@ class DemoRepository implements AutovidaRepository {
   @override
   bool get supportsProfileRead => true;
   @override
+  bool get canReadAgenda => true;
+  @override
+  bool get canTrackProgress => true;
+  @override
+  bool get canBrowseDirectory => true;
+  @override
+  bool get canEnrollStudents => true;
+  @override
+  bool get canRemoveStaff => true;
+  @override
   bool get offline => false;
   @override
   int get pendingChanges => 0;
@@ -87,88 +97,71 @@ class DemoRepository implements AutovidaRepository {
         in _users.values
             .where((u) => u.role == UserRole.student)
             .map((u) => u.username)) {
+      // La Iteración 1 trata la tarea como una unidad: su descripción se
+      // guarda como un único paso no obligatorio.
       _tasks[username] = [
         for (var day = -1; day < 7; day++) ...[
-          AgendaTask(
-            id: _nextTask++,
+          _demoTask(
             title: 'Preparar la mochila',
+            description:
+                'Pon la mochila sobre la mesa.\nGuarda el cuaderno, el estuche y la botella de agua.\nCierra la cremallera.',
             date: today.add(Duration(days: day)),
             duration: 10,
             creator: 'lucia',
             startHour: '09:00:00',
-            steps: [
-              TaskStep(
-                id: 1,
-                title: 'Buscar la mochila',
-                description: 'Coge tu mochila y ponla sobre la mesa.',
-                index: 0,
-                duration: 2,
-              ),
-              TaskStep(
-                id: 2,
-                title: 'Guardar el material',
-                description:
-                    'Guarda tu cuaderno.\nGuarda el estuche.\nGuarda la botella de agua.',
-                index: 1,
-                duration: 5,
-              ),
-              TaskStep(
-                id: 3,
-                title: 'Cerrar la mochila',
-                description: 'Cierra la cremallera. Tu mochila está preparada.',
-                index: 2,
-                duration: 3,
-              ),
-            ],
           ),
-          AgendaTask(
-            id: _nextTask++,
+          _demoTask(
             title: 'Regar las plantas',
+            description:
+                'Llena la regadera con agua.\nEcha un poco de agua en cada maceta.',
             date: today.add(Duration(days: day)),
             duration: 15,
             creator: 'lucia',
             startHour: '10:30:00',
             index: 1,
-            steps: [
-              TaskStep(
-                id: 1,
-                title: 'Llenar la regadera',
-                description: 'Llena la regadera con agua.',
-                index: 0,
-                duration: 5,
-              ),
-              TaskStep(
-                id: 2,
-                title: 'Regar con cuidado',
-                description: 'Echa un poco de agua en cada maceta.',
-                index: 1,
-                duration: 10,
-              ),
-            ],
           ),
-          AgendaTask(
-            id: _nextTask++,
+          _demoTask(
             title: 'Leer mi cuento',
+            description:
+                'Elige un cuento que te guste. Busca un lugar tranquilo y lee.',
             date: today.add(Duration(days: day)),
             duration: 20,
             creator: 'familia',
             startHour: '17:00:00',
             index: 2,
-            steps: [
-              TaskStep(
-                id: 1,
-                title: 'Elegir y leer',
-                description:
-                    'Elige un cuento que te guste. Busca un lugar tranquilo y lee.',
-                index: 0,
-                duration: 20,
-              ),
-            ],
           ),
         ],
       ];
     }
   }
+
+  AgendaTask _demoTask({
+    required String title,
+    required String description,
+    required DateTime date,
+    required int duration,
+    required String creator,
+    required String startHour,
+    int index = 0,
+  }) => AgendaTask(
+    id: _nextTask++,
+    title: title,
+    date: date,
+    duration: duration,
+    creator: creator,
+    startHour: startHour,
+    index: index,
+    steps: [
+      TaskStep(
+        id: 1,
+        title: title,
+        description: description,
+        index: 0,
+        duration: duration,
+        required: false,
+      ),
+    ],
+  );
 
   String _slug(String s) =>
       s.toLowerCase().replaceAll('í', 'i').replaceAll('á', 'a');
@@ -492,7 +485,6 @@ class DemoRepository implements AutovidaRepository {
       alternativeId: draft.alternativeId,
       className: classroom,
       steps: draft.steps,
-      image: draft.image,
     );
     for (final username in targets) {
       final tasks = _tasks.putIfAbsent(username, () => []);

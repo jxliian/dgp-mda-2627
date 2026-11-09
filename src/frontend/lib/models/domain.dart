@@ -19,8 +19,8 @@ class AccessSettings {
   AccessSettings([Json? source]) : values = {...defaults, ...?source};
   final Json values;
   static const Json defaults = {
-    'stud_access_main_col': '#ffffff',
-    'stud_access_sec_col': '#00695c',
+    'stud_access_main_col': '#fbf9f5',
+    'stud_access_sec_col': '#1b4332',
     'stud_access_ntasks_visible': 3,
     'stud_access_pictograms': true,
     'stud_access_contrast': false,
@@ -208,6 +208,13 @@ class AgendaTask {
   final Uint8List? image;
   final String? imageUrl;
   String get dateKey => isoDate(date);
+
+  /// La Iteración 1 trata la tarea como una unidad. Su descripción es el texto
+  /// que guarda el esquema de pasos, que la interfaz no muestra por separado.
+  String get description => steps
+      .map((step) => step.description.trim())
+      .where((text) => text.isNotEmpty)
+      .join('\n\n');
   factory AgendaTask.fromJson(Json json) => AgendaTask(
     id: json['task_id'] as int,
     title: json['task_title'] as String? ?? 'Tarea',
@@ -267,23 +274,38 @@ class TaskDraft {
     required this.duration,
     this.startHour,
     this.alternativeId,
-    this.steps = const [],
-    this.image,
+    this.description = '',
   });
   final String title;
   final DateTime date;
   final int duration;
   final String? startHour;
   final int? alternativeId;
-  final List<TaskStep> steps;
-  final Uint8List? image;
+  final String description;
+
+  /// La descripción se guarda como un único paso no obligatorio: la tarea se
+  /// maneja como una unidad sin alterar el esquema almacenado ni la API.
+  List<TaskStep> get steps {
+    final text = description.trim();
+    if (text.isEmpty) return const [];
+    return [
+      TaskStep(
+        id: -1,
+        title: title.trim().isEmpty ? 'Tarea' : title.trim(),
+        description: text,
+        index: 0,
+        duration: duration.clamp(1, 1440),
+        required: false,
+      ),
+    ];
+  }
+
   Json toApiJson() => {
     'task_title': title,
     'task_date': isoDate(date),
     'task_duration': duration,
     'task_start_hour': startHour,
     'alt_task_id_fk': alternativeId,
-    'task_image': image == null ? null : base64Encode(image!),
     'steps': steps
         .map(
           (step) => {
