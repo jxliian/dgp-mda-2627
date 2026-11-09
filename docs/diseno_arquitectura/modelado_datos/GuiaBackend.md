@@ -394,6 +394,17 @@ Solo administrador. Comprueba la clase y que la cuenta exista como miembro de `S
 {"errorCode":0,"details":"successful","class_name":"Primero A","staff_username":"marta"}
 ```
 
+### `DELETE /classes/{class_name}/staff/{staff_username}` — Retirar personal de clase
+
+Solo administrador. Elimina la asignación correspondiente en `class_staff`; no elimina la cuenta del personal, la clase, sus alumnos ni sus tareas. Al retirar la asignación, esa persona deja de acceder a la clase y a los alumnos que se le asociaban por compartirla. Si la clase no existe, devuelve `CLASS_NOT_FOUND`; si el personal no está asignado a ella, devuelve `CLASS_STAFF_NOT_FOUND` (HTTP 404).
+
+**Entrada:** sin cuerpo; clase y username en la ruta.
+
+**Respuesta JSON:**
+```json
+{"errorCode":0,"details":"successful","class_name":"Primero A","staff_username":"marta"}
+```
+
 ### `POST /classes/{class_name}/students/{student_username}` — Inscribir alumno en clase
 
 Requiere staff autenticado y asignado a la clase. Inscribe al alumno en `class_stud`. Comprueba que sea un alumno existente y que no esté inscrito en otra clase. Al matricularlo, también le asigna las tareas que ya estén vinculadas a esa clase en `class_task`, calculando el índice de cada una en su agenda. Repetir la asignación a la misma clase no duplica la matrícula ni las tareas. Responde HTTP 201. Si ya está en otra clase, `STUDENT_ALREADY_IN_CLASS` (HTTP 409); si no existe como alumno, `TASK_STUDENT_NOT_FOUND`.
