@@ -1,9 +1,11 @@
 from importlib import import_module
+import os
 
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from sqlalchemy import text
 from sqlalchemy.orm import Session
@@ -16,12 +18,22 @@ from .auth.auth_backend import router as auth_router
 from .clases.clases_backend import router as classes_router
 from .errors import ErrorCode, code_for_http_status, error_response, success_response
 from .gestion_usuarios.users_mng_backend import router as users_router
+from .frontend_api import router as frontend_router
 
 student_tasks_router = import_module(
     ".tareas alumnos.studs_tasks_backend", package=__package__
 ).router
 
 app = FastAPI(title="AUTOVIDA API")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[origin.strip() for origin in os.environ.get(
+        'CORS_ORIGINS', 'http://localhost:5173,http://127.0.0.1:5173').split(',') if origin.strip()],
+    allow_credentials=False,
+    allow_methods=['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+    allow_headers=['Authorization', 'Content-Type'],
+)
+app.include_router(frontend_router)
 app.include_router(auth_router)
 app.include_router(users_router)
 app.include_router(student_links_router)

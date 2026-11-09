@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from ..DB.database import get_db
 from ..auth.auth_backend import get_current_user, require_admin
 from ..errors import ErrorCode, raise_api_error
-from .users_mng_db import users_mng_db
+from .users_mng_db import STUDENT_ACCESS_FIELDS, users_mng_db
 
 router = APIRouter(prefix="/users", tags=["users"])
 Role = Literal["admin", "staff", "student", "parent"]
@@ -30,8 +30,7 @@ def _image_media_type(image: bytes) -> str | None:
             and width > 0
             and height > 0
             and width * height <= 40_000_000
-            and image[-12:-8] == b"IEND"
-            and image[-8:] == b"\xaeB`\x82"
+            and image[-12:] == b"\x00\x00\x00\x00IEND\xaeB`\x82"
         ):
             return "image/png"
     if len(image) >= 8 and image.startswith(b"\xff\xd8\xff") and image.endswith(b"\xff\xd9"):
@@ -201,7 +200,7 @@ class UpdateUserRequest(BaseModel):
 def create_user(payload: CreateUserRequest, db: Session = Depends(get_db)) -> dict:
     """Crea un usuario; requiere una sesión de administrador."""
     access_settings = (
-        {key: getattr(payload, key) for key in users_mng_db.STUDENT_ACCESS_FIELDS}
+        {key: getattr(payload, key) for key in STUDENT_ACCESS_FIELDS}
         if payload.role == "student"
         else None
     )
@@ -234,10 +233,14 @@ def edit_user(role: Role, username: UsernamePath, payload: UpdateUserRequest,
             raise_api_error(ErrorCode.PROFILE_UPDATE_DENIED)
         if any(field in fields for field in ("username", "full_name", "role")):
             raise_api_error(ErrorCode.PROFILE_UPDATE_DENIED)
+        if any(field in fields for field in (
+            'stud_access_prof_mod', 'stud_access_profile_mod', 'stud_access_task_mod'
+        )):
+            raise_api_error(ErrorCode.PROFILE_UPDATE_DENIED)
 
     access_settings = {
         key: fields[key]
-        for key in users_mng_db.STUDENT_ACCESS_FIELDS
+        for key in STUDENT_ACCESS_FIELDS
         if key in fields
     }
     result = users_mng_db.updateUser(

@@ -49,6 +49,7 @@ class ErrorCode(IntEnum):
     ROLE_CHANGE_DENIED = 1038
     STUDENT_TASK_MODIFICATION_DENIED = 1039
     STUDENT_TASK_OUTSIDE_SCHOOL_HOURS = 1040
+    TASK_STEPS_PENDING = 1041
     USER_LOOKUP_FAILED = 1501
     USER_LIST_FAILED = 1502
     PASSWORD_UPDATE_FAILED = 1503
@@ -102,6 +103,7 @@ ERRORS: dict[ErrorCode, tuple[int, str]] = {
     ErrorCode.ROLE_CHANGE_DENIED: (403, "No se permite cambiar el rol de un usuario"),
     ErrorCode.STUDENT_TASK_MODIFICATION_DENIED: (403, "El alumno no tiene permiso para modificar sus tareas"),
     ErrorCode.STUDENT_TASK_OUTSIDE_SCHOOL_HOURS: (400, "La tarea del alumno con hora de inicio no puede solaparse con el horario escolar"),
+    ErrorCode.TASK_STEPS_PENDING: (400, "Completa los pasos obligatorios antes de terminar la tarea"),
     ErrorCode.USER_LOOKUP_FAILED: (500, "No se pudo consultar el usuario"),
     ErrorCode.USER_LIST_FAILED: (500, "No se pudo consultar la lista de usuarios"),
     ErrorCode.PASSWORD_UPDATE_FAILED: (500, "No se pudo actualizar la contraseña"),

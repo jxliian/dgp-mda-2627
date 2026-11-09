@@ -7,6 +7,7 @@ from pydantic import BaseModel, ConfigDict, Field, StrictInt, field_validator
 from sqlalchemy.orm import Session
 
 from ..DB.database import get_db
+from ..activity_content import ActivityFields, has_content, save_content, task_content
 from ..auth.auth_backend import get_current_user
 from ..errors import CatalogError, ErrorCode, raise_api_error
 
@@ -16,15 +17,15 @@ router = APIRouter(prefix="/student-tasks", tags=["student tasks"])
 UsernamePath = Annotated[str, Path(min_length=1, max_length=50, pattern=r"^\S+$")]
 
 
-def _run_db_operation(operation, *args):
+def _run_db_operation(operation, *args, **kwargs):
     """Convierte errores catalogados de la capa de datos en respuestas API."""
     try:
-        return operation(*args)
+        return operation(*args, **kwargs)
     except CatalogError as exc:
         raise_api_error(exc.code)
 
 
-class CreateTaskRequest(BaseModel):
+class CreateTaskRequest(ActivityFields):
     model_config = ConfigDict(extra="forbid")
 
     task_title: str = Field(strict=True, min_length=1, max_length=100)
@@ -66,7 +67,7 @@ def create_student_task(
     if user["role"] not in {"staff", "parent"}:
         raise_api_error(ErrorCode.TASK_CREATOR_REQUIRED)
 
-    return _run_db_operation(
+    result = _run_db_operation(
         tasks_db.create_task,
         db,
         user["role"],
@@ -77,7 +78,9 @@ def create_student_task(
         payload.task_start_hour,
         payload.task_duration,
         payload.alt_task_id_fk,
+        commit=not has_content(payload),
     )
+    return _finish_content(db, result, payload)
 
 
 @router.post("/me", status_code=201)
@@ -90,7 +93,7 @@ def create_my_task(
     if user["role"] != "student":
         raise_api_error(ErrorCode.TASK_CREATOR_REQUIRED)
 
-    return _run_db_operation(
+    result = _run_db_operation(
         tasks_db.create_task,
         db,
         "student",
@@ -101,7 +104,21 @@ def create_my_task(
         payload.task_start_hour,
         payload.task_duration,
         payload.alt_task_id_fk,
+        commit=not has_content(payload),
     )
+    return _finish_content(db, result, payload)
+
+
+def _finish_content(db: Session, result: dict, payload: CreateTaskRequest) -> dict:
+    if has_content(payload):
+        try:
+            save_content(db, result['task_id'], payload)
+            result.update(task_content(db, result['task_id']))
+            db.commit()
+        except Exception:
+            db.rollback()
+            raise
+    return result
 
 
 @router.put("/{task_id}/alternative")

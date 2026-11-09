@@ -6,6 +6,7 @@ from pydantic import BaseModel, ConfigDict, Field, StrictInt, field_validator
 from sqlalchemy.orm import Session
 
 from ..DB.database import get_db
+from ..activity_content import ActivityFields, has_content, save_content, task_content
 from ..auth.auth_backend import get_current_user, require_admin
 from ..errors import CatalogError, ErrorCode, raise_api_error, success_response
 from . import clases_db
@@ -15,10 +16,10 @@ ClassNamePath = Annotated[str, Path(min_length=1, max_length=50, pattern=r"^\S(?
 UsernamePath = Annotated[str, Path(min_length=1, max_length=50, pattern=r"^\S+$")]
 
 
-def _run_db_operation(operation, *args):
+def _run_db_operation(operation, *args, **kwargs):
     """Ejecuta una operación de datos y traduce sus errores de dominio a HTTP."""
     try:
-        return operation(*args)
+        return operation(*args, **kwargs)
     except CatalogError as exc:
         raise_api_error(exc.code)
 
@@ -38,7 +39,7 @@ class ClassRequest(BaseModel):
         return value
 
 
-class CreateClassTaskRequest(BaseModel):
+class CreateClassTaskRequest(ActivityFields):
     model_config = ConfigDict(extra="forbid")
 
     task_title: str = Field(strict=True, min_length=1, max_length=100)
@@ -159,7 +160,7 @@ def assign_task_to_class(
     """Crea una tarea y la asigna a todos los alumnos inscritos en la clase."""
     if user["role"] != "staff":
         raise_api_error(ErrorCode.CLASS_ACCESS_DENIED)
-    return _run_db_operation(
+    result = _run_db_operation(
         clases_db.assign_task,
         db,
         class_name,
@@ -169,7 +170,9 @@ def assign_task_to_class(
         payload.task_start_hour,
         payload.task_duration,
         payload.alt_task_id_fk,
+        commit=not has_content(payload),
     )
+    return _finish_content(db, result, payload)
 
 
 @router.get("/{class_name}/tasks")
@@ -181,7 +184,10 @@ def get_class_tasks(
     """Lista las tareas vinculadas a una clase para su personal asignado."""
     if user["role"] != "staff":
         raise_api_error(ErrorCode.CLASS_ACCESS_DENIED)
-    return _run_db_operation(clases_db.list_class_tasks, db, class_name, user["username"])
+    result = _run_db_operation(clases_db.list_class_tasks, db, class_name, user["username"])
+    for task in result['tasks']:
+        task.update(task_content(db, task['task_id']))
+    return result
 
 
 @router.put("/{class_name}/tasks/{task_id}")
@@ -195,7 +201,7 @@ def edit_class_task(
     """Edita una tarea grupal y actualiza sus asignaciones a la clase."""
     if user["role"] != "staff":
         raise_api_error(ErrorCode.CLASS_ACCESS_DENIED)
-    return _run_db_operation(
+    result = _run_db_operation(
         clases_db.update_class_task,
         db,
         class_name,
@@ -206,7 +212,21 @@ def edit_class_task(
         payload.task_start_hour,
         payload.task_duration,
         payload.alt_task_id_fk,
+        commit=not has_content(payload),
     )
+    return _finish_content(db, result, payload)
+
+
+def _finish_content(db: Session, result: dict, payload: CreateClassTaskRequest) -> dict:
+    if has_content(payload):
+        try:
+            save_content(db, result['task_id'], payload)
+            result.update(task_content(db, result['task_id']))
+            db.commit()
+        except Exception:
+            db.rollback()
+            raise
+    return result
 
 
 @router.delete("/{class_name}/tasks/{task_id}")
