@@ -211,12 +211,9 @@ def get_class(db: Session, class_name: str, staff_username: str | None = None) -
     )
 
 
-def add_student(db: Session, class_name: str, staff_username: str | None, student_username: str) -> dict:
+def add_student(db: Session, class_name: str, staff_username: str, student_username: str) -> dict:
     """Inscribe al alumno y le asigna las tareas grupales vigentes de la clase."""
-    if staff_username is None:
-        _ensure_class(db, class_name)
-    else:
-        _ensure_staff_class(db, class_name, staff_username)
+    _ensure_staff_class(db, class_name, staff_username)
     _lock_class(db, class_name)
     try:
         student = db.execute(
@@ -286,12 +283,9 @@ def add_student(db: Session, class_name: str, staff_username: str | None, studen
         raise
 
 
-def remove_student(db: Session, class_name: str, staff_username: str | None, student_username: str) -> dict:
+def remove_student(db: Session, class_name: str, staff_username: str, student_username: str) -> dict:
     """Retira al alumno y solo las asignaciones procedentes de esta clase."""
-    if staff_username is None:
-        _ensure_class(db, class_name)
-    else:
-        _ensure_staff_class(db, class_name, staff_username)
+    _ensure_staff_class(db, class_name, staff_username)
     _lock_class(db, class_name)
     try:
         db.execute(
@@ -357,7 +351,6 @@ def update_class_task(
     task_start_hour: time,
     task_duration: int,
     alt_task_id_fk: int | None,
-    commit: bool = True,
 ) -> dict:
     """Actualiza una tarea grupal y vuelve a asignarla a la matrícula actual."""
     _ensure_staff_class(db, class_name, staff_username)
@@ -440,8 +433,7 @@ def update_class_task(
                 },
             )
             task_indexes[username] = index
-        if commit:
-            db.commit()
+        db.commit()
         return success_response(
             **dict(task),
             class_name=class_name,
@@ -512,7 +504,6 @@ def assign_task(
     task_start_hour: time | None,
     task_duration: int,
     alt_task_id_fk: int | None,
-    commit: bool = True,
 ) -> dict:
     """Crea una tarea y la asigna a todos los alumnos inscritos en la clase."""
     _ensure_staff_class(db, class_name, staff_username)
@@ -586,8 +577,7 @@ def assign_task(
                 for username in students
             ],
         )
-        if commit:
-            db.commit()
+        db.commit()
         return success_response(
             **dict(task),
             class_name=class_name,

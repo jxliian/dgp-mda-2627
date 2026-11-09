@@ -66,7 +66,6 @@ def create_task(
     task_start_hour: time | None,
     task_duration: int,
     alt_task_id_fk: int | None,
-    commit: bool = True,
 ) -> dict:
     """Crea una tarea asociada al usuario autorizado que la solicita."""
     if creator_role not in {"staff", "parent", "student"}:
@@ -153,8 +152,7 @@ def create_task(
                 "task_date": task_date,
             },
         )
-        if commit:
-            db.commit()
+        db.commit()
         return success_response(
             **dict(task),
             stud_usr_fk=student_username,

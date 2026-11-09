@@ -30,7 +30,8 @@ def _image_media_type(image: bytes) -> str | None:
             and width > 0
             and height > 0
             and width * height <= 40_000_000
-            and image[-12:] == b"\x00\x00\x00\x00IEND\xaeB`\x82"
+            and image[-8:-4] == b"IEND"
+            and image[-4:] == b"\xaeB`\x82"
         ):
             return "image/png"
     if len(image) >= 8 and image.startswith(b"\xff\xd8\xff") and image.endswith(b"\xff\xd9"):
@@ -232,10 +233,6 @@ def edit_user(role: Role, username: UsernamePath, payload: UpdateUserRequest,
         if user["role"] != role or user["username"] != username:
             raise_api_error(ErrorCode.PROFILE_UPDATE_DENIED)
         if any(field in fields for field in ("username", "full_name", "role")):
-            raise_api_error(ErrorCode.PROFILE_UPDATE_DENIED)
-        if any(field in fields for field in (
-            'stud_access_prof_mod', 'stud_access_profile_mod', 'stud_access_task_mod'
-        )):
             raise_api_error(ErrorCode.PROFILE_UPDATE_DENIED)
 
     access_settings = {
