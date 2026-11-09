@@ -1,0 +1,3197 @@
+[
+  {
+    "id": 1,
+    "categoria": "06_actividades_escolares",
+    "archivo": "asamblea.png",
+    "ruta_relativa": "06_actividades_escolares/asamblea.png",
+    "dimensiones": "400x400",
+    "ancho": 400,
+    "alto": 400,
+    "canal_alfa": true,
+    "descripcion": "Pictograma de Asamblea escolar",
+    "tags": [
+      "asamblea",
+      "reunión",
+      "mañana",
+      "rutina"
+    ],
+    "documento_origen": "Proyecto agenda virtual.pdf",
+    "uso_recomendado": "Actividad escolar diaria matinal"
+  },
+  {
+    "id": 2,
+    "categoria": "06_actividades_escolares",
+    "archivo": "desayuno_escolar.png",
+    "ruta_relativa": "06_actividades_escolares/desayuno_escolar.png",
+    "dimensiones": "400x400",
+    "ancho": 400,
+    "alto": 400,
+    "canal_alfa": true,
+    "descripcion": "Pictograma de Desayuno escolar / Recreo",
+    "tags": [
+      "desayuno",
+      "recreo",
+      "comida",
+      "colegio"
+    ],
+    "documento_origen": "Proyecto agenda virtual.pdf",
+    "uso_recomendado": "Actividad escolar diaria"
+  },
+  {
+    "id": 3,
+    "categoria": "07_profesionales_y_sesiones",
+    "archivo": "sesion_terapia_ocupacional.png",
+    "ruta_relativa": "07_profesionales_y_sesiones/sesion_terapia_ocupacional.png",
+    "dimensiones": "400x400",
+    "ancho": 400,
+    "alto": 400,
+    "canal_alfa": true,
+    "descripcion": "Pictograma de Sesión de Terapia Ocupacional",
+    "tags": [
+      "terapia ocupacional",
+      "sesión",
+      "to",
+      "terapeuta"
+    ],
+    "documento_origen": "Proyecto agenda virtual.pdf",
+    "uso_recomendado": "Actividad profesional complementaria"
+  },
+  {
+    "id": 4,
+    "categoria": "07_profesionales_y_sesiones",
+    "archivo": "sesion_logopedia.png",
+    "ruta_relativa": "07_profesionales_y_sesiones/sesion_logopedia.png",
+    "dimensiones": "400x400",
+    "ancho": 400,
+    "alto": 400,
+    "canal_alfa": true,
+    "descripcion": "Pictograma de Sesión de Logopedia",
+    "tags": [
+      "logopedia",
+      "habla",
+      "comunicación",
+      "sesión"
+    ],
+    "documento_origen": "Proyecto agenda virtual.pdf",
+    "uso_recomendado": "Actividad profesional complementaria"
+  },
+  {
+    "id": 5,
+    "categoria": "07_profesionales_y_sesiones",
+    "archivo": "sesion_fisioterapia.png",
+    "ruta_relativa": "07_profesionales_y_sesiones/sesion_fisioterapia.png",
+    "dimensiones": "400x400",
+    "ancho": 400,
+    "alto": 400,
+    "canal_alfa": true,
+    "descripcion": "Pictograma de Sesión de Fisioterapia",
+    "tags": [
+      "fisioterapia",
+      "fisio",
+      "motricidad",
+      "sesión"
+    ],
+    "documento_origen": "Proyecto agenda virtual.pdf",
+    "uso_recomendado": "Actividad profesional complementaria"
+  },
+  {
+    "id": 6,
+    "categoria": "07_profesionales_y_sesiones",
+    "archivo": "sesion_psicomotricidad.png",
+    "ruta_relativa": "07_profesionales_y_sesiones/sesion_psicomotricidad.png",
+    "dimensiones": "400x400",
+    "ancho": 400,
+    "alto": 400,
+    "canal_alfa": true,
+    "descripcion": "Pictograma de Sesión de Psicomotricidad",
+    "tags": [
+      "psicomotricidad",
+      "ejercicio",
+      "movimiento",
+      "sesión"
+    ],
+    "documento_origen": "Proyecto agenda virtual.pdf",
+    "uso_recomendado": "Actividad profesional complementaria"
+  },
+  {
+    "id": 7,
+    "categoria": "07_profesionales_y_sesiones",
+    "archivo": "sesion_psicologia.png",
+    "ruta_relativa": "07_profesionales_y_sesiones/sesion_psicologia.png",
+    "dimensiones": "450x450",
+    "ancho": 450,
+    "alto": 450,
+    "canal_alfa": true,
+    "descripcion": "Pictograma de Sesión de Psicología",
+    "tags": [
+      "psicología",
+      "emocional",
+      "apoyo",
+      "sesión"
+    ],
+    "documento_origen": "Proyecto agenda virtual.pdf",
+    "uso_recomendado": "Actividad profesional complementaria"
+  },
+  {
+    "id": 8,
+    "categoria": "14_logos_e_identidad",
+    "archivo": "logo_hospitalarias_cera.png",
+    "ruta_relativa": "14_logos_e_identidad/logo_hospitalarias_cera.png",
+    "dimensiones": "836x204",
+    "ancho": 836,
+    "alto": 204,
+    "canal_alfa": true,
+    "descripcion": "Logo oficial Hermanas Hospitalarias - Fundación Purísima Concepción CeRA",
+    "tags": [
+      "logo",
+      "hospitalarias",
+      "purísima concepción",
+      "cera"
+    ],
+    "documento_origen": "Proyecto agenda virtual.pdf",
+    "uso_recomendado": "Cabecera y pie de página institucional"
+  },
+  {
+    "id": 9,
+    "categoria": "11_familia_y_entorno",
+    "archivo": "donde_vivo_casa.png",
+    "ruta_relativa": "11_familia_y_entorno/donde_vivo_casa.png",
+    "dimensiones": "450x450",
+    "ancho": 450,
+    "alto": 450,
+    "canal_alfa": true,
+    "descripcion": "Pictograma de Dónde vivo (Casa / Hogar)",
+    "tags": [
+      "casa",
+      "hogar",
+      "dirección",
+      "datos personales"
+    ],
+    "documento_origen": "Proyecto agenda virtual.pdf",
+    "uso_recomendado": "Sección de datos personales y perfil de usuario"
+  },
+  {
+    "id": 10,
+    "categoria": "11_familia_y_entorno",
+    "archivo": "telefono_contacto_familia.png",
+    "ruta_relativa": "11_familia_y_entorno/telefono_contacto_familia.png",
+    "dimensiones": "400x400",
+    "ancho": 400,
+    "alto": 400,
+    "canal_alfa": true,
+    "descripcion": "Pictograma de Teléfono de tutor / familia",
+    "tags": [
+      "teléfono",
+      "contacto",
+      "familia",
+      "emergencia"
+    ],
+    "documento_origen": "Proyecto agenda virtual.pdf",
+    "uso_recomendado": "Botón de marcación rápida o llamada de emergencia a la familia"
+  },
+  {
+    "id": 11,
+    "categoria": "11_familia_y_entorno",
+    "archivo": "mi_nombre_identidad.png",
+    "ruta_relativa": "11_familia_y_entorno/mi_nombre_identidad.png",
+    "dimensiones": "450x450",
+    "ancho": 450,
+    "alto": 450,
+    "canal_alfa": true,
+    "descripcion": "Pictograma de Mi Nombre / Identidad",
+    "tags": [
+      "nombre",
+      "identidad",
+      "alumno",
+      "perfil"
+    ],
+    "documento_origen": "Proyecto agenda virtual.pdf",
+    "uso_recomendado": "Pantalla de identificación y bienvenida del alumno"
+  },
+  {
+    "id": 12,
+    "categoria": "08_actividades_casa_y_rutinas",
+    "archivo": "cosas_que_me_relajan.png",
+    "ruta_relativa": "08_actividades_casa_y_rutinas/cosas_que_me_relajan.png",
+    "dimensiones": "450x450",
+    "ancho": 450,
+    "alto": 450,
+    "canal_alfa": true,
+    "descripcion": "Pictograma de Cosas que me relajan / autorregulación",
+    "tags": [
+      "calma",
+      "relajación",
+      "autorregulación",
+      "emocional"
+    ],
+    "documento_origen": "Proyecto agenda virtual.pdf",
+    "uso_recomendado": "Botón de SOS / herramientas de autorregulación emocional"
+  },
+  {
+    "id": 13,
+    "categoria": "08_actividades_casa_y_rutinas",
+    "archivo": "ver_la_tele_television.png",
+    "ruta_relativa": "08_actividades_casa_y_rutinas/ver_la_tele_television.png",
+    "dimensiones": "450x450",
+    "ancho": 450,
+    "alto": 450,
+    "canal_alfa": true,
+    "descripcion": "Pictograma de Ver la televisión / Programas de TV",
+    "tags": [
+      "televisión",
+      "tele",
+      "ocio",
+      "casa"
+    ],
+    "documento_origen": "Proyecto agenda virtual.pdf",
+    "uso_recomendado": "Actividad de tarde o fin de semana"
+  },
+  {
+    "id": 14,
+    "categoria": "09_actividades_ocio_y_salidas",
+    "archivo": "cine_cartelera.png",
+    "ruta_relativa": "09_actividades_ocio_y_salidas/cine_cartelera.png",
+    "dimensiones": "400x400",
+    "ancho": 400,
+    "alto": 400,
+    "canal_alfa": true,
+    "descripcion": "Pictograma de Cine / Cartelera de cine",
+    "tags": [
+      "cine",
+      "película",
+      "ocio",
+      "cultura"
+    ],
+    "documento_origen": "Proyecto agenda virtual.pdf",
+    "uso_recomendado": "Actividad de ocio o salida comunitaria"
+  },
+  {
+    "id": 15,
+    "categoria": "08_actividades_casa_y_rutinas",
+    "archivo": "toma_de_medicacion.png",
+    "ruta_relativa": "08_actividades_casa_y_rutinas/toma_de_medicacion.png",
+    "dimensiones": "450x450",
+    "ancho": 450,
+    "alto": 450,
+    "canal_alfa": true,
+    "descripcion": "Pictograma de Toma de medicación",
+    "tags": [
+      "medicación",
+      "salud",
+      "pastilla",
+      "rutina"
+    ],
+    "documento_origen": "Proyecto agenda virtual.pdf",
+    "uso_recomendado": "Alerta o recordatorio médico diario"
+  },
+  {
+    "id": 16,
+    "categoria": "08_actividades_casa_y_rutinas",
+    "archivo": "cepillado_de_dientes.png",
+    "ruta_relativa": "08_actividades_casa_y_rutinas/cepillado_de_dientes.png",
+    "dimensiones": "400x400",
+    "ancho": 400,
+    "alto": 400,
+    "canal_alfa": true,
+    "descripcion": "Pictograma de Cepillado de dientes",
+    "tags": [
+      "dientes",
+      "cepillado",
+      "higiene",
+      "aseo"
+    ],
+    "documento_origen": "Proyecto agenda virtual.pdf",
+    "uso_recomendado": "Rutina matutina o nocturna de higiene"
+  },
+  {
+    "id": 17,
+    "categoria": "08_actividades_casa_y_rutinas",
+    "archivo": "ducha_bano.png",
+    "ruta_relativa": "08_actividades_casa_y_rutinas/ducha_bano.png",
+    "dimensiones": "450x450",
+    "ancho": 450,
+    "alto": 450,
+    "canal_alfa": true,
+    "descripcion": "Pictograma de Ducha / Baño",
+    "tags": [
+      "ducha",
+      "baño",
+      "higiene",
+      "casa"
+    ],
+    "documento_origen": "Proyecto agenda virtual.pdf",
+    "uso_recomendado": "Rutina de aseo y cuidado personal"
+  },
+  {
+    "id": 18,
+    "categoria": "04_meteorologia_y_clima",
+    "archivo": "recordatorio_meteorologia.png",
+    "ruta_relativa": "04_meteorologia_y_clima/recordatorio_meteorologia.png",
+    "dimensiones": "400x400",
+    "ancho": 400,
+    "alto": 400,
+    "canal_alfa": true,
+    "descripcion": "Pictograma de Recordatorio de Meteorología",
+    "tags": [
+      "tiempo",
+      "meteorología",
+      "clima"
+    ],
+    "documento_origen": "Proyecto agenda virtual.pdf",
+    "uso_recomendado": "Icono del módulo de previsión del tiempo"
+  },
+  {
+    "id": 19,
+    "categoria": "09_actividades_ocio_y_salidas",
+    "archivo": "actividades_deportivas_futbol.png",
+    "ruta_relativa": "09_actividades_ocio_y_salidas/actividades_deportivas_futbol.png",
+    "dimensiones": "400x400",
+    "ancho": 400,
+    "alto": 400,
+    "canal_alfa": true,
+    "descripcion": "Pictograma de Deporte / Fútbol",
+    "tags": [
+      "deporte",
+      "fútbol",
+      "ejercicio",
+      "ocio"
+    ],
+    "documento_origen": "Proyecto agenda virtual.pdf",
+    "uso_recomendado": "Tarjeta de actividad deportiva escolar o extracurricular"
+  },
+  {
+    "id": 20,
+    "categoria": "09_actividades_ocio_y_salidas",
+    "archivo": "actividades_de_ocio_general.png",
+    "ruta_relativa": "09_actividades_ocio_y_salidas/actividades_de_ocio_general.png",
+    "dimensiones": "450x450",
+    "ancho": 450,
+    "alto": 450,
+    "canal_alfa": true,
+    "descripcion": "Pictograma de Actividades de Ocio",
+    "tags": [
+      "ocio",
+      "tiempo libre",
+      "juegos",
+      "amigos"
+    ],
+    "documento_origen": "Proyecto agenda virtual.pdf",
+    "uso_recomendado": "Categoría general de actividades lúdicas"
+  },
+  {
+    "id": 21,
+    "categoria": "13_plantillas_agenda_y_registros",
+    "archivo": "mural_01_actividades_escolares_y_profesionales.png",
+    "ruta_relativa": "13_plantillas_agenda_y_registros/mural_01_actividades_escolares_y_profesionales.png",
+    "dimensiones": "3508x2480",
+    "ancho": 3508,
+    "alto": 2480,
+    "canal_alfa": false,
+    "descripcion": "Mural 1: Actividades Escolares y Sesiones Profesionales Complementarias",
+    "tags": [
+      "mural",
+      "proyecto",
+      "requisitos",
+      "referencia"
+    ],
+    "documento_origen": "Proyecto agenda virtual.pdf",
+    "uso_recomendado": "Mural de referencia visual y conceptual de los requisitos del centro"
+  },
+  {
+    "id": 22,
+    "categoria": "13_plantillas_agenda_y_registros",
+    "archivo": "mural_02_datos_personales_y_ocio.png",
+    "ruta_relativa": "13_plantillas_agenda_y_registros/mural_02_datos_personales_y_ocio.png",
+    "dimensiones": "3508x2480",
+    "ancho": 3508,
+    "alto": 2480,
+    "canal_alfa": false,
+    "descripcion": "Mural 2: Datos Personales y Cosas de Interés",
+    "tags": [
+      "mural",
+      "proyecto",
+      "requisitos",
+      "referencia"
+    ],
+    "documento_origen": "Proyecto agenda virtual.pdf",
+    "uso_recomendado": "Mural de referencia visual y conceptual de los requisitos del centro"
+  },
+  {
+    "id": 23,
+    "categoria": "13_plantillas_agenda_y_registros",
+    "archivo": "mural_03_actividades_en_casa.png",
+    "ruta_relativa": "13_plantillas_agenda_y_registros/mural_03_actividades_en_casa.png",
+    "dimensiones": "3508x2480",
+    "ancho": 3508,
+    "alto": 2480,
+    "canal_alfa": false,
+    "descripcion": "Mural 3: Actividades en Casa y Rutinas Diarias",
+    "tags": [
+      "mural",
+      "proyecto",
+      "requisitos",
+      "referencia"
+    ],
+    "documento_origen": "Proyecto agenda virtual.pdf",
+    "uso_recomendado": "Mural de referencia visual y conceptual de los requisitos del centro"
+  },
+  {
+    "id": 24,
+    "categoria": "13_plantillas_agenda_y_registros",
+    "archivo": "mural_04_actividades_de_ocio.png",
+    "ruta_relativa": "13_plantillas_agenda_y_registros/mural_04_actividades_de_ocio.png",
+    "dimensiones": "3508x2480",
+    "ancho": 3508,
+    "alto": 2480,
+    "canal_alfa": false,
+    "descripcion": "Mural 4: Actividades de Ocio y Tiempo Libre",
+    "tags": [
+      "mural",
+      "proyecto",
+      "requisitos",
+      "referencia"
+    ],
+    "documento_origen": "Proyecto agenda virtual.pdf",
+    "uso_recomendado": "Mural de referencia visual y conceptual de los requisitos del centro"
+  },
+  {
+    "id": 25,
+    "categoria": "06_actividades_escolares",
+    "archivo": "reprografia_recado_tres_paradas.png",
+    "ruta_relativa": "06_actividades_escolares/reprografia_recado_tres_paradas.png",
+    "dimensiones": "717x215",
+    "ancho": 717,
+    "alto": 215,
+    "canal_alfa": false,
+    "descripcion": "Flujo de actividad escolar: Reprografía: un recado, tres paradas (Paso 1, 2, 3)",
+    "tags": [
+      "reprografía",
+      "recado",
+      "pasos",
+      "tarea escolar"
+    ],
+    "documento_origen": "APPS AGENDA VIRTUAL .pdf",
+    "uso_recomendado": "Diagrama de secuencia para la tarea de mensajero/reprografía"
+  },
+  {
+    "id": 26,
+    "categoria": "06_actividades_escolares",
+    "archivo": "comedor_reparto_menu_mensual.png",
+    "ruta_relativa": "06_actividades_escolares/comedor_reparto_menu_mensual.png",
+    "dimensiones": "487x301",
+    "ancho": 487,
+    "alto": 301,
+    "canal_alfa": false,
+    "descripcion": "Flujo de actividad escolar: Registro del comedor y reparto del menú mensual",
+    "tags": [
+      "comedor",
+      "menú",
+      "reparto",
+      "aulas"
+    ],
+    "documento_origen": "APPS AGENDA VIRTUAL .pdf",
+    "uso_recomendado": "Secuencia guiada para la tarea de entrega de menús y recogida de comandas"
+  },
+  {
+    "id": 27,
+    "categoria": "06_actividades_escolares",
+    "archivo": "embajadores_centro_guia_visita.png",
+    "ruta_relativa": "06_actividades_escolares/embajadores_centro_guia_visita.png",
+    "dimensiones": "252x340",
+    "ancho": 252,
+    "alto": 340,
+    "canal_alfa": false,
+    "descripcion": "Flujo de actividad escolar: Embajadores del centro / Guía de visitas",
+    "tags": [
+      "embajadores",
+      "visitas",
+      "guía",
+      "comunidad"
+    ],
+    "documento_origen": "APPS AGENDA VIRTUAL .pdf",
+    "uso_recomendado": "Secuencia de tareas para estudiantes con rol de embajador del colegio"
+  },
+  {
+    "id": 28,
+    "categoria": "14_logos_e_identidad",
+    "archivo": "lema_contigo_cada_paso_cuenta.png",
+    "ruta_relativa": "14_logos_e_identidad/lema_contigo_cada_paso_cuenta.png",
+    "dimensiones": "1248x884",
+    "ancho": 1248,
+    "alto": 884,
+    "canal_alfa": false,
+    "descripcion": "Lema Institucional: CONTIGO cada paso cuenta",
+    "tags": [
+      "lema",
+      "hospitalarias",
+      "contigo",
+      "motivación"
+    ],
+    "documento_origen": "APPS AGENDA VIRTUAL .pdf",
+    "uso_recomendado": "Banner motivacional y pie de pantalla"
+  },
+  {
+    "id": 29,
+    "categoria": "16_elementos_interfaz_y_accesibilidad",
+    "archivo": "estado_tarea_hecho_badge.png",
+    "ruta_relativa": "16_elementos_interfaz_y_accesibilidad/estado_tarea_hecho_badge.png",
+    "dimensiones": "222x111",
+    "ancho": 222,
+    "alto": 111,
+    "canal_alfa": false,
+    "descripcion": "Badge de estado de tarea: HECHO (Completada)",
+    "tags": [
+      "estado",
+      "hecho",
+      "completada",
+      "badge"
+    ],
+    "documento_origen": "APPS AGENDA VIRTUAL .pdf",
+    "uso_recomendado": "Indicador de progreso de tarea completada"
+  },
+  {
+    "id": 30,
+    "categoria": "16_elementos_interfaz_y_accesibilidad",
+    "archivo": "estado_tarea_ahora_badge.png",
+    "ruta_relativa": "16_elementos_interfaz_y_accesibilidad/estado_tarea_ahora_badge.png",
+    "dimensiones": "222x111",
+    "ancho": 222,
+    "alto": 111,
+    "canal_alfa": false,
+    "descripcion": "Badge de estado de tarea: AHORA (En curso)",
+    "tags": [
+      "estado",
+      "ahora",
+      "en curso",
+      "activo"
+    ],
+    "documento_origen": "APPS AGENDA VIRTUAL .pdf",
+    "uso_recomendado": "Indicador de tarea actual activa"
+  },
+  {
+    "id": 31,
+    "categoria": "16_elementos_interfaz_y_accesibilidad",
+    "archivo": "estado_tarea_despues_badge.png",
+    "ruta_relativa": "16_elementos_interfaz_y_accesibilidad/estado_tarea_despues_badge.png",
+    "dimensiones": "264x111",
+    "ancho": 264,
+    "alto": 111,
+    "canal_alfa": false,
+    "descripcion": "Badge de estado de tarea: DESPUÉS (Próxima)",
+    "tags": [
+      "estado",
+      "después",
+      "siguiente",
+      "anticipación"
+    ],
+    "documento_origen": "APPS AGENDA VIRTUAL .pdf",
+    "uso_recomendado": "Indicador de próxima tarea a realizar"
+  },
+  {
+    "id": 32,
+    "categoria": "16_elementos_interfaz_y_accesibilidad",
+    "archivo": "boton_tarea_empezar.png",
+    "ruta_relativa": "16_elementos_interfaz_y_accesibilidad/boton_tarea_empezar.png",
+    "dimensiones": "278x97",
+    "ancho": 278,
+    "alto": 97,
+    "canal_alfa": false,
+    "descripcion": "Botón accesible de inicio de tarea: EMPEZAR",
+    "tags": [
+      "botón",
+      "empezar",
+      "inicio",
+      "tarea"
+    ],
+    "documento_origen": "APPS AGENDA VIRTUAL .pdf",
+    "uso_recomendado": "Botón táctil accesible para confirmar inicio de tarea"
+  },
+  {
+    "id": 33,
+    "categoria": "16_elementos_interfaz_y_accesibilidad",
+    "archivo": "tarjeta_tarea_fotocopiar_demo.png",
+    "ruta_relativa": "16_elementos_interfaz_y_accesibilidad/tarjeta_tarea_fotocopiar_demo.png",
+    "dimensiones": "556x666",
+    "ancho": 556,
+    "alto": 666,
+    "canal_alfa": false,
+    "descripcion": "Tarjeta de ejemplo de tarea: Fotocopiar con horario, temporizador y botón",
+    "tags": [
+      "tarea",
+      "fotocopiar",
+      "temporizador",
+      "tarjeta"
+    ],
+    "documento_origen": "APPS AGENDA VIRTUAL .pdf",
+    "uso_recomendado": "Modelo visual de componente tarjeta de tarea accesible"
+  },
+  {
+    "id": 34,
+    "categoria": "02_meses_y_calendarios",
+    "archivo": "calendario_01_septiembre_2026.png",
+    "ruta_relativa": "02_meses_y_calendarios/calendario_01_septiembre_2026.png",
+    "dimensiones": "401x342",
+    "ancho": 401,
+    "alto": 342,
+    "canal_alfa": false,
+    "descripcion": "Calendario mensual completo: Septiembre 2026",
+    "tags": [
+      "calendario",
+      "mes",
+      "septiembre 2026"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Vista mensual del calendario para Septiembre 2026"
+  },
+  {
+    "id": 35,
+    "categoria": "02_meses_y_calendarios",
+    "archivo": "calendario_02_octubre_2026.png",
+    "ruta_relativa": "02_meses_y_calendarios/calendario_02_octubre_2026.png",
+    "dimensiones": "645x362",
+    "ancho": 645,
+    "alto": 362,
+    "canal_alfa": false,
+    "descripcion": "Calendario mensual completo: Octubre 2026",
+    "tags": [
+      "calendario",
+      "mes",
+      "octubre 2026"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Vista mensual del calendario para Octubre 2026"
+  },
+  {
+    "id": 36,
+    "categoria": "02_meses_y_calendarios",
+    "archivo": "calendario_03_noviembre_2026.png",
+    "ruta_relativa": "02_meses_y_calendarios/calendario_03_noviembre_2026.png",
+    "dimensiones": "645x349",
+    "ancho": 645,
+    "alto": 349,
+    "canal_alfa": false,
+    "descripcion": "Calendario mensual completo: Noviembre 2026",
+    "tags": [
+      "calendario",
+      "mes",
+      "noviembre 2026"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Vista mensual del calendario para Noviembre 2026"
+  },
+  {
+    "id": 37,
+    "categoria": "02_meses_y_calendarios",
+    "archivo": "calendario_04_diciembre_2026.png",
+    "ruta_relativa": "02_meses_y_calendarios/calendario_04_diciembre_2026.png",
+    "dimensiones": "645x347",
+    "ancho": 645,
+    "alto": 347,
+    "canal_alfa": false,
+    "descripcion": "Calendario mensual completo: Diciembre 2026",
+    "tags": [
+      "calendario",
+      "mes",
+      "diciembre 2026"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Vista mensual del calendario para Diciembre 2026"
+  },
+  {
+    "id": 38,
+    "categoria": "02_meses_y_calendarios",
+    "archivo": "calendario_05_enero_2027.png",
+    "ruta_relativa": "02_meses_y_calendarios/calendario_05_enero_2027.png",
+    "dimensiones": "645x349",
+    "ancho": 645,
+    "alto": 349,
+    "canal_alfa": false,
+    "descripcion": "Calendario mensual completo: Enero 2027",
+    "tags": [
+      "calendario",
+      "mes",
+      "enero 2027"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Vista mensual del calendario para Enero 2027"
+  },
+  {
+    "id": 39,
+    "categoria": "02_meses_y_calendarios",
+    "archivo": "calendario_06_febrero_2027.png",
+    "ruta_relativa": "02_meses_y_calendarios/calendario_06_febrero_2027.png",
+    "dimensiones": "645x365",
+    "ancho": 645,
+    "alto": 365,
+    "canal_alfa": false,
+    "descripcion": "Calendario mensual completo: Febrero 2027",
+    "tags": [
+      "calendario",
+      "mes",
+      "febrero 2027"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Vista mensual del calendario para Febrero 2027"
+  },
+  {
+    "id": 40,
+    "categoria": "02_meses_y_calendarios",
+    "archivo": "calendario_07_marzo_2027.png",
+    "ruta_relativa": "02_meses_y_calendarios/calendario_07_marzo_2027.png",
+    "dimensiones": "645x357",
+    "ancho": 645,
+    "alto": 357,
+    "canal_alfa": false,
+    "descripcion": "Calendario mensual completo: Marzo 2027",
+    "tags": [
+      "calendario",
+      "mes",
+      "marzo 2027"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Vista mensual del calendario para Marzo 2027"
+  },
+  {
+    "id": 41,
+    "categoria": "02_meses_y_calendarios",
+    "archivo": "calendario_08_abril_2027.png",
+    "ruta_relativa": "02_meses_y_calendarios/calendario_08_abril_2027.png",
+    "dimensiones": "645x355",
+    "ancho": 645,
+    "alto": 355,
+    "canal_alfa": false,
+    "descripcion": "Calendario mensual completo: Abril 2027",
+    "tags": [
+      "calendario",
+      "mes",
+      "abril 2027"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Vista mensual del calendario para Abril 2027"
+  },
+  {
+    "id": 42,
+    "categoria": "02_meses_y_calendarios",
+    "archivo": "calendario_09_mayo_2027.png",
+    "ruta_relativa": "02_meses_y_calendarios/calendario_09_mayo_2027.png",
+    "dimensiones": "862x357",
+    "ancho": 862,
+    "alto": 357,
+    "canal_alfa": false,
+    "descripcion": "Calendario mensual completo: Mayo 2027",
+    "tags": [
+      "calendario",
+      "mes",
+      "mayo 2027"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Vista mensual del calendario para Mayo 2027"
+  },
+  {
+    "id": 43,
+    "categoria": "02_meses_y_calendarios",
+    "archivo": "calendario_10_junio_2027.png",
+    "ruta_relativa": "02_meses_y_calendarios/calendario_10_junio_2027.png",
+    "dimensiones": "882x355",
+    "ancho": 882,
+    "alto": 355,
+    "canal_alfa": false,
+    "descripcion": "Calendario mensual completo: Junio 2027",
+    "tags": [
+      "calendario",
+      "mes",
+      "junio 2027"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Vista mensual del calendario para Junio 2027"
+  },
+  {
+    "id": 44,
+    "categoria": "02_meses_y_calendarios",
+    "archivo": "portada_mes_octubre_2026.png",
+    "ruta_relativa": "02_meses_y_calendarios/portada_mes_octubre_2026.png",
+    "dimensiones": "280x280",
+    "ancho": 280,
+    "alto": 280,
+    "canal_alfa": false,
+    "descripcion": "Portada decorativa con cuadrícula de Octubre 2026",
+    "tags": [
+      "portada",
+      "octubre",
+      "mes"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Cabecera o portada del mes de octubre"
+  },
+  {
+    "id": 45,
+    "categoria": "02_meses_y_calendarios",
+    "archivo": "portada_mes_noviembre_2026.png",
+    "ruta_relativa": "02_meses_y_calendarios/portada_mes_noviembre_2026.png",
+    "dimensiones": "367x294",
+    "ancho": 367,
+    "alto": 294,
+    "canal_alfa": false,
+    "descripcion": "Portada decorativa con cuadrícula de Noviembre 2026",
+    "tags": [
+      "portada",
+      "noviembre",
+      "mes"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Cabecera o portada del mes de noviembre"
+  },
+  {
+    "id": 46,
+    "categoria": "02_meses_y_calendarios",
+    "archivo": "portada_mes_diciembre_2026.png",
+    "ruta_relativa": "02_meses_y_calendarios/portada_mes_diciembre_2026.png",
+    "dimensiones": "199x201",
+    "ancho": 199,
+    "alto": 201,
+    "canal_alfa": false,
+    "descripcion": "Portada decorativa con cuadrícula de Diciembre 2026",
+    "tags": [
+      "portada",
+      "diciembre",
+      "mes"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Cabecera o portada del mes de diciembre"
+  },
+  {
+    "id": 47,
+    "categoria": "02_meses_y_calendarios",
+    "archivo": "grilla_dias_mes_1_a_31.png",
+    "ruta_relativa": "02_meses_y_calendarios/grilla_dias_mes_1_a_31.png",
+    "dimensiones": "245x245",
+    "ancho": 245,
+    "alto": 245,
+    "canal_alfa": true,
+    "descripcion": "Grilla numérica de selección de día del mes (1 al 31)",
+    "tags": [
+      "números",
+      "días",
+      "selector fecha"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Selector interactivo táctil de día del mes"
+  },
+  {
+    "id": 48,
+    "categoria": "02_meses_y_calendarios",
+    "archivo": "cuadrante_horario_semanal_primer_trimestre.png",
+    "ruta_relativa": "02_meses_y_calendarios/cuadrante_horario_semanal_primer_trimestre.png",
+    "dimensiones": "874x1216",
+    "ancho": 874,
+    "alto": 1216,
+    "canal_alfa": false,
+    "descripcion": "Cuadrante gráfico del horario semanal del primer trimestre con franjas horarias",
+    "tags": [
+      "horario",
+      "semana",
+      "cuadrante",
+      "rutina"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Plantilla o vista de horario semanal completo"
+  },
+  {
+    "id": 49,
+    "categoria": "03_estaciones_del_ano",
+    "archivo": "estacion_invierno.png",
+    "ruta_relativa": "03_estaciones_del_ano/estacion_invierno.png",
+    "dimensiones": "330x330",
+    "ancho": 330,
+    "alto": 330,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de estación: INVIERNO",
+    "tags": [
+      "invierno",
+      "estación",
+      "frío"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Selector de estación del año actual"
+  },
+  {
+    "id": 50,
+    "categoria": "03_estaciones_del_ano",
+    "archivo": "estacion_primavera.png",
+    "ruta_relativa": "03_estaciones_del_ano/estacion_primavera.png",
+    "dimensiones": "330x330",
+    "ancho": 330,
+    "alto": 330,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de estación: PRIMAVERA",
+    "tags": [
+      "primavera",
+      "estación",
+      "flores"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Selector de estación del año actual"
+  },
+  {
+    "id": 51,
+    "categoria": "03_estaciones_del_ano",
+    "archivo": "estacion_verano.png",
+    "ruta_relativa": "03_estaciones_del_ano/estacion_verano.png",
+    "dimensiones": "364x364",
+    "ancho": 364,
+    "alto": 364,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de estación: VERANO",
+    "tags": [
+      "verano",
+      "estación",
+      "sol"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Selector de estación del año actual"
+  },
+  {
+    "id": 52,
+    "categoria": "03_estaciones_del_ano",
+    "archivo": "estacion_otono.png",
+    "ruta_relativa": "03_estaciones_del_ano/estacion_otono.png",
+    "dimensiones": "330x330",
+    "ancho": 330,
+    "alto": 330,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de estación: OTOÑO",
+    "tags": [
+      "otoño",
+      "estación",
+      "hojas"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Selector de estación del año actual"
+  },
+  {
+    "id": 53,
+    "categoria": "04_meteorologia_y_clima",
+    "archivo": "tiempo_soleado.png",
+    "ruta_relativa": "04_meteorologia_y_clima/tiempo_soleado.png",
+    "dimensiones": "418x401",
+    "ancho": 418,
+    "alto": 401,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de tiempo meteorológico: SOLEADO",
+    "tags": [
+      "soleado",
+      "sol",
+      "clima",
+      "buen tiempo"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Botón de selección del tiempo meteorológico del día"
+  },
+  {
+    "id": 54,
+    "categoria": "04_meteorologia_y_clima",
+    "archivo": "tiempo_nublado.png",
+    "ruta_relativa": "04_meteorologia_y_clima/tiempo_nublado.png",
+    "dimensiones": "419x401",
+    "ancho": 419,
+    "alto": 401,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de tiempo meteorológico: NUBLADO",
+    "tags": [
+      "nublado",
+      "nubes",
+      "clima"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Botón de selección del tiempo meteorológico del día"
+  },
+  {
+    "id": 55,
+    "categoria": "04_meteorologia_y_clima",
+    "archivo": "panel_tiempo_soleado_nublado.png",
+    "ruta_relativa": "04_meteorologia_y_clima/panel_tiempo_soleado_nublado.png",
+    "dimensiones": "837x401",
+    "ancho": 837,
+    "alto": 401,
+    "canal_alfa": false,
+    "descripcion": "Panel dual de tiempo: Soleado / Nublado",
+    "tags": [
+      "panel",
+      "clima"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Selector directo de climatología"
+  },
+  {
+    "id": 56,
+    "categoria": "04_meteorologia_y_clima",
+    "archivo": "tiempo_lluvioso.png",
+    "ruta_relativa": "04_meteorologia_y_clima/tiempo_lluvioso.png",
+    "dimensiones": "388x401",
+    "ancho": 388,
+    "alto": 401,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de tiempo meteorológico: LLUVIOSO",
+    "tags": [
+      "lluvia",
+      "lluvioso",
+      "agua",
+      "clima"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Botón de selección de lluvia"
+  },
+  {
+    "id": 57,
+    "categoria": "04_meteorologia_y_clima",
+    "archivo": "tiempo_ventoso.png",
+    "ruta_relativa": "04_meteorologia_y_clima/tiempo_ventoso.png",
+    "dimensiones": "389x401",
+    "ancho": 389,
+    "alto": 401,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de tiempo meteorológico: VENTOSO",
+    "tags": [
+      "viento",
+      "ventoso",
+      "aire",
+      "clima"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Botón de selección de viento"
+  },
+  {
+    "id": 58,
+    "categoria": "04_meteorologia_y_clima",
+    "archivo": "panel_tiempo_lluvia_viento.png",
+    "ruta_relativa": "04_meteorologia_y_clima/panel_tiempo_lluvia_viento.png",
+    "dimensiones": "777x401",
+    "ancho": 777,
+    "alto": 401,
+    "canal_alfa": false,
+    "descripcion": "Panel dual de tiempo: Lluvioso / Ventoso",
+    "tags": [
+      "panel",
+      "clima"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Selector directo de climatología"
+  },
+  {
+    "id": 59,
+    "categoria": "01_dias_semana",
+    "archivo": "tira_semanal_dias_completa.png",
+    "ruta_relativa": "01_dias_semana/tira_semanal_dias_completa.png",
+    "dimensiones": "399x92",
+    "ancho": 399,
+    "alto": 92,
+    "canal_alfa": true,
+    "descripcion": "Tira semanal horizontal completa: L M X J V S D",
+    "tags": [
+      "semana",
+      "días",
+      "tira",
+      "barra navegación"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Barra superior de navegación diaria de la app"
+  },
+  {
+    "id": 60,
+    "categoria": "01_dias_semana",
+    "archivo": "boton_dia_01_lunes.png",
+    "ruta_relativa": "01_dias_semana/boton_dia_01_lunes.png",
+    "dimensiones": "57x92",
+    "ancho": 57,
+    "alto": 92,
+    "canal_alfa": true,
+    "descripcion": "Botón de día de la semana: Lunes",
+    "tags": [
+      "día",
+      "lunes",
+      "botón"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Botón selector del día Lunes"
+  },
+  {
+    "id": 61,
+    "categoria": "01_dias_semana",
+    "archivo": "boton_dia_02_martes.png",
+    "ruta_relativa": "01_dias_semana/boton_dia_02_martes.png",
+    "dimensiones": "57x92",
+    "ancho": 57,
+    "alto": 92,
+    "canal_alfa": true,
+    "descripcion": "Botón de día de la semana: Martes",
+    "tags": [
+      "día",
+      "martes",
+      "botón"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Botón selector del día Martes"
+  },
+  {
+    "id": 62,
+    "categoria": "01_dias_semana",
+    "archivo": "boton_dia_03_miercoles.png",
+    "ruta_relativa": "01_dias_semana/boton_dia_03_miercoles.png",
+    "dimensiones": "57x92",
+    "ancho": 57,
+    "alto": 92,
+    "canal_alfa": true,
+    "descripcion": "Botón de día de la semana: Miércoles",
+    "tags": [
+      "día",
+      "miércoles",
+      "botón"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Botón selector del día Miércoles"
+  },
+  {
+    "id": 63,
+    "categoria": "01_dias_semana",
+    "archivo": "boton_dia_04_jueves.png",
+    "ruta_relativa": "01_dias_semana/boton_dia_04_jueves.png",
+    "dimensiones": "57x92",
+    "ancho": 57,
+    "alto": 92,
+    "canal_alfa": true,
+    "descripcion": "Botón de día de la semana: Jueves",
+    "tags": [
+      "día",
+      "jueves",
+      "botón"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Botón selector del día Jueves"
+  },
+  {
+    "id": 64,
+    "categoria": "01_dias_semana",
+    "archivo": "boton_dia_05_viernes.png",
+    "ruta_relativa": "01_dias_semana/boton_dia_05_viernes.png",
+    "dimensiones": "57x92",
+    "ancho": 57,
+    "alto": 92,
+    "canal_alfa": true,
+    "descripcion": "Botón de día de la semana: Viernes",
+    "tags": [
+      "día",
+      "viernes",
+      "botón"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Botón selector del día Viernes"
+  },
+  {
+    "id": 65,
+    "categoria": "01_dias_semana",
+    "archivo": "boton_dia_06_sabado.png",
+    "ruta_relativa": "01_dias_semana/boton_dia_06_sabado.png",
+    "dimensiones": "57x92",
+    "ancho": 57,
+    "alto": 92,
+    "canal_alfa": true,
+    "descripcion": "Botón de día de la semana: Sábado",
+    "tags": [
+      "día",
+      "sábado",
+      "botón"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Botón selector del día Sábado"
+  },
+  {
+    "id": 66,
+    "categoria": "01_dias_semana",
+    "archivo": "boton_dia_07_domingo.png",
+    "ruta_relativa": "01_dias_semana/boton_dia_07_domingo.png",
+    "dimensiones": "57x92",
+    "ancho": 57,
+    "alto": 92,
+    "canal_alfa": true,
+    "descripcion": "Botón de día de la semana: Domingo",
+    "tags": [
+      "día",
+      "domingo",
+      "botón"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Botón selector del día Domingo"
+  },
+  {
+    "id": 67,
+    "categoria": "11_familia_y_entorno",
+    "archivo": "datos_personales_ficha_icono.png",
+    "ruta_relativa": "11_familia_y_entorno/datos_personales_ficha_icono.png",
+    "dimensiones": "181x222",
+    "ancho": 181,
+    "alto": 222,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Ficha de Datos Personales",
+    "tags": [
+      "datos",
+      "ficha",
+      "perfil",
+      "identificación"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Icono de cabecera del perfil de usuario"
+  },
+  {
+    "id": 68,
+    "categoria": "11_familia_y_entorno",
+    "archivo": "mi_nombre_identidad_p3.png",
+    "ruta_relativa": "11_familia_y_entorno/mi_nombre_identidad_p3.png",
+    "dimensiones": "208x237",
+    "ancho": 208,
+    "alto": 237,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Nombre de Alumno",
+    "tags": [
+      "nombre",
+      "identidad",
+      "alumno"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Campo de nombre en el perfil del alumno"
+  },
+  {
+    "id": 69,
+    "categoria": "11_familia_y_entorno",
+    "archivo": "edad_cumpleanos_tarta.png",
+    "ruta_relativa": "11_familia_y_entorno/edad_cumpleanos_tarta.png",
+    "dimensiones": "209x237",
+    "ancho": 209,
+    "alto": 237,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Edad / Tarta de cumpleaños",
+    "tags": [
+      "edad",
+      "cumpleaños",
+      "tarta",
+      "años"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Campo de edad y fecha de nacimiento"
+  },
+  {
+    "id": 70,
+    "categoria": "11_familia_y_entorno",
+    "archivo": "familia_padre_p3.png",
+    "ruta_relativa": "11_familia_y_entorno/familia_padre_p3.png",
+    "dimensiones": "167x236",
+    "ancho": 167,
+    "alto": 236,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Padre",
+    "tags": [
+      "padre",
+      "papá",
+      "familia"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Contacto familiar de padre"
+  },
+  {
+    "id": 71,
+    "categoria": "11_familia_y_entorno",
+    "archivo": "familia_madre_p3.png",
+    "ruta_relativa": "11_familia_y_entorno/familia_madre_p3.png",
+    "dimensiones": "167x236",
+    "ancho": 167,
+    "alto": 236,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Madre",
+    "tags": [
+      "madre",
+      "mamá",
+      "familia"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Contacto familiar de madre"
+  },
+  {
+    "id": 72,
+    "categoria": "11_familia_y_entorno",
+    "archivo": "familia_hermanos_p3.png",
+    "ruta_relativa": "11_familia_y_entorno/familia_hermanos_p3.png",
+    "dimensiones": "237x236",
+    "ancho": 237,
+    "alto": 236,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Hermanos",
+    "tags": [
+      "hermanos",
+      "hermano",
+      "hermana",
+      "familia"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Registro de hermanos del alumno"
+  },
+  {
+    "id": 73,
+    "categoria": "11_familia_y_entorno",
+    "archivo": "direccion_vivienda_calle.png",
+    "ruta_relativa": "11_familia_y_entorno/direccion_vivienda_calle.png",
+    "dimensiones": "263x209",
+    "ancho": 263,
+    "alto": 209,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Dirección / Calle / Domicilio",
+    "tags": [
+      "dirección",
+      "calle",
+      "domicilio",
+      "casa"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Campo de dirección del domicilio familiar"
+  },
+  {
+    "id": 74,
+    "categoria": "11_familia_y_entorno",
+    "archivo": "telefono_contacto_p3.png",
+    "ruta_relativa": "11_familia_y_entorno/telefono_contacto_p3.png",
+    "dimensiones": "153x250",
+    "ancho": 153,
+    "alto": 250,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Teléfono de contacto",
+    "tags": [
+      "teléfono",
+      "contacto",
+      "llamada"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Campo de teléfono de contacto familiar"
+  },
+  {
+    "id": 75,
+    "categoria": "11_familia_y_entorno",
+    "archivo": "colegio_edificio_p3.png",
+    "ruta_relativa": "11_familia_y_entorno/colegio_edificio_p3.png",
+    "dimensiones": "319x319",
+    "ancho": 319,
+    "alto": 319,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Edificio de Colegio CeRA con patio",
+    "tags": [
+      "colegio",
+      "escuela",
+      "centro",
+      "cera"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Identificador del centro educativo"
+  },
+  {
+    "id": 76,
+    "categoria": "07_profesionales_y_sesiones",
+    "archivo": "profesional_directora.png",
+    "ruta_relativa": "07_profesionales_y_sesiones/profesional_directora.png",
+    "dimensiones": "222x236",
+    "ancho": 222,
+    "alto": 236,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Rol profesional: Directora del centro",
+    "tags": [
+      "directora",
+      "dirección",
+      "profesional"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Directorio de profesionales del centro"
+  },
+  {
+    "id": 77,
+    "categoria": "07_profesionales_y_sesiones",
+    "archivo": "profesional_maestro_aula_tutor.png",
+    "ruta_relativa": "07_profesionales_y_sesiones/profesional_maestro_aula_tutor.png",
+    "dimensiones": "194x208",
+    "ancho": 194,
+    "alto": 208,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Rol profesional: Maestro/a de aula (Tutor/a)",
+    "tags": [
+      "tutor",
+      "tutora",
+      "maestro",
+      "aula"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Asignación del tutor/a de aula"
+  },
+  {
+    "id": 78,
+    "categoria": "07_profesionales_y_sesiones",
+    "archivo": "profesional_maestro_psicomotricidad.png",
+    "ruta_relativa": "07_profesionales_y_sesiones/profesional_maestro_psicomotricidad.png",
+    "dimensiones": "250x236",
+    "ancho": 250,
+    "alto": 236,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Rol profesional: Maestro/a de Psicomotricidad",
+    "tags": [
+      "psicomotricidad",
+      "ejercicio",
+      "profesional"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Asignación de especialista en psicomotricidad"
+  },
+  {
+    "id": 79,
+    "categoria": "07_profesionales_y_sesiones",
+    "archivo": "profesional_logopeda.png",
+    "ruta_relativa": "07_profesionales_y_sesiones/profesional_logopeda.png",
+    "dimensiones": "236x236",
+    "ancho": 236,
+    "alto": 236,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Rol profesional: Logopeda",
+    "tags": [
+      "logopeda",
+      "logopedia",
+      "comunicación"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Asignación de especialista en logopedia"
+  },
+  {
+    "id": 80,
+    "categoria": "07_profesionales_y_sesiones",
+    "archivo": "profesional_psicologa.png",
+    "ruta_relativa": "07_profesionales_y_sesiones/profesional_psicologa.png",
+    "dimensiones": "195x208",
+    "ancho": 195,
+    "alto": 208,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Rol profesional: Psicóloga",
+    "tags": [
+      "psicóloga",
+      "psicología",
+      "apoyo"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Asignación de especialista en psicología"
+  },
+  {
+    "id": 81,
+    "categoria": "07_profesionales_y_sesiones",
+    "archivo": "profesional_fisioterapeuta.png",
+    "ruta_relativa": "07_profesionales_y_sesiones/profesional_fisioterapeuta.png",
+    "dimensiones": "195x195",
+    "ancho": 195,
+    "alto": 195,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Rol profesional: Fisioterapeuta",
+    "tags": [
+      "fisioterapeuta",
+      "fisioterapia",
+      "salud"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Asignación de fisioterapeuta"
+  },
+  {
+    "id": 82,
+    "categoria": "07_profesionales_y_sesiones",
+    "archivo": "profesional_trabajadora_social.png",
+    "ruta_relativa": "07_profesionales_y_sesiones/profesional_trabajadora_social.png",
+    "dimensiones": "236x223",
+    "ancho": 236,
+    "alto": 223,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Rol profesional: Trabajador/a Social",
+    "tags": [
+      "trabajador social",
+      "trabajadora social",
+      "asistencia"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Asignación de trabajador/a social"
+  },
+  {
+    "id": 83,
+    "categoria": "07_profesionales_y_sesiones",
+    "archivo": "profesional_cuidadora.png",
+    "ruta_relativa": "07_profesionales_y_sesiones/profesional_cuidadora.png",
+    "dimensiones": "222x237",
+    "ancho": 222,
+    "alto": 237,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Rol profesional: Cuidador/a de apoyo",
+    "tags": [
+      "cuidador",
+      "cuidadora",
+      "apoyo",
+      "asistencia"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Asignación de cuidador/a"
+  },
+  {
+    "id": 84,
+    "categoria": "12_transporte",
+    "archivo": "transporte_vengo_al_colegio_en_panel.png",
+    "ruta_relativa": "12_transporte/transporte_vengo_al_colegio_en_panel.png",
+    "dimensiones": "1223x528",
+    "ancho": 1223,
+    "alto": 528,
+    "canal_alfa": false,
+    "descripcion": "Panel completo de transporte escolar: Vengo al colegio en...",
+    "tags": [
+      "transporte",
+      "autobús",
+      "coche",
+      "andando",
+      "panel"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Panel selector interactivo del medio de transporte matinal"
+  },
+  {
+    "id": 85,
+    "categoria": "12_transporte",
+    "archivo": "transporte_autobus.png",
+    "ruta_relativa": "12_transporte/transporte_autobus.png",
+    "dimensiones": "278x125",
+    "ancho": 278,
+    "alto": 125,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Transporte: Autobús escolar",
+    "tags": [
+      "autobús",
+      "bus",
+      "transporte",
+      "colegio"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Opción de transporte: autobús"
+  },
+  {
+    "id": 86,
+    "categoria": "12_transporte",
+    "archivo": "transporte_andando.png",
+    "ruta_relativa": "12_transporte/transporte_andando.png",
+    "dimensiones": "125x167",
+    "ancho": 125,
+    "alto": 167,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Transporte: Andando / A pie",
+    "tags": [
+      "andando",
+      "pie",
+      "caminar",
+      "transporte"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Opción de transporte: andando"
+  },
+  {
+    "id": 87,
+    "categoria": "12_transporte",
+    "archivo": "transporte_coche.png",
+    "ruta_relativa": "12_transporte/transporte_coche.png",
+    "dimensiones": "264x125",
+    "ancho": 264,
+    "alto": 125,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Transporte: Coche particular",
+    "tags": [
+      "coche",
+      "auto",
+      "vehículo",
+      "transporte"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Opción de transporte: coche familiar"
+  },
+  {
+    "id": 88,
+    "categoria": "05_horas_y_tiempo",
+    "archivo": "reloj_rutina_09_00.png",
+    "ruta_relativa": "05_horas_y_tiempo/reloj_rutina_09_00.png",
+    "dimensiones": "264x264",
+    "ancho": 264,
+    "alto": 264,
+    "canal_alfa": false,
+    "descripcion": "Reloj analógico de rutina: 09:00 (Entrada / Asamblea)",
+    "tags": [
+      "reloj",
+      "hora",
+      "rutina",
+      "matinal"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Marcador de franja horaria: 09:00 (Entrada / Asamblea)"
+  },
+  {
+    "id": 89,
+    "categoria": "05_horas_y_tiempo",
+    "archivo": "reloj_rutina_10_00.png",
+    "ruta_relativa": "05_horas_y_tiempo/reloj_rutina_10_00.png",
+    "dimensiones": "264x264",
+    "ancho": 264,
+    "alto": 264,
+    "canal_alfa": false,
+    "descripcion": "Reloj analógico de rutina: 10:00 (Actividad de aula / Taller)",
+    "tags": [
+      "reloj",
+      "hora",
+      "rutina",
+      "media mañana"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Marcador de franja horaria: 10:00 (Actividad de aula / Taller)"
+  },
+  {
+    "id": 90,
+    "categoria": "05_horas_y_tiempo",
+    "archivo": "reloj_rutina_11_00.png",
+    "ruta_relativa": "05_horas_y_tiempo/reloj_rutina_11_00.png",
+    "dimensiones": "264x264",
+    "ancho": 264,
+    "alto": 264,
+    "canal_alfa": false,
+    "descripcion": "Reloj analógico de rutina: 11:00 (Desayuno escolar / Recreo)",
+    "tags": [
+      "reloj",
+      "hora",
+      "rutina",
+      "recreo"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Marcador de franja horaria: 11:00 (Desayuno escolar / Recreo)"
+  },
+  {
+    "id": 91,
+    "categoria": "05_horas_y_tiempo",
+    "archivo": "reloj_rutina_12_00.png",
+    "ruta_relativa": "05_horas_y_tiempo/reloj_rutina_12_00.png",
+    "dimensiones": "263x264",
+    "ancho": 263,
+    "alto": 264,
+    "canal_alfa": false,
+    "descripcion": "Reloj analógico de rutina: 12:00 (Sesiones complementarias)",
+    "tags": [
+      "reloj",
+      "hora",
+      "rutina",
+      "mediodía"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Marcador de franja horaria: 12:00 (Sesiones complementarias)"
+  },
+  {
+    "id": 92,
+    "categoria": "05_horas_y_tiempo",
+    "archivo": "reloj_rutina_13_00.png",
+    "ruta_relativa": "05_horas_y_tiempo/reloj_rutina_13_00.png",
+    "dimensiones": "264x264",
+    "ancho": 264,
+    "alto": 264,
+    "canal_alfa": false,
+    "descripcion": "Reloj analógico de rutina: 13:00 (Comedor escolar)",
+    "tags": [
+      "reloj",
+      "hora",
+      "rutina",
+      "comedor"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Marcador de franja horaria: 13:00 (Comedor escolar)"
+  },
+  {
+    "id": 93,
+    "categoria": "05_horas_y_tiempo",
+    "archivo": "reloj_rutina_14_00.png",
+    "ruta_relativa": "05_horas_y_tiempo/reloj_rutina_14_00.png",
+    "dimensiones": "264x264",
+    "ancho": 264,
+    "alto": 264,
+    "canal_alfa": false,
+    "descripcion": "Reloj analógico de rutina: 14:00 (Aseo / Salida colegio)",
+    "tags": [
+      "reloj",
+      "hora",
+      "rutina",
+      "salida colegio"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Marcador de franja horaria: 14:00 (Aseo / Salida colegio)"
+  },
+  {
+    "id": 94,
+    "categoria": "05_horas_y_tiempo",
+    "archivo": "reloj_rutina_17_00.png",
+    "ruta_relativa": "05_horas_y_tiempo/reloj_rutina_17_00.png",
+    "dimensiones": "264x264",
+    "ancho": 264,
+    "alto": 264,
+    "canal_alfa": false,
+    "descripcion": "Reloj analógico de rutina: 17:00 (Tarde / Merienda / Ocio)",
+    "tags": [
+      "reloj",
+      "hora",
+      "rutina",
+      "tarde"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Marcador de franja horaria: 17:00 (Tarde / Merienda / Ocio)"
+  },
+  {
+    "id": 95,
+    "categoria": "05_horas_y_tiempo",
+    "archivo": "reloj_rutina_20_00.png",
+    "ruta_relativa": "05_horas_y_tiempo/reloj_rutina_20_00.png",
+    "dimensiones": "264x264",
+    "ancho": 264,
+    "alto": 264,
+    "canal_alfa": false,
+    "descripcion": "Reloj analógico de rutina: 20:00 (Cena / Rutina nocturna)",
+    "tags": [
+      "reloj",
+      "hora",
+      "rutina",
+      "cena"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Marcador de franja horaria: 20:00 (Cena / Rutina nocturna)"
+  },
+  {
+    "id": 96,
+    "categoria": "05_horas_y_tiempo",
+    "archivo": "reloj_rutina_21_00.png",
+    "ruta_relativa": "05_horas_y_tiempo/reloj_rutina_21_00.png",
+    "dimensiones": "263x264",
+    "ancho": 263,
+    "alto": 264,
+    "canal_alfa": false,
+    "descripcion": "Reloj analógico de rutina: 21:00 (Dormir / Descanso)",
+    "tags": [
+      "reloj",
+      "hora",
+      "rutina",
+      "dormir"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Marcador de franja horaria: 21:00 (Dormir / Descanso)"
+  },
+  {
+    "id": 97,
+    "categoria": "06_actividades_escolares",
+    "archivo": "cabecera_actividades_generales.png",
+    "ruta_relativa": "06_actividades_escolares/cabecera_actividades_generales.png",
+    "dimensiones": "166x167",
+    "ancho": 166,
+    "alto": 167,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Actividades Generales (Lectura, pintura, bloques)",
+    "tags": [
+      "actividades",
+      "tareas",
+      "aula",
+      "escolar"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Cabecera de la sección de actividades escolares"
+  },
+  {
+    "id": 98,
+    "categoria": "06_actividades_escolares",
+    "archivo": "cabecera_actividades_especiales.png",
+    "ruta_relativa": "06_actividades_escolares/cabecera_actividades_especiales.png",
+    "dimensiones": "167x167",
+    "ancho": 167,
+    "alto": 167,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Actividades Especiales (Alerta / Novedad)",
+    "tags": [
+      "actividades especiales",
+      "evento",
+      "excursión"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Indicador de actividad o evento especial en la agenda"
+  },
+  {
+    "id": 99,
+    "categoria": "15_comedor_y_alimentacion",
+    "archivo": "almuerzo_mediodia_icono.png",
+    "ruta_relativa": "15_comedor_y_alimentacion/almuerzo_mediodia_icono.png",
+    "dimensiones": "167x166",
+    "ancho": 167,
+    "alto": 166,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Almuerzo / Comida del mediodía (Sol + comiendo con cuchara)",
+    "tags": [
+      "almuerzo",
+      "comida",
+      "mediodía",
+      "comedor"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Cabecera del registro del menú escolar"
+  },
+  {
+    "id": 100,
+    "categoria": "15_comedor_y_alimentacion",
+    "archivo": "primer_plato_macarrones_pure_verduras.png",
+    "ruta_relativa": "15_comedor_y_alimentacion/primer_plato_macarrones_pure_verduras.png",
+    "dimensiones": "250x236",
+    "ancho": 250,
+    "alto": 236,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Primer Plato: Macarrones con tomate, Puré y Menestra de verduras",
+    "tags": [
+      "primer plato",
+      "comida",
+      "pasta",
+      "puré",
+      "verdura",
+      "menú"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Selector o visualizador del primer plato del menú escolar"
+  },
+  {
+    "id": 101,
+    "categoria": "15_comedor_y_alimentacion",
+    "archivo": "segundo_plato_carne_pollo_pescado.png",
+    "ruta_relativa": "15_comedor_y_alimentacion/segundo_plato_carne_pollo_pescado.png",
+    "dimensiones": "250x236",
+    "ancho": 250,
+    "alto": 236,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Segundo Plato: Filete de carne, Muslo de pollo y Pescado",
+    "tags": [
+      "segundo plato",
+      "carne",
+      "pollo",
+      "pescado",
+      "proteína",
+      "menú"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Selector o visualizador del segundo plato del menú escolar"
+  },
+  {
+    "id": 102,
+    "categoria": "15_comedor_y_alimentacion",
+    "archivo": "postre_helado_manzana_yogur.png",
+    "ruta_relativa": "15_comedor_y_alimentacion/postre_helado_manzana_yogur.png",
+    "dimensiones": "250x236",
+    "ancho": 250,
+    "alto": 236,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Postre: Helado, Manzana y Yogur con cuchara",
+    "tags": [
+      "postre",
+      "fruta",
+      "manzana",
+      "yogur",
+      "dulce",
+      "menú"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Selector o visualizador del postre del menú escolar"
+  },
+  {
+    "id": 103,
+    "categoria": "15_comedor_y_alimentacion",
+    "archivo": "cuadrante_menu_del_dia_completo.png",
+    "ruta_relativa": "15_comedor_y_alimentacion/cuadrante_menu_del_dia_completo.png",
+    "dimensiones": "723x1042",
+    "ancho": 723,
+    "alto": 1042,
+    "canal_alfa": false,
+    "descripcion": "Cuadrante completo de Menú Escolar: Primer plato, Segundo plato y Postre",
+    "tags": [
+      "menú escolar",
+      "comedor",
+      "dieta",
+      "registro"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Widget completo de menú de comedor del día"
+  },
+  {
+    "id": 104,
+    "categoria": "10_emociones_y_estados_animo",
+    "archivo": "emocion_contento.png",
+    "ruta_relativa": "10_emociones_y_estados_animo/emocion_contento.png",
+    "dimensiones": "305x305",
+    "ancho": 305,
+    "alto": 305,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Estado de Ánimo: CONTENTO / FELIZ",
+    "tags": [
+      "contento",
+      "feliz",
+      "alegría",
+      "emoción"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Selector diario de bienestar emocional del alumno"
+  },
+  {
+    "id": 105,
+    "categoria": "10_emociones_y_estados_animo",
+    "archivo": "emocion_cansado.png",
+    "ruta_relativa": "10_emociones_y_estados_animo/emocion_cansado.png",
+    "dimensiones": "306x305",
+    "ancho": 306,
+    "alto": 305,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Estado de Ánimo: CANSADO",
+    "tags": [
+      "cansado",
+      "fatiga",
+      "sueño",
+      "emoción"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Selector diario de estado físico/emocional"
+  },
+  {
+    "id": 106,
+    "categoria": "10_emociones_y_estados_animo",
+    "archivo": "emocion_triste.png",
+    "ruta_relativa": "10_emociones_y_estados_animo/emocion_triste.png",
+    "dimensiones": "305x306",
+    "ancho": 305,
+    "alto": 306,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Estado de Ánimo: TRISTE",
+    "tags": [
+      "triste",
+      "tristeza",
+      "emoción"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Selector diario de malestar o tristeza"
+  },
+  {
+    "id": 107,
+    "categoria": "10_emociones_y_estados_animo",
+    "archivo": "emocion_enfadado.png",
+    "ruta_relativa": "10_emociones_y_estados_animo/emocion_enfadado.png",
+    "dimensiones": "306x320",
+    "ancho": 306,
+    "alto": 320,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Estado de Ánimo: ENFADADO",
+    "tags": [
+      "enfadado",
+      "ira",
+      "molestia",
+      "emoción"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Alerta de frustración o enfado"
+  },
+  {
+    "id": 108,
+    "categoria": "10_emociones_y_estados_animo",
+    "archivo": "panel_cuatro_emociones_diarias.png",
+    "ruta_relativa": "10_emociones_y_estados_animo/panel_cuatro_emociones_diarias.png",
+    "dimensiones": "639x667",
+    "ancho": 639,
+    "alto": 667,
+    "canal_alfa": false,
+    "descripcion": "Panel de 4 emociones diarias: Contento, Cansado, Triste, Enfadado",
+    "tags": [
+      "panel",
+      "emociones",
+      "selector diario"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Widget rápido de registro emocional al inicio y final de la jornada"
+  },
+  {
+    "id": 109,
+    "categoria": "09_actividades_ocio_y_salidas",
+    "archivo": "salida_01_pueblo_ciudad.png",
+    "ruta_relativa": "09_actividades_ocio_y_salidas/salida_01_pueblo_ciudad.png",
+    "dimensiones": "264x264",
+    "ancho": 264,
+    "alto": 264,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Salida: Pueblo / Ciudad / Localidad",
+    "tags": [
+      "pueblo",
+      "ciudad",
+      "visita",
+      "salida",
+      "comunidad"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Registro de visita a pueblo o ciudad durante el fin de semana"
+  },
+  {
+    "id": 110,
+    "categoria": "09_actividades_ocio_y_salidas",
+    "archivo": "salida_02_pizzeria_comida_rapida.png",
+    "ruta_relativa": "09_actividades_ocio_y_salidas/salida_02_pizzeria_comida_rapida.png",
+    "dimensiones": "264x264",
+    "ancho": 264,
+    "alto": 264,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Salida: Pizzería / Restaurante de comida rápida",
+    "tags": [
+      "pizzería",
+      "pizza",
+      "comida rápida",
+      "ocio"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Registro de comida en pizzería o hamburguesería"
+  },
+  {
+    "id": 111,
+    "categoria": "09_actividades_ocio_y_salidas",
+    "archivo": "salida_03_cine.png",
+    "ruta_relativa": "09_actividades_ocio_y_salidas/salida_03_cine.png",
+    "dimensiones": "263x264",
+    "ancho": 263,
+    "alto": 264,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Salida: Cine / Ver película en sala de cine",
+    "tags": [
+      "cine",
+      "película",
+      "butacas",
+      "ocio"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Registro de salida al cine"
+  },
+  {
+    "id": 112,
+    "categoria": "09_actividades_ocio_y_salidas",
+    "archivo": "salida_04_ludoteca_biblioteca.png",
+    "ruta_relativa": "09_actividades_ocio_y_salidas/salida_04_ludoteca_biblioteca.png",
+    "dimensiones": "264x264",
+    "ancho": 264,
+    "alto": 264,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Salida: Ludoteca / Sala de juegos y biblioteca infantil",
+    "tags": [
+      "ludoteca",
+      "juegos",
+      "biblioteca",
+      "libros"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Registro de salida a ludoteca o biblioteca"
+  },
+  {
+    "id": 113,
+    "categoria": "09_actividades_ocio_y_salidas",
+    "archivo": "salida_05_centro_comercial.png",
+    "ruta_relativa": "09_actividades_ocio_y_salidas/salida_05_centro_comercial.png",
+    "dimensiones": "264x264",
+    "ancho": 264,
+    "alto": 264,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Salida: Centro Comercial / Galerías comerciales",
+    "tags": [
+      "centro comercial",
+      "tiendas",
+      "compras",
+      "ocio"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Registro de salida a centro comercial"
+  },
+  {
+    "id": 114,
+    "categoria": "09_actividades_ocio_y_salidas",
+    "archivo": "salida_06_casa_familiar_otra_vivienda.png",
+    "ruta_relativa": "09_actividades_ocio_y_salidas/salida_06_casa_familiar_otra_vivienda.png",
+    "dimensiones": "264x264",
+    "ancho": 264,
+    "alto": 264,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Salida: Casa de familiares / Otra vivienda",
+    "tags": [
+      "casa",
+      "familiares",
+      "visita",
+      "hogar"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Registro de visita a otra casa o estancia en el hogar"
+  },
+  {
+    "id": 115,
+    "categoria": "09_actividades_ocio_y_salidas",
+    "archivo": "salida_07_parque_columpios.png",
+    "ruta_relativa": "09_actividades_ocio_y_salidas/salida_07_parque_columpios.png",
+    "dimensiones": "264x264",
+    "ancho": 264,
+    "alto": 264,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Salida: Parque infantil / Columpios y toboganes",
+    "tags": [
+      "parque",
+      "columpios",
+      "tobogán",
+      "jugar"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Registro de salida al parque infantil"
+  },
+  {
+    "id": 116,
+    "categoria": "09_actividades_ocio_y_salidas",
+    "archivo": "salida_08_fiesta_cumpleanos.png",
+    "ruta_relativa": "09_actividades_ocio_y_salidas/salida_08_fiesta_cumpleanos.png",
+    "dimensiones": "263x264",
+    "ancho": 263,
+    "alto": 264,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Salida: Fiesta / Cumpleaños / Celebración con amigos",
+    "tags": [
+      "fiesta",
+      "cumpleaños",
+      "celebración",
+      "amigos"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Registro de asistencia a cumpleaños o fiesta infantil"
+  },
+  {
+    "id": 117,
+    "categoria": "09_actividades_ocio_y_salidas",
+    "archivo": "salida_09_supermercado.png",
+    "ruta_relativa": "09_actividades_ocio_y_salidas/salida_09_supermercado.png",
+    "dimensiones": "264x264",
+    "ancho": 264,
+    "alto": 264,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Salida: Supermercado / Hacer la compra",
+    "tags": [
+      "supermercado",
+      "compra",
+      "tienda",
+      "alimentos"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Registro de participación en la compra familiar"
+  },
+  {
+    "id": 118,
+    "categoria": "09_actividades_ocio_y_salidas",
+    "archivo": "salida_10_playa.png",
+    "ruta_relativa": "09_actividades_ocio_y_salidas/salida_10_playa.png",
+    "dimensiones": "264x264",
+    "ancho": 264,
+    "alto": 264,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Salida: Playa / Costa / Mar",
+    "tags": [
+      "playa",
+      "mar",
+      "arena",
+      "verano",
+      "excursión"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Registro de excursión a la playa o costa"
+  },
+  {
+    "id": 119,
+    "categoria": "09_actividades_ocio_y_salidas",
+    "archivo": "salida_11_campo_naturaleza.png",
+    "ruta_relativa": "09_actividades_ocio_y_salidas/salida_11_campo_naturaleza.png",
+    "dimensiones": "264x264",
+    "ancho": 264,
+    "alto": 264,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Salida: Campo / Naturaleza / Excursión rural",
+    "tags": [
+      "campo",
+      "naturaleza",
+      "rural",
+      "árboles",
+      "paseo"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Registro de paseo o excursión por el campo"
+  },
+  {
+    "id": 120,
+    "categoria": "09_actividades_ocio_y_salidas",
+    "archivo": "salida_12_restaurante_bar.png",
+    "ruta_relativa": "09_actividades_ocio_y_salidas/salida_12_restaurante_bar.png",
+    "dimensiones": "264x264",
+    "ancho": 264,
+    "alto": 264,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Salida: Restaurante / Bar / Comer fuera de casa",
+    "tags": [
+      "restaurante",
+      "bar",
+      "comer fuera",
+      "menú"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Registro de comida en restaurante o cafetería"
+  },
+  {
+    "id": 121,
+    "categoria": "09_actividades_ocio_y_salidas",
+    "archivo": "salida_13_museo_monumento.png",
+    "ruta_relativa": "09_actividades_ocio_y_salidas/salida_13_museo_monumento.png",
+    "dimensiones": "263x264",
+    "ancho": 263,
+    "alto": 264,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Salida: Museo / Monumento cultural / Exposición",
+    "tags": [
+      "museo",
+      "monumento",
+      "cultura",
+      "exposición"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Registro de visita cultural o museo"
+  },
+  {
+    "id": 122,
+    "categoria": "09_actividades_ocio_y_salidas",
+    "archivo": "salida_14_piscina.png",
+    "ruta_relativa": "09_actividades_ocio_y_salidas/salida_14_piscina.png",
+    "dimensiones": "264x264",
+    "ancho": 264,
+    "alto": 264,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Salida: Piscina / Baño / Natación",
+    "tags": [
+      "piscina",
+      "natación",
+      "baño",
+      "agua",
+      "deporte"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Registro de actividad acuática o baño en piscina"
+  },
+  {
+    "id": 123,
+    "categoria": "09_actividades_ocio_y_salidas",
+    "archivo": "salida_15_concierto_teatro.png",
+    "ruta_relativa": "09_actividades_ocio_y_salidas/salida_15_concierto_teatro.png",
+    "dimensiones": "264x264",
+    "ancho": 264,
+    "alto": 264,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Salida: Concierto / Teatro / Espectáculo musical",
+    "tags": [
+      "concierto",
+      "teatro",
+      "música",
+      "espectáculo"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Registro de asistencia a espectáculo o concierto"
+  },
+  {
+    "id": 124,
+    "categoria": "09_actividades_ocio_y_salidas",
+    "archivo": "panel_quince_salidas_fin_de_semana.png",
+    "ruta_relativa": "09_actividades_ocio_y_salidas/panel_quince_salidas_fin_de_semana.png",
+    "dimensiones": "1417x861",
+    "ancho": 1417,
+    "alto": 861,
+    "canal_alfa": false,
+    "descripcion": "Panel completo con las 15 opciones de salidas del fin de semana (YO HE IDO A...)",
+    "tags": [
+      "panel",
+      "salidas",
+      "fin de semana",
+      "selector"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Widget selector táctil de lugares visitados el fin de semana"
+  },
+  {
+    "id": 125,
+    "categoria": "08_actividades_casa_y_rutinas",
+    "archivo": "actividad_01_tareas_de_la_casa.png",
+    "ruta_relativa": "08_actividades_casa_y_rutinas/actividad_01_tareas_de_la_casa.png",
+    "dimensiones": "236x319",
+    "ancho": 236,
+    "alto": 319,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Tareas de la casa / Limpieza / Orden",
+    "tags": [
+      "tareas de casa",
+      "limpieza",
+      "orden",
+      "hogar"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Registro de colaboración en tareas domésticas"
+  },
+  {
+    "id": 126,
+    "categoria": "08_actividades_casa_y_rutinas",
+    "archivo": "actividad_02_ver_la_tele.png",
+    "ruta_relativa": "08_actividades_casa_y_rutinas/actividad_02_ver_la_tele.png",
+    "dimensiones": "236x319",
+    "ancho": 236,
+    "alto": 319,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Ver la televisión / Series / Dibujos",
+    "tags": [
+      "tele",
+      "televisión",
+      "ocio",
+      "pantalla"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Registro de tiempo de ocio televisivo"
+  },
+  {
+    "id": 127,
+    "categoria": "08_actividades_casa_y_rutinas",
+    "archivo": "actividad_03_deberes.png",
+    "ruta_relativa": "08_actividades_casa_y_rutinas/actividad_03_deberes.png",
+    "dimensiones": "236x319",
+    "ancho": 236,
+    "alto": 319,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Deberes escolares / Estudio",
+    "tags": [
+      "deberes",
+      "estudio",
+      "tarea",
+      "repaso"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Registro de tareas escolares en el hogar"
+  },
+  {
+    "id": 128,
+    "categoria": "08_actividades_casa_y_rutinas",
+    "archivo": "actividad_04_pintar.png",
+    "ruta_relativa": "08_actividades_casa_y_rutinas/actividad_04_pintar.png",
+    "dimensiones": "236x319",
+    "ancho": 236,
+    "alto": 319,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Pintar / Dibujar / Manualidades",
+    "tags": [
+      "pintar",
+      "dibujar",
+      "arte",
+      "creatividad"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Registro de actividad plástica o creativa"
+  },
+  {
+    "id": 129,
+    "categoria": "08_actividades_casa_y_rutinas",
+    "archivo": "actividad_05_jugar.png",
+    "ruta_relativa": "08_actividades_casa_y_rutinas/actividad_05_jugar.png",
+    "dimensiones": "236x319",
+    "ancho": 236,
+    "alto": 319,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Jugar / Juegos y juguetes",
+    "tags": [
+      "jugar",
+      "juegos",
+      "diversión",
+      "juguetes"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Registro de juego libre en casa"
+  },
+  {
+    "id": 130,
+    "categoria": "08_actividades_casa_y_rutinas",
+    "archivo": "actividad_06_duchar.png",
+    "ruta_relativa": "08_actividades_casa_y_rutinas/actividad_06_duchar.png",
+    "dimensiones": "236x320",
+    "ancho": 236,
+    "alto": 320,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Duchar / Baño / Higiene personal",
+    "tags": [
+      "duchar",
+      "baño",
+      "higiene",
+      "aseo"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Registro de rutina de higiene"
+  },
+  {
+    "id": 131,
+    "categoria": "08_actividades_casa_y_rutinas",
+    "archivo": "actividad_07_leer.png",
+    "ruta_relativa": "08_actividades_casa_y_rutinas/actividad_07_leer.png",
+    "dimensiones": "236x320",
+    "ancho": 236,
+    "alto": 320,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Leer / Lectura de cuentos o libros",
+    "tags": [
+      "leer",
+      "libro",
+      "cuento",
+      "lectura"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Registro de tiempo de lectura o cuento"
+  },
+  {
+    "id": 132,
+    "categoria": "08_actividades_casa_y_rutinas",
+    "archivo": "actividad_08_ordenador.png",
+    "ruta_relativa": "08_actividades_casa_y_rutinas/actividad_08_ordenador.png",
+    "dimensiones": "236x320",
+    "ancho": 236,
+    "alto": 320,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Ordenador / Uso de PC / Informática",
+    "tags": [
+      "ordenador",
+      "pc",
+      "informática",
+      "tecnología"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Registro de uso de ordenador"
+  },
+  {
+    "id": 133,
+    "categoria": "08_actividades_casa_y_rutinas",
+    "archivo": "actividad_09_consola_videojuegos.png",
+    "ruta_relativa": "08_actividades_casa_y_rutinas/actividad_09_consola_videojuegos.png",
+    "dimensiones": "236x320",
+    "ancho": 236,
+    "alto": 320,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Consola / Videojuegos",
+    "tags": [
+      "consola",
+      "videojuegos",
+      "mando",
+      "pantalla"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Registro de tiempo de videojuegos"
+  },
+  {
+    "id": 134,
+    "categoria": "08_actividades_casa_y_rutinas",
+    "archivo": "actividad_10_otra_actividad.png",
+    "ruta_relativa": "08_actividades_casa_y_rutinas/actividad_10_otra_actividad.png",
+    "dimensiones": "236x320",
+    "ancho": 236,
+    "alto": 320,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Otra actividad personalizada",
+    "tags": [
+      "otro",
+      "personalizado",
+      "diferente",
+      "nueva tarea"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Botón para añadir otra actividad no catalogada"
+  },
+  {
+    "id": 135,
+    "categoria": "08_actividades_casa_y_rutinas",
+    "archivo": "panel_diez_actividades_casa.png",
+    "ruta_relativa": "08_actividades_casa_y_rutinas/panel_diez_actividades_casa.png",
+    "dimensiones": "1389x722",
+    "ancho": 1389,
+    "alto": 722,
+    "canal_alfa": false,
+    "descripcion": "Panel completo de 10 actividades en casa del fin de semana (HE HECHO...)",
+    "tags": [
+      "panel",
+      "actividades",
+      "casa",
+      "selector"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Widget selector táctil de actividades realizadas en el hogar"
+  },
+  {
+    "id": 136,
+    "categoria": "11_familia_y_entorno",
+    "archivo": "familia_madre_p15.png",
+    "ruta_relativa": "11_familia_y_entorno/familia_madre_p15.png",
+    "dimensiones": "223x236",
+    "ancho": 223,
+    "alto": 236,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Familia: Madre",
+    "tags": [
+      "madre",
+      "mamá",
+      "familia",
+      "compañía"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Registro de compañía del fin de semana: Madre"
+  },
+  {
+    "id": 137,
+    "categoria": "11_familia_y_entorno",
+    "archivo": "familia_hermanos_p15.png",
+    "ruta_relativa": "11_familia_y_entorno/familia_hermanos_p15.png",
+    "dimensiones": "222x236",
+    "ancho": 222,
+    "alto": 236,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Familia: Hermanos",
+    "tags": [
+      "hermanos",
+      "hermano",
+      "familia",
+      "compañía"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Registro de compañía del fin de semana: Hermanos"
+  },
+  {
+    "id": 138,
+    "categoria": "11_familia_y_entorno",
+    "archivo": "familia_abuelos_p15.png",
+    "ruta_relativa": "11_familia_y_entorno/familia_abuelos_p15.png",
+    "dimensiones": "222x236",
+    "ancho": 222,
+    "alto": 236,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Familia: Abuelos",
+    "tags": [
+      "abuelos",
+      "abuelo",
+      "abuela",
+      "familia"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Registro de compañía del fin de semana: Abuelos"
+  },
+  {
+    "id": 139,
+    "categoria": "11_familia_y_entorno",
+    "archivo": "familia_padre_p15.png",
+    "ruta_relativa": "11_familia_y_entorno/familia_padre_p15.png",
+    "dimensiones": "222x236",
+    "ancho": 222,
+    "alto": 236,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Familia: Padre",
+    "tags": [
+      "padre",
+      "papá",
+      "familia",
+      "compañía"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Registro de compañía del fin de semana: Padre"
+  },
+  {
+    "id": 140,
+    "categoria": "11_familia_y_entorno",
+    "archivo": "entorno_amigos_p15.png",
+    "ruta_relativa": "11_familia_y_entorno/entorno_amigos_p15.png",
+    "dimensiones": "237x236",
+    "ancho": 237,
+    "alto": 236,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Entorno: Amigos",
+    "tags": [
+      "amigos",
+      "compañeros",
+      "social",
+      "compañía"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Registro de compañía del fin de semana: Amigos"
+  },
+  {
+    "id": 141,
+    "categoria": "11_familia_y_entorno",
+    "archivo": "panel_con_quien_he_estado.png",
+    "ruta_relativa": "11_familia_y_entorno/panel_con_quien_he_estado.png",
+    "dimensiones": "1250x806",
+    "ancho": 1250,
+    "alto": 806,
+    "canal_alfa": false,
+    "descripcion": "Panel selector completo: ¿CON QUIÉN HE ESTADO? (Madre, Hermanos, Abuelos, Padre, Amigos)",
+    "tags": [
+      "panel",
+      "familia",
+      "compañía",
+      "selector"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Widget selector táctil de personas con las que ha compartido el fin de semana"
+  },
+  {
+    "id": 142,
+    "categoria": "10_emociones_y_estados_animo",
+    "archivo": "emocion_aburrido.png",
+    "ruta_relativa": "10_emociones_y_estados_animo/emocion_aburrido.png",
+    "dimensiones": "306x305",
+    "ancho": 306,
+    "alto": 305,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Estado de Ánimo: ABURRIDO",
+    "tags": [
+      "aburrido",
+      "desinterés",
+      "emoción"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Selector emocional: estado de aburrimiento"
+  },
+  {
+    "id": 143,
+    "categoria": "10_emociones_y_estados_animo",
+    "archivo": "emocion_enfermo.png",
+    "ruta_relativa": "10_emociones_y_estados_animo/emocion_enfermo.png",
+    "dimensiones": "306x305",
+    "ancho": 306,
+    "alto": 305,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Estado de Ánimo: ENFERMO / CON TERMÓMETRO",
+    "tags": [
+      "enfermo",
+      "malestar",
+      "fiebre",
+      "salud"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Registro de malestar físico o enfermedad"
+  },
+  {
+    "id": 144,
+    "categoria": "10_emociones_y_estados_animo",
+    "archivo": "emocion_asustado.png",
+    "ruta_relativa": "10_emociones_y_estados_animo/emocion_asustado.png",
+    "dimensiones": "306x305",
+    "ancho": 306,
+    "alto": 305,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Estado de Ánimo: ASUSTADO / MIEDO",
+    "tags": [
+      "asustado",
+      "miedo",
+      "temor",
+      "emoción"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Alerta emocional de miedo o angustia"
+  },
+  {
+    "id": 145,
+    "categoria": "10_emociones_y_estados_animo",
+    "archivo": "panel_seis_emociones_fin_de_semana.png",
+    "ruta_relativa": "10_emociones_y_estados_animo/panel_seis_emociones_fin_de_semana.png",
+    "dimensiones": "1138x722",
+    "ancho": 1138,
+    "alto": 722,
+    "canal_alfa": false,
+    "descripcion": "Panel completo de 6 emociones: Contento, Triste, Aburrido, Enfermo, Enfadado, Asustado",
+    "tags": [
+      "panel",
+      "emociones",
+      "balance emocional"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Widget completo para balance emocional del fin de semana"
+  },
+  {
+    "id": 146,
+    "categoria": "05_horas_y_tiempo",
+    "archivo": "reloj_analogico_plantilla_blanco.png",
+    "ruta_relativa": "05_horas_y_tiempo/reloj_analogico_plantilla_blanco.png",
+    "dimensiones": "208x208",
+    "ancho": 208,
+    "alto": 208,
+    "canal_alfa": false,
+    "descripcion": "Reloj analógico con esfera limpia para configurar cualquier hora",
+    "tags": [
+      "reloj",
+      "analógico",
+      "esfera",
+      "hora personalizada"
+    ],
+    "documento_origen": "agenda escolar escrita.pdf",
+    "uso_recomendado": "Plantilla gráfica para dibujar manecillas dinámicas en la app"
+  },
+  {
+    "id": 147,
+    "categoria": "10_emociones_y_estados_animo",
+    "archivo": "emocion_pftva_01_contento.png",
+    "ruta_relativa": "10_emociones_y_estados_animo/emocion_pftva_01_contento.png",
+    "dimensiones": "56x55",
+    "ancho": 56,
+    "alto": 55,
+    "canal_alfa": false,
+    "descripcion": "Icono emocional PFTVA: Contento",
+    "tags": [
+      "emoción",
+      "contento",
+      "pftva",
+      "emoji"
+    ],
+    "documento_origen": "agenda escolar escrita.pdf",
+    "uso_recomendado": "Selector emocional para nivel de texto / PFTVA: Contento"
+  },
+  {
+    "id": 148,
+    "categoria": "10_emociones_y_estados_animo",
+    "archivo": "emocion_pftva_02_tranquilo.png",
+    "ruta_relativa": "10_emociones_y_estados_animo/emocion_pftva_02_tranquilo.png",
+    "dimensiones": "56x56",
+    "ancho": 56,
+    "alto": 56,
+    "canal_alfa": false,
+    "descripcion": "Icono emocional PFTVA: Tranquilo",
+    "tags": [
+      "emoción",
+      "tranquilo",
+      "pftva",
+      "emoji"
+    ],
+    "documento_origen": "agenda escolar escrita.pdf",
+    "uso_recomendado": "Selector emocional para nivel de texto / PFTVA: Tranquilo"
+  },
+  {
+    "id": 149,
+    "categoria": "10_emociones_y_estados_animo",
+    "archivo": "emocion_pftva_03_preocupado.png",
+    "ruta_relativa": "10_emociones_y_estados_animo/emocion_pftva_03_preocupado.png",
+    "dimensiones": "56x56",
+    "ancho": 56,
+    "alto": 56,
+    "canal_alfa": false,
+    "descripcion": "Icono emocional PFTVA: Preocupado",
+    "tags": [
+      "emoción",
+      "preocupado",
+      "pftva",
+      "emoji"
+    ],
+    "documento_origen": "agenda escolar escrita.pdf",
+    "uso_recomendado": "Selector emocional para nivel de texto / PFTVA: Preocupado"
+  },
+  {
+    "id": 150,
+    "categoria": "10_emociones_y_estados_animo",
+    "archivo": "emocion_pftva_04_enfadado.png",
+    "ruta_relativa": "10_emociones_y_estados_animo/emocion_pftva_04_enfadado.png",
+    "dimensiones": "56x55",
+    "ancho": 56,
+    "alto": 55,
+    "canal_alfa": false,
+    "descripcion": "Icono emocional PFTVA: Enfadado",
+    "tags": [
+      "emoción",
+      "enfadado",
+      "pftva",
+      "emoji"
+    ],
+    "documento_origen": "agenda escolar escrita.pdf",
+    "uso_recomendado": "Selector emocional para nivel de texto / PFTVA: Enfadado"
+  },
+  {
+    "id": 151,
+    "categoria": "10_emociones_y_estados_animo",
+    "archivo": "emocion_pftva_05_cansado.png",
+    "ruta_relativa": "10_emociones_y_estados_animo/emocion_pftva_05_cansado.png",
+    "dimensiones": "56x56",
+    "ancho": 56,
+    "alto": 56,
+    "canal_alfa": false,
+    "descripcion": "Icono emocional PFTVA: Cansado",
+    "tags": [
+      "emoción",
+      "cansado",
+      "pftva",
+      "emoji"
+    ],
+    "documento_origen": "agenda escolar escrita.pdf",
+    "uso_recomendado": "Selector emocional para nivel de texto / PFTVA: Cansado"
+  },
+  {
+    "id": 152,
+    "categoria": "10_emociones_y_estados_animo",
+    "archivo": "panel_como_me_siento_hoy_pftva.png",
+    "ruta_relativa": "10_emociones_y_estados_animo/panel_como_me_siento_hoy_pftva.png",
+    "dimensiones": "666x611",
+    "ancho": 666,
+    "alto": 611,
+    "canal_alfa": false,
+    "descripcion": "Panel completo ¿Cómo me siento hoy? (Contento, Tranquilo, Preocupado, Enfadado, Cansado, Otro)",
+    "tags": [
+      "panel",
+      "emociones",
+      "pftva",
+      "texto"
+    ],
+    "documento_origen": "agenda escolar escrita.pdf",
+    "uso_recomendado": "Módulo de autoevaluación emocional para estudiantes de nivel escrito"
+  },
+  {
+    "id": 153,
+    "categoria": "02_meses_y_calendarios",
+    "archivo": "calendario_fin_de_semana_sabado_domingo.png",
+    "ruta_relativa": "02_meses_y_calendarios/calendario_fin_de_semana_sabado_domingo.png",
+    "dimensiones": "278x181",
+    "ancho": 278,
+    "alto": 181,
+    "canal_alfa": false,
+    "descripcion": "Icono calendario de Fin de Semana: S D (Sábado y Domingo)",
+    "tags": [
+      "fin de semana",
+      "sábado",
+      "domingo",
+      "calendario"
+    ],
+    "documento_origen": "agenda escolar escrita.pdf",
+    "uso_recomendado": "Insignia o cabecera para la vista de actividades de fin de semana"
+  },
+  {
+    "id": 154,
+    "categoria": "08_actividades_casa_y_rutinas",
+    "archivo": "actividades_casa_jardin_icono.png",
+    "ruta_relativa": "08_actividades_casa_y_rutinas/actividades_casa_jardin_icono.png",
+    "dimensiones": "195x166",
+    "ancho": 195,
+    "alto": 166,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Casa con jardín y árbol (HE ESTADO EN...)",
+    "tags": [
+      "casa",
+      "hogar",
+      "jardín",
+      "estancia"
+    ],
+    "documento_origen": "agenda escolar escrita.pdf",
+    "uso_recomendado": "Icono para el registro de tiempo en el hogar"
+  },
+  {
+    "id": 155,
+    "categoria": "09_actividades_ocio_y_salidas",
+    "archivo": "salida_parque_autobus_icono.png",
+    "ruta_relativa": "09_actividades_ocio_y_salidas/salida_parque_autobus_icono.png",
+    "dimensiones": "292x125",
+    "ancho": 292,
+    "alto": 125,
+    "canal_alfa": false,
+    "descripcion": "Pictograma de Banco de parque y autobús de excursión (HE IDO AL...)",
+    "tags": [
+      "parque",
+      "banco",
+      "autobús",
+      "salida"
+    ],
+    "documento_origen": "agenda escolar escrita.pdf",
+    "uso_recomendado": "Icono para registro de salidas y transportes"
+  },
+  {
+    "id": 156,
+    "categoria": "08_actividades_casa_y_rutinas",
+    "archivo": "ocio_deportes_lectura_pintura_icono.png",
+    "ruta_relativa": "08_actividades_casa_y_rutinas/ocio_deportes_lectura_pintura_icono.png",
+    "dimensiones": "278x278",
+    "ancho": 278,
+    "alto": 278,
+    "canal_alfa": false,
+    "descripcion": "Pictograma compuesto: Balones de deporte, libro abierto y pincel (HE HECHO...)",
+    "tags": [
+      "deporte",
+      "lectura",
+      "arte",
+      "actividades"
+    ],
+    "documento_origen": "agenda escolar escrita.pdf",
+    "uso_recomendado": "Icono compuesto para actividades realizadas"
+  },
+  {
+    "id": 157,
+    "categoria": "13_plantillas_agenda_y_registros",
+    "archivo": "plantilla_portada_agenda_ebo.png",
+    "ruta_relativa": "13_plantillas_agenda_y_registros/plantilla_portada_agenda_ebo.png",
+    "dimensiones": "1500x2167",
+    "ancho": 1500,
+    "alto": 2167,
+    "canal_alfa": false,
+    "descripcion": "Plantilla oficial de portada de agenda escolar EBO (Educación Básica Obligatoria)",
+    "tags": [
+      "plantilla",
+      "portada",
+      "ebo",
+      "agenda"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Plantilla base imprimible y de bienvenida para nivel de pictogramas"
+  },
+  {
+    "id": 158,
+    "categoria": "13_plantillas_agenda_y_registros",
+    "archivo": "plantilla_portada_agenda_pftva.png",
+    "ruta_relativa": "13_plantillas_agenda_y_registros/plantilla_portada_agenda_pftva.png",
+    "dimensiones": "1500x2167",
+    "ancho": 1500,
+    "alto": 2167,
+    "canal_alfa": false,
+    "descripcion": "Plantilla oficial de portada de agenda escolar PFTVA (Transición a la Vida Adulta)",
+    "tags": [
+      "plantilla",
+      "portada",
+      "pftva",
+      "agenda"
+    ],
+    "documento_origen": "agenda escolar escrita.pdf",
+    "uso_recomendado": "Plantilla base imprimible para nivel escrito"
+  },
+  {
+    "id": 159,
+    "categoria": "13_plantillas_agenda_y_registros",
+    "archivo": "plantilla_datos_personales_y_familiares.png",
+    "ruta_relativa": "13_plantillas_agenda_y_registros/plantilla_datos_personales_y_familiares.png",
+    "dimensiones": "1500x2167",
+    "ancho": 1500,
+    "alto": 2167,
+    "canal_alfa": false,
+    "descripcion": "Plantilla de ficha de datos personales y familiares del alumno",
+    "tags": [
+      "plantilla",
+      "datos personales",
+      "familia",
+      "ficha"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Diseño de la pantalla de perfil y datos personales"
+  },
+  {
+    "id": 160,
+    "categoria": "13_plantillas_agenda_y_registros",
+    "archivo": "plantilla_equipo_profesionales_y_transporte.png",
+    "ruta_relativa": "13_plantillas_agenda_y_registros/plantilla_equipo_profesionales_y_transporte.png",
+    "dimensiones": "1500x2167",
+    "ancho": 1500,
+    "alto": 2167,
+    "canal_alfa": false,
+    "descripcion": "Plantilla de asignación del equipo de profesionales del centro y medio de transporte",
+    "tags": [
+      "plantilla",
+      "profesionales",
+      "transporte"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Diseño de la vista de equipo docente y terapeuta"
+  },
+  {
+    "id": 161,
+    "categoria": "13_plantillas_agenda_y_registros",
+    "archivo": "plantilla_calendario_dias_festivos.png",
+    "ruta_relativa": "13_plantillas_agenda_y_registros/plantilla_calendario_dias_festivos.png",
+    "dimensiones": "1500x2167",
+    "ancho": 1500,
+    "alto": 2167,
+    "canal_alfa": false,
+    "descripcion": "Plantilla oficial de días festivos del curso 2026/2027",
+    "tags": [
+      "plantilla",
+      "festivos",
+      "calendario escolar"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Módulo de días no lectivos y festivos del curso"
+  },
+  {
+    "id": 162,
+    "categoria": "13_plantillas_agenda_y_registros",
+    "archivo": "plantilla_horario_semanal_cuadrante.png",
+    "ruta_relativa": "13_plantillas_agenda_y_registros/plantilla_horario_semanal_cuadrante.png",
+    "dimensiones": "1500x2167",
+    "ancho": 1500,
+    "alto": 2167,
+    "canal_alfa": false,
+    "descripcion": "Plantilla de cuadrante de horario semanal",
+    "tags": [
+      "plantilla",
+      "horario semanal",
+      "rutina"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Estructura semanal del horario interactivo"
+  },
+  {
+    "id": 163,
+    "categoria": "13_plantillas_agenda_y_registros",
+    "archivo": "plantilla_dia_agenda_fecha_tiempo_estacion.png",
+    "ruta_relativa": "13_plantillas_agenda_y_registros/plantilla_dia_agenda_fecha_tiempo_estacion.png",
+    "dimensiones": "2000x1125",
+    "ancho": 2000,
+    "alto": 1125,
+    "canal_alfa": false,
+    "descripcion": "Plantilla de página de día de agenda: Día de la semana, Fecha, Estación y Meteorología",
+    "tags": [
+      "plantilla",
+      "día de agenda",
+      "fecha",
+      "tiempo"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Vista principal diaria de contextualización temporal"
+  },
+  {
+    "id": 164,
+    "categoria": "13_plantillas_agenda_y_registros",
+    "archivo": "plantilla_dia_agenda_actividades_y_emociones.png",
+    "ruta_relativa": "13_plantillas_agenda_y_registros/plantilla_dia_agenda_actividades_y_emociones.png",
+    "dimensiones": "1500x2167",
+    "ancho": 1500,
+    "alto": 2167,
+    "canal_alfa": false,
+    "descripcion": "Plantilla de página de actividades del día, menú escolar y registro emocional",
+    "tags": [
+      "plantilla",
+      "actividades del día",
+      "emociones",
+      "menú escolar"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Vista principal de seguimiento de la jornada escolar"
+  },
+  {
+    "id": 165,
+    "categoria": "13_plantillas_agenda_y_registros",
+    "archivo": "plantilla_fin_de_semana_actividades_salidas.png",
+    "ruta_relativa": "13_plantillas_agenda_y_registros/plantilla_fin_de_semana_actividades_salidas.png",
+    "dimensiones": "1500x2167",
+    "ancho": 1500,
+    "alto": 2167,
+    "canal_alfa": false,
+    "descripcion": "Plantilla de registro del fin de semana: 'YO HE IDO A...' y 'HE HECHO...'",
+    "tags": [
+      "plantilla",
+      "fin de semana",
+      "actividades en casa",
+      "salidas"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Módulo de registro familiar del fin de semana"
+  },
+  {
+    "id": 166,
+    "categoria": "13_plantillas_agenda_y_registros",
+    "archivo": "plantilla_fin_de_semana_compania_y_emociones.png",
+    "ruta_relativa": "13_plantillas_agenda_y_registros/plantilla_fin_de_semana_compania_y_emociones.png",
+    "dimensiones": "1500x2167",
+    "ancho": 1500,
+    "alto": 2167,
+    "canal_alfa": false,
+    "descripcion": "Plantilla de fin de semana: '¿CON QUIÉN HE ESTADO?' y 'ME LO HE PASADO...'",
+    "tags": [
+      "plantilla",
+      "fin de semana",
+      "familia",
+      "emociones"
+    ],
+    "documento_origen": "agenda escolar pictos.pdf",
+    "uso_recomendado": "Módulo de balance emocional familiar del fin de semana"
+  },
+  {
+    "id": 167,
+    "categoria": "13_plantillas_agenda_y_registros",
+    "archivo": "plantilla_dia_agenda_pftva_escrita.png",
+    "ruta_relativa": "13_plantillas_agenda_y_registros/plantilla_dia_agenda_pftva_escrita.png",
+    "dimensiones": "1500x2167",
+    "ancho": 1500,
+    "alto": 2167,
+    "canal_alfa": false,
+    "descripcion": "Plantilla oficial de página de día de agenda PFTVA con menú, actividades y emociones",
+    "tags": [
+      "plantilla",
+      "pftva",
+      "día",
+      "menú",
+      "emociones"
+    ],
+    "documento_origen": "agenda escolar escrita.pdf",
+    "uso_recomendado": "Vista diaria para estudiantes de nivel escrito"
+  },
+  {
+    "id": 168,
+    "categoria": "13_plantillas_agenda_y_registros",
+    "archivo": "plantilla_fin_de_semana_pftva_escrita.png",
+    "ruta_relativa": "13_plantillas_agenda_y_registros/plantilla_fin_de_semana_pftva_escrita.png",
+    "dimensiones": "1500x2167",
+    "ancho": 1500,
+    "alto": 2167,
+    "canal_alfa": false,
+    "descripcion": "Plantilla oficial de resumen de fin de semana PFTVA: He estado, He ido, He hecho, Me siento",
+    "tags": [
+      "plantilla",
+      "pftva",
+      "fin de semana",
+      "escrita"
+    ],
+    "documento_origen": "agenda escolar escrita.pdf",
+    "uso_recomendado": "Módulo familiar de fin de semana para nivel escrito"
+  },
+  {
+    "id": 169,
+    "categoria": "13_plantillas_agenda_y_registros",
+    "archivo": "plantilla_registro_semanal_comedor_comandas.png",
+    "ruta_relativa": "13_plantillas_agenda_y_registros/plantilla_registro_semanal_comedor_comandas.png",
+    "dimensiones": "2339x1654",
+    "ancho": 2339,
+    "alto": 1654,
+    "canal_alfa": false,
+    "descripcion": "Plantilla oficial de Registro Semanal de Comedor: Control de asistencia por dietas (Cetogénico, Túrmix, Texturizado, Basal)",
+    "tags": [
+      "plantilla",
+      "comedor",
+      "comanda",
+      "dietas",
+      "registro escolar"
+    ],
+    "documento_origen": "registro faltas comanda.pdf",
+    "uso_recomendado": "Módulo de comedor escolar para registro diario de asistencia y dietas de alumnos"
+  },
+  {
+    "id": 170,
+    "categoria": "13_plantillas_agenda_y_registros",
+    "archivo": "plantilla_control_entrega_menus_mensuales_familias.png",
+    "ruta_relativa": "13_plantillas_agenda_y_registros/plantilla_control_entrega_menus_mensuales_familias.png",
+    "dimensiones": "2339x1654",
+    "ancho": 2339,
+    "alto": 1654,
+    "canal_alfa": false,
+    "descripcion": "Plantilla oficial de Control de Entrega de Menús Mensuales a las Familias",
+    "tags": [
+      "plantilla",
+      "menú mensual",
+      "familias",
+      "entrega",
+      "aulas"
+    ],
+    "documento_origen": "registro entrega menus familias.pdf",
+    "uso_recomendado": "Módulo de secretaría/aula para seguimiento de entrega de menús escolares"
+  }
+]
