@@ -1,5 +1,7 @@
 # Pruebas del backend de AUTOVIDA
 
+Revisado y verificado por el Gestor de Calidad ✅
+
 Este documento describe las pruebas automáticas del backend: qué comprueban, cómo se ejecutan y qué resultado dan.
 
 **Última ejecución:** 09/11/2026 · **Total:** 174 casos · **Resultado:** 170 correctos y 4 fallos esperados.
@@ -307,11 +309,12 @@ Estas cinco pruebas describen un comportamiento que el backend todavía no ofrec
 
 | Ref. | Prueba | Situación actual | Decisión pendiente |
 | :---: | :--- | :--- | :--- |
-| F1 | `test_admin_consulta_una_cuenta_concreta` | Solo existe el listado de cuentas | Añadir `GET /users/{role}/{username}` |
-| F2 | `test_admin_quita_personal_de_una_clase` | Se puede asignar personal a una clase, pero no quitarlo | Añadir `DELETE /classes/{class_name}/staff/{staff_username}` | CORREGIDO ✅
-| F3 | `test_la_familia_crea_un_sabado_por_la_manana` | El horario de 09:00 a 15:00 se aplica todos los días | Definir el tratamiento de fines de semana y festivos |
-| F4 | `test_el_personal_crea_una_tarea_solo_con_duracion` | Al personal se le exige hora de inicio | Confirmar si el personal puede crear tareas solo con duración |
-| F5 | `test_eliminar_no_deja_la_tarea_huerfana` | La tarea sale de la agenda, pero su fila permanece en `Tasks` | Decidir si se elimina la fila o se conserva como histórico |
+| F1 | `test_admin_consulta_una_cuenta_concreta` | Solo existe el listado de cuentas | Añadir `GET /users/{role}/{username}` CORREGIDO ✅ |
+| F2 | `test_admin_quita_personal_de_una_clase` | Se puede asignar personal a una clase, pero no quitarlo | Añadir `DELETE /classes/{class_name}/staff/{staff_username}` CORREGIDO ✅| 
+| F3 | `test_la_familia_crea_un_sabado_por_la_manana` | El horario de 09:00 a 15:00 se aplica todos los días | Definir el tratamiento de fines de semana y festivos DECIDIDO ✅ Por ahora no se permitirá la asignación de tareas por la mañana en fin de semana.|
+| F4 | `test_el_personal_crea_una_tarea_solo_con_duracion` | Al personal se le exige hora de inicio | Confirmar si el personal puede crear tareas solo con duración
+CORREGIDO ✅ El personal debe crear tareas con hora de inicio obligatoriamente|
+| F5 | `test_eliminar_no_deja_la_tarea_huerfana` | La tarea sale de la agenda, pero su fila permanece en `Tasks` | Decidir si se elimina la fila o se conserva como histórico. DECIDIDO ✅ Se conserva para que otros alumnos que la compartan sigan teniéndola y a modo de histórico|
 
 ## 7. Validación de las pruebas
 
