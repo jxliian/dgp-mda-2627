@@ -86,6 +86,60 @@ def test_crear_tarea_sin_sesion(client):
     assert client.post("/student-tasks/students/pablo", json=body).status_code == 401
 
 
+def test_el_personal_consulta_tareas_del_alumno_por_fecha(client):
+    tarea_del_dia = create_task(client, "madre", fecha=LUNES, titulo="Lunes").json()["task_id"]
+    create_task(client, "madre", fecha="2026-11-17", titulo="Martes")
+
+    r = client.get(
+        "/student-tasks/students/pablo",
+        params={"task_date": LUNES},
+        headers=as_user("lucia"),
+    )
+
+    assert r.status_code == 200
+    datos = r.json()
+    assert datos["stud_usr_fk"] == "pablo"
+    assert datos["task_date"] == LUNES
+    assert [task["task_id"] for task in datos["tasks"]] == [tarea_del_dia]
+    assert [task["task_title"] for task in datos["tasks"]] == ["Lunes"]
+
+
+def test_el_tutor_consulta_tareas_del_alumno_por_fecha(client):
+    tarea_del_dia = create_task(client, "lucia", hora="10:00", fecha=LUNES, titulo="Clase").json()["task_id"]
+    create_task(client, "lucia", hora="11:00", fecha="2026-11-17", titulo="Clase mañana")
+
+    r = client.get(
+        "/student-tasks/students/pablo",
+        params={"task_date": LUNES},
+        headers=as_user("madre"),
+    )
+
+    assert r.status_code == 200
+    datos = r.json()
+    assert datos["stud_usr_fk"] == "pablo"
+    assert datos["task_date"] == LUNES
+    assert [task["task_id"] for task in datos["tasks"]] == [tarea_del_dia]
+    assert [task["task_title"] for task in datos["tasks"]] == ["Clase"]
+
+
+def test_el_alumno_consulta_su_agenda_por_fecha(client):
+    tarea_del_dia = create_task(client, "madre", fecha=LUNES, titulo="Lunes").json()["task_id"]
+    create_task(client, "madre", fecha="2026-11-17", titulo="Martes")
+
+    r = client.get(
+        "/student-tasks/me",
+        params={"task_date": LUNES},
+        headers=as_user("pablo"),
+    )
+
+    assert r.status_code == 200
+    datos = r.json()
+    assert datos["stud_usr_fk"] == "pablo"
+    assert datos["task_date"] == LUNES
+    assert [task["task_id"] for task in datos["tasks"]] == [tarea_del_dia]
+    assert [task["task_title"] for task in datos["tasks"]] == ["Lunes"]
+
+
 @pytest.mark.parametrize(
     "cambio",
     [
