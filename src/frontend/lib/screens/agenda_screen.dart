@@ -80,21 +80,21 @@ class _AgendaScreenState extends State<AgendaScreen> {
           ? 'Mis tareas'
           : 'Tareas de ${widget.student.displayName}',
       subtitle: DateFormat('EEEE d MMMM', 'es').format(dia),
-      actions: [UserAvatar(user: widget.student, size: 60)],
+      actions: [UserAvatar(user: widget.student, size: 72)],
       footer: const AppFooter(),
       child: Column(
         children: [
           _ClaseDelAlumno(student: widget.student),
           _barraDeDia(),
-          const SizedBox(height: 22),
+          const SizedBox(height: 14),
           if (!esSuPropiaAgenda || ajustes.flag('filters')) _filtrosDeEstado(),
           if (aviso != null) Notice(aviso!),
-          const SizedBox(height: 20),
+          const SizedBox(height: 12),
           if (state.repository.canReadAgenda)
             _listaDeTareas(state)
           else
             const Notice(_servidorSinAgenda),
-          const SizedBox(height: 26),
+          const SizedBox(height: 16),
           if (!esSuPropiaAgenda || ajustes.flag('task_mod'))
             FilledButton.icon(
               onPressed: crearTarea,
@@ -178,7 +178,7 @@ class _AgendaScreenState extends State<AgendaScreen> {
           ? ContentPicture(
               bytes: tarea.image,
               icon: taskIcon(tarea.title),
-              size: 80,
+              size: 120,
             )
           : null,
       onTap: () => abrirTarea(tarea),
@@ -199,7 +199,7 @@ class _ClaseDelAlumno extends StatelessWidget {
       final aula = snapshot.data;
       if (aula == null) return const SizedBox.shrink();
       return Padding(
-        padding: const EdgeInsets.only(bottom: 18),
+        padding: const EdgeInsets.only(bottom: 10),
         child: StatusBadge(
           'Mi clase · $aula',
           tone: BadgeTone.main,

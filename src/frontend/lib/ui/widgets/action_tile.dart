@@ -40,7 +40,7 @@ class ActionTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Card(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 12),
       clipBehavior: Clip.antiAlias,
       child: IntrinsicHeight(
         child: Row(
@@ -101,7 +101,7 @@ class ActionTile extends StatelessWidget {
       leading ??
       ExcludeSemantics(
         child: Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: scheme.primaryContainer,
             borderRadius: BorderRadius.circular(Medidas.radioControl),
@@ -112,7 +112,9 @@ class ActionTile extends StatelessWidget {
           ),
           child: Icon(
             icon,
-            size: vertical ? 56 : 34,
+            size: vertical
+                ? Medidas.iconoFichaVertical
+                : Medidas.iconoFicha,
             color: scheme.onPrimaryContainer,
           ),
         ),
@@ -130,7 +132,7 @@ class ActionTile extends StatelessWidget {
           title,
           textAlign: alineacionTexto,
           style: const TextStyle(
-            fontSize: 20,
+            fontSize: 24,
             fontWeight: FontWeight.w600,
             letterSpacing: .15,
             height: 1.25,

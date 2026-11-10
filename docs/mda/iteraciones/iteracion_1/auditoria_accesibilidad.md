@@ -43,17 +43,39 @@ blanco, por encima de cualquier personalización de color.
 
 ## 2. Objetivos táctiles (2.5.8)
 
+Las medidas se subieron el 10/11/2026 para que lo pulsable ocupe buena parte
+de la pantalla: el alumnado trabaja en tablet y conviene que cada destino sea
+grande y fácil de acertar.
+
 WCAG 2.2 AA exige 24×24 px; Material recomienda 48×48; el proyecto trabaja con
 tablet y fija un mínimo propio más alto.
 
 | Elemento | Altura |
 |---|---|
-| Botón principal y secundario | 60 px |
-| Botón de texto, acciones con icono, chips | 56 px |
-| Fichas de lista (`ActionTile`) | 60 px mínimo, 92 px habitual |
+| Botón principal | 76 px |
+| Botón de texto, acciones con icono, chips | 64 px |
+| Fichas de lista (`ActionTile`) | 112 px mínimo |
+| Icono de una ficha | 52 px en fila, 96 px en rejilla |
+| Foto en la elección de alumno | 200 px |
 
 La prueba automática recorre las seis pantallas y comprueba que ningún nodo
 pulsable baja de 48 px en su lado menor. Pasa sin excepciones.
+
+## 2 bis. Sin desplazamiento en tablet (decisión de producto)
+
+Las pantallas de alumno y de personal caben enteras en una tablet de 1280×900
+sin tener que desplazarlas. Está comprobado en `test/sin_scroll_test.dart`,
+que mide el desplazamiento sobrante de nueve pantallas y falla si alguna lo
+necesita. El desplazamiento sigue disponible como red de seguridad para letra
+ampliada y pantallas pequeñas, donde no es posible evitarlo.
+
+## 2 ter. Apoyos desactivados de origen
+
+Los apoyos visuales (pictogramas, alto contraste, filtros y botones para
+escuchar) **nacen apagados**. La pantalla de ajustes está implementada y es
+funcional, pero cada apoyo se enciende de forma individual con la familia y el
+tutor, según lo que cada alumno necesite. Los permisos del perfil (modificar
+su perfil, crear y eliminar sus tareas) no son apoyos y conservan su valor.
 
 ## 3. Nombre accesible de los controles (1.1.1, 4.1.2)
 

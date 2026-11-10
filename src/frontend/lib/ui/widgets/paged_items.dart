@@ -14,6 +14,7 @@ class PagedItems<T> extends StatefulWidget {
     required this.builder,
     this.pageSize = 3,
     this.grid = false,
+    this.maxColumns = 4,
     this.empty = 'No hay elementos para mostrar.',
   });
 
@@ -21,6 +22,9 @@ class PagedItems<T> extends StatefulWidget {
   final Widget Function(T item) builder;
   final int pageSize;
   final bool grid;
+
+  /// Columnas como mucho en modo rejilla. Bajarlo agranda cada tarjeta.
+  final int maxColumns;
   final String empty;
 
   @override
@@ -44,38 +48,54 @@ class _PagedItemsState<T> extends State<PagedItems<T>> {
         .toList();
     final contenido = widget.grid ? _rejilla(visibles) : _columna(visibles);
     if (!_hayVariasPaginas) return contenido;
-    return Column(
-      children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            IconAction(
-              icon: Icons.chevron_left,
-              label: 'Página anterior',
-              onPressed: page > 0 ? () => setState(() => page--) : null,
-            ),
-            const SizedBox(width: 12),
-            Expanded(child: contenido),
-            const SizedBox(width: 12),
-            IconAction(
-              icon: Icons.chevron_right,
-              label: 'Página siguiente',
-              onPressed: page < _paginas - 1
-                  ? () => setState(() => page++)
-                  : null,
+    return LayoutBuilder(
+      builder: (context, restricciones) => Column(
+        children: [
+          // Las flechas van a los lados en tablet, como en los bocetos del
+          // centro. En pantalla estrecha no caben sin estrangular la lista,
+          // así que pasan debajo.
+          if (restricciones.maxWidth >= _anchoParaFlechasLaterales)
+            Row(
+              children: [
+                _flecha(anterior: true),
+                const SizedBox(width: 12),
+                Expanded(child: contenido),
+                const SizedBox(width: 12),
+                _flecha(anterior: false),
+              ],
+            )
+          else ...[
+            contenido,
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [_flecha(anterior: true), _flecha(anterior: false)],
             ),
           ],
-        ),
-        const SizedBox(height: 8),
-        Semantics(
-          liveRegion: true,
-          child: Text(
-            'Página ${page + 1} de $_paginas',
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontWeight: FontWeight.w600),
+          const SizedBox(height: 8),
+          Semantics(
+            liveRegion: true,
+            child: Text(
+              'Página ${page + 1} de $_paginas',
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
+    );
+  }
+
+  static const _anchoParaFlechasLaterales = 620.0;
+
+  Widget _flecha({required bool anterior}) {
+    final puede = anterior ? page > 0 : page < _paginas - 1;
+    return IconAction(
+      icon: anterior ? Icons.chevron_left : Icons.chevron_right,
+      label: anterior ? 'Página anterior' : 'Página siguiente',
+      onPressed: puede
+          ? () => setState(() => anterior ? page-- : page++)
+          : null,
     );
   }
 
@@ -84,11 +104,12 @@ class _PagedItemsState<T> extends State<PagedItems<T>> {
 
   Widget _rejilla(List<T> visibles) => LayoutBuilder(
     builder: (context, restricciones) {
-      final columnas = switch (restricciones.maxWidth) {
+      final cabenPorAncho = switch (restricciones.maxWidth) {
         < 460 => 1,
         < 760 => 2,
         _ => 4,
       };
+      final columnas = cabenPorAncho.clamp(1, widget.maxColumns);
       final ancho = (restricciones.maxWidth - (columnas - 1) * 18) / columnas;
       return Wrap(
         spacing: 18,

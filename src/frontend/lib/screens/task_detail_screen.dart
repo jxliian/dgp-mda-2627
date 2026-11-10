@@ -179,7 +179,7 @@ class _TarjetaDeInstrucciones extends StatelessWidget {
             ContentPicture(
               bytes: task.image,
               icon: taskIcon(task.title),
-              size: 110,
+              size: 150,
             ),
             const SizedBox(width: 22),
           ],

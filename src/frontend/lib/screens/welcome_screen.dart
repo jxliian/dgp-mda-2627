@@ -20,11 +20,12 @@ class WelcomeScreen extends StatelessWidget {
     footer: const _EnlacesDeApoyo(),
     child: Center(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 720),
+        constraints: const BoxConstraints(maxWidth: 880),
         child: Column(
           children: [
             const Brand(large: true),
-            const SizedBox(height: 36),
+            const SizedBox(height: 32),
+            // Las tres entradas al mismo tamaño: ninguna es secundaria.
             ActionTile(
               title: 'Soy alumno',
               subtitle: 'Busca tu clase y tu foto',
@@ -41,14 +42,15 @@ class WelcomeScreen extends StatelessWidget {
                 const LoginScreen(roles: LoginScreen.perfilesDelCentro),
               ),
             ),
-            const SizedBox(height: 12),
-            OutlinedButton.icon(
-              onPressed: () => openPage(
+            ActionTile(
+              title: 'Administración',
+              subtitle: 'Gestión de cuentas y aulas del centro',
+              icon: Icons.admin_panel_settings_outlined,
+              edge: Paleta.ambar,
+              onTap: () => openPage(
                 context,
                 const LoginScreen(roles: [UserRole.admin]),
               ),
-              icon: const Icon(Icons.admin_panel_settings_outlined),
-              label: const Text('Administración'),
             ),
           ],
         ),

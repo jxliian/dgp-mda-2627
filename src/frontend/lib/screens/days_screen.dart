@@ -46,7 +46,7 @@ class _DaysScreenState extends State<DaysScreen> {
           alignment: WrapAlignment.center,
           children: [
             for (var i = 0; i < diasVisibles; i++)
-              SizedBox(width: 168, child: _ficha(lunes.add(Duration(days: i)))),
+              SizedBox(width: 210, child: _ficha(lunes.add(Duration(days: i)))),
           ],
         ),
         const SizedBox(height: 30),

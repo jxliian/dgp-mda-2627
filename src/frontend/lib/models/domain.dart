@@ -18,17 +18,20 @@ enum UserRole {
 class AccessSettings {
   AccessSettings([Json? source]) : values = {...defaults, ...?source};
   final Json values;
+  /// Los apoyos visuales nacen apagados: se activan uno a uno con la familia
+  /// y el tutor, según lo que cada alumno necesite. Los permisos del perfil no
+  /// son apoyos y conservan su valor.
   static const Json defaults = {
     'stud_access_main_col': '#fbf9f5',
     'stud_access_sec_col': '#1b4332',
-    'stud_access_ntasks_visible': 3,
-    'stud_access_pictograms': true,
+    'stud_access_ntasks_visible': 2,
+    'stud_access_pictograms': false,
     'stud_access_contrast': false,
     'stud_access_fontsize': 20,
-    'stud_access_filters': true,
+    'stud_access_filters': false,
     'stud_access_ndays_visible': 7,
     'stud_access_prof_mod': false,
-    'stud_access_timebar': true,
+    'stud_access_timebar': false,
     'stud_access_talkback': false,
     'stud_access_profile_mod': true,
     'stud_access_task_mod': true,

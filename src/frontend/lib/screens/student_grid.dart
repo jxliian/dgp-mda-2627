@@ -30,7 +30,7 @@ class StudentGrid extends StatelessWidget {
       icon: Icons.person_outline,
       vertical: true,
       edge: Paleta.terracota,
-      leading: UserAvatar(user: alumno, size: 105),
+      leading: UserAvatar(user: alumno, size: 150),
       onTap: () async {
         await openPage(context, AgendaScreen(student: alumno));
         onReturn?.call();

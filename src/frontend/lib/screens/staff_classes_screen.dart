@@ -34,7 +34,7 @@ class _StaffClassesScreenState extends State<StaffClassesScreen> {
             icon: const Icon(Icons.groups_2_outlined),
             label: const Text('Ver todos mis alumnos'),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
           TextField(
             decoration: const InputDecoration(
               labelText: 'Buscar un aula',
@@ -43,10 +43,11 @@ class _StaffClassesScreenState extends State<StaffClassesScreen> {
             onChanged: (valor) =>
                 setState(() => busqueda = valor.toLowerCase()),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
           LoadPanel<List<Classroom>>(
             load: state.repository.classes,
             builder: (aulas) => PagedItems<Classroom>(
+              pageSize: 2,
               items: _filtrar(aulas),
               empty: 'No hay aulas asignadas que coincidan con la búsqueda.',
               builder: _ficha,

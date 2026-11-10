@@ -85,9 +85,11 @@ void main() {
   testWidgets('sin contenido de tarea, el editor no pide descripción', (
     tester,
   ) async {
-    final estado = await _abrir(tester, rol: UserRole.student);
-    await tester.ensureVisible(find.text('Añadir mi tarea'));
-    await tester.tap(find.text('Añadir mi tarea'));
+    final estado = await _abrir(tester, rol: UserRole.parent);
+    await tester.tap(find.text('Pablo García'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Crear tarea'));
+    await tester.tap(find.text('Crear tarea'));
     await tester.pumpAndSettle();
     expect(find.text('Crear tarea'), findsOneWidget);
     expect(find.text('Nombre de la tarea *'), findsOneWidget);

@@ -33,7 +33,7 @@ class StatusBadge extends StatelessWidget {
     final oscuro = scheme.brightness == Brightness.dark;
     final (fondo, texto, filo) = _colores;
     return Container(
-      padding: EdgeInsets.fromLTRB(icon == null ? 12 : 10, 7, 12, 7),
+      padding: EdgeInsets.fromLTRB(icon == null ? 14 : 12, 9, 14, 9),
       decoration: BoxDecoration(
         color: oscuro ? scheme.surfaceContainer : fondo,
         borderRadius: BorderRadius.circular(999),
@@ -46,14 +46,14 @@ class StatusBadge extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (icon != null) ...[
-            Icon(icon, size: 17, color: oscuro ? scheme.onSurface : texto),
+            Icon(icon, size: 20, color: oscuro ? scheme.onSurface : texto),
             const SizedBox(width: 6),
           ],
           Flexible(
             child: Text(
               label,
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 16,
                 fontWeight: FontWeight.w700,
                 letterSpacing: .4,
                 height: 1.25,

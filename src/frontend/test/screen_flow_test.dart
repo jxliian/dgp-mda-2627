@@ -181,6 +181,8 @@ void main() {
     await tester.tap(find.text('Lucía Martín'));
     await tester.pumpAndSettle();
     expect(find.text('Modificar usuario'), findsOneWidget);
+    await tester.ensureVisible(find.text('Gestionar asociaciones'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Gestionar asociaciones'));
     await tester.pumpAndSettle();
     expect(find.textContaining('Asociaciones de'), findsOneWidget);

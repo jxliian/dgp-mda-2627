@@ -117,7 +117,7 @@ class _Contenido extends StatelessWidget {
     builder: (context, restricciones) => SingleChildScrollView(
       padding: EdgeInsets.symmetric(
         horizontal: restricciones.maxWidth < 600 ? 18 : 48,
-        vertical: 24,
+        vertical: 18,
       ),
       child: Center(
         child: ConstrainedBox(
@@ -145,7 +145,7 @@ class _PieDePagina extends StatelessWidget {
           top: BorderSide(color: scheme.outlineVariant, width: Medidas.trazo),
         ),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       child: child,
     );
   }

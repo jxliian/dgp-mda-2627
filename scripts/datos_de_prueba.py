@@ -29,18 +29,19 @@ from proyectFastAPI.clases import clases_db  # noqa: E402
 from proyectFastAPI.gestion_usuarios.users_mng_db import users_mng_db  # noqa: E402
 
 # El backend exige que un alumno traiga todos sus ajustes de accesibilidad.
+# Los apoyos nacen apagados; se encienden uno a uno según cada alumno.
 AJUSTES_DE_ALUMNO = {
     'stud_access_main_col': '#fbf9f5',
     'stud_access_sec_col': '#1b4332',
-    'stud_access_ntasks_visible': 3,
-    'stud_access_pictograms': True,
+    'stud_access_ntasks_visible': 2,
+    'stud_access_pictograms': False,
     'stud_access_contrast': False,
     'stud_access_fontsize': 20,
-    'stud_access_filters': True,
+    'stud_access_filters': False,
     'stud_access_ndays_visible': 7,
     'stud_access_prof_mod': False,
-    'stud_access_timebar': True,
-    'stud_access_talkback': True,
+    'stud_access_timebar': False,
+    'stud_access_talkback': False,
     'stud_access_profile_mod': True,
     'stud_access_task_mod': True,
 }

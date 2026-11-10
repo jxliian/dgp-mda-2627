@@ -37,11 +37,18 @@ class Paleta {
 }
 
 /// Medidas compartidas. Ergonomía táctil para tablet y trazo definido.
+///
+/// El objetivo es que lo pulsable ocupe buena parte de la pantalla: el
+/// alumnado trabaja en tablet y conviene que cada destino sea grande y fácil
+/// de acertar, muy por encima del mínimo que exige la norma.
 class Medidas {
   const Medidas._();
 
-  static const alturaBoton = 60.0; // Acción principal
-  static const alturaBotonMenor = 56.0; // Mínimo táctil (WCAG 2.2 AA)
+  static const alturaBoton = 76.0; // Acción principal
+  static const alturaBotonMenor = 64.0; // Secundarias (mínimo WCAG 2.2: 24)
+  static const alturaFicha = 112.0; // Fila de una lista pulsable
+  static const iconoFicha = 52.0; // Icono de una fila
+  static const iconoFichaVertical = 96.0; // Icono de una tarjeta en rejilla
   static const radioTarjeta = 18.0;
   static const radioControl = 14.0;
   static const trazo = 1.5;

@@ -63,14 +63,15 @@ class StudentSelectionScreen extends StatelessWidget {
     child: PagedItems<AppUser>(
       items: classroom.students,
       grid: true,
-      pageSize: 8,
+      pageSize: 6,
+      maxColumns: 3,
       empty: 'No hay alumnos en esta aula.',
       builder: (alumno) => ActionTile(
         title: alumno.displayName,
         icon: Icons.person_outline,
         vertical: true,
         edge: Paleta.terracota,
-        leading: UserAvatar(user: alumno, size: 110),
+        leading: UserAvatar(user: alumno, size: 200),
         onTap: () => openPage(context, LoginScreen(student: alumno)),
       ),
     ),

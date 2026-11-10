@@ -127,7 +127,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Widget _formulario() => Card(
     child: Padding(
-      padding: const EdgeInsets.fromLTRB(24, 8, 24, 28),
+      padding: const EdgeInsets.fromLTRB(24, 8, 24, 18),
       child: Form(
         key: form,
         child: Column(
@@ -170,7 +170,7 @@ class _LoginScreenState extends State<LoginScreen> {
               _campoContrasena(),
             if (esAlumno) _cambiarModoDeContrasena(),
             if (error != null) Notice(error!, error: true),
-            const SizedBox(height: 20),
+            const SizedBox(height: 14),
             FilledButton.icon(
               onPressed: entrando ? null : entrar,
               icon: const Icon(Icons.login),
@@ -278,7 +278,7 @@ class _BotonDePerfil extends StatelessWidget {
     final contenido = Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(roleIcon(role), size: 28),
+        Icon(roleIcon(role), size: 40),
         const SizedBox(height: 8),
         Text(
           role.label,
@@ -287,11 +287,11 @@ class _BotonDePerfil extends StatelessWidget {
           // completo del perfil sigue anunciándose al lector.
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+          style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
         ),
       ],
     );
-    const relleno = EdgeInsets.symmetric(horizontal: 6, vertical: 14);
+    const relleno = EdgeInsets.symmetric(horizontal: 6, vertical: 20);
     return Semantics(
       selected: seleccionado,
       button: true,
@@ -320,11 +320,11 @@ class _AlumnoElegido extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(top: 20, bottom: 24),
+    padding: const EdgeInsets.only(top: 12, bottom: 16),
     child: Column(
       children: [
-        UserAvatar(user: student, size: 100),
-        const SizedBox(height: 14),
+        UserAvatar(user: student, size: 96),
+        const SizedBox(height: 10),
         Text(student.displayName, style: Theme.of(context).textTheme.titleLarge),
       ],
     ),
@@ -355,7 +355,7 @@ class _TecladoDeDibujos extends StatelessWidget {
     (Icons.park_outlined, 'Árbol'),
     (Icons.music_note_outlined, 'Música'),
   ];
-  static const _anchoMinimoTecla = 86.0;
+  static const _anchoMinimoTecla = 104.0;
   static const _separacion = 10.0;
   static const _maximoCaracteres = 72;
   static const _casillasMinimas = 4;
@@ -382,9 +382,9 @@ class _TecladoDeDibujos extends StatelessWidget {
         textAlign: TextAlign.center,
         style: Theme.of(context).textTheme.bodyMedium,
       ),
-      const SizedBox(height: 14),
+      const SizedBox(height: 10),
       _marcador(),
-      const SizedBox(height: 18),
+      const SizedBox(height: 10),
       LayoutBuilder(
         builder: (context, restricciones) {
           final columnas = _columnasQueCaben(restricciones.maxWidth);
@@ -401,7 +401,7 @@ class _TecladoDeDibujos extends StatelessWidget {
           );
         },
       ),
-      const SizedBox(height: 10),
+      const SizedBox(height: 4),
       TextButton.icon(
         onPressed: habilitado ? _borrar : null,
         icon: const Icon(Icons.backspace_outlined),
@@ -428,8 +428,8 @@ class _TecladoDeDibujos extends StatelessWidget {
       children: [
         for (var i = 0; i < _casillasVisibles; i++)
           Container(
-            width: 46,
-            height: 52,
+            width: 58,
+            height: 66,
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: i < password.text.length
@@ -442,7 +442,7 @@ class _TecladoDeDibujos extends StatelessWidget {
               ),
             ),
             child: i < password.text.length
-                ? const Icon(Icons.circle, size: 16, color: Paleta.bosque)
+                ? const Icon(Icons.circle, size: 20, color: Paleta.bosque)
                 : null,
           ),
       ],
@@ -462,17 +462,17 @@ class _TecladoDeDibujos extends StatelessWidget {
       child: OutlinedButton(
         onPressed: habilitado ? () => _escribir(cifra) : null,
         style: OutlinedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 2),
+          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icono, size: 28),
+            Icon(icono, size: 38),
             const SizedBox(height: 4),
             Text(
               '$nombre · $cifra',
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 12),
+              style: const TextStyle(fontSize: 14),
             ),
           ],
         ),
