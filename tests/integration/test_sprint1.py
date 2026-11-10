@@ -218,8 +218,13 @@ def test_el_personal_consulta_solo_sus_clases(client):
     assert client.get("/classes", headers=as_user("madre")).status_code == 403
 
 
-def test_el_admin_no_apunta_alumnos_a_una_clase(client, count):
-    assert client.post("/classes/1A/students/ana", headers=as_user("admin")).status_code == 403
+def test_admin_inscribe_y_retira_alumnos_de_una_clase(client, count):
+    alta = client.post("/classes/2B/students/ana", headers=as_user("admin"))
+    assert alta.status_code == 201
+    assert count("class_stud WHERE stud_usr_fk = 'ana' AND class_name_fk = '2B'") == 1
+
+    baja = client.delete("/classes/2B/students/ana", headers=as_user("admin"))
+    assert baja.status_code == 200
     assert count("class_stud WHERE stud_usr_fk = 'ana'") == 0
 
 

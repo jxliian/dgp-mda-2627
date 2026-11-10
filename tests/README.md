@@ -284,7 +284,7 @@ La regla se aplica sobre la hora programada de la tarea: el personal elimina las
 | `test_renombrar_una_clase_conserva_alumnos_y_tareas` | Cambio de nombre con tareas y alumnos | 200, conserva matrícula y tareas |
 | `test_borrar_una_clase_borra_sus_tareas_y_no_los_alumnos` | Eliminar una clase con tareas | 200, sin tareas de clase, el alumno sigue |
 | `test_el_personal_consulta_solo_sus_clases` | Listado y detalle según la clase | Solo la propia; 403 en clase ajena y para familias |
-| `test_el_admin_no_apunta_alumnos_a_una_clase` | La matrícula corresponde al personal | 403, sin cambios |
+| `test_admin_inscribe_y_retira_alumnos_de_una_clase` | El administrador matricula y retira en una clase sin estar asignado a ella | 201 y 200, se crea y elimina `class_stud` |
 | `test_un_alumno_nuevo_recibe_las_tareas_de_su_clase` | Matricular con tareas ya creadas | Recibe la tarea de la clase |
 | `test_sacar_a_un_alumno_quita_solo_las_tareas_de_clase` | Retirar a un alumno de la clase | 200, conserva sus tareas individuales |
 

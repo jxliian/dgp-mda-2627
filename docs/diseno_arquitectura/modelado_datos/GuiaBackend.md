@@ -352,7 +352,7 @@ Requiere token de alumno y `stud_access_task_mod = true`. Comprueba que la asign
 
 ## Clases
 
-Prefijo `/classes`. Las clases se guardan en `Class`; `class_staff` asocia personal a clases, `class_stud` inscribe alumnos y `class_task` vincula tareas grupales a una clase. `stud_task.class_name_fk` marca las asignaciones a alumnos que proceden de una clase; las tareas individuales dejan ese campo nulo. El personal solo puede consultar o administrar una clase si está asignado a ella. El administrador puede consultar todas las clases y sus detalles, y gestiona el catálogo y la asignación de personal.
+Prefijo `/classes`. Las clases se guardan en `Class`; `class_staff` asocia personal a clases, `class_stud` inscribe alumnos y `class_task` vincula tareas grupales a una clase. `stud_task.class_name_fk` marca las asignaciones a alumnos que proceden de una clase; las tareas individuales dejan ese campo nulo. El personal solo puede consultar o administrar una clase si está asignado a ella. El administrador puede consultar todas las clases y sus detalles, gestionar el catálogo y las asignaciones de personal, e inscribir o retirar alumnos de cualquier clase.
 
 ### `POST /classes` — Crear clase
 
@@ -439,7 +439,7 @@ Solo administrador. Elimina la asignación correspondiente en `class_staff`; no 
 
 ### `POST /classes/{class_name}/students/{student_username}` — Inscribir alumno en clase
 
-Requiere staff autenticado y asignado a la clase. Inscribe al alumno en `class_stud`. Comprueba que sea un alumno existente y que no esté inscrito en otra clase. Al matricularlo, también le asigna las tareas que ya estén vinculadas a esa clase en `class_task`, calculando el índice de cada una en su agenda. Repetir la asignación a la misma clase no duplica la matrícula ni las tareas. Responde HTTP 201. Si ya está en otra clase, `STUDENT_ALREADY_IN_CLASS` (HTTP 409); si no existe como alumno, `TASK_STUDENT_NOT_FOUND`.
+Requiere token de administrador o de personal. El administrador puede inscribir en cualquier clase; el personal solo en una clase a la que esté asignado. Inscribe al alumno en `class_stud`. Comprueba que sea un alumno existente y que no esté inscrito en otra clase. Al matricularlo, también le asigna las tareas que ya estén vinculadas a esa clase en `class_task`, calculando el índice de cada una en su agenda. Repetir la asignación a la misma clase no duplica la matrícula ni las tareas. Responde HTTP 201. Otros roles reciben `CLASS_ACCESS_DENIED` (HTTP 403). Si ya está en otra clase, `STUDENT_ALREADY_IN_CLASS` (HTTP 409); si no existe como alumno, `TASK_STUDENT_NOT_FOUND`.
 
 **Entrada:** sin cuerpo; clase y username en la ruta.
 
@@ -450,7 +450,7 @@ Requiere staff autenticado y asignado a la clase. Inscribe al alumno en `class_s
 
 ### `DELETE /classes/{class_name}/students/{student_username}` — Retirar alumno de clase
 
-Requiere staff asignado a la clase. En una transacción, elimina las asignaciones `stud_task` marcadas como procedentes de esa clase y luego la inscripción `class_stud`. Las tareas individuales del alumno, incluidas las creadas por el mismo profesor, se conservan. La tarea grupal sigue vinculada a la clase y seguirá disponible para los demás alumnos matriculados. Si la relación no existe, devuelve `ASSOCIATION_NOT_FOUND`.
+Requiere token de administrador o de personal. El administrador puede retirar alumnos de cualquier clase; el personal solo de una clase a la que esté asignado. En una transacción, elimina las asignaciones `stud_task` marcadas como procedentes de esa clase y luego la inscripción `class_stud`. Las tareas individuales del alumno, incluidas las creadas por el mismo profesor, se conservan. La tarea grupal sigue vinculada a la clase y seguirá disponible para los demás alumnos matriculados. Otros roles reciben `CLASS_ACCESS_DENIED` (HTTP 403). Si la relación no existe, devuelve `ASSOCIATION_NOT_FOUND`.
 
 **Entrada:** sin cuerpo; clase y username en la ruta.
 
