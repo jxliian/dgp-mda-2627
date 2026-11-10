@@ -114,17 +114,27 @@ def _add_parent(conn, username):
 
 def _add_student(conn, username):
     _add_account(conn, username, "Persona Alumna")
+    avatar_id = conn.execute(
+        text(
+            "INSERT INTO Avatar (avatar_alt, avatar_bin) "
+            "VALUES (:alt, :image) RETURNING avatar_id"
+        ),
+        {
+            "alt": "Foto de perfil de prueba",
+            "image": b"<svg xmlns='http://www.w3.org/2000/svg'></svg>",
+        },
+    ).scalar_one()
     conn.execute(
         text(
             "INSERT INTO Student (stud_usr, stud_access_main_col, stud_access_sec_col, "
             "stud_access_ntasks_visible, stud_access_pictograms, stud_access_contrast, "
             "stud_access_fontsize, stud_access_filters, stud_access_ndays_visible, "
             "stud_access_prof_mod, stud_access_timebar, stud_access_talkback, "
-            "stud_access_profile_mod, stud_access_task_mod) "
+            "stud_access_profile_mod, stud_access_task_mod, avatar_id_fk) "
             "VALUES (:u, '#ffffff', '#000000', 5, TRUE, FALSE, 18, TRUE, 7, "
-            "FALSE, TRUE, FALSE, TRUE, TRUE)"
+            "FALSE, TRUE, FALSE, TRUE, TRUE, :avatar_id)"
         ),
-        {"u": username},
+        {"u": username, "avatar_id": avatar_id},
     )
 
 

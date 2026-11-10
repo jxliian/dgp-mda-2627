@@ -228,9 +228,14 @@ def get_class(db: Session, class_name: str, staff_username: str | None = None) -
     return success_response(**class_info, students=students)
 
 
-def add_student(db: Session, class_name: str, staff_username: str, student_username: str) -> dict:
+def add_student(
+    db: Session, class_name: str, staff_username: str | None, student_username: str
+) -> dict:
     """Inscribe al alumno y le asigna las tareas grupales vigentes de la clase."""
-    _ensure_staff_class(db, class_name, staff_username)
+    if staff_username is None:
+        _ensure_class(db, class_name)
+    else:
+        _ensure_staff_class(db, class_name, staff_username)
     _lock_class(db, class_name)
     try:
         student = db.execute(
@@ -300,9 +305,14 @@ def add_student(db: Session, class_name: str, staff_username: str, student_usern
         raise
 
 
-def remove_student(db: Session, class_name: str, staff_username: str, student_username: str) -> dict:
+def remove_student(
+    db: Session, class_name: str, staff_username: str | None, student_username: str
+) -> dict:
     """Retira al alumno y solo las asignaciones procedentes de esta clase."""
-    _ensure_staff_class(db, class_name, staff_username)
+    if staff_username is None:
+        _ensure_class(db, class_name)
+    else:
+        _ensure_staff_class(db, class_name, staff_username)
     _lock_class(db, class_name)
     try:
         db.execute(
