@@ -223,6 +223,15 @@ def get_users(role: Role | None = None, db: Session = Depends(get_db)) -> dict:
     return result
 
 
+@router.get("/{role}/{username}", dependencies=[Depends(require_admin)])
+def get_user(role: Role, username: UsernamePath, db: Session = Depends(get_db)) -> dict:
+    """Consulta los datos de una cuenta concreta; requiere una sesión de administrador."""
+    result = users_mng_db.getUserByUsername(db, username, role)
+    if result["errorCode"] != 0:
+        raise_api_error(result["errorCode"])
+    return {**result, "role": role}
+
+
 @router.put("/{role}/{username}")
 def edit_user(role: Role, username: UsernamePath, payload: UpdateUserRequest,
               db: Session = Depends(get_db), user: dict = Depends(get_current_user)) -> dict:
