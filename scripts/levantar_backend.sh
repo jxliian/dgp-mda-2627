@@ -9,6 +9,12 @@
 # El backend es el de la rama main y no se toca: este script solo crea .env,
 # .venv y los datos de prueba, todo ello ignorado por git.
 #
+# La configuración de la base sigue la guía del equipo:
+#   docs/diseno_arquitectura/arquitectura/guia_configuracion_base_de_datos.md
+# De ahí salen el nombre de la base (autovida_db), el usuario y el hecho de
+# que la contraseña sea la acordada entre todos, no una generada aquí: si cada
+# uno usara la suya, los volúmenes de PostgreSQL serían incompatibles.
+#
 # Nota sobre CORS: la API de main no lleva middleware de CORS, así que un
 # navegador bloquea las llamadas entre el puerto del frontend y el de la API.
 # La aplicación de escritorio no tiene ese problema y es la forma preferida de
@@ -23,12 +29,10 @@ readonly VENV="$BACKEND/.venv"
 readonly PUERTO_API=8000
 readonly PUERTO_WEB=5174
 readonly PERFIL_CHROME=/tmp/autovida-chrome
-readonly DEPENDENCIAS=(
-  'alembic>=1.20.1' 'bcrypt>=4.1.1,<5' 'fastapi[standard]>=0.162.0'
-  'passlib[bcrypt]>=1.7.4' 'python-dotenv>=1.0.0' 'psycopg2-binary>=2.9.13'
-  'psycopg[binary]>=3.3.6' 'pydantic-settings>=2.16.2' 'pyjwt>=2.15.1'
-  'sqlalchemy>=2.1.6'
-)
+readonly GUIA='docs/diseno_arquitectura/arquitectura/guia_configuracion_base_de_datos.md'
+readonly BASE_DE_DATOS=autovida_db
+
+DOCKER=docker  # pasa a «sudo docker» si este equipo lo necesita
 
 paso() { printf '\n\033[1;32m==>\033[0m %s\n' "$1"; }
 aviso() { printf '\033[1;33m[aviso]\033[0m %s\n' "$1"; }
@@ -46,29 +50,53 @@ comprobar_requisitos() {
            sudo usermod -aG docker $USER   (y vuelve a iniciar sesión)'
   fi
   command -v docker >/dev/null || fallo 'Falta Docker. Instálalo con: sudo apt install docker.io docker-compose-plugin'
-  docker info >/dev/null 2>&1 || fallo 'Docker no responde. Arráncalo con: sudo systemctl start docker
-         Si el error es de permisos: sudo usermod -aG docker $USER (y vuelve a iniciar sesión)'
+  if ! docker info >/dev/null 2>&1; then
+    # La guía del equipo usa «sudo docker compose»: si hace falta, se pide.
+    sudo -n true 2>/dev/null || aviso 'Docker pide permisos: puede que te pregunte la contraseña.'
+    sudo docker info >/dev/null 2>&1 || fallo 'Docker no responde. Arráncalo con: sudo systemctl start docker
+         Para no usar sudo cada vez: sudo usermod -aG docker $USER (y vuelve a iniciar sesión)'
+    DOCKER='sudo docker'
+  fi
   command -v python3 >/dev/null || fallo 'Falta Python 3.12 o superior.'
 }
 
-crear_env_si_falta() {
-  [[ -f "$PAQUETE/.env" ]] && return
-  paso 'Creando configuración local (.env)'
-  local clave
-  clave="$(python3 -c 'import secrets; print(secrets.token_urlsafe(18))')"
-  cat > "$PAQUETE/.env" <<EOF
+# La contraseña es la que haya acordado el equipo. Se puede dar una sola vez:
+#   DB_PASSWORD='la acordada' ./scripts/levantar_backend.sh
+comprobar_env() {
+  if [[ ! -f "$PAQUETE/.env" ]]; then
+    paso 'Creando configuración local (.env)'
+    cat > "$PAQUETE/.env" <<EOF
 DB_USER=autovida_admin
-DB_PASSWORD=$clave
+DB_PASSWORD=${DB_PASSWORD:-}
 DB_HOST=localhost
 DB_PORT=5432
-DB_NAME=autovida_demo
+DB_NAME=$BASE_DE_DATOS
 EOF
-  chmod 600 "$PAQUETE/.env"
+    chmod 600 "$PAQUETE/.env"
+  fi
+  local clave
+  clave="$(set -a; . "$PAQUETE/.env"; set +a; printf '%s' "${DB_PASSWORD:-}")"
+  if [[ -z "$clave" ]]; then
+    fallo "Falta DB_PASSWORD en src/backend/proyectFastAPI/.env
+         Pon ahí la contraseña acordada por el equipo, la misma para todos.
+         La documenta $GUIA
+         También puedes darla de una vez:
+           DB_PASSWORD='la acordada' ./scripts/levantar_backend.sh"
+  fi
 }
 
 # Un entorno a medio instalar es el fallo más común al estrenar el proyecto en
 # otra máquina, así que se comprueba que los paquetes se importan de verdad y
 # no solo que exista la carpeta .venv.
+# Se leen del pyproject.toml del backend para no mantener una copia aparte.
+dependencias_del_backend() {
+  python3 - "$PAQUETE/pyproject.toml" <<'PY'
+import sys, tomllib, pathlib
+datos = tomllib.loads(pathlib.Path(sys.argv[1]).read_text(encoding='utf-8'))
+print('\n'.join(datos['project']['dependencies']))
+PY
+}
+
 entorno_completo() {
   [[ -x "$VENV/bin/python" ]] || return 1
   "$VENV/bin/python" -c 'import dotenv, fastapi, passlib, psycopg2, sqlalchemy, uvicorn' \
@@ -86,7 +114,9 @@ instalar_dependencias_si_faltan() {
   fi
   "$VENV/bin/python" -m pip install --upgrade --quiet pip ||
     fallo "El entorno está incompleto. Bórralo y repite: rm -rf '$VENV'"
-  "$VENV/bin/python" -m pip install --quiet "${DEPENDENCIAS[@]}" ||
+  local dependencias
+  mapfile -t dependencias < <(dependencias_del_backend)
+  "$VENV/bin/python" -m pip install --quiet "${dependencias[@]}" ||
     fallo 'No se pudieron instalar las dependencias. ¿Hay conexión a internet?'
   entorno_completo ||
     fallo "Las dependencias siguen sin cargarse. Borra '$VENV' y vuelve a intentarlo."
@@ -114,7 +144,7 @@ diagnosticar_base_de_datos() {
   local motivo
   motivo="$(set -a; . "$PAQUETE/.env"; set +a; conexion_real_funciona 2>&1 >/dev/null || true)"
   printf '\n--- Últimas líneas del contenedor ---\n' >&2
-  docker logs --tail 25 autovida_postgres 2>&1 | sed 's/^/  /' >&2
+  $DOCKER logs --tail 25 autovida_postgres 2>&1 | sed 's/^/  /' >&2
   printf -- '--- Error de conexión ---\n  %s\n\n' "$motivo" >&2
   case "$motivo" in
     *'password authentication failed'*)
@@ -127,7 +157,7 @@ diagnosticar_base_de_datos() {
          - El volumen viene de otra versión de PostgreSQL. Para empezar de cero:
              (cd src/backend/proyectFastAPI && docker compose down -v)
          - Una VPN se ha quedado con el rango de red de Docker. Compruébalo con:
-             ip route get "$(docker inspect autovida_postgres \
+             ip route get "$($DOCKER inspect autovida_postgres \
                --format "{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}")"
            Si la ruta sale por un túnel (tun0, cscotun0...), desconecta la VPN.' ;;
     *) fallo 'PostgreSQL no acepta conexiones. El motivo está justo encima.' ;;
@@ -136,7 +166,7 @@ diagnosticar_base_de_datos() {
 
 arrancar_base_de_datos() {
   paso 'Arrancando PostgreSQL (contenedor autovida_postgres)'
-  (cd "$PAQUETE" && docker compose up -d)
+  (cd "$PAQUETE" && $DOCKER compose up -d)
   local intento
   for intento in {1..30}; do
     if (set -a; . "$PAQUETE/.env"; set +a; conexion_real_funciona >/dev/null 2>&1); then
@@ -199,7 +229,7 @@ arrancar_frontend() {
 
 parar() {
   paso 'Deteniendo PostgreSQL'
-  (cd "$PAQUETE" && docker compose down)
+  (cd "$PAQUETE" && $DOCKER compose down)
   exit 0
 }
 
@@ -208,7 +238,7 @@ main() {
     parar
   fi
   comprobar_requisitos
-  crear_env_si_falta
+  comprobar_env
   instalar_dependencias_si_faltan
   arrancar_base_de_datos
   preparar_datos

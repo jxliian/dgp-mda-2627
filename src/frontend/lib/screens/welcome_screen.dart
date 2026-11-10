@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/domain.dart';
-import '../state/app_state.dart';
 import '../ui/ui.dart';
-import 'connection_screen.dart';
 import 'login_screen.dart';
 import 'student_classes_screen.dart';
 
@@ -17,7 +15,6 @@ class WelcomeScreen extends StatelessWidget {
   Widget build(BuildContext context) => PageShell(
     title: '¿Qué tipo de usuario eres?',
     subtitle: 'Elige cómo quieres entrar.',
-    footer: const _EnlacesDeApoyo(),
     child: Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 880),
@@ -57,32 +54,4 @@ class WelcomeScreen extends StatelessWidget {
       ),
     ),
   );
-}
-
-/// Enlaces secundarios del pie: servidor y modo de demostración.
-class _EnlacesDeApoyo extends StatelessWidget {
-  const _EnlacesDeApoyo();
-
-  @override
-  Widget build(BuildContext context) {
-    final state = AppScope.of(context);
-    return Wrap(
-      alignment: WrapAlignment.center,
-      spacing: 16,
-      runSpacing: 8,
-      children: [
-        TextButton.icon(
-          onPressed: () => openPage(context, const ConnectionScreen()),
-          icon: const Icon(Icons.dns_outlined),
-          label: const Text('Conexión al servidor'),
-        ),
-        TextButton(
-          onPressed: () => state.setDemo(!state.demo),
-          child: Text(
-            state.demo ? 'Conectar con datos reales' : 'Ver demostración',
-          ),
-        ),
-      ],
-    );
-  }
 }

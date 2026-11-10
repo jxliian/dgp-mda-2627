@@ -33,6 +33,7 @@ SCRUM-43.
 | SCRUM-323 Borrar clase | `DELETE /classes/{aula}` | OK |
 | SCRUM-324 Editar clase | `PUT /classes/{aula}` | OK |
 | SCRUM-331 Asignar profesor a clase | `POST /classes/{aula}/staff/{usuario}` | OK |
+| SCRUM-329 Cambiar la foto de perfil de los usuarios | — | **Falta en el servidor** |
 
 ## Personal del centro
 
@@ -63,7 +64,6 @@ SCRUM-43.
 
 | Historia | Endpoint de `main` | Estado |
 |---|---|---|
-| SCRUM-329 Añadir mi foto en mi perfil | `PUT`/`GET /users/students/me/avatar` | OK |
 | SCRUM-332 Crear mis propias tareas | `POST /student-tasks/me` | OK |
 | SCRUM-43 Crear mis tareas en mi agenda personal | `POST /student-tasks/me` | OK |
 | SCRUM-333 Eliminar mis propias tareas | `GET` + `DELETE /student-tasks/me` | OK |
@@ -117,6 +117,23 @@ subraya:
 PUT /users/students/me/avatar  -> errorCode 0, avatar_url: /users/students/pablo/avatar-image
 GET /users/students/me/avatar  -> HTTP 200, image/png
 ```
+
+## SCRUM-329, con su nueva redacción, necesita un endpoint
+
+La historia pasó de «el alumno añade su foto» a «como administrador quiero
+cambiar la foto de perfil de los usuarios». La API de `main` no lo permite: la
+única subida es `PUT /users/students/me/avatar` y rechaza a quien no sea el
+propio alumno (`if user["role"] != "student": PROFILE_UPDATE_DENIED`).
+
+Hace falta una ruta para administración, por ejemplo:
+
+```
+PUT /users/students/{student_username}/avatar     (solo admin)
+```
+
+La pantalla ya está lista: el editor de usuario muestra el botón «Cambiar la
+foto» en cuanto esa ruta exista, y mientras tanto explica que el servidor no
+lo admite todavía. El alumno sigue pudiendo cambiar la suya desde sus ajustes.
 
 ## Dos cosas que conviene vigilar
 

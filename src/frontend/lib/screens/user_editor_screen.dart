@@ -1,3 +1,4 @@
+import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import '../models/domain.dart';
 import '../models/validation.dart';
@@ -28,6 +29,13 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
   late AccessSettings ajustes;
   bool guardando = false;
   String? error;
+  String? aviso;
+
+  /// Cambiar la foto de otra persona depende de que el servidor lo ofrezca.
+  bool get puedeCambiarLaFoto =>
+      !esNueva &&
+      esAlumno &&
+      AppScope.of(context).repository.canSetAvatarOf;
 
   bool get esNueva => widget.user == null;
   bool get esAlumno => rol == UserRole.student;
@@ -80,6 +88,44 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
     }
   }
 
+  /// SCRUM-329: administración cambia la foto de perfil de un alumno.
+  Future<void> cambiarFoto() async {
+    final state = AppScope.of(context);
+    try {
+      final archivo = await openFile(
+        acceptedTypeGroups: [
+          const XTypeGroup(
+            label: 'Imágenes PNG, JPEG o WebP',
+            extensions: ['png', 'jpg', 'jpeg', 'webp'],
+          ),
+        ],
+      );
+      if (archivo == null) return;
+      if (await archivo.length() > _maximoBytesDeFoto) {
+        throw StateError('La imagen no puede superar los 5 MB.');
+      }
+      if (!mounted) return;
+      setState(() {
+        guardando = true;
+        error = null;
+        aviso = null;
+      });
+      await state.repository.uploadAvatarOf(
+        widget.user!,
+        await archivo.readAsBytes(),
+        archivo.name,
+      );
+      state.photoChanged();
+      if (mounted) setState(() => aviso = 'La foto se ha actualizado.');
+    } on Object catch (e) {
+      if (mounted) setState(() => error = e.toString());
+    } finally {
+      if (mounted) setState(() => guardando = false);
+    }
+  }
+
+  static const _maximoBytesDeFoto = 5 * 1024 * 1024;
+
   @override
   Widget build(BuildContext context) => PageShell(
     title: esNueva ? 'Crear usuario' : 'Modificar usuario',
@@ -89,8 +135,7 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (widget.user?.role == UserRole.student)
-            Center(child: UserAvatar(user: widget.user!, size: 110)),
+          if (widget.user?.role == UserRole.student) _fotoDelAlumno(),
           const SectionTitle('Datos de la cuenta'),
           _campoUsuario(),
           const SizedBox(height: 18),
@@ -109,11 +154,33 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
             AccessEditor(settings: ajustes, permissions: true, enabled: !guardando),
           _asociaciones(),
           if (error != null) Notice(error!, error: true),
+          if (aviso != null) Notice(aviso!),
           FormActions(busy: guardando, onSave: guardar, label: 'Guardar usuario'),
         ],
       ),
     ),
   );
+
+  Widget _fotoDelAlumno() => Center(
+    child: Column(
+      children: [
+        UserAvatar(user: widget.user!, size: 140),
+        const SizedBox(height: 12),
+        if (puedeCambiarLaFoto)
+          OutlinedButton.icon(
+            onPressed: guardando ? null : cambiarFoto,
+            icon: const Icon(Icons.add_a_photo_outlined),
+            label: const Text('Cambiar la foto'),
+          )
+        else
+          const Notice(_servidorSinCambioDeFoto),
+      ],
+    ),
+  );
+
+  static const _servidorSinCambioDeFoto =
+      'Este servidor todavía no permite cambiar la foto de otra persona. '
+      'La cambia cada alumno desde sus ajustes.';
 
   Widget _campoUsuario() => TextFormField(
     controller: usuario,

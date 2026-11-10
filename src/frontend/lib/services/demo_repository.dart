@@ -26,6 +26,8 @@ class DemoRepository implements AutovidaRepository {
   @override
   bool get canRemoveStaff => true;
   @override
+  bool get canSetAvatarOf => true;
+  @override
   bool get offline => false;
   @override
   int get pendingChanges => 0;
@@ -565,6 +567,16 @@ class DemoRepository implements AutovidaRepository {
 
   @override
   Future<Uint8List?> avatar(AppUser user) async => _photos[user.username];
+  @override
+  Future<void> uploadAvatarOf(
+    AppUser user,
+    Uint8List image,
+    String filename,
+  ) async {
+    _admin();
+    _photos[user.username] = image;
+  }
+
   @override
   Future<void> uploadAvatar(Uint8List image, String filename) async {
     _signedIn();

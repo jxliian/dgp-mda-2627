@@ -34,6 +34,9 @@ abstract class AutovidaRepository {
   /// Permite retirar a un miembro del personal de un aula.
   bool get canRemoveStaff;
 
+  /// Permite a administración cambiar la foto de otra persona (SCRUM-329).
+  bool get canSetAvatarOf;
+
   bool get offline;
   int get pendingChanges;
   Future<void> synchronize();
@@ -73,7 +76,12 @@ abstract class AutovidaRepository {
     bool complete = false,
   });
   Future<Uint8List?> avatar(AppUser user);
+
+  /// Sube la foto de la propia sesión.
   Future<void> uploadAvatar(Uint8List image, String filename);
+
+  /// Sube la foto de otra persona, desde administración.
+  Future<void> uploadAvatarOf(AppUser user, Uint8List image, String filename);
   void close();
 }
 
@@ -151,6 +159,9 @@ class LiveRepository implements AutovidaRepository {
   @override
   bool get canRemoveStaff =>
       supports('delete', '/classes/{class_name}/staff/{staff_username}');
+  @override
+  bool get canSetAvatarOf =>
+      supports('put', '/users/students/{student_username}/avatar');
 
   /// La matrícula tiene ruta propia para administración en los servidores que
   /// la ofrecen; en el resto solo la hace el personal del aula.
@@ -660,6 +671,23 @@ class LiveRepository implements AutovidaRepository {
   @override
   Future<void> uploadAvatar(Uint8List image, String filename) =>
       api.uploadAvatar(image, filename);
+  @override
+  Future<void> uploadAvatarOf(
+    AppUser user,
+    Uint8List image,
+    String filename,
+  ) {
+    requireFeature(
+      'put',
+      '/users/students/{student_username}/avatar',
+      'El cambio de la foto de otra persona desde administración',
+    );
+    return api.uploadAvatar(
+      image,
+      filename,
+      path: '/users/students/${segment(user.username)}/avatar',
+    );
+  }
   @override
   void close() {
     _agendaCache.clear();
