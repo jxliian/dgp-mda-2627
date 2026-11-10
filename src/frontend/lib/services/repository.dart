@@ -114,6 +114,7 @@ class LiveRepository implements AutovidaRepository {
   final ApiClient api;
   AppUser? _user;
   Json _paths = {};
+  Json _esquemas = {};
   final Map<String, List<AgendaTask>> _agendaCache = {};
   final List<Json> _pending = [];
   SharedPreferences? _storage;
@@ -130,7 +131,7 @@ class LiveRepository implements AutovidaRepository {
       (_paths[path] as Map?)?.containsKey(method.toLowerCase()) == true;
   @override
   bool get supportsTaskContent =>
-      supports('get', '/student-tasks/students/{student_username}');
+      camposDelCuerpo('post', '/student-tasks/me').contains('steps');
   @override
   bool get supportsProfileRead => supports('get', '/users/me');
   @override
@@ -159,6 +160,26 @@ class LiveRepository implements AutovidaRepository {
   Future<void> discover() async {
     final schema = await api.request('GET', '/openapi.json', protected: false);
     _paths = Map<String, dynamic>.from(schema['paths'] as Map? ?? {});
+    final componentes = schema['components'] as Map?;
+    _esquemas = Map<String, dynamic>.from(componentes?['schemas'] as Map? ?? {});
+  }
+
+  /// Campos que admite el cuerpo de una operación, resolviendo la referencia
+  /// al esquema que declara OpenAPI.
+  ///
+  /// Preguntar por un campo concreto es más fiable que deducir capacidades de
+  /// la existencia de otra ruta: dos servidores pueden ofrecer la misma ruta y
+  /// aceptar datos distintos.
+  Set<String> camposDelCuerpo(String method, String path) {
+    final operacion = (_paths[path] as Map?)?[method.toLowerCase()] as Map?;
+    final contenido = (operacion?['requestBody'] as Map?)?['content'] as Map?;
+    var definicion = (contenido?['application/json'] as Map?)?['schema'] as Map?;
+    final referencia = definicion?[r'$ref'] as String?;
+    if (referencia != null) {
+      definicion = _esquemas[referencia.split('/').last] as Map?;
+    }
+    final propiedades = (definicion?['properties'] as Map?)?.keys ?? const [];
+    return propiedades.map((clave) => clave.toString()).toSet();
   }
 
   void requireFeature(String method, String path, String label) {
@@ -594,7 +615,9 @@ class LiveRepository implements AutovidaRepository {
 
   Future<void> _synchronize() async {
     if (_pending.isEmpty && _offline) {
-      await api.request('GET', '/users/me');
+      // Comprobación de vida contra la raíz de la API, que existe en
+      // cualquier servidor: /users/me es una ampliación opcional.
+      await api.request('GET', '/', protected: false);
     }
     while (_pending.isNotEmpty) {
       final item = _pending.first;

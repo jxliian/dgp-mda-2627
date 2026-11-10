@@ -1,5 +1,15 @@
 # Petición al equipo de backend — Iteración 1
 
+> **Estado: resuelta casi por completo (10/11/2026).** El equipo añadió los dos
+> `GET` que se piden aquí, además de `DELETE /classes/{aula}/staff/{usuario}`.
+> Verificado contra la API: SCRUM-31, SCRUM-41 y SCRUM-333 funcionan de
+> principio a fin. **Queda solo el punto 3**, el aula del alumno (SCRUM-325).
+> El resto del documento se conserva como registro de lo que se pidió y por qué.
+
+---
+
+# Petición al equipo de backend — Iteración 1
+
 Resumen en una línea: **falta un `GET` que devuelva las tareas de un alumno**.
 Es lo único que bloquea al frontend. Todo lo demás de la API de `main` nos
 sirve tal y como está.

@@ -4,8 +4,9 @@ Rama `iteracion1`. El backend es **exactamente el de `main`**, sin una sola
 línea modificada (`git diff main -- src/backend/` sale vacío). Todo lo que
 sigue se ha comprobado contra esa API levantada en local.
 
-Leyenda: **OK** operativa de principio a fin · **Parcial** la acción existe en
-el servidor pero falta un `GET` para poder usarla desde la interfaz.
+Verificado el 10/11/2026 ejecutando contra la API las mismas llamadas que hace
+la aplicación: **38 de 39 correctas**. Leyenda: **OK** operativa de principio a
+fin · **Parcial** falta soporte en el servidor.
 
 ## Autenticación
 
@@ -39,7 +40,7 @@ el servidor pero falta un `GET` para poder usarla desde la interfaz.
 | SCRUM-327 Apuntar alumno a clase | `POST /classes/{aula}/students/{alumno}` | OK |
 | SCRUM-328 Eliminar alumno de clase | `DELETE /classes/{aula}/students/{alumno}` | OK |
 | SCRUM-33 Crear tarea para un alumno | `POST /student-tasks/students/{alumno}` | OK |
-| SCRUM-41 Eliminar tarea de la agenda del alumno | `DELETE /student-tasks/students/{alumno}/{id}` | **Parcial** |
+| SCRUM-41 Eliminar tarea de la agenda del alumno | `GET` + `DELETE /student-tasks/students/{alumno}` | OK |
 | SCRUM-321 Crear tarea para la clase | `POST /classes/{aula}/tasks` | OK |
 | SCRUM-337 Consultar tareas de la clase | `GET /classes/{aula}/tasks` | OK |
 | SCRUM-338 Modificar tareas de la clase | `PUT /classes/{aula}/tasks/{id}` | OK |
@@ -51,7 +52,7 @@ el servidor pero falta un `GET` para poder usarla desde la interfaz.
 |---|---|---|
 | SCRUM-20 Consultar mis alumnos | `GET /student-links/parents/{tutor}/students` | OK |
 | SCRUM-26 Crear tarea para un alumno | `POST /student-tasks/students/{alumno}` | OK |
-| SCRUM-31 Eliminar tarea de la agenda del alumno | `DELETE /student-tasks/students/{alumno}/{id}` | **Parcial** |
+| SCRUM-31 Eliminar tarea de la agenda del alumno | `GET` + `DELETE /student-tasks/students/{alumno}` | OK |
 
 ## Alumno
 
@@ -59,34 +60,35 @@ el servidor pero falta un `GET` para poder usarla desde la interfaz.
 |---|---|---|
 | SCRUM-329 Tiene foto de perfil | `GET`/`PUT /users/students/me/avatar` | OK |
 | SCRUM-332 Crear mis propias tareas | `POST /student-tasks/me` | OK |
-| SCRUM-333 Eliminar mis propias tareas | `DELETE /student-tasks/me/{id}` | **Parcial** |
+| SCRUM-333 Eliminar mis propias tareas | `GET` + `DELETE /student-tasks/me` | OK |
 | SCRUM-325 Pertenezco a una clase | — | **Parcial** |
+
+> Única historia pendiente de las 30.
 
 ## Lo que falta en el servidor y por qué
 
-La API de `main` **no tiene ningún `GET` que devuelva las tareas de un
-alumno**. Puede crear y borrar, pero no listar. Sin esa lista, la interfaz no
-puede ofrecer al usuario qué tarea borrar, así que SCRUM-31, SCRUM-41 y
-SCRUM-333 se quedan a mitad de camino: la operación existe y funciona si se
-conoce el identificador, pero no hay forma razonable de elegirlo.
+El equipo de backend añadió el 10/11/2026 los dos `GET` que pedíamos
+(`/student-tasks/me` y `/student-tasks/students/{alumno}`, ambos con
+`?task_date=`). Con ellos quedaron resueltas SCRUM-31, SCRUM-41 y SCRUM-333:
+verificado el ciclo completo de crear, listar, elegir por identificador y
+eliminar, para personal, tutor y alumno. También llegó
+`DELETE /classes/{aula}/staff/{usuario}`, que devuelve la retirada de
+profesorado al editor de aulas.
 
-SCRUM-325 depende de lo mismo: un alumno no puede consultar `/classes`
-(reservado a administración y personal) ni existe un endpoint que le diga a
-qué aula pertenece.
+**Queda una sola historia pendiente: SCRUM-325.** Un alumno no puede saber a
+qué aula pertenece:
 
-**Dos endpoints resolverían las cuatro historias:**
+- `GET /classes` le responde `1032 No tienes permiso para gestionar esta clase`.
+- La respuesta de `POST /auth/login` solo trae `username` y `role`.
 
-```
-GET /student-tasks/me?task_date=AAAA-MM-DD
-GET /student-tasks/students/{student_username}?task_date=AAAA-MM-DD
-```
+Cualquiera de estas dos opciones la resolvería, la que al equipo le resulte
+más barata:
 
-Devolviendo lo mismo que ya produce `list_class_tasks` para las aulas. El
-frontend los detecta solo: consulta `/openapi.json` al iniciar sesión y
-habilita la lista en cuanto aparezcan, sin tocar una línea de pantalla.
+- Incluir `class_name` en el usuario que devuelve el login cuando el rol es
+  `student`.
+- O un `GET /classes/me` que devuelva solo el aula del alumno autenticado.
 
-Un tercero, opcional, cubriría SCRUM-325: cualquier forma de que un alumno
-sepa su aula (por ejemplo incluir `class_name` en la respuesta del login).
+La aplicación ya la detectaría sola, sin cambios de pantalla.
 
 ## Cómo se comporta la interfaz mientras tanto
 
