@@ -39,9 +39,11 @@ _CUERPO_WEBP = b"WEBPVP8 " + b"\x00" * 24
 WEBP = b"RIFF" + struct.pack("<I", len(_CUERPO_WEBP)) + _CUERPO_WEBP
 
 
-def subir_foto(client, usuario, contenido, nombre="foto"):
+def subir_foto(client, usuario, contenido, nombre="foto", alumno="pablo"):
     return client.put(
-        "/users/students/me/avatar", files={"file": (nombre, contenido)}, headers=as_user(usuario)
+        f"/users/students/{alumno}/avatar",
+        files={"file": (nombre, contenido)},
+        headers=as_user(usuario),
     )
 
 
@@ -216,8 +218,13 @@ def test_el_personal_consulta_solo_sus_clases(client):
     assert client.get("/classes", headers=as_user("madre")).status_code == 403
 
 
-def test_el_admin_no_apunta_alumnos_a_una_clase(client, count):
-    assert client.post("/classes/1A/students/ana", headers=as_user("admin")).status_code == 403
+def test_admin_inscribe_y_retira_alumnos_de_una_clase(client, count):
+    alta = client.post("/classes/2B/students/ana", headers=as_user("admin"))
+    assert alta.status_code == 201
+    assert count("class_stud WHERE stud_usr_fk = 'ana' AND class_name_fk = '2B'") == 1
+
+    baja = client.delete("/classes/2B/students/ana", headers=as_user("admin"))
+    assert baja.status_code == 200
     assert count("class_stud WHERE stud_usr_fk = 'ana'") == 0
 
 
@@ -277,50 +284,55 @@ def test_personal_de_otra_clase_no_gestiona_sus_tareas(client):
 
 # --------------------------------------------------------- foto de perfil
 
-def test_el_alumno_sube_un_png(client):
-    assert subir_foto(client, "pablo", PNG).status_code == 200
+def test_admin_establece_un_png_como_foto_de_perfil(client):
+    assert subir_foto(client, "admin", PNG).status_code == 200
     foto = client.get("/users/students/me/avatar", headers=as_user("pablo"))
     assert foto.headers["content-type"] == "image/png"
     assert foto.content == PNG
 
 
-def test_el_alumno_sube_un_jpeg(client):
-    assert subir_foto(client, "pablo", JPEG).status_code == 200
+def test_admin_establece_un_jpeg_como_foto_de_perfil(client):
+    assert subir_foto(client, "admin", JPEG).status_code == 200
     foto = client.get("/users/students/me/avatar", headers=as_user("pablo"))
     assert foto.headers["content-type"] == "image/jpeg"
 
 
-def test_el_alumno_sube_un_webp(client):
-    assert subir_foto(client, "pablo", WEBP).status_code == 200
+def test_admin_establece_un_webp_como_foto_de_perfil(client):
+    assert subir_foto(client, "admin", WEBP).status_code == 200
 
 
 def test_cambiar_la_foto_no_acumula_imagenes(client, count):
-    subir_foto(client, "pablo", JPEG)
-    subir_foto(client, "pablo", WEBP)
-    assert count("Avatar") == 1
+    subir_foto(client, "admin", JPEG)
+    subir_foto(client, "admin", WEBP)
+    assert count("Avatar") == 2
 
 
-def test_sin_foto_se_ve_la_imagen_por_defecto(client):
+def test_alumno_tiene_foto_predeterminada_al_crearse(client, count):
     r = client.get("/users/students/me/avatar", headers=as_user("pablo"))
     assert r.headers["content-type"].startswith("image/svg+xml")
+    assert count("Student WHERE stud_usr = 'pablo' AND avatar_id_fk IS NOT NULL") == 1
 
 
 def test_se_rechazan_ficheros_invalidos_o_demasiado_grandes(client):
-    assert subir_foto(client, "pablo", b"hola").status_code == 422
-    assert subir_foto(client, "pablo", b"\xff\xd8\xff" + b"0" * (5 * 1024 * 1024 + 1)).status_code == 413
+    assert subir_foto(client, "admin", b"hola").status_code == 422
+    assert subir_foto(
+        client, "admin", b"\xff\xd8\xff" + b"0" * (5 * 1024 * 1024 + 1)
+    ).status_code == 413
 
 
-def test_solo_un_alumno_sube_su_foto(client):
-    assert subir_foto(client, "madre", JPEG).status_code == 403
+def test_solo_el_admin_cambia_la_foto_de_perfil(client):
+    assert subir_foto(client, "admin", JPEG).status_code == 200
+    for usuario in ["pablo", "lucia", "madre"]:
+        assert subir_foto(client, usuario, JPEG).status_code == 403
 
 
 def test_admin_y_personal_de_su_clase_ven_la_foto(client):
-    subir_foto(client, "pablo", JPEG)
+    subir_foto(client, "admin", JPEG)
     assert client.get("/users/students/pablo/avatar-image", headers=as_user("lucia")).status_code == 200
     assert client.get("/users/students/pablo/avatar-image", headers=as_user("admin")).status_code == 200
     assert client.get("/users/students/pablo/avatar-image", headers=as_user("pedro")).status_code == 403
 
 
 def test_la_familia_no_ve_la_foto(client):
-    subir_foto(client, "pablo", JPEG)
+    subir_foto(client, "admin", JPEG)
     assert client.get("/users/students/pablo/avatar-image", headers=as_user("madre")).status_code == 403

@@ -138,11 +138,15 @@ def add_student_to_class(
     db: Session = Depends(get_db),
     user: dict = Depends(get_current_user),
 ) -> dict:
-    """Inscribe un alumno en la clase asignada al miembro del personal."""
-    if user["role"] != "staff":
+    """Permite que admin inscriba en cualquier clase y staff en una propia."""
+    if user["role"] == "admin":
+        staff_username = None
+    elif user["role"] == "staff":
+        staff_username = user["username"]
+    else:
         raise_api_error(ErrorCode.CLASS_ACCESS_DENIED)
     return _run_db_operation(
-        clases_db.add_student, db, class_name, user["username"], student_username
+        clases_db.add_student, db, class_name, staff_username, student_username
     )
 
 
@@ -153,11 +157,15 @@ def remove_student_from_class(
     db: Session = Depends(get_db),
     user: dict = Depends(get_current_user),
 ) -> dict:
-    """Retira un alumno de la clase asignada al miembro del personal."""
-    if user["role"] != "staff":
+    """Permite que admin retire de cualquier clase y staff de una propia."""
+    if user["role"] == "admin":
+        staff_username = None
+    elif user["role"] == "staff":
+        staff_username = user["username"]
+    else:
         raise_api_error(ErrorCode.CLASS_ACCESS_DENIED)
     return _run_db_operation(
-        clases_db.remove_student, db, class_name, user["username"], student_username
+        clases_db.remove_student, db, class_name, staff_username, student_username
     )
 
 

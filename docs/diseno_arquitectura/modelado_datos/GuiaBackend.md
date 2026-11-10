@@ -126,9 +126,20 @@ Solo administrador. Busca una cuenta por username dentro del rol indicado y devu
 {"errorCode":0,"details":"successful","username":"ana","full_name":"Ana López","email":"ana@example.com","role":"parent"}
 ```
 
+### `GET /users/me` — Consultar mi propia ficha
+
+Requiere autenticación y devuelve únicamente la ficha del usuario asociado al token. El endpoint obtiene el rol y el username de la sesión; el cliente no puede indicar otra cuenta. Para el alumnado incluye los ajustes de accesibilidad (`stud_access_*`), de modo que pueda cargar su configuración al iniciar sesión. Para los demás roles devuelve los campos propios de su perfil. No devuelve contraseña ni token. Una sesión ausente o inválida recibe `INVALID_TOKEN` (HTTP 401); si no se encuentra la ficha asociada a la sesión, responde `USER_NOT_FOUND` (HTTP 404).
+
+**Entrada:** sin cuerpo ni parámetros. Ejemplo: `GET /users/me` con el Bearer del alumno autenticado.
+
+**Respuesta JSON (ejemplo de alumno):**
+```json
+{"errorCode":0,"details":"successful","username":"luis","full_name":"Luis Pérez","stud_access_main_col":"#ffffff","stud_access_sec_col":"#000000","stud_access_ntasks_visible":5,"stud_access_pictograms":true,"stud_access_contrast":false,"stud_access_fontsize":18,"stud_access_filters":true,"stud_access_ndays_visible":7,"stud_access_prof_mod":false,"stud_access_timebar":true,"stud_access_talkback":false,"stud_access_profile_mod":true,"stud_access_task_mod":true,"role":"student"}
+```
+
 ### `PUT /users/{role}/{username}` — Editar perfil o datos de usuario
 
-Requiere autenticación. Un administrador puede editar cualquier cuenta. Un `parent`, `staff` o `student` solo puede editar su propio perfil y no puede enviar `username`, `full_name` ni `role`. Para estudiantes, además se comprueba que `stud_access_profile_mod` sea verdadero; si es falso, se rechaza la edición propia. Ningún usuario puede cambiar el rol de una cuenta: un administrador que envíe un `role` distinto del actual recibe `ROLE_CHANGE_DENIED` (HTTP 403); un usuario no administrador que envíe `role` recibe `PROFILE_UPDATE_DENIED` (HTTP 403).
+Requiere autenticación. Un administrador puede editar cualquier cuenta. Un `parent` o `staff` solo puede editar su email o contraseña y no puede enviar `username`, `full_name` ni `role`. Un `student` solo puede editar sus propios ajustes de accesibilidad, y únicamente si `stud_access_profile_mod` está activado; si está desactivado, se rechaza la edición con `PROFILE_UPDATE_DENIED` (HTTP 403). El alumno no puede cambiar `username`, `full_name`, contraseña ni `role`, ni modificar los indicadores de permisos `stud_access_prof_mod`, `stud_access_profile_mod` y `stud_access_task_mod`; estos campos quedan reservados al administrador. Los estudiantes no admiten email. Ningún usuario puede cambiar el rol de una cuenta: un administrador que envíe un `role` distinto del actual recibe `ROLE_CHANGE_DENIED` (HTTP 403); un usuario no administrador que envíe `role` recibe `PROFILE_UPDATE_DENIED` (HTTP 403).
 
 El JSON acepta campos opcionales: `username`, `role`, `full_name`, `password`, `email` y campos `stud_access_*`. No se aceptan propiedades extra. Debe haber al menos un campo que modificar. El username y el nombre completo aplican validaciones iguales a las de creación; la contraseña está limitada a 72 bytes. Los valores numéricos y booleanos de accesibilidad deben usar sus tipos JSON correspondientes, y los colores deben seguir el formato hexadecimal indicado en creación.
 
@@ -352,7 +363,7 @@ Requiere token de alumno y `stud_access_task_mod = true`. Comprueba que la asign
 
 ## Clases
 
-Prefijo `/classes`. Las clases se guardan en `Class`; `class_staff` asocia personal a clases, `class_stud` inscribe alumnos y `class_task` vincula tareas grupales a una clase. `stud_task.class_name_fk` marca las asignaciones a alumnos que proceden de una clase; las tareas individuales dejan ese campo nulo. El personal solo puede consultar o administrar una clase si está asignado a ella. El administrador puede consultar todas las clases y sus detalles, y gestiona el catálogo y la asignación de personal.
+Prefijo `/classes`. Las clases se guardan en `Class`; `class_staff` asocia personal a clases, `class_stud` inscribe alumnos y `class_task` vincula tareas grupales a una clase. `stud_task.class_name_fk` marca las asignaciones a alumnos que proceden de una clase; las tareas individuales dejan ese campo nulo. El personal solo puede consultar o administrar una clase si está asignado a ella. El administrador puede consultar todas las clases y sus detalles, gestionar el catálogo y las asignaciones de personal, e inscribir o retirar alumnos de cualquier clase.
 
 ### `POST /classes` — Crear clase
 
@@ -439,7 +450,7 @@ Solo administrador. Elimina la asignación correspondiente en `class_staff`; no 
 
 ### `POST /classes/{class_name}/students/{student_username}` — Inscribir alumno en clase
 
-Requiere staff autenticado y asignado a la clase. Inscribe al alumno en `class_stud`. Comprueba que sea un alumno existente y que no esté inscrito en otra clase. Al matricularlo, también le asigna las tareas que ya estén vinculadas a esa clase en `class_task`, calculando el índice de cada una en su agenda. Repetir la asignación a la misma clase no duplica la matrícula ni las tareas. Responde HTTP 201. Si ya está en otra clase, `STUDENT_ALREADY_IN_CLASS` (HTTP 409); si no existe como alumno, `TASK_STUDENT_NOT_FOUND`.
+Requiere token de administrador o de personal. El administrador puede inscribir en cualquier clase; el personal solo en una clase a la que esté asignado. Inscribe al alumno en `class_stud`. Comprueba que sea un alumno existente y que no esté inscrito en otra clase. Al matricularlo, también le asigna las tareas que ya estén vinculadas a esa clase en `class_task`, calculando el índice de cada una en su agenda. Repetir la asignación a la misma clase no duplica la matrícula ni las tareas. Responde HTTP 201. Otros roles reciben `CLASS_ACCESS_DENIED` (HTTP 403). Si ya está en otra clase, `STUDENT_ALREADY_IN_CLASS` (HTTP 409); si no existe como alumno, `TASK_STUDENT_NOT_FOUND`.
 
 **Entrada:** sin cuerpo; clase y username en la ruta.
 
@@ -450,7 +461,7 @@ Requiere staff autenticado y asignado a la clase. Inscribe al alumno en `class_s
 
 ### `DELETE /classes/{class_name}/students/{student_username}` — Retirar alumno de clase
 
-Requiere staff asignado a la clase. En una transacción, elimina las asignaciones `stud_task` marcadas como procedentes de esa clase y luego la inscripción `class_stud`. Las tareas individuales del alumno, incluidas las creadas por el mismo profesor, se conservan. La tarea grupal sigue vinculada a la clase y seguirá disponible para los demás alumnos matriculados. Si la relación no existe, devuelve `ASSOCIATION_NOT_FOUND`.
+Requiere token de administrador o de personal. El administrador puede retirar alumnos de cualquier clase; el personal solo de una clase a la que esté asignado. En una transacción, elimina las asignaciones `stud_task` marcadas como procedentes de esa clase y luego la inscripción `class_stud`. Las tareas individuales del alumno, incluidas las creadas por el mismo profesor, se conservan. La tarea grupal sigue vinculada a la clase y seguirá disponible para los demás alumnos matriculados. Otros roles reciben `CLASS_ACCESS_DENIED` (HTTP 403). Si la relación no existe, devuelve `ASSOCIATION_NOT_FOUND`.
 
 **Entrada:** sin cuerpo; clase y username en la ruta.
 

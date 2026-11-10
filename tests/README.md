@@ -4,7 +4,7 @@ Revisado y verificado por el Gestor de Calidad ✅
 
 Este documento describe las pruebas automáticas del backend: qué comprueban, cómo se ejecutan y qué resultado dan.
 
-**Última ejecución:** 09/11/2026 · **Total:** 174 casos · **Resultado:** 174 correctos y 0 fallos esperados.
+**Última ejecución:** 10/11/2026 · **Total:** 177 casos · **Resultado:** 177 correctos y 0 fallos.
 
 ## 1. Alcance
 
@@ -18,6 +18,7 @@ Son **pruebas de integración**. Cada prueba envía una petición HTTP a la API 
 | HU-07 y HU-08 | Asociar alumnos con familias y con personal | `test_associations.py` |
 | HU-12 | Crear una tarea desde la familia y vincularla a la agenda | `test_tasks.py` |
 | HU-13 | Guardar la tarea creada por el personal | `test_tasks.py` |
+| Consulta de agenda | Consultar tareas por alumno y fecha como personal, tutor y alumno | `test_tasks.py` |
 | HU-15 | Eliminar tareas según el horario escolar | `test_tasks.py` |
 | Resto del sprint 1 | Crear y modificar usuarios, tareas propias del alumno, clases, tareas de clase y foto de perfil | `test_sprint1.py` |
 
@@ -37,7 +38,7 @@ Son **pruebas de integración**. Cada prueba envía una petición HTTP a la API 
 uv run --with pytest python -m pytest ../../../tests/integration -v
 ```
 
-**Resultado esperado:** `174 passed, 0 xfailed`.
+**Resultado esperado:** `177 passed, 0 xfailed`.
 
 Las pruebas no modifican la base de datos de desarrollo (`autovida_db`). Trabajan en otra base, `autovida_test`, que se elimina y se crea de nuevo en cada ejecución con el script oficial `docs/diseno_arquitectura/modelado_datos/CreacionTablas.sqlscript`. Se usa PostgreSQL porque el backend emplea instrucciones que no existen en otros motores más ligeros, como `FOR UPDATE` y `LOCK TABLE`.
 
@@ -184,7 +185,15 @@ Las familias se asocian directamente con cada alumno. El personal se relaciona c
 | `test_el_personal_saca_a_un_alumno_de_su_clase` | Retirar a un alumno | 200 y deja de aparecer |
 | `test_admin_quita_personal_de_una_clase` | Quitar personal de una clase | 200 y deja de aparecer, se desvinculan los alumnos |
 
-### `test_tasks.py`: crear y eliminar tareas (HU-12, HU-13 y HU-15, 55 casos)
+### `test_tasks.py`: crear, consultar y eliminar tareas (HU-12, HU-13 y HU-15, 58 casos)
+
+**Consultar tareas por alumno y fecha**
+
+| Prueba | Qué comprueba | Resultado esperado |
+| :--- | :--- | :--- |
+| `test_el_personal_consulta_tareas_del_alumno_por_fecha` | Personal de la clase consulta la agenda del alumno | Solo devuelve tareas de la fecha indicada |
+| `test_el_tutor_consulta_tareas_del_alumno_por_fecha` | Tutor asociado consulta la agenda del alumno | Solo devuelve tareas de la fecha indicada |
+| `test_el_alumno_consulta_su_agenda_por_fecha` | Alumno consulta su propia agenda | Solo devuelve tareas de la fecha indicada |
 
 **Tareas creadas por la familia (HU-12)**
 
@@ -275,7 +284,7 @@ La regla se aplica sobre la hora programada de la tarea: el personal elimina las
 | `test_renombrar_una_clase_conserva_alumnos_y_tareas` | Cambio de nombre con tareas y alumnos | 200, conserva matrícula y tareas |
 | `test_borrar_una_clase_borra_sus_tareas_y_no_los_alumnos` | Eliminar una clase con tareas | 200, sin tareas de clase, el alumno sigue |
 | `test_el_personal_consulta_solo_sus_clases` | Listado y detalle según la clase | Solo la propia; 403 en clase ajena y para familias |
-| `test_el_admin_no_apunta_alumnos_a_una_clase` | La matrícula corresponde al personal | 403, sin cambios |
+| `test_admin_inscribe_y_retira_alumnos_de_una_clase` | El administrador matricula y retira en una clase sin estar asignado a ella | 201 y 200, se crea y elimina `class_stud` |
 | `test_un_alumno_nuevo_recibe_las_tareas_de_su_clase` | Matricular con tareas ya creadas | Recibe la tarea de la clase |
 | `test_sacar_a_un_alumno_quita_solo_las_tareas_de_clase` | Retirar a un alumno de la clase | 200, conserva sus tareas individuales |
 
@@ -293,13 +302,13 @@ La regla se aplica sobre la hora programada de la tarea: el personal elimina las
 
 | Prueba | Qué comprueba | Resultado esperado |
 | :--- | :--- | :--- |
-| `test_el_alumno_sube_un_png` | Subida de un PNG válido | 200 y se recupera la misma imagen |
-| `test_el_alumno_sube_un_jpeg` | Subida de un JPEG | 200 y tipo `image/jpeg` |
-| `test_el_alumno_sube_un_webp` | Subida de un WebP | 200 |
+| `test_admin_establece_un_png_como_foto_de_perfil` | El administrador establece un PNG válido como foto de perfil | 200 y se recupera la misma imagen |
+| `test_admin_establece_un_jpeg_como_foto_de_perfil` | El administrador establece un JPEG como foto de perfil | 200 y tipo `image/jpeg` |
+| `test_admin_establece_un_webp_como_foto_de_perfil` | El administrador establece un WebP como foto de perfil | 200 |
 | `test_cambiar_la_foto_no_acumula_imagenes` | Reemplazar la foto | Queda una sola fila en `Avatar` |
-| `test_sin_foto_se_ve_la_imagen_por_defecto` | Alumno sin foto | Imagen SVG predeterminada |
+| `test_alumno_tiene_foto_predeterminada_al_crearse` | La foto predeterminada del alumno no es nula | `avatar_id_fk` asignado e imagen SVG |
 | `test_se_rechazan_ficheros_invalidos_o_demasiado_grandes` | Fichero que no es imagen y fichero de más de 5 MB | 422 y 413 |
-| `test_solo_un_alumno_sube_su_foto` | Una familia lo intenta | 403 |
+| `test_solo_el_admin_cambia_la_foto_de_perfil` | Solo el administrador puede cambiar la foto | 200 para admin; 403 para alumno, personal y familia |
 | `test_admin_y_personal_de_su_clase_ven_la_foto` | Acceso a la foto de un alumno | 200 para administrador y personal de su clase; 403 para personal de otra |
 | `test_la_familia_no_ve_la_foto` | Comportamiento actual de la ruta de fotos | 403 |
 
