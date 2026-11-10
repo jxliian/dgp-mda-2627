@@ -276,15 +276,13 @@ def delete_user(role: Role, username: UsernamePath, db: Session = Depends(get_db
     return result
 
 
-@router.put("/students/me/avatar", status_code=200)
-async def update_my_avatar(
+@router.put("/students/{student_username}/avatar", status_code=200, dependencies=[Depends(require_admin)])
+async def update_student_avatar(
+    student_username: UsernamePath,
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
-    user: dict = Depends(get_current_user),
 ) -> dict:
-    """Guarda la foto del alumno autenticado tras validar tipo y tamaño."""
-    if user["role"] != "student":
-        raise_api_error(ErrorCode.PROFILE_UPDATE_DENIED)
+    """Guarda el avatar de un alumno; solo los administradores pueden hacerlo."""
     try:
         image = await file.read(MAX_AVATAR_BYTES + 1)
         if len(image) > MAX_AVATAR_BYTES:
@@ -292,13 +290,13 @@ async def update_my_avatar(
         media_type = _image_media_type(image)
         if media_type is None:
             raise_api_error(ErrorCode.AVATAR_INVALID_IMAGE)
-        result = users_mng_db.updateAvatar(db, user["username"], image)
+        result = users_mng_db.updateAvatar(db, student_username, image)
         if result["errorCode"] != 0:
             raise_api_error(result["errorCode"])
         return {
             **result,
             "media_type": media_type,
-            "avatar_url": "/users/students/me/avatar",
+            "avatar_url": f"/users/students/{student_username}/avatar-image",
         }
     finally:
         await file.close()

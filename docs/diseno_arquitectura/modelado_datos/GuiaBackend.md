@@ -71,6 +71,8 @@ Requiere un Bearer válido. La dependencia primero verifica que el token corresp
 
 Todas las rutas de este grupo tienen prefijo `/users`.
 
+En este módulo, “avatar” significa la foto de perfil del alumno. Aunque la tabla `Student` la referencia como `avatar_id_fk`, cada alumno debe tener siempre una foto asignada.
+
 ### `POST /users` — Crear usuario
 
 Solo administrador. Recibe un objeto JSON discriminado por `role`.
@@ -81,7 +83,7 @@ Para `role: "student"` también son obligatorios todos los campos de accesibilid
 
 Para `admin`, `staff` y `parent`, también es obligatorio `email`, que debe tener formato válido y no exceder 254 caracteres.
 
-La operación inserta la fila común en `users` (incluido el hash bcrypt de la contraseña y `full_name`) y después la especialización del rol en `Admn`, `Staff`, `Student` o `Parents`, con los datos de email o accesibilidad que correspondan. Se confirman ambas inserciones conjuntamente. El username es único en la tabla común, por lo que no puede repetirse entre roles. Según el conflicto, se devuelve `USERNAME_TAKEN` o `EMAIL_TAKEN` (HTTP 409); otros errores de creación usan `USER_CREATE_FAILED` (HTTP 500).
+La operación inserta la fila común en `users` (incluido el hash bcrypt de la contraseña y `full_name`) y después la especialización del rol en `Admn`, `Staff`, `Student` o `Parents`, con los datos de email o accesibilidad que correspondan. Al crear un alumno, también crea y asigna una foto de perfil SVG predeterminada en `Avatar`; el alumno nunca se crea con `avatar_id_fk` nulo. Todas las inserciones se confirman conjuntamente. El username es único en la tabla común, por lo que no puede repetirse entre roles. Según el conflicto, se devuelve `USERNAME_TAKEN` o `EMAIL_TAKEN` (HTTP 409); otros errores de creación usan `USER_CREATE_FAILED` (HTTP 500).
 
 El rol se fija al crear la cuenta y es inmutable. Ni el propio usuario ni un administrador pueden cambiarlo después; para cambiar el rol hay que crear una cuenta nueva con el rol correcto.
 
@@ -157,19 +159,19 @@ Solo administrador. Borra la cuenta de `users` únicamente si existe la especial
 {"errorCode":0,"details":"successful"}
 ```
 
-### `PUT /users/students/me/avatar` — Actualizar mi avatar
+### `PUT /users/students/{student_username}/avatar` — Actualizar foto de perfil de alumno
 
-Requiere token de alumno. Recibe `multipart/form-data` con el archivo en el campo `file`. Admite PNG, JPEG y WebP de hasta 5 MB; el backend comprueba la firma y estructura básica del formato, y rechaza formatos no admitidos o archivos demasiado grandes con `AVATAR_INVALID_IMAGE` (HTTP 422) o `AVATAR_TOO_LARGE` (HTTP 413). La subida también requiere `stud_access_profile_mod = true`.
+Solo administrador. Recibe `multipart/form-data` con el archivo en el campo `file` y el username del alumno en la ruta. Admite PNG, JPEG y WebP de hasta 5 MB; el backend comprueba la firma y estructura básica del formato, y rechaza formatos no admitidos o archivos demasiado grandes con `AVATAR_INVALID_IMAGE` (HTTP 422) o `AVATAR_TOO_LARGE` (HTTP 413). Si el alumno no existe, devuelve `USER_NOT_FOUND`. El permiso `stud_access_profile_mod` no limita al administrador. El archivo es obligatorio, así que esta operación siempre reemplaza la foto por otra válida y nunca la deja nula.
 
-La imagen se guarda en `Avatar.avatar_bin` y su clave se vincula a `Student.avatar_id_fk` en una transacción. Al reemplazar una foto anterior, el backend la elimina si ya no está vinculada a ningún alumno. La respuesta JSON incluye `avatar_id`, `media_type` y `avatar_url`.
+La imagen se guarda en `Avatar.avatar_bin` y su clave se vincula a `Student.avatar_id_fk` en una transacción. Al reemplazar una foto anterior, el backend la elimina si ya no está vinculada a ningún alumno. La columna `avatar_id_fk` es obligatoria y la clave foránea impide borrar una imagen mientras un alumno la use. La respuesta JSON incluye `avatar_id`, `media_type` y `avatar_url`.
 
-El cliente puede abrir el selector de imágenes del dispositivo (por ejemplo, la galería) y enviar el archivo en `file`. Tras una respuesta correcta debe mostrar la foto nueva inmediatamente, usando la URL devuelta o `GET /users/students/me/avatar`; esta ruta evita caché con `Cache-Control: no-store`. El control para cambiarla debe ser visible, tener un área de pulsación amplia, un icono comprensible y un nombre accesible para lectores de pantalla. Si la subida falla por tamaño o formato, la interfaz debe conservar la foto que ya tenía el perfil y mostrar un mensaje de error sencillo. Estos requisitos describen el contrato esperado del cliente; esta guía documenta el backend y no implica que exista aquí una interfaz frontend implementada.
+La ruta devuelta en `avatar_url` permite recargar la imagen; evita caché con `Cache-Control: no-store`.
 
-**Entrada:** `multipart/form-data`, campo `file` con los bytes de la imagen; no es JSON.
+**Entrada:** `PUT /users/students/luis/avatar`, cabecera `Authorization: Bearer <token>` de administrador y `multipart/form-data`, campo `file` con los bytes de la imagen; no es JSON.
 
 **Respuesta JSON:**
 ```json
-{"errorCode":0,"details":"successful","avatar_id":12,"media_type":"image/png","avatar_url":"/users/students/me/avatar"}
+{"errorCode":0,"details":"successful","avatar_id":12,"media_type":"image/png","avatar_url":"/users/students/luis/avatar-image"}
 ```
 
 ### `GET /users/students/me/avatar` — Obtener mi avatar

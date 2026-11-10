@@ -33,6 +33,11 @@ STUDENT_ACCESS_FIELDS = (
     "stud_access_profile_mod",
     "stud_access_task_mod",
 )
+DEFAULT_STUDENT_AVATAR = b'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Foto de perfil predeterminada">
+<rect width="128" height="128" rx="64" fill="#e5e7eb"/>
+<circle cx="64" cy="45" r="23" fill="#9ca3af"/>
+<path d="M22 113c4-25 19-38 42-38s38 13 42 38" fill="#9ca3af"/>
+</svg>'''
 
 
 def _config(role: str) -> dict:
@@ -228,9 +233,19 @@ class UsersManagementDB:
                 values.insert(2, ":email")
                 params["email"] = email
             if role.lower() == "student":
+                avatar_id = db.execute(
+                    text(
+                        "INSERT INTO Avatar (avatar_alt, avatar_bin) "
+                        "VALUES (:avatar_alt, :avatar_bin) RETURNING avatar_id"
+                    ),
+                    {"avatar_alt": "Foto de perfil predeterminada", "avatar_bin": DEFAULT_STUDENT_AVATAR},
+                ).scalar_one()
                 fields.extend(STUDENT_ACCESS_FIELDS)
                 values.extend(f":{field}" for field in STUDENT_ACCESS_FIELDS)
                 params.update({field: access_settings[field] for field in STUDENT_ACCESS_FIELDS})
+                fields.append("avatar_id_fk")
+                values.append(":avatar_id_fk")
+                params["avatar_id_fk"] = avatar_id
             db.execute(text(f"INSERT INTO {cfg['table']} ({', '.join(fields)}) VALUES ({', '.join(values)})"), params)
             db.commit()
             return _ok()
@@ -415,21 +430,18 @@ class UsersManagementDB:
             return _error(ErrorCode.USER_UPDATE_FAILED)
 
     def updateAvatar(self, db: Session, username: str, image: bytes) -> dict:
-        """Guarda la imagen y la vincula al alumno si puede editar su perfil."""
+        """Guarda la imagen y la vincula al alumno indicado por el administrador."""
         try:
             student = db.execute(
                 text(
-                    "SELECT avatar_id_fk, stud_access_profile_mod "
-                    "FROM Student WHERE stud_usr = :username FOR UPDATE"
+                    "SELECT avatar_id_fk FROM Student "
+                    "WHERE stud_usr = :username FOR UPDATE"
                 ),
                 {"username": username},
             ).mappings().first()
             if student is None:
                 db.rollback()
                 return _error(ErrorCode.USER_NOT_FOUND)
-            if student["stud_access_profile_mod"] is not True:
-                db.rollback()
-                return _error(ErrorCode.PROFILE_UPDATE_DENIED)
 
             avatar_id = db.execute(
                 text(
@@ -453,7 +465,7 @@ class UsersManagementDB:
                     {"avatar_id": old_avatar_id},
                 )
             db.commit()
-            return _ok(avatar_id=avatar_id, avatar_url="/users/students/me/avatar")
+            return _ok(avatar_id=avatar_id)
         except Exception:
             db.rollback()
             return _error(ErrorCode.AVATAR_UPDATE_FAILED)
