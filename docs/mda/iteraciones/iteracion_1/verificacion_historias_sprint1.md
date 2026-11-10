@@ -33,7 +33,7 @@ SCRUM-43.
 | SCRUM-323 Borrar clase | `DELETE /classes/{aula}` | OK |
 | SCRUM-324 Editar clase | `PUT /classes/{aula}` | OK |
 | SCRUM-331 Asignar profesor a clase | `POST /classes/{aula}/staff/{usuario}` | OK |
-| SCRUM-329 Cambiar la foto de perfil de los usuarios | — | **Falta en el servidor** |
+| SCRUM-329 Cambiar la foto de perfil de los usuarios | `PUT /users/students/{alumno}/avatar` | OK |
 
 ## Personal del centro
 
@@ -118,22 +118,23 @@ PUT /users/students/me/avatar  -> errorCode 0, avatar_url: /users/students/pablo
 GET /users/students/me/avatar  -> HTTP 200, image/png
 ```
 
-## SCRUM-329, con su nueva redacción, necesita un endpoint
+## SCRUM-329: la foto la cambia administración
 
 La historia pasó de «el alumno añade su foto» a «como administrador quiero
-cambiar la foto de perfil de los usuarios». La API de `main` no lo permite: la
-única subida es `PUT /users/students/me/avatar` y rechaza a quien no sea el
-propio alumno (`if user["role"] != "student": PROFILE_UPDATE_DENIED`).
+cambiar la foto de perfil de los usuarios», y el backend la siguió el
+10/11/2026: `PUT /users/students/{alumno}/avatar` reservado a administración,
+la subida propia del alumno retirada, y una foto predeterminada al crear la
+cuenta.
 
-Hace falta una ruta para administración, por ejemplo:
+El frontend va en consecuencia: el botón «Cambiar la foto» está en el editor
+de usuario de administración, y los ajustes del alumno explican que su foto la
+cambia el centro. Comprobado contra la API:
 
 ```
-PUT /users/students/{student_username}/avatar     (solo admin)
+admin sube la foto de pablo -> errorCode 0, media_type image/png
+se recupera                 -> HTTP 200, image/png
+un alumno intenta subirla   -> HTTP 403
 ```
-
-La pantalla ya está lista: el editor de usuario muestra el botón «Cambiar la
-foto» en cuanto esa ruta exista, y mientras tanto explica que el servidor no
-lo admite todavía. El alumno sigue pudiendo cambiar la suya desde sus ajustes.
 
 ## Dos cosas que conviene vigilar
 

@@ -28,6 +28,8 @@ class DemoRepository implements AutovidaRepository {
   @override
   bool get canSetAvatarOf => true;
   @override
+  bool get canSetOwnAvatar => true;
+  @override
   bool get offline => false;
   @override
   int get pendingChanges => 0;

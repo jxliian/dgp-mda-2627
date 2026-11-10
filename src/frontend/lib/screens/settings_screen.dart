@@ -172,11 +172,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
         children: [
           UserAvatar(user: usuario, size: 130),
           const SizedBox(height: 12),
-          OutlinedButton.icon(
-            onPressed: ocupado || !puedeEditar ? null : cambiarFoto,
-            icon: const Icon(Icons.add_a_photo_outlined),
-            label: const Text('Cambiar mi foto'),
-          ),
+          if (AppScope.of(context).repository.canSetOwnAvatar)
+            OutlinedButton.icon(
+              onPressed: ocupado || !puedeEditar ? null : cambiarFoto,
+              icon: const Icon(Icons.add_a_photo_outlined),
+              label: const Text('Cambiar mi foto'),
+            )
+          else
+            const Notice(_laFotoLaCambiaElCentro),
         ],
       ),
     ),
@@ -203,6 +206,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         valor == contrasena.text ? null : 'Las contraseñas no coinciden.',
   );
 
+  static const _laFotoLaCambiaElCentro =
+      'Tu foto la cambia la administración del centro.';
   static const _servidorSinLecturaDePerfil =
       'El servidor todavía no permite consultar tus ajustes actuales. '
       'Solo se enviarán las opciones que cambies aquí.';

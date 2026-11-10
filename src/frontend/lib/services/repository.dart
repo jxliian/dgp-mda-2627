@@ -37,6 +37,9 @@ abstract class AutovidaRepository {
   /// Permite a administración cambiar la foto de otra persona (SCRUM-329).
   bool get canSetAvatarOf;
 
+  /// Permite que cada quien cambie su propia foto.
+  bool get canSetOwnAvatar;
+
   bool get offline;
   int get pendingChanges;
   Future<void> synchronize();
@@ -162,6 +165,8 @@ class LiveRepository implements AutovidaRepository {
   @override
   bool get canSetAvatarOf =>
       supports('put', '/users/students/{student_username}/avatar');
+  @override
+  bool get canSetOwnAvatar => supports('put', '/users/students/me/avatar');
 
   /// La matrícula tiene ruta propia para administración en los servidores que
   /// la ofrecen; en el resto solo la hace el personal del aula.
