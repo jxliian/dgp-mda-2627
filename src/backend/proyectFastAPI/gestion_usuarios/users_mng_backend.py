@@ -253,6 +253,8 @@ def edit_user(role: Role, username: UsernamePath, payload: UpdateUserRequest,
             raise_api_error(ErrorCode.PROFILE_UPDATE_DENIED)
         if any(field in fields for field in ("username", "full_name", "role")):
             raise_api_error(ErrorCode.PROFILE_UPDATE_DENIED)
+        if user["role"] == "student" and "password" in fields:
+            raise_api_error(ErrorCode.PROFILE_UPDATE_DENIED)
 
     access_settings = {
         key: fields[key]

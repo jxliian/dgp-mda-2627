@@ -33,6 +33,9 @@ STUDENT_ACCESS_FIELDS = (
     "stud_access_profile_mod",
     "stud_access_task_mod",
 )
+STUDENT_ACCESS_PERMISSION_FIELDS = frozenset(
+    {"stud_access_prof_mod", "stud_access_profile_mod", "stud_access_task_mod"}
+)
 DEFAULT_STUDENT_AVATAR = b'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Foto de perfil predeterminada">
 <rect width="128" height="128" rx="64" fill="#e5e7eb"/>
 <circle cx="64" cy="45" r="23" fill="#9ca3af"/>
@@ -312,7 +315,15 @@ class UsersManagementDB:
             if actor_role is not None and actor_role.lower() != "admin":
                 if actor_role.lower() != source_role or actor_username != username:
                     return _error(ErrorCode.PROFILE_UPDATE_DENIED)
-                if new_username is not None or new_role is not None or full_name is not None:
+                if new_username is not None or new_role is not None:
+                    return _error(ErrorCode.PROFILE_UPDATE_DENIED)
+                if full_name is not None:
+                    return _error(ErrorCode.PROFILE_UPDATE_DENIED)
+                if actor_role.lower() == "student" and passwd_plain is not None:
+                    return _error(ErrorCode.PROFILE_UPDATE_DENIED)
+                if actor_role.lower() == "student" and (
+                    set(access_settings) & STUDENT_ACCESS_PERMISSION_FIELDS
+                ):
                     return _error(ErrorCode.PROFILE_UPDATE_DENIED)
             if all(value is None for value in (full_name, email, passwd_plain, new_username, new_role)) and not access_settings:
                 return _error(ErrorCode.NO_UPDATE_FIELDS)
@@ -336,7 +347,11 @@ class UsersManagementDB:
             if old_row is None:
                 db.rollback()
                 return _error(ErrorCode.USER_NOT_FOUND)
-            if actor_role is not None and actor_role.lower() == "student" and old_row["stud_access_profile_mod"] is not True:
+            if (
+                actor_role is not None
+                and actor_role.lower() == "student"
+                and not bool(old_row["stud_access_profile_mod"])
+            ):
                 db.rollback()
                 return _error(ErrorCode.PROFILE_UPDATE_DENIED)
             if access_settings and target_role != "student":
