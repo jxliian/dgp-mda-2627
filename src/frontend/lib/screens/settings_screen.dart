@@ -6,7 +6,8 @@ import '../state/app_state.dart';
 import '../ui/ui.dart';
 import 'access_editor.dart';
 
-/// Ajustes de la propia cuenta: foto, apoyos visuales y contraseña.
+/// Ajustes de la propia cuenta: apoyos visuales y, salvo para el
+/// alumnado, la contraseña.
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
@@ -141,18 +142,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (usuario.role == UserRole.student) ..._seccionDeAlumno(usuario),
-            const SectionTitle(
-              'Cambiar contraseña',
-              hint: 'Déjala vacía si no quieres cambiarla.',
-            ),
-            _campoContrasena(),
-            const SizedBox(height: 16),
-            _campoRepeticion(),
-            const SizedBox(height: 8),
-            Text(
-              'Después de cambiarla tendrás que iniciar sesión de nuevo.',
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
+            // El alumnado no cambia su contraseña de dibujos desde aquí: la
+            // gestiona el centro. Le quedan sus apoyos de accesibilidad.
+            if (usuario.role != UserRole.student) ...[
+              const SectionTitle(
+                'Cambiar contraseña',
+                hint: 'Déjala vacía si no quieres cambiarla.',
+              ),
+              _campoContrasena(),
+              const SizedBox(height: 16),
+              _campoRepeticion(),
+              const SizedBox(height: 8),
+              Text(
+                'Después de cambiarla tendrás que iniciar sesión de nuevo.',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ],
             if (error != null) Notice(error!, error: true),
             if (aviso != null) Notice(aviso!),
             FormActions(

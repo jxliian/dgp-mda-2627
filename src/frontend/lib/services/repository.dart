@@ -31,6 +31,11 @@ abstract class AutovidaRepository {
   /// Permite a la sesión actual matricular o retirar alumnos de un aula.
   bool get canEnrollStudents;
 
+  /// Alumnos que todavía no están en ninguna clase, que son los únicos que se
+  /// pueden matricular: el servidor rechaza al resto con «ya pertenece a otra
+  /// clase». Devuelve solo los que esta cuenta puede ver.
+  Future<List<AppUser>> studentsWithoutClass();
+
   /// Permite retirar a un miembro del personal de un aula.
   bool get canRemoveStaff;
 
@@ -158,8 +163,7 @@ class LiveRepository implements AutovidaRepository {
   @override
   bool get canBrowseDirectory => supports('get', '/classes');
   @override
-  bool get canEnrollStudents =>
-      supports('post', _rutaDeMatricula) && _user?.role == UserRole.staff;
+  bool get canEnrollStudents => supports('post', _rutaDeMatricula);
   @override
   bool get canRemoveStaff =>
       supports('delete', '/classes/{class_name}/staff/{staff_username}');
@@ -169,11 +173,9 @@ class LiveRepository implements AutovidaRepository {
   @override
   bool get canSetOwnAvatar => supports('put', '/users/students/me/avatar');
 
-  /// La matrícula tiene ruta propia para administración en los servidores que
-  /// la ofrecen; en el resto solo la hace el personal del aula.
-  String get _rutaDeMatricula => _user?.role == UserRole.admin
-      ? '/admin/classes/{class_name}/students/{student_username}'
-      : '/classes/{class_name}/students/{student_username}';
+  /// Misma ruta para todos: el servidor decide quién puede matricular.
+  static const _rutaDeMatricula =
+      '/classes/{class_name}/students/{student_username}';
   @override
   AppUser? get currentUser => _user;
 
@@ -318,8 +320,15 @@ class LiveRepository implements AutovidaRepository {
   Future<AppUser> profile() async {
     requireFeature('get', '/users/me', 'La consulta del perfil');
     final data = await api.request('GET', '/users/me');
+    // El servidor devuelve los campos en la raíz; se admite también la forma
+    // anidada por si algún despliegue antiguo responde con «user».
+    final cuerpo = data['user'] is Map
+        ? Map<String, dynamic>.from(data['user'] as Map)
+        : Map<String, dynamic>.from(data);
     return _user = AppUser.fromJson(
-      Map<String, dynamic>.from(data['user'] as Map),
+      cuerpo,
+      // Si la ficha no trae el rol, se conserva el de la sesión.
+      role: cuerpo['role'] == null ? _user?.role : null,
     );
   }
 
@@ -428,6 +437,21 @@ class LiveRepository implements AutovidaRepository {
       'students',
       role: UserRole.student,
     );
+  }
+
+  @override
+  @override
+  Future<List<AppUser>> studentsWithoutClass() async {
+    final matriculados = <String>{
+      for (final aula in await directory())
+        for (final alumno in aula.students) alumno.username,
+    };
+    final conocidos = _user?.role == UserRole.admin
+        ? (await users()).where((u) => u.role == UserRole.student)
+        : await linkedStudents(_user!);
+    return conocidos
+        .where((alumno) => !matriculados.contains(alumno.username))
+        .toList();
   }
 
   @override

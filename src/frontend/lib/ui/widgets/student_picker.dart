@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/domain.dart';
 import '../theme.dart';
+import 'paged_items.dart';
 import 'user_avatar.dart';
 
 /// Buscador de alumnos para matricular: se escribe parte del nombre y la
@@ -90,27 +91,34 @@ class _StudentPickerState extends State<StudentPicker> {
             ),
           ),
         const SizedBox(height: 8),
-        for (final alumno in encontrados)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: OutlinedButton(
-              onPressed: widget.enabled ? () => widget.onPick(alumno) : null,
-              style: OutlinedButton.styleFrom(
-                minimumSize: const Size.fromHeight(Medidas.alturaBotonMenor),
-                alignment: Alignment.centerLeft,
-              ),
-              child: Row(
-                children: [
-                  UserAvatar(user: alumno, size: 44),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      '${alumno.displayName} · ${alumno.username}',
-                      style: const TextStyle(fontWeight: FontWeight.w600),
+        // Paginado con flechas a los lados: la lista no crece hacia abajo por
+        // muchos alumnos que haya, y se recorre sin desplazar la pantalla.
+        if (encontrados.isNotEmpty)
+          PagedItems<AppUser>(
+            key: ValueKey(busqueda.text),
+            items: encontrados,
+            pageSize: 3,
+            builder: (alumno) => Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: OutlinedButton(
+                onPressed: widget.enabled ? () => widget.onPick(alumno) : null,
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(Medidas.alturaBotonMenor),
+                  alignment: Alignment.centerLeft,
+                ),
+                child: Row(
+                  children: [
+                    UserAvatar(user: alumno, size: 44),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        '${alumno.displayName} · ${alumno.username}',
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
                     ),
-                  ),
-                  const Icon(Icons.person_add_alt),
-                ],
+                    const Icon(Icons.person_add_alt),
+                  ],
+                ),
               ),
             ),
           ),

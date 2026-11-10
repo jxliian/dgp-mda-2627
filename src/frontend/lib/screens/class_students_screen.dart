@@ -50,6 +50,7 @@ class _ClassStudentsScreenState extends State<ClassStudentsScreen> {
       if (mounted) {
         setState(() {
           revision++;
+          candidatos = null; // Al matricular cambia quién sigue sin aula.
           nuevoAlumno.clear();
           aviso = retirar ? 'Alumno retirado del aula.' : 'Alumno matriculado.';
         });
@@ -58,16 +59,20 @@ class _ClassStudentsScreenState extends State<ClassStudentsScreen> {
       if (mounted) setState(() => error = e.toString());
     } finally {
       if (mounted) setState(() => ocupado = false);
+      if (mounted && candidatos == null && gestionando) {
+        await cargarCandidatos();
+      }
     }
   }
 
-  /// Carga los alumnos del personal, que son los que puede matricular.
+  /// Carga los alumnos que todavía no tienen aula, que son los únicos que el
+  /// servidor deja matricular: al resto responde «ya pertenece a otra clase».
   Future<void> cargarCandidatos() async {
     if (candidatos != null || cargandoCandidatos) return;
     setState(() => cargandoCandidatos = true);
     final state = AppScope.of(context);
     try {
-      final lista = await state.repository.linkedStudents(state.user!);
+      final lista = await state.repository.studentsWithoutClass();
       if (mounted) setState(() => candidatos = lista);
     } on Object {
       // Sin listado seguimos adelante: queda el usuario escrito a mano.
@@ -157,7 +162,8 @@ class _ClassStudentsScreenState extends State<ClassStudentsScreen> {
     children: [
       const SectionTitle(
         'Matrículas del aula',
-        hint: 'Apunta o retira alumnos de esta clase.',
+        hint: 'Solo aparecen los alumnos que aún no tienen aula: cada alumno '
+            'pertenece a una sola.',
       ),
       if (cargandoCandidatos)
         const Padding(
@@ -168,7 +174,7 @@ class _ClassStudentsScreenState extends State<ClassStudentsScreen> {
         StudentPicker(
           students: _sinMatricular(aula),
           enabled: !ocupado,
-          empty: 'No hay más alumnos tuyos para matricular en esta aula.',
+          empty: 'Todos los alumnos que ves tienen ya un aula asignada.',
           onPick: (alumno) =>
               _matricular(username: alumno.username, retirar: false),
         ),

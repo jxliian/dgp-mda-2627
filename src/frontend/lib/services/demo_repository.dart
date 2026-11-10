@@ -406,6 +406,18 @@ class DemoRepository implements AutovidaRepository {
   }
 
   @override
+  Future<List<AppUser>> studentsWithoutClass() async {
+    final matriculados = _students.values.expand((e) => e).toSet();
+    return _users.values
+        .where(
+          (u) =>
+              u.role == UserRole.student &&
+              !matriculados.contains(u.username),
+        )
+        .toList();
+  }
+
+  @override
   Future<List<AppUser>> parents(String student) async {
     _admin();
     return (_parents[student] ?? {}).map((n) => _users[n]!).toList();

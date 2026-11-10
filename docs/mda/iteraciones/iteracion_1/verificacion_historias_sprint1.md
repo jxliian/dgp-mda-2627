@@ -136,37 +136,39 @@ se recupera                 -> HTTP 200, image/png
 un alumno intenta subirla   -> HTTP 403
 ```
 
-## Tres peticiones que dependen del backend
+## Lo que el backend resolvió el 10/11/2026
 
-Comprobado contra la API del 10/11/2026. El frontend ya está hecho en los tres
-casos y se activa solo en cuanto el servidor lo permita, como pasó con
-SCRUM-329.
+Comprobado contra la API: un alumno ya lee su ficha en `GET /users/me` (llegan
+las 13 claves `stud_access_*`), administración ya matricula alumnos y ya
+asigna personal a un aula. El frontend se ha adaptado a las tres cosas.
 
-**1. Un alumno no puede leer sus propios ajustes de accesibilidad.**
-`GET /users/me` no existe (`1016 Ruta no encontrada`) y
-`GET /users/student/{alumno}` pedido por el propio alumno responde **403**.
-El cliente nunca recibe sus `stud_access_*`, así que ningún ajuste le surte
-efecto: ni los apoyos visuales ni el permiso de crear tareas. Hace falta que
-el alumno pueda leer su propia ficha.
+Al adaptarlo aparecieron dos fallos propios que habrían roto la aplicación:
 
-**2. Administración no puede matricular alumnos.**
-`POST /classes/{aula}/students/{alumno}` lo reserva al personal:
+- `profile()` leía la ficha en `data['user']`, pero el servidor devuelve los
+  campos en la raíz. Como `/users/me` no existía antes, nunca se había
+  ejecutado; al aparecer la ruta, **habría roto el inicio de sesión de todos
+  los perfiles**.
+- Para administración se consultaba una ruta `/admin/classes/...` que no
+  existe, así que la matrícula seguía apareciendo como no disponible.
 
-```python
-if user["role"] != "staff":
-    raise_api_error(ErrorCode.CLASS_ACCESS_DENIED)
+## Lo que todavía falta en el backend
+
+**`GET /classes/{aula}` no devuelve el personal del aula**, solo `students`.
+La asignación funciona y se guarda —en la base de datos, `class_staff` tiene
+las filas— pero no hay forma de leerla, así que la pantalla parece no haber
+hecho nada. Mientras tanto, el editor muestra el personal asignado durante la
+sesión y lo advierte.
+
+Hace falta que la ficha del aula incluya su personal, por ejemplo:
+
+```json
+{ "class_name": "...", "students": [...], "staff": [...] }
 ```
 
-Mientras siga así, la pantalla de administración no lo ofrece, para que nadie
-pulse y reciba un 403 sin explicación.
+**`GET /users` sigue respondiendo 403 al personal**, así que el buscador de
+matrículas del personal solo ve a sus alumnos vinculados.
 
-**3. El personal no puede listar alumnos.**
-`GET /users` responde **403** al personal, así que el buscador de matrículas
-se alimenta de `GET /student-links/staff/{usuario}/students`, es decir, solo
-de sus alumnos vinculados. Quien no lo esté se matricula escribiendo su
-usuario a mano.
-
-## Dos cosas que conviene vigilar
+## Dos cosas que conviene vigilar## Dos cosas que conviene vigilar
 
 1. **El directorio anónimo devuelve el nombre completo** (`full_name`), no solo
    el nombre de pila. Expone apellidos de menores sin autenticación. Merece

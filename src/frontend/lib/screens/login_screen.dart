@@ -211,14 +211,20 @@ class _LoginScreenState extends State<LoginScreen> {
     ),
   );
 
-  Widget _cambiarModoDeContrasena() => TextButton(
-    onPressed: entrando
-        ? null
-        : () => setState(() => usarDibujos = !usarDibujos),
-    child: Text(
-      usarDibujos ? 'Escribir la contraseña con el teclado' : 'Usar dibujos',
-    ),
-  );
+  /// Solo quien entra con credenciales puede alternar: el alumnado entra
+  /// siempre con dibujos, que es lo que se le ha enseñado.
+  Widget _cambiarModoDeContrasena() => esAlumno
+      ? const SizedBox.shrink()
+      : TextButton(
+          onPressed: entrando
+              ? null
+              : () => setState(() => usarDibujos = !usarDibujos),
+          child: Text(
+            usarDibujos
+                ? 'Escribir la contraseña con el teclado'
+                : 'Usar dibujos',
+          ),
+        );
 
   Widget _recordatorioDeContrasena() => TextButton(
     onPressed: () => setState(() => error = _pedirCambioAlAdministrador),
@@ -329,7 +335,7 @@ class _AlumnoElegido extends StatelessWidget {
     padding: const EdgeInsets.only(top: 12, bottom: 16),
     child: Column(
       children: [
-        UserAvatar(user: student, size: 84),
+        UserAvatar(user: student, size: 96),
         const SizedBox(height: 10),
         Text(student.displayName, style: Theme.of(context).textTheme.titleLarge),
       ],
@@ -361,8 +367,8 @@ class _TecladoDeDibujos extends StatelessWidget {
     (Icons.park_outlined, 'Árbol'),
     (Icons.music_note_outlined, 'Música'),
   ];
-  static const _anchoMinimoTecla = 104.0;
-  static const _separacion = 10.0;
+  static const _anchoMinimoTecla = 120.0;
+  static const _separacion = 14.0;
   static const _maximoCaracteres = 72;
   static const _casillasMinimas = 4;
 
@@ -407,12 +413,20 @@ class _TecladoDeDibujos extends StatelessWidget {
           );
         },
       ),
-      const SizedBox(height: 4),
-      TextButton.icon(
-        onPressed: habilitado ? _borrar : null,
-        icon: const Icon(Icons.backspace_outlined),
-        label: const Text('Borrar el último dibujo'),
-      ),
+        const SizedBox(height: 10),
+        // Del tamaño de una tecla: es el botón que más se usa al equivocarse.
+        OutlinedButton.icon(
+          onPressed: habilitado ? _borrar : null,
+          style: OutlinedButton.styleFrom(
+            minimumSize: const Size.fromHeight(Medidas.alturaBoton),
+            textStyle: const TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          icon: const Icon(Icons.backspace_outlined, size: 34),
+          label: const Text('Borrar el último dibujo'),
+        ),
     ],
   );
 
@@ -473,7 +487,7 @@ class _TecladoDeDibujos extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icono, size: 38),
+            Icon(icono, size: 48),
             const SizedBox(height: 4),
             Text(
               '$nombre · $cifra',
