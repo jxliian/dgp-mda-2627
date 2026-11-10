@@ -2,7 +2,7 @@
 
 Este documento describe las pruebas automáticas del backend: qué comprueban, cómo se ejecutan y qué resultado dan.
 
-**Última ejecución:** 09/11/2026 · **Total:** 174 casos · **Resultado:** 169 correctos y 5 fallos esperados.
+**Última ejecución:** 09/11/2026 · **Total:** 174 casos · **Resultado:** 170 correctos y 4 fallos esperados.
 
 ## 1. Alcance
 
@@ -180,7 +180,7 @@ Las familias se asocian directamente con cada alumno. El personal se relaciona c
 | `test_el_personal_no_inscribe_en_una_clase_ajena` | Inscripción en clase ajena | 403, código 1032, sin cambios |
 | `test_un_alumno_no_puede_estar_en_dos_clases` | Alumno que ya tiene clase | 409, código 1033 |
 | `test_el_personal_saca_a_un_alumno_de_su_clase` | Retirar a un alumno | 200 y deja de aparecer |
-| `test_admin_quita_personal_de_una_clase` | Quitar personal de una clase | **Fallo esperado** (F2) |
+| `test_admin_quita_personal_de_una_clase` | Quitar personal de una clase | 200 y deja de aparecer, se desvinculan los alumnos |
 
 ### `test_tasks.py`: crear y eliminar tareas (HU-12, HU-13 y HU-15, 55 casos)
 
@@ -308,7 +308,7 @@ Estas cinco pruebas describen un comportamiento que el backend todavía no ofrec
 | Ref. | Prueba | Situación actual | Decisión pendiente |
 | :---: | :--- | :--- | :--- |
 | F1 | `test_admin_consulta_una_cuenta_concreta` | Solo existe el listado de cuentas | Añadir `GET /users/{role}/{username}` |
-| F2 | `test_admin_quita_personal_de_una_clase` | Se puede asignar personal a una clase, pero no quitarlo | Añadir `DELETE /classes/{class_name}/staff/{staff_username}` |
+| F2 | `test_admin_quita_personal_de_una_clase` | Se puede asignar personal a una clase, pero no quitarlo | Añadir `DELETE /classes/{class_name}/staff/{staff_username}` | CORREGIDO ✅
 | F3 | `test_la_familia_crea_un_sabado_por_la_manana` | El horario de 09:00 a 15:00 se aplica todos los días | Definir el tratamiento de fines de semana y festivos |
 | F4 | `test_el_personal_crea_una_tarea_solo_con_duracion` | Al personal se le exige hora de inicio | Confirmar si el personal puede crear tareas solo con duración |
 | F5 | `test_eliminar_no_deja_la_tarea_huerfana` | La tarea sale de la agenda, pero su fila permanece en `Tasks` | Decidir si se elimina la fila o se conserva como histórico |

@@ -69,8 +69,6 @@ def engine():
     schema = SCHEMA.read_text(encoding="utf-8").replace("COMMIT;", "")
     with test_engine.begin() as conn:
         conn.exec_driver_sql(schema)
-        for migration in sorted((BACKEND / 'proyectFastAPI' / 'migrations').glob('*.sql')):
-            conn.exec_driver_sql(migration.read_text(encoding='utf-8'))
     yield test_engine
     test_engine.dispose()
 
