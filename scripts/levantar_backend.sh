@@ -133,7 +133,7 @@ try:
     psycopg2.connect(host=os.environ.get('DB_HOST', 'localhost'),
                      port=int(os.environ.get('DB_PORT', '5432')),
                      user=os.environ['DB_USER'], password=os.environ['DB_PASSWORD'],
-                     dbname='postgres', connect_timeout=4).close()
+                     dbname=os.environ['DB_NAME'], connect_timeout=4).close()
 except Exception as error:
     print(error, file=sys.stderr)
     sys.exit(1)
@@ -147,6 +147,12 @@ diagnosticar_base_de_datos() {
   $DOCKER logs --tail 25 autovida_postgres 2>&1 | sed 's/^/  /' >&2
   printf -- '--- Error de conexión ---\n  %s\n\n' "$motivo" >&2
   case "$motivo" in
+    *'does not exist'*)
+      fallo "La base «$BASE_DE_DATOS» no existe en el volumen de PostgreSQL.
+         El nombre se fija al crear el volumen, así que un volumen antiguo
+         conserva el de entonces. Para empezar de cero:
+           (cd src/backend/proyectFastAPI && $DOCKER compose down -v)
+         Se borran los datos de prueba, que este script vuelve a crear." ;;
     *'password authentication failed'*)
       fallo 'La contraseña del .env no coincide con la que guarda el volumen.
          La contraseña queda fijada al crear la base. Para empezar de cero:
