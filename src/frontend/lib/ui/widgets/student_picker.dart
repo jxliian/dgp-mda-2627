@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/domain.dart';
+import '../../models/student_search.dart';
 import '../theme.dart';
 import 'paged_items.dart';
 import 'user_avatar.dart';
@@ -16,12 +17,14 @@ class StudentPicker extends StatefulWidget {
     required this.onPick,
     this.enabled = true,
     this.empty = 'No hay alumnos disponibles para matricular.',
+    this.dropdown = false,
   });
 
   final List<AppUser> students;
   final ValueChanged<AppUser> onPick;
   final bool enabled;
   final String empty;
+  final bool dropdown;
 
   @override
   State<StudentPicker> createState() => _StudentPickerState();
@@ -29,6 +32,7 @@ class StudentPicker extends StatefulWidget {
 
 class _StudentPickerState extends State<StudentPicker> {
   final busqueda = TextEditingController();
+  String? elegido;
 
   @override
   void dispose() {
@@ -36,40 +40,16 @@ class _StudentPickerState extends State<StudentPicker> {
     super.dispose();
   }
 
-  /// Deja el texto en minúsculas y sin tildes, para comparar sin sorpresas.
-  static String _llano(String texto) {
-    const con = 'áàäâãéèëêíìïîóòöôõúùüûñç';
-    const sin = 'aaaaaeeeeiiiiooooouuuunc';
-    final buffer = StringBuffer();
-    for (final letra in texto.toLowerCase().split('')) {
-      final i = con.indexOf(letra);
-      buffer.write(i == -1 ? letra : sin[i]);
-    }
-    return buffer.toString();
-  }
-
-  List<AppUser> get _encontrados {
-    final texto = _llano(busqueda.text.trim());
-    if (texto.isEmpty) return widget.students;
-    return widget.students
-        .where(
-          (alumno) =>
-              _llano(alumno.displayName).contains(texto) ||
-              _llano(alumno.username).contains(texto),
-        )
-        .toList();
-  }
-
   @override
   Widget build(BuildContext context) {
-    final encontrados = _encontrados;
+    final encontrados = filterStudents(widget.students, busqueda.text);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         TextField(
           controller: busqueda,
           enabled: widget.enabled,
-          onChanged: (_) => setState(() {}),
+          onChanged: (_) => setState(() => elegido = null),
           decoration: const InputDecoration(
             labelText: 'Buscar alumno por nombre o usuario',
             prefixIcon: Icon(Icons.search),
@@ -91,9 +71,9 @@ class _StudentPickerState extends State<StudentPicker> {
             ),
           ),
         const SizedBox(height: 8),
-        // Paginado con flechas a los lados: la lista no crece hacia abajo por
-        // muchos alumnos que haya, y se recorre sin desplazar la pantalla.
-        if (encontrados.isNotEmpty)
+        if (widget.dropdown)
+          _desplegable(encontrados)
+        else if (encontrados.isNotEmpty)
           PagedItems<AppUser>(
             key: ValueKey(busqueda.text),
             items: encontrados,
@@ -122,6 +102,43 @@ class _StudentPickerState extends State<StudentPicker> {
               ),
             ),
           ),
+      ],
+    );
+  }
+
+  Widget _desplegable(List<AppUser> encontrados) {
+    final seleccion = encontrados
+        .where((a) => a.username == elegido)
+        .firstOrNull;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        DropdownButtonFormField<String>(
+          key: ValueKey(
+            '${busqueda.text}/${encontrados.map((a) => a.username).join(',')}',
+          ),
+          initialValue: seleccion?.username,
+          isExpanded: true,
+          decoration: const InputDecoration(labelText: 'Alumno sin aula'),
+          items: [
+            for (final alumno in encontrados)
+              DropdownMenuItem(
+                value: alumno.username,
+                child: Text('${alumno.displayName} · ${alumno.username}'),
+              ),
+          ],
+          onChanged: widget.enabled && encontrados.isNotEmpty
+              ? (value) => setState(() => elegido = value)
+              : null,
+        ),
+        const SizedBox(height: 12),
+        FilledButton.icon(
+          onPressed: widget.enabled && seleccion != null
+              ? () => widget.onPick(seleccion)
+              : null,
+          icon: const Icon(Icons.person_add_alt),
+          label: const Text('Matricular alumno seleccionado'),
+        ),
       ],
     );
   }

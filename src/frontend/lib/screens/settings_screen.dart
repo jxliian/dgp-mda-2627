@@ -1,4 +1,3 @@
-import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import '../models/domain.dart';
 import '../models/validation.dart';
@@ -6,8 +5,7 @@ import '../state/app_state.dart';
 import '../ui/ui.dart';
 import 'access_editor.dart';
 
-/// Ajustes de la propia cuenta: apoyos visuales y, salvo para el
-/// alumnado, la contraseña.
+/// Accesibilidad del alumno y contraseña de las cuentas del centro y familia.
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
@@ -16,8 +14,6 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  static const _maximoBytesDeFoto = 5 * 1024 * 1024;
-
   final form = GlobalKey<FormState>();
   final contrasena = TextEditingController();
   final repeticion = TextEditingController();
@@ -46,21 +42,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   /// Un alumno solo edita su perfil si tiene el permiso correspondiente.
-  bool get puedeEditar {
-    final usuario = AppScope.of(context).user!;
-    return usuario.role != UserRole.student ||
-        usuario.access.flag('profile_mod');
-  }
+  bool get puedeEditar => AppScope.of(context).canEditOwnSettings;
 
   Json _cambios(AppUser usuario) => {
     if (usuario.role == UserRole.student)
       for (final entrada in ajustes.toJson().entries)
         if (entrada.value != ajustesOriginales.values[entrada.key])
           entrada.key: entrada.value,
-    if (contrasena.text.isNotEmpty) 'password': contrasena.text,
+    if (usuario.role != UserRole.student && contrasena.text.isNotEmpty)
+      'password': contrasena.text,
   };
 
   Future<void> guardar() async {
+    if (ocupado || !puedeEditar) return;
     if (!form.currentState!.validate()) return;
     final state = AppScope.of(context);
     final cambios = _cambios(state.user!);
@@ -76,7 +70,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     try {
       await state.repository.saveUser(cambios, previous: state.user);
       // Cambiar la contraseña invalida la sesión: hay que volver a entrar.
-      if (contrasena.text.isNotEmpty) {
+      if (!state.student && contrasena.text.isNotEmpty) {
         state.expire();
         return;
       }
@@ -87,40 +81,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
           aviso = 'Tus ajustes se han guardado.';
         });
       }
-    } on Object catch (e) {
-      if (mounted) setState(() => error = e.toString());
-    } finally {
-      if (mounted) setState(() => ocupado = false);
-    }
-  }
-
-  Future<void> cambiarFoto() async {
-    final state = AppScope.of(context);
-    try {
-      final archivo = await openFile(
-        acceptedTypeGroups: [
-          const XTypeGroup(
-            label: 'Imágenes PNG, JPEG o WebP',
-            extensions: ['png', 'jpg', 'jpeg', 'webp'],
-          ),
-        ],
-      );
-      if (archivo == null) return;
-      if (await archivo.length() > _maximoBytesDeFoto) {
-        throw StateError('La imagen no puede superar los 5 MB.');
-      }
-      if (!mounted) return;
-      setState(() {
-        ocupado = true;
-        error = null;
-        aviso = null;
-      });
-      await state.repository.uploadAvatar(
-        await archivo.readAsBytes(),
-        archivo.name,
-      );
-      state.photoChanged();
-      if (mounted) setState(() => aviso = 'Tu foto se ha actualizado.');
     } on Object catch (e) {
       if (mounted) setState(() => error = e.toString());
     } finally {
@@ -142,8 +102,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (usuario.role == UserRole.student) ..._seccionDeAlumno(usuario),
-            // El alumnado no cambia su contraseña de dibujos desde aquí: la
-            // gestiona el centro. Le quedan sus apoyos de accesibilidad.
             if (usuario.role != UserRole.student) ...[
               const SectionTitle(
                 'Cambiar contraseña',
@@ -177,14 +135,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
         children: [
           UserAvatar(user: usuario, size: 130),
           const SizedBox(height: 12),
-          if (AppScope.of(context).repository.canSetOwnAvatar)
-            OutlinedButton.icon(
-              onPressed: ocupado || !puedeEditar ? null : cambiarFoto,
-              icon: const Icon(Icons.add_a_photo_outlined),
-              label: const Text('Cambiar mi foto'),
-            )
-          else
-            const Notice(_laFotoLaCambiaElCentro),
         ],
       ),
     ),
@@ -211,8 +161,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
         valor == contrasena.text ? null : 'Las contraseñas no coinciden.',
   );
 
-  static const _laFotoLaCambiaElCentro =
-      'Tu foto la cambia la administración del centro.';
   static const _servidorSinLecturaDePerfil =
       'El servidor todavía no permite consultar tus ajustes actuales. '
       'Solo se enviarán las opciones que cambies aquí.';

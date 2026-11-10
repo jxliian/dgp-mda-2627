@@ -15,6 +15,7 @@ class StaffClassesScreen extends StatefulWidget {
 
 class _StaffClassesScreenState extends State<StaffClassesScreen> {
   String busqueda = '';
+  int revision = 0;
 
   List<Classroom> _filtrar(List<Classroom> aulas) => aulas
       .where((aula) => aula.name.toLowerCase().contains(busqueda))
@@ -45,6 +46,7 @@ class _StaffClassesScreenState extends State<StaffClassesScreen> {
           ),
           const SizedBox(height: 16),
           LoadPanel<List<Classroom>>(
+            key: ValueKey('$revision/${state.classroomVersion}'),
             load: state.repository.classes,
             builder: (aulas) => PagedItems<Classroom>(
               pageSize: 2,
@@ -63,12 +65,16 @@ class _StaffClassesScreenState extends State<StaffClassesScreen> {
     subtitle: 'Alumnos y tareas del aula',
     icon: Icons.school_outlined,
     badges: [
-      const StatusBadge('Aula', tone: BadgeTone.main, icon: Icons.groups_outlined),
-      StatusBadge(
-        '${aula.students.length} alumnos',
-        icon: Icons.person_outline,
+      const StatusBadge(
+        'Aula',
+        tone: BadgeTone.main,
+        icon: Icons.groups_outlined,
       ),
+      StatusBadge('${aula.studentCount} alumnos', icon: Icons.person_outline),
     ],
-    onTap: () => openPage(context, ClassStudentsScreen(className: aula.name)),
+    onTap: () async {
+      await openPage(context, ClassStudentsScreen(className: aula.name));
+      if (mounted) setState(() => revision++);
+    },
   );
 }

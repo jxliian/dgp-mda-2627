@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../models/domain.dart';
 import '../../screens/settings_screen.dart';
 import '../../state/app_state.dart';
 import '../routes.dart';
@@ -34,14 +33,6 @@ class _AppFooterState extends State<AppFooter> {
     }
   }
 
-  /// Un alumno con la modificación de su perfil desactivada no ve los
-  /// ajustes: entraría a una pantalla donde no podría cambiar nada.
-  static bool _puedeVerLosAjustes(BuildContext context) {
-    final state = AppScope.of(context);
-    if (state.user?.role != UserRole.student) return true;
-    return state.access.flag('profile_mod');
-  }
-
   @override
   Widget build(BuildContext context) => Column(
     mainAxisSize: MainAxisSize.min,
@@ -58,12 +49,12 @@ class _AppFooterState extends State<AppFooter> {
             icon: const Icon(Icons.home_outlined),
             label: const Text('Inicio'),
           ),
-            if (_puedeVerLosAjustes(context))
-              TextButton.icon(
-                onPressed: () => openPage(context, const SettingsScreen()),
-                icon: const Icon(Icons.settings_outlined),
-                label: const Text('Ajustes'),
-              ),
+          if (AppScope.of(context).canEditOwnSettings)
+            TextButton.icon(
+              onPressed: () => openPage(context, const SettingsScreen()),
+              icon: const Icon(Icons.settings_outlined),
+              label: const Text('Ajustes'),
+            ),
           OutlinedButton.icon(
             onPressed: saliendo ? null : cerrarSesion,
             icon: const Icon(Icons.logout),

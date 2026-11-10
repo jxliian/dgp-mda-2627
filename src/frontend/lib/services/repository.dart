@@ -31,11 +31,6 @@ abstract class AutovidaRepository {
   /// Permite a la sesión actual matricular o retirar alumnos de un aula.
   bool get canEnrollStudents;
 
-  /// Alumnos que todavía no están en ninguna clase, que son los únicos que se
-  /// pueden matricular: el servidor rechaza al resto con «ya pertenece a otra
-  /// clase». Devuelve solo los que esta cuenta puede ver.
-  Future<List<AppUser>> studentsWithoutClass();
-
   /// Permite retirar a un miembro del personal de un aula.
   bool get canRemoveStaff;
 
@@ -54,6 +49,7 @@ abstract class AutovidaRepository {
   Future<List<Classroom>> directory();
   Future<AppUser> profile();
   Future<List<AppUser>> users();
+  Future<List<AppUser>> unassignedStudents();
   Future<void> saveUser(Json payload, {AppUser? previous});
   Future<void> deleteUser(AppUser user);
   Future<List<Classroom>> classes();
@@ -134,6 +130,8 @@ class LiveRepository implements AutovidaRepository {
   AppUser? _user;
   Json _paths = {};
   Json _esquemas = {};
+  final Map<String, AppUser> _knownUsers = {};
+  final Map<String, Map<String, AppUser>> _knownClassStaff = {};
   final Map<String, List<AgendaTask>> _agendaCache = {};
   final List<Json> _pending = [];
   SharedPreferences? _storage;
@@ -163,7 +161,9 @@ class LiveRepository implements AutovidaRepository {
   @override
   bool get canBrowseDirectory => supports('get', '/classes');
   @override
-  bool get canEnrollStudents => supports('post', _rutaDeMatricula);
+  bool get canEnrollStudents =>
+      supports('post', _rutaDeMatricula) &&
+      (_user?.role == UserRole.staff || _user?.role == UserRole.admin);
   @override
   bool get canRemoveStaff =>
       supports('delete', '/classes/{class_name}/staff/{staff_username}');
@@ -173,8 +173,9 @@ class LiveRepository implements AutovidaRepository {
   @override
   bool get canSetOwnAvatar => supports('put', '/users/students/me/avatar');
 
-  /// Misma ruta para todos: el servidor decide quién puede matricular.
-  static const _rutaDeMatricula =
+  /// Administración y personal utilizan la misma ruta; el servidor comprueba
+  /// que el personal esté asignado al aula.
+  String get _rutaDeMatricula =>
       '/classes/{class_name}/students/{student_username}';
   @override
   AppUser? get currentUser => _user;
@@ -183,7 +184,9 @@ class LiveRepository implements AutovidaRepository {
     final schema = await api.request('GET', '/openapi.json', protected: false);
     _paths = Map<String, dynamic>.from(schema['paths'] as Map? ?? {});
     final componentes = schema['components'] as Map?;
-    _esquemas = Map<String, dynamic>.from(componentes?['schemas'] as Map? ?? {});
+    _esquemas = Map<String, dynamic>.from(
+      componentes?['schemas'] as Map? ?? {},
+    );
   }
 
   /// Campos que admite el cuerpo de una operación, resolviendo la referencia
@@ -195,7 +198,8 @@ class LiveRepository implements AutovidaRepository {
   Set<String> camposDelCuerpo(String method, String path) {
     final operacion = (_paths[path] as Map?)?[method.toLowerCase()] as Map?;
     final contenido = (operacion?['requestBody'] as Map?)?['content'] as Map?;
-    var definicion = (contenido?['application/json'] as Map?)?['schema'] as Map?;
+    var definicion =
+        (contenido?['application/json'] as Map?)?['schema'] as Map?;
     final referencia = definicion?[r'$ref'] as String?;
     if (referencia != null) {
       definicion = _esquemas[referencia.split('/').last] as Map?;
@@ -210,6 +214,8 @@ class LiveRepository implements AutovidaRepository {
 
   @override
   Future<AppUser> login(String username, String password, UserRole role) async {
+    _knownUsers.clear();
+    _knownClassStaff.clear();
     final response = await api.request(
       'POST',
       '/auth/login',
@@ -279,6 +285,8 @@ class LiveRepository implements AutovidaRepository {
     } finally {
       api.token = null;
       _user = null;
+      _knownUsers.clear();
+      _knownClassStaff.clear();
       _agendaCache.clear();
       if (_storageKey != null) await _storage?.remove(_storageKey!);
       _pending.clear();
@@ -320,21 +328,54 @@ class LiveRepository implements AutovidaRepository {
   Future<AppUser> profile() async {
     requireFeature('get', '/users/me', 'La consulta del perfil');
     final data = await api.request('GET', '/users/me');
-    // El servidor devuelve los campos en la raíz; se admite también la forma
-    // anidada por si algún despliegue antiguo responde con «user».
-    final cuerpo = data['user'] is Map
-        ? Map<String, dynamic>.from(data['user'] as Map)
-        : Map<String, dynamic>.from(data);
     return _user = AppUser.fromJson(
-      cuerpo,
-      // Si la ficha no trae el rol, se conserva el de la sesión.
-      role: cuerpo['role'] == null ? _user?.role : null,
+      Map<String, dynamic>.from(data['user'] as Map? ?? data),
     );
   }
 
   @override
-  Future<List<AppUser>> users() async =>
-      _userList(await api.request('GET', '/users'), 'users');
+  Future<List<AppUser>> users() async {
+    final result = _userList(await api.request('GET', '/users'), 'users');
+    _knownUsers.addEntries(result.map((user) => MapEntry(user.username, user)));
+    return result;
+  }
+
+  @override
+  Future<List<AppUser>> unassignedStudents() async {
+    // El personal no puede listar usuarios (GET /users le responde 403), así
+    // que para él la lista sale de sus alumnos vinculados. Sin esto tendría
+    // que saberse el nombre de usuario de memoria.
+    final accounts = _user?.role == UserRole.admin
+        ? await users()
+        : await linkedStudents(_user!);
+    final data = await api.request('GET', '/classes');
+    final enrolled = <String>{};
+    for (final entry in data['classes'] as List? ?? []) {
+      var classroom = Map<String, dynamic>.from(entry as Map);
+      if (classroom['students'] is! List) {
+        classroom = await api.request(
+          'GET',
+          '/classes/${segment(classroom['class_name'] as String)}',
+        );
+      }
+      if (classroom['students'] is! List) {
+        throw const ApiException(
+          'No se han podido comprobar las matrículas actuales.',
+        );
+      }
+      enrolled.addAll(
+        Classroom.fromJson(classroom).students.map((s) => s.username),
+      );
+    }
+    return accounts
+        .where(
+          (user) =>
+              user.role == UserRole.student &&
+              !enrolled.contains(user.username),
+        )
+        .toList();
+  }
+
   @override
   Future<void> saveUser(Json payload, {AppUser? previous}) async {
     await api.request(
@@ -371,11 +412,57 @@ class LiveRepository implements AutovidaRepository {
   }
 
   @override
-  Future<List<Classroom>> classes() async =>
-      _classList(await api.request('GET', '/classes'));
+  Future<List<Classroom>> classes() async {
+    final data = await api.request('GET', '/classes');
+    return Future.wait(
+      (data['classes'] as List? ?? []).map(
+        (entry) => _classroomWithStaff(Map<String, dynamic>.from(entry as Map)),
+      ),
+    );
+  }
+
   @override
-  Future<Classroom> classDetail(String name) async =>
-      Classroom.fromJson(await api.request('GET', '/classes/${segment(name)}'));
+  Future<Classroom> classDetail(String name) async => _classroomWithStaff(
+    await api.request('GET', '/classes/${segment(name)}'),
+  );
+
+  Future<Classroom> _classroomWithStaff(Json data) async {
+    final classroom = Classroom.fromJson(data);
+    if (classroom.staffComplete || _user?.role != UserRole.admin) {
+      return classroom;
+    }
+    // Cada alumno pertenece a una sola aula: sus asociaciones de personal
+    // identifican exactamente el personal de esa aula, incluso tras reabrirla.
+    if (classroom.students.isNotEmpty &&
+        supports('get', '/student-links/students/{student_username}')) {
+      final links = await api.request(
+        'GET',
+        '/student-links/students/${segment(classroom.students.first.username)}',
+      );
+      if (links['staff'] is List) {
+        final staff = _userList(links, 'staff', role: UserRole.staff);
+        _knownClassStaff[classroom.name] = {
+          for (final member in staff) member.username: member,
+        };
+        return Classroom(
+          name: classroom.name,
+          students: classroom.students,
+          studentCount: classroom.studentCount,
+          staff: staff,
+        );
+      }
+    }
+    // Las aulas vacías no tienen ninguna ruta que permita recuperar su
+    // personal. Conservamos solo operaciones confirmadas, sin inventar datos.
+    return Classroom(
+      name: classroom.name,
+      students: classroom.students,
+      studentCount: classroom.studentCount,
+      staffComplete: false,
+      staff: _knownClassStaff[classroom.name]?.values.toList() ?? [],
+    );
+  }
+
   @override
   Future<void> saveClass(String name, {String? previous}) async {
     await api.request(
@@ -383,11 +470,16 @@ class LiveRepository implements AutovidaRepository {
       previous == null ? '/classes' : '/classes/${segment(previous)}',
       body: {'class_name': name},
     );
+    if (previous != null && previous != name) {
+      final members = _knownClassStaff.remove(previous);
+      if (members != null) _knownClassStaff[name] = members;
+    }
   }
 
   @override
   Future<void> deleteClass(String name) async {
     await api.request('DELETE', '/classes/${segment(name)}');
+    _knownClassStaff.remove(name);
   }
 
   @override
@@ -396,6 +488,9 @@ class LiveRepository implements AutovidaRepository {
       'POST',
       '/classes/${segment(classroom)}/staff/${segment(username)}',
     );
+    _knownClassStaff.putIfAbsent(classroom, () => {})[username] =
+        _knownUsers[username] ??
+        AppUser(username: username, fullName: '', role: UserRole.staff);
   }
 
   @override
@@ -409,6 +504,7 @@ class LiveRepository implements AutovidaRepository {
       'DELETE',
       '/classes/${segment(classroom)}/staff/${segment(username)}',
     );
+    _knownClassStaff[classroom]?.remove(username);
   }
 
   @override
@@ -417,12 +513,14 @@ class LiveRepository implements AutovidaRepository {
     String username, {
     bool remove = false,
   }) async {
-    final prefix = _user?.role == UserRole.admin
-        ? '/admin/classes'
-        : '/classes';
+    if (_user?.role == UserRole.staff && !remove) {
+      throw const ApiException(
+        'Solo administración puede añadir alumnos a un aula.',
+      );
+    }
     await api.request(
       remove ? 'DELETE' : 'POST',
-      '$prefix/${segment(classroom)}/students/${segment(username)}',
+      '/classes/${segment(classroom)}/students/${segment(username)}',
     );
   }
 
@@ -437,21 +535,6 @@ class LiveRepository implements AutovidaRepository {
       'students',
       role: UserRole.student,
     );
-  }
-
-  @override
-  @override
-  Future<List<AppUser>> studentsWithoutClass() async {
-    final matriculados = <String>{
-      for (final aula in await directory())
-        for (final alumno in aula.students) alumno.username,
-    };
-    final conocidos = _user?.role == UserRole.admin
-        ? (await users()).where((u) => u.role == UserRole.student)
-        : await linkedStudents(_user!);
-    return conocidos
-        .where((alumno) => !matriculados.contains(alumno.username))
-        .toList();
   }
 
   @override
@@ -702,11 +785,7 @@ class LiveRepository implements AutovidaRepository {
   Future<void> uploadAvatar(Uint8List image, String filename) =>
       api.uploadAvatar(image, filename);
   @override
-  Future<void> uploadAvatarOf(
-    AppUser user,
-    Uint8List image,
-    String filename,
-  ) {
+  Future<void> uploadAvatarOf(AppUser user, Uint8List image, String filename) {
     requireFeature(
       'put',
       '/users/students/{student_username}/avatar',
@@ -718,6 +797,7 @@ class LiveRepository implements AutovidaRepository {
       path: '/users/students/${segment(user.username)}/avatar',
     );
   }
+
   @override
   void close() {
     _agendaCache.clear();
@@ -733,9 +813,6 @@ class LiveRepository implements AutovidaRepository {
             ),
           )
           .toList();
-  List<Classroom> _classList(Json data) => (data['classes'] as List? ?? [])
-      .map((e) => Classroom.fromJson(Map<String, dynamic>.from(e as Map)))
-      .toList();
   List<AgendaTask> _tasks(Json data) => (data['tasks'] as List? ?? [])
       .map((e) => AgendaTask.fromJson(Map<String, dynamic>.from(e as Map)))
       .toList();

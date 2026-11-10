@@ -24,34 +24,13 @@ class _ClassEditorScreenState extends State<ClassEditorScreen> {
   int revision = 0;
   bool ocupado = false;
   String? aviso;
-
-  /// Personal asignado durante esta sesión. El servidor guarda la asignación
-  /// pero todavía no la devuelve al consultar el aula, así que sin esta lista
-  /// parecería que no se ha hecho nada.
-  final List<AppUser> personalAsignado = [];
   String? error;
-
-  static const _sinPersonalTodavia =
-      'Todavía no has asignado personal a esta aula.';
-  static const _personalSoloDeEstaSesion =
-      'El servidor guarda la asignación, pero aún no devuelve el personal al '
-      'consultar el aula, así que esta lista es la de esta sesión.';
-
-  /// Personal del aula: el que devuelve el servidor más el asignado ahora.
-  List<AppUser> _personalDelAula(Classroom aula) {
-    final vistos = aula.staff.map((u) => u.username).toSet();
-    return [
-      ...aula.staff,
-      ...personalAsignado.where((u) => !vistos.contains(u.username)),
-    ];
-  }
 
   /// El aula no tiene miembros hasta que existe con un nombre guardado.
   bool get existe => nombreGuardado != null;
 
   /// En algunos servidores la matrícula la hace solo el personal del aula.
-  bool get puedeMatricular =>
-      AppScope.of(context).repository.canEnrollStudents;
+  bool get puedeMatricular => AppScope.of(context).repository.canEnrollStudents;
   bool get puedeRetirarPersonal =>
       AppScope.of(context).repository.canRemoveStaff;
 
@@ -85,6 +64,7 @@ class _ClassEditorScreenState extends State<ClassEditorScreen> {
           alumnoElegido = null;
           aviso = exito;
         });
+        AppScope.of(context).classroomsChanged();
       }
     } on Object catch (e) {
       if (mounted) setState(() => error = e.toString());
@@ -96,15 +76,12 @@ class _ClassEditorScreenState extends State<ClassEditorScreen> {
   Future<void> guardarNombre() async {
     if (!form.currentState!.validate()) return;
     final nuevo = nombre.text.trim();
-    await _operar(
-      () async {
-        await AppScope.of(
-          context,
-        ).repository.saveClass(nuevo, previous: nombreGuardado);
-        nombreGuardado = nuevo;
-      },
-      exito: 'Aula guardada. Ya puedes asignar su personal.',
-    );
+    await _operar(() async {
+      await AppScope.of(
+        context,
+      ).repository.saveClass(nuevo, previous: nombreGuardado);
+      nombreGuardado = nuevo;
+    }, exito: 'Aula guardada. Ya puedes asignar su personal.');
   }
 
   Future<void> cambiarPersonal(String username, {required bool retirar}) {
@@ -157,7 +134,11 @@ class _ClassEditorScreenState extends State<ClassEditorScreen> {
           if (existe) _miembros(),
           if (error != null) Notice(error!, error: true),
           if (aviso != null) Notice(aviso!),
-          FormActions(busy: ocupado, onSave: guardarNombre, label: 'Guardar aula'),
+          FormActions(
+            busy: ocupado,
+            onSave: guardarNombre,
+            label: 'Guardar aula',
+          ),
           if (existe)
             Padding(
               padding: const EdgeInsets.only(top: 20),
@@ -184,35 +165,35 @@ class _ClassEditorScreenState extends State<ClassEditorScreen> {
         _selector(
           etiqueta: 'Añadir personal',
           rol: UserRole.staff,
-          yaPresentes: _personalDelAula(aula),
+          yaPresentes: aula.staff,
           elegido: personalElegido,
           onChanged: (valor) => setState(() => personalElegido = valor),
           onConfirm: () => cambiarPersonal(personalElegido!, retirar: false),
           textoBoton: 'Asignar personal',
           vacio: 'No hay más miembros del personal para asignar.',
         ),
-        // La lista va debajo del campo, para ver a quién se acaba de asignar.
-        const SizedBox(height: 12),
-        if (_personalDelAula(aula).isEmpty)
-          const Notice(_sinPersonalTodavia)
-        else ...[
-          const SectionTitle('Asignados a esta aula'),
-          for (final miembro in _personalDelAula(aula))
-            _filaDeMiembro(
-              miembro,
-              onRemove: puedeRetirarPersonal
-                  ? () => cambiarPersonal(miembro.username, retirar: true)
-                  : null,
-            ),
-          if (aula.staff.isEmpty) const Notice(_personalSoloDeEstaSesion),
-        ],
-        const SizedBox(height: 16),
+        const SectionTitle('Personal asociado al aula'),
+        if (!aula.staffComplete)
+          const Notice(
+            'Se muestran las asignaciones confirmadas durante esta sesión. '
+            'Para consultar todo el personal existente, el aula debe tener alumnos.',
+          ),
+        if (aula.staffComplete && aula.staff.isEmpty)
+          const Notice('No hay personal asociado a esta aula.'),
+        for (final miembro in aula.staff)
+          _filaDeMiembro(
+            miembro,
+            onRemove: puedeRetirarPersonal
+                ? () => cambiarPersonal(miembro.username, retirar: true)
+                : null,
+          ),
         SectionTitle(
           'Alumnos del aula',
           hint: puedeMatricular
               ? 'Matricula o retira alumnos de esta clase.'
               : 'Las matrículas las gestiona el personal asignado al aula.',
         ),
+        Text('Total: ${aula.studentCount} alumnos'),
         for (final alumno in aula.students)
           _filaDeMiembro(
             alumno,
@@ -220,15 +201,15 @@ class _ClassEditorScreenState extends State<ClassEditorScreen> {
             onRemove: puedeMatricular ? () => retirarAlumno(alumno) : null,
           ),
         if (puedeMatricular)
-          LoadPanel<List<AppUser>>(
-            key: ValueKey('sin-aula/$revision'),
-            load: AppScope.of(context).repository.studentsWithoutClass,
-            builder: (sinAula) => StudentPicker(
-              students: sinAula,
-              enabled: !ocupado,
-              empty: 'Todos los alumnos tienen ya un aula asignada.',
-              onPick: (alumno) => matricular(alumno.username),
-            ),
+          _selector(
+            etiqueta: 'Añadir alumno',
+            rol: UserRole.student,
+            yaPresentes: aula.students,
+            elegido: alumnoElegido,
+            onChanged: (valor) => setState(() => alumnoElegido = valor),
+            onConfirm: () => matricular(alumnoElegido!),
+            textoBoton: 'Matricular alumno',
+            vacio: 'No hay más alumnos disponibles.',
           ),
       ],
     ),
@@ -262,7 +243,9 @@ class _ClassEditorScreenState extends State<ClassEditorScreen> {
     required String vacio,
   }) => LoadPanel<List<AppUser>>(
     key: ValueKey('${rol.name}/$revision'),
-    load: AppScope.of(context).repository.users,
+    load: rol == UserRole.student
+        ? AppScope.of(context).repository.unassignedStudents
+        : AppScope.of(context).repository.users,
     builder: (todos) {
       final candidatos = todos
           .where(

@@ -77,6 +77,20 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('Pablo García'));
       await tester.pumpAndSettle();
+      expect(find.byType(TextField), findsNothing);
+      expect(find.text('Escribir la contraseña con el teclado'), findsNothing);
+      final erase = find.widgetWithText(
+        OutlinedButton,
+        'Borrar el último dibujo',
+      );
+      expect(tester.getSize(erase).height, greaterThanOrEqualTo(88));
+      expect(tester.getSize(erase).width, greaterThan(900));
+      await tester.tap(find.text('Sol · 0'));
+      await tester.pump();
+      await tester.ensureVisible(erase);
+      await tester.tap(erase);
+      await tester.pump();
+      expect(tester.widget<OutlinedButton>(erase).onPressed, isNull);
       for (final label in [
         'Corazón · 1',
         'Estrella · 2',
@@ -283,7 +297,11 @@ void main() {
       'profile_mod',
       'task_mod',
     ]) {
-      expect(ajustes.flag(apoyo), false, reason: '$apoyo debería nacer apagado');
+      expect(
+        ajustes.flag(apoyo),
+        false,
+        reason: '$apoyo debería nacer apagado',
+      );
     }
   });
 
