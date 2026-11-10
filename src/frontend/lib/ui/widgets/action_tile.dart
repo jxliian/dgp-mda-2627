@@ -18,6 +18,7 @@ class ActionTile extends StatelessWidget {
     this.vertical = false,
     this.badges = const [],
     this.edge = Paleta.bosque,
+    this.height,
   });
 
   final String title;
@@ -35,6 +36,9 @@ class ActionTile extends StatelessWidget {
   final bool vertical;
   final List<Widget> badges;
   final Color edge;
+
+  /// Altura fija, para las fichas que deben llenar la pantalla.
+  final double? height;
 
   @override
   Widget build(BuildContext context) {

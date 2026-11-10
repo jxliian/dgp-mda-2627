@@ -112,20 +112,38 @@ class _Contenido extends StatelessWidget {
 
   final Widget child;
 
+  static const _margenVertical = 18.0;
+
   @override
   Widget build(BuildContext context) => LayoutBuilder(
-    builder: (context, restricciones) => SingleChildScrollView(
-      padding: EdgeInsets.symmetric(
+    builder: (context, restricciones) {
+      final relleno = EdgeInsets.symmetric(
         horizontal: restricciones.maxWidth < 600 ? 18 : 48,
-        vertical: 18,
-      ),
-      child: Center(
+        vertical: _margenVertical,
+      );
+      // Reservando la altura del hueco, el contenido queda centrado cuando
+      // cabe y se desplaza solo cuando no cabe. Con la letra muy ampliada en
+      // un móvil, la cabecera y el pie pueden dejar un hueco mínimo: de ahí
+      // que se acote a cero en vez de restar sin más.
+      final alturaDisponible = restricciones.maxHeight.isFinite
+          ? (restricciones.maxHeight - _margenVertical * 2).clamp(
+              0.0,
+              double.infinity,
+            )
+          : 0.0;
+      return SingleChildScrollView(
+        padding: relleno,
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: Medidas.anchoMaximo),
-          child: child,
+          constraints: BoxConstraints(minHeight: alturaDisponible),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: Medidas.anchoMaximo),
+              child: child,
+            ),
+          ),
         ),
-      ),
-    ),
+      );
+    },
   );
 }
 
