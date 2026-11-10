@@ -158,7 +158,8 @@ class LiveRepository implements AutovidaRepository {
   @override
   bool get canBrowseDirectory => supports('get', '/classes');
   @override
-  bool get canEnrollStudents => supports('post', _rutaDeMatricula);
+  bool get canEnrollStudents =>
+      supports('post', _rutaDeMatricula) && _user?.role == UserRole.staff;
   @override
   bool get canRemoveStaff =>
       supports('delete', '/classes/{class_name}/staff/{staff_username}');

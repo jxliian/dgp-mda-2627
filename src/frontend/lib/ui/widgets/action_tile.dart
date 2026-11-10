@@ -59,14 +59,18 @@ class ActionTile extends StatelessWidget {
               child: InkWell(
                 onTap: onTap,
                 child: ConstrainedBox(
-                  constraints: const BoxConstraints(
-                    minHeight: Medidas.alturaBoton,
+                  constraints: BoxConstraints(
+                    minHeight: height ?? Medidas.alturaBoton,
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(20),
-                    child: vertical
-                        ? _contenidoVertical(context)
-                        : _contenidoHorizontal(context, scheme),
+                    // Centrado: en una ficha alta, el contenido pegado arriba
+                    // deja un vacío que se lee como un error de maquetación.
+                    child: Center(
+                      child: vertical
+                          ? _contenidoVertical(context)
+                          : _contenidoHorizontal(context, scheme),
+                    ),
                   ),
                 ),
               ),

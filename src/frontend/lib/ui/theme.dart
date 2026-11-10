@@ -44,11 +44,11 @@ class Paleta {
 class Medidas {
   const Medidas._();
 
-  static const alturaBoton = 76.0; // Acción principal
+  static const alturaBoton = 84.0; // Acción principal
   static const alturaBotonMenor = 64.0; // Secundarias (mínimo WCAG 2.2: 24)
-  static const alturaFicha = 112.0; // Fila de una lista pulsable
-  static const iconoFicha = 52.0; // Icono de una fila
-  static const iconoFichaVertical = 96.0; // Icono de una tarjeta en rejilla
+  static const alturaFicha = 132.0; // Fila de una lista pulsable
+  static const iconoFicha = 60.0; // Icono de una fila
+  static const iconoFichaVertical = 108.0; // Icono de una tarjeta en rejilla
   static const radioTarjeta = 18.0;
   static const radioControl = 14.0;
   static const trazo = 1.5;

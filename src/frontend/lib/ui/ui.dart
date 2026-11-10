@@ -18,5 +18,6 @@ export 'widgets/page_shell.dart';
 export 'widgets/section_title.dart';
 export 'widgets/speech_button.dart';
 export 'widgets/status_badge.dart';
+export 'widgets/student_picker.dart';
 export 'widgets/task_badges.dart';
 export 'widgets/user_avatar.dart';

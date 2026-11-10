@@ -18,9 +18,9 @@ enum UserRole {
 class AccessSettings {
   AccessSettings([Json? source]) : values = {...defaults, ...?source};
   final Json values;
-  /// Los apoyos visuales nacen apagados: se activan uno a uno con la familia
-  /// y el tutor, según lo que cada alumno necesite. Los permisos del perfil no
-  /// son apoyos y conservan su valor.
+  /// Todo nace apagado, apoyos y permisos: se activan uno a uno con la familia
+  /// y el tutor, según lo que cada alumno necesite. En particular, de base un
+  /// alumno no crea ni borra tareas; se lo habilita quien le acompaña.
   static const Json defaults = {
     'stud_access_main_col': '#fbf9f5',
     'stud_access_sec_col': '#1b4332',
@@ -33,8 +33,8 @@ class AccessSettings {
     'stud_access_prof_mod': false,
     'stud_access_timebar': false,
     'stud_access_talkback': false,
-    'stud_access_profile_mod': true,
-    'stud_access_task_mod': true,
+    'stud_access_profile_mod': false,
+    'stud_access_task_mod': false,
   };
   bool flag(String key) => values['stud_access_$key'] == true;
   int number(String key) => (values['stud_access_$key'] as num).toInt();

@@ -136,6 +136,36 @@ se recupera                 -> HTTP 200, image/png
 un alumno intenta subirla   -> HTTP 403
 ```
 
+## Tres peticiones que dependen del backend
+
+Comprobado contra la API del 10/11/2026. El frontend ya está hecho en los tres
+casos y se activa solo en cuanto el servidor lo permita, como pasó con
+SCRUM-329.
+
+**1. Un alumno no puede leer sus propios ajustes de accesibilidad.**
+`GET /users/me` no existe (`1016 Ruta no encontrada`) y
+`GET /users/student/{alumno}` pedido por el propio alumno responde **403**.
+El cliente nunca recibe sus `stud_access_*`, así que ningún ajuste le surte
+efecto: ni los apoyos visuales ni el permiso de crear tareas. Hace falta que
+el alumno pueda leer su propia ficha.
+
+**2. Administración no puede matricular alumnos.**
+`POST /classes/{aula}/students/{alumno}` lo reserva al personal:
+
+```python
+if user["role"] != "staff":
+    raise_api_error(ErrorCode.CLASS_ACCESS_DENIED)
+```
+
+Mientras siga así, la pantalla de administración no lo ofrece, para que nadie
+pulse y reciba un 403 sin explicación.
+
+**3. El personal no puede listar alumnos.**
+`GET /users` responde **403** al personal, así que el buscador de matrículas
+se alimenta de `GET /student-links/staff/{usuario}/students`, es decir, solo
+de sus alumnos vinculados. Quien no lo esté se matricula escribiendo su
+usuario a mano.
+
 ## Dos cosas que conviene vigilar
 
 1. **El directorio anónimo devuelve el nombre completo** (`full_name`), no solo

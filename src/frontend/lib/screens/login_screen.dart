@@ -35,7 +35,13 @@ class LoginScreen extends StatefulWidget {
   /// Alumno elegido en el directorio de fotos. Fija perfil y usuario.
   final AppUser? student;
 
-  static const perfilesDelCentro = [UserRole.staff, UserRole.parent];
+  /// Personal, familias y dirección comparten pantalla: son las mismas
+  /// credenciales y cambia solo el perfil que se elige arriba.
+  static const perfilesDelCentro = [
+    UserRole.staff,
+    UserRole.parent,
+    UserRole.admin,
+  ];
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -323,7 +329,7 @@ class _AlumnoElegido extends StatelessWidget {
     padding: const EdgeInsets.only(top: 12, bottom: 16),
     child: Column(
       children: [
-        UserAvatar(user: student, size: 96),
+        UserAvatar(user: student, size: 84),
         const SizedBox(height: 10),
         Text(student.displayName, style: Theme.of(context).textTheme.titleLarge),
       ],

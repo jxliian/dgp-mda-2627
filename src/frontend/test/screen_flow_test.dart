@@ -6,7 +6,7 @@ import 'package:autovida/services/demo_repository.dart';
 import 'package:autovida/state/app_state.dart';
 
 void main() {
-  testWidgets('the welcome screen offers the three ways in', (tester) async {
+  testWidgets('the welcome screen offers the two ways in', (tester) async {
     tester.view.physicalSize = const Size(1366, 1024);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -16,14 +16,14 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('¿Qué tipo de usuario eres?'), findsOneWidget);
     expect(find.text('Soy alumno'), findsOneWidget);
-    expect(find.text('Soy tutor o personal del centro'), findsOneWidget);
-    expect(find.text('Administración'), findsOneWidget);
+    expect(find.text('Trabajo en el centro'), findsOneWidget);
 
-    // Personal y familias comparten pantalla de credenciales.
-    await tester.tap(find.text('Soy tutor o personal del centro'));
+    // Personal, familias y dirección comparten pantalla de credenciales.
+    await tester.tap(find.text('Trabajo en el centro'));
     await tester.pumpAndSettle();
     expect(find.text(UserRole.staff.label), findsOneWidget);
     expect(find.text(UserRole.parent.label), findsOneWidget);
+    expect(find.text(UserRole.admin.label), findsOneWidget);
     await tester.enterText(find.byType(TextField).first, 'lucia');
     await tester.enterText(find.byType(TextField).at(1), '1234');
     await tester.ensureVisible(find.text('Iniciar sesión').last);
@@ -35,7 +35,7 @@ void main() {
     state.dispose();
   });
 
-  testWidgets('administration has its own entry from the welcome screen', (
+  testWidgets('administration enters through the same credentials screen', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(1366, 1024);
@@ -45,10 +45,11 @@ void main() {
     final state = AppState(repository: DemoRepository());
     await tester.pumpWidget(AutovidaApp(state: state));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Administración'));
+    await tester.tap(find.text('Trabajo en el centro'));
     await tester.pumpAndSettle();
-    // Sin selector de perfil: la portada ya ha decidido el camino.
-    expect(find.text(UserRole.staff.label), findsNothing);
+    // Un único acceso: dirección es un perfil más de la misma pantalla.
+    await tester.tap(find.text(UserRole.admin.label));
+    await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField).first, 'admin');
     await tester.enterText(find.byType(TextField).at(1), '1234');
     await tester.ensureVisible(find.text('Iniciar sesión').last);
@@ -105,6 +106,8 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
     final repo = DemoRepository();
     await repo.login('pablo', '1234', UserRole.student);
+    // De base un alumno no crea tareas: se lo habilita quien le acompaña.
+    repo.currentUser!.access.values['stud_access_task_mod'] = true;
     final state = AppState(repository: repo);
     await tester.pumpWidget(AutovidaApp(state: state));
     await tester.pumpAndSettle();
@@ -239,6 +242,50 @@ void main() {
       state.dispose();
     });
   }
+
+  testWidgets('a student only creates tasks when it has been enabled', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1280, 960);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final repo = DemoRepository();
+    await repo.login('pablo', '1234', UserRole.student);
+    final state = AppState(repository: repo);
+    await tester.pumpWidget(AutovidaApp(state: state));
+    await tester.pumpAndSettle();
+
+    // De base el permiso está apagado: no hay por dónde crear.
+    expect(repo.currentUser!.access.flag('task_mod'), false);
+    expect(find.text('Añadir mi tarea'), findsNothing);
+
+    // Al habilitarlo, el botón aparece.
+    repo.currentUser!.access.values['stud_access_task_mod'] = true;
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpWidget(AutovidaApp(state: state));
+    await tester.pumpAndSettle();
+    expect(find.text('Añadir mi tarea'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+    state.dispose();
+  });
+
+  test('every accessibility support starts switched off', () {
+    final ajustes = AccessSettings();
+    for (final apoyo in [
+      'pictograms',
+      'contrast',
+      'filters',
+      'timebar',
+      'talkback',
+      'prof_mod',
+      'profile_mod',
+      'task_mod',
+    ]) {
+      expect(ajustes.flag(apoyo), false, reason: '$apoyo debería nacer apagado');
+    }
+  });
 
   test('demo group progress stays independent between students', () async {
     final repo = DemoRepository();

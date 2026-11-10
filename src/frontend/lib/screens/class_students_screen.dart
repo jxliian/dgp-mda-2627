@@ -19,6 +19,11 @@ class ClassStudentsScreen extends StatefulWidget {
 class _ClassStudentsScreenState extends State<ClassStudentsScreen> {
   final nuevoAlumno = TextEditingController();
   int revision = 0;
+
+  /// Alumnos que el personal puede matricular, para no tener que saberse el
+  /// nombre de usuario. Se cargan una vez al abrir la gestión.
+  List<AppUser>? candidatos;
+  bool cargandoCandidatos = false;
   bool gestionando = false;
   bool ocupado = false;
   String? aviso;
@@ -53,6 +58,22 @@ class _ClassStudentsScreenState extends State<ClassStudentsScreen> {
       if (mounted) setState(() => error = e.toString());
     } finally {
       if (mounted) setState(() => ocupado = false);
+    }
+  }
+
+  /// Carga los alumnos del personal, que son los que puede matricular.
+  Future<void> cargarCandidatos() async {
+    if (candidatos != null || cargandoCandidatos) return;
+    setState(() => cargandoCandidatos = true);
+    final state = AppScope.of(context);
+    try {
+      final lista = await state.repository.linkedStudents(state.user!);
+      if (mounted) setState(() => candidatos = lista);
+    } on Object {
+      // Sin listado seguimos adelante: queda el usuario escrito a mano.
+      if (mounted) setState(() => candidatos = const []);
+    } finally {
+      if (mounted) setState(() => cargandoCandidatos = false);
     }
   }
 
@@ -111,7 +132,10 @@ class _ClassStudentsScreenState extends State<ClassStudentsScreen> {
       ),
       if (AppScope.of(context).repository.canEnrollStudents)
         OutlinedButton.icon(
-          onPressed: () => setState(() => gestionando = !gestionando),
+          onPressed: () {
+            setState(() => gestionando = !gestionando);
+            if (gestionando) cargarCandidatos();
+          },
           icon: const Icon(Icons.person_add_alt),
           label: Text(
             gestionando ? 'Cerrar matrículas' : 'Gestionar matrículas',
@@ -120,12 +144,38 @@ class _ClassStudentsScreenState extends State<ClassStudentsScreen> {
     ],
   );
 
+  /// Quita de la búsqueda a quien ya está en el aula.
+  List<AppUser> _sinMatricular(Classroom aula) {
+    final dentro = aula.students.map((a) => a.username).toSet();
+    return (candidatos ?? const <AppUser>[])
+        .where((alumno) => !dentro.contains(alumno.username))
+        .toList();
+  }
+
   Widget _gestionDeMatriculas(Classroom aula) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       const SectionTitle(
         'Matrículas del aula',
         hint: 'Apunta o retira alumnos de esta clase.',
+      ),
+      if (cargandoCandidatos)
+        const Padding(
+          padding: EdgeInsets.symmetric(vertical: 12),
+          child: LinearProgressIndicator(),
+        )
+      else
+        StudentPicker(
+          students: _sinMatricular(aula),
+          enabled: !ocupado,
+          empty: 'No hay más alumnos tuyos para matricular en esta aula.',
+          onPick: (alumno) =>
+              _matricular(username: alumno.username, retirar: false),
+        ),
+      const SizedBox(height: 16),
+      const SectionTitle(
+        'Por nombre de usuario',
+        hint: 'Si el alumno no sale en la búsqueda, escribe su usuario.',
       ),
       TextField(
         controller: nuevoAlumno,
@@ -140,7 +190,8 @@ class _ClassStudentsScreenState extends State<ClassStudentsScreen> {
         icon: const Icon(Icons.add),
         label: const Text('Matricular alumno'),
       ),
-      const SizedBox(height: 12),
+      const SizedBox(height: 20),
+      const SectionTitle('Alumnos matriculados'),
       for (final alumno in aula.students)
         ListTile(
           title: Text(alumno.displayName),

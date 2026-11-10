@@ -43,6 +43,11 @@ Future<AppState> _abrir(WidgetTester tester, {UserRole? rol}) async {
       UserRole.staff => 'lucia',
       UserRole.admin => 'admin',
     }, '1234', rol);
+    // De base un alumno no crea tareas; aquí se comprueba el caso de quien
+    // sí lo tiene habilitado, que es cuando aparece el botón.
+    if (rol == UserRole.student) {
+      repositorio.currentUser!.access.values['stud_access_task_mod'] = true;
+    }
   }
   final estado = AppState(repository: repositorio);
   await tester.pumpWidget(AutovidaApp(state: estado));
