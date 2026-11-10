@@ -92,17 +92,59 @@ instalar_dependencias_si_faltan() {
     fallo "Las dependencias siguen sin cargarse. Borra '$VENV' y vuelve a intentarlo."
 }
 
+# Una conexión de verdad desde el equipo, con las credenciales del .env. Es lo
+# que de verdad necesita la aplicación: pg_isready puede decir que todo va bien
+# mientras el servidor sigue arrancando, la contraseña no coincide con la que
+# quedó grabada en el volumen, o la red del contenedor está cortada.
+conexion_real_funciona() {
+  "$VENV/bin/python" - <<'PY' 
+import os, sys, psycopg2
+try:
+    psycopg2.connect(host=os.environ.get('DB_HOST', 'localhost'),
+                     port=int(os.environ.get('DB_PORT', '5432')),
+                     user=os.environ['DB_USER'], password=os.environ['DB_PASSWORD'],
+                     dbname='postgres', connect_timeout=4).close()
+except Exception as error:
+    print(error, file=sys.stderr)
+    sys.exit(1)
+PY
+}
+
+diagnosticar_base_de_datos() {
+  local motivo
+  motivo="$(set -a; . "$PAQUETE/.env"; set +a; conexion_real_funciona 2>&1 >/dev/null || true)"
+  printf '\n--- Últimas líneas del contenedor ---\n' >&2
+  docker logs --tail 25 autovida_postgres 2>&1 | sed 's/^/  /' >&2
+  printf -- '--- Error de conexión ---\n  %s\n\n' "$motivo" >&2
+  case "$motivo" in
+    *'password authentication failed'*)
+      fallo 'La contraseña del .env no coincide con la que guarda el volumen.
+         La contraseña queda fijada al crear la base. Para empezar de cero:
+           (cd src/backend/proyectFastAPI && docker compose down -v)' ;;
+    *'closed the connection'*|*'could not connect'*|*'timeout expired'*|*'Connection refused'*)
+      fallo 'PostgreSQL no atiende desde este equipo. Lo más habitual:
+         - El contenedor se está reiniciando: míralo con docker ps -a
+         - El volumen viene de otra versión de PostgreSQL. Para empezar de cero:
+             (cd src/backend/proyectFastAPI && docker compose down -v)
+         - Una VPN se ha quedado con el rango de red de Docker. Compruébalo con:
+             ip route get "$(docker inspect autovida_postgres \
+               --format "{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}")"
+           Si la ruta sale por un túnel (tun0, cscotun0...), desconecta la VPN.' ;;
+    *) fallo 'PostgreSQL no acepta conexiones. El motivo está justo encima.' ;;
+  esac
+}
+
 arrancar_base_de_datos() {
   paso 'Arrancando PostgreSQL (contenedor autovida_postgres)'
   (cd "$PAQUETE" && docker compose up -d)
   local intento
   for intento in {1..30}; do
-    if docker exec autovida_postgres pg_isready -U autovida_admin >/dev/null 2>&1; then
+    if (set -a; . "$PAQUETE/.env"; set +a; conexion_real_funciona >/dev/null 2>&1); then
       return
     fi
-    sleep 1
+    sleep 2
   done
-  fallo 'PostgreSQL no llegó a aceptar conexiones.'
+  diagnosticar_base_de_datos
 }
 
 preparar_datos() {
