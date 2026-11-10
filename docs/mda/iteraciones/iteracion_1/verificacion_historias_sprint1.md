@@ -1,12 +1,15 @@
-# Verificación de las 30 historias del Sprint 1
+# Verificación de las 32 historias del Sprint 1
 
 Rama `iteracion1`. El backend es **exactamente el de `main`**, sin una sola
 línea modificada (`git diff main -- src/backend/` sale vacío). Todo lo que
 sigue se ha comprobado contra esa API levantada en local.
 
 Verificado el 10/11/2026 ejecutando contra la API las mismas llamadas que hace
-la aplicación: **38 de 39 correctas**. Leyenda: **OK** operativa de principio a
-fin · **Parcial** falta soporte en el servidor.
+la aplicación. **Las 32 historias están cubiertas por el frontend.**
+
+El alcance del sprint cambió ese día: pasó de 30 a 32 actividades. Se retiró
+SCRUM-325 («Alumno pertenece a clase») y se añadieron SCRUM-27, SCRUM-36 y
+SCRUM-43.
 
 ## Autenticación
 
@@ -40,6 +43,7 @@ fin · **Parcial** falta soporte en el servidor.
 | SCRUM-327 Apuntar alumno a clase | `POST /classes/{aula}/students/{alumno}` | OK |
 | SCRUM-328 Eliminar alumno de clase | `DELETE /classes/{aula}/students/{alumno}` | OK |
 | SCRUM-33 Crear tarea para un alumno | `POST /student-tasks/students/{alumno}` | OK |
+| SCRUM-36 Consultar la agenda de un alumno por fecha | `GET /student-tasks/students/{alumno}?task_date=` | OK |
 | SCRUM-41 Eliminar tarea de la agenda del alumno | `GET` + `DELETE /student-tasks/students/{alumno}` | OK |
 | SCRUM-321 Crear tarea para la clase | `POST /classes/{aula}/tasks` | OK |
 | SCRUM-337 Consultar tareas de la clase | `GET /classes/{aula}/tasks` | OK |
@@ -52,18 +56,31 @@ fin · **Parcial** falta soporte en el servidor.
 |---|---|---|
 | SCRUM-20 Consultar mis alumnos | `GET /student-links/parents/{tutor}/students` | OK |
 | SCRUM-26 Crear tarea para un alumno | `POST /student-tasks/students/{alumno}` | OK |
+| SCRUM-27 Consultar la agenda de un alumno por fecha | `GET /student-tasks/students/{alumno}?task_date=` | OK |
 | SCRUM-31 Eliminar tarea de la agenda del alumno | `GET` + `DELETE /student-tasks/students/{alumno}` | OK |
 
 ## Alumno
 
 | Historia | Endpoint de `main` | Estado |
 |---|---|---|
-| SCRUM-329 Tiene foto de perfil | `GET`/`PUT /users/students/me/avatar` | OK |
+| SCRUM-329 Añadir mi foto en mi perfil | `PUT`/`GET /users/students/me/avatar` | OK |
 | SCRUM-332 Crear mis propias tareas | `POST /student-tasks/me` | OK |
+| SCRUM-43 Crear mis tareas en mi agenda personal | `POST /student-tasks/me` | OK |
 | SCRUM-333 Eliminar mis propias tareas | `GET` + `DELETE /student-tasks/me` | OK |
-| SCRUM-325 Pertenezco a una clase | `GET /classes` + `/classes/{aula}` sin sesión | OK |
 
-> **Las 30 historias operativas.** Verificado el 10/11/2026 contra la API.
+SCRUM-43 y SCRUM-332 describen la misma acción con distintas palabras; las
+cubre el botón «Añadir mi tarea» de la agenda.
+
+> **Las 32 historias operativas.** Verificado el 10/11/2026 contra la API.
+
+## Pendiente de mover en el tablero
+
+SCRUM-27 y SCRUM-36 figuran en Jira como **Por hacer**, pero están
+implementadas y verificadas: son la agenda de un alumno para una fecha, con
+selector de día y navegación entre semanas, accesible desde la ficha del
+alumno tanto para el tutor como para el personal. Se crearon al añadir los
+`GET` y nadie las movió. Conviene revisar sus criterios de aceptación antes de
+pasarlas a revisión.
 
 ## Lo que el equipo de backend resolvió
 
@@ -73,13 +90,16 @@ Todo lo que pedía `peticion_backend.md` está entregado:
 |---|---|---|
 | 10/11 | `DELETE /classes/{aula}/staff/{usuario}` | Retirar profesorado del aula |
 | 10/11 | `GET /student-tasks/me` y `GET /student-tasks/students/{alumno}` | SCRUM-31, 41 y 333 |
-| 10/11 | `/classes` y `/classes/{aula}` admiten peticiones sin sesión; el avatar también, si el alumno está matriculado | El acceso del alumno por foto y SCRUM-325 |
+| 10/11 | `/classes` y `/classes/{aula}` admiten peticiones sin sesión; el avatar también, si el alumno está matriculado | El acceso del alumno por foto (clase, alumno y PIN) |
 
 La última llegó por un camino distinto al que pedimos: en vez de un endpoint
 nuevo de directorio, hicieron opcional la autenticación en los que ya existían
 (`get_optional_current_user`). Sin sesión, `/classes` devuelve solo los nombres
 y `/classes/{aula}` el alumnado con su `avatar_url`. El cliente construye el
 directorio con esas dos llamadas.
+
+Con ellos quedaron además cubiertas SCRUM-27 y SCRUM-36, que entraron en el
+sprint ese mismo día.
 
 Comprobado con el código real del cliente contra la API en marcha:
 
@@ -88,7 +108,14 @@ AULA "Aula de la autonomía" -> 2 alumnos
    Ana García     foto: /users/students/ana/avatar-image
    Pablo García   foto: /users/students/pablo/avatar-image
 FOTO de ana: 283 bytes
-CLASE de pablo: Aula de la autonomía
+```
+
+Y la subida de la foto del alumno (SCRUM-329), que la nueva redacción
+subraya:
+
+```
+PUT /users/students/me/avatar  -> errorCode 0, avatar_url: /users/students/pablo/avatar-image
+GET /users/students/me/avatar  -> HTTP 200, image/png
 ```
 
 ## Dos cosas que conviene vigilar
