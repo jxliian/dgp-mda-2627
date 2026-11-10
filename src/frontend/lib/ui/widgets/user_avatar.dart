@@ -49,12 +49,13 @@ class _UserAvatarState extends State<UserAvatar> {
 
   bool _puedeVerla(AppState state) {
     final esSuya = state.user?.username == widget.user.username;
-    final esDelDirectorio =
-        widget.user.avatarUrl?.startsWith('/auth/student-directory/') ?? false;
+    // El servidor indica dónde está la foto cuando permite verla: así vale
+    // también para la elección de alumno previa al inicio de sesión.
+    final servidorIndicaRuta = widget.user.avatarUrl != null;
     const rolesConAcceso = {UserRole.staff, UserRole.parent, UserRole.admin};
     return state.demo ||
         esSuya ||
-        esDelDirectorio ||
+        servidorIndicaRuta ||
         rolesConAcceso.contains(state.user?.role);
   }
 

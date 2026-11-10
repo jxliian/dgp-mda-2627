@@ -23,6 +23,9 @@ abstract class AutovidaRepository {
   bool get canTrackProgress;
 
   /// Ofrece el directorio de aulas y fotos para que el alumno se busque.
+  ///
+  /// No se puede deducir del catálogo de rutas, porque depende de que
+  /// `/classes` acepte peticiones sin sesión. Se comprueba al pedirlo.
   bool get canBrowseDirectory;
 
   /// Permite a la sesión actual matricular o retirar alumnos de un aula.
@@ -142,7 +145,7 @@ class LiveRepository implements AutovidaRepository {
   bool get canTrackProgress =>
       supports('patch', '/student-tasks/me/{task_id}/progress');
   @override
-  bool get canBrowseDirectory => supports('get', '/auth/student-directory');
+  bool get canBrowseDirectory => supports('get', '/classes');
   @override
   bool get canEnrollStudents => supports('post', _rutaDeMatricula);
   @override
@@ -264,20 +267,34 @@ class LiveRepository implements AutovidaRepository {
     }
   }
 
+  /// Aulas con sus alumnos para que el alumno se busque antes de entrar.
+  ///
+  /// Sin sesión, `/classes` devuelve solo los nombres y hay que pedir cada
+  /// aula por separado para obtener su alumnado. Si el servidor exige sesión,
+  /// la llamada falla y la pantalla ofrece entrar escribiendo el usuario.
   @override
   Future<List<Classroom>> directory() async {
-    await discover();
-    requireFeature(
-      'get',
-      '/auth/student-directory',
-      'La selección visual de aulas y alumnos',
-    );
-    final data = await api.request(
-      'GET',
-      '/auth/student-directory',
-      protected: false,
-    );
-    return _classList(data);
+    final data = await api.request('GET', '/classes', protected: false);
+    final nombres = (data['classes'] as List? ?? [])
+        .map((aula) => (aula as Map)['class_name'] as String)
+        .toList();
+    final aulas = await Future.wait(nombres.map(_aulaPublica));
+    return aulas.nonNulls.toList();
+  }
+
+  /// Un aula con su alumnado, o `null` si deja de estar disponible mientras
+  /// se consulta: una sola aula no debe tumbar toda la pantalla.
+  Future<Classroom?> _aulaPublica(String nombre) async {
+    try {
+      final data = await api.request(
+        'GET',
+        '/classes/${segment(nombre)}',
+        protected: false,
+      );
+      return Classroom.fromJson(data);
+    } on ApiException {
+      return null;
+    }
   }
 
   @override
@@ -637,8 +654,6 @@ class LiveRepository implements AutovidaRepository {
   Future<Uint8List?> avatar(AppUser user) => api.image(
     _user?.username == user.username
         ? '/users/students/me/avatar'
-        : _user?.role == UserRole.parent
-        ? '/student-links/parents/me/students/${segment(user.username)}/avatar'
         : user.avatarUrl ??
               '/users/students/${segment(user.username)}/avatar-image',
   );

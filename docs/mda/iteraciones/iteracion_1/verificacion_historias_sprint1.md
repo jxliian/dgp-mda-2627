@@ -61,34 +61,46 @@ fin · **Parcial** falta soporte en el servidor.
 | SCRUM-329 Tiene foto de perfil | `GET`/`PUT /users/students/me/avatar` | OK |
 | SCRUM-332 Crear mis propias tareas | `POST /student-tasks/me` | OK |
 | SCRUM-333 Eliminar mis propias tareas | `GET` + `DELETE /student-tasks/me` | OK |
-| SCRUM-325 Pertenezco a una clase | — | **Parcial** |
+| SCRUM-325 Pertenezco a una clase | `GET /classes` + `/classes/{aula}` sin sesión | OK |
 
-> Única historia pendiente de las 30.
+> **Las 30 historias operativas.** Verificado el 10/11/2026 contra la API.
 
-## Lo que falta en el servidor y por qué
+## Lo que el equipo de backend resolvió
 
-El equipo de backend añadió el 10/11/2026 los dos `GET` que pedíamos
-(`/student-tasks/me` y `/student-tasks/students/{alumno}`, ambos con
-`?task_date=`). Con ellos quedaron resueltas SCRUM-31, SCRUM-41 y SCRUM-333:
-verificado el ciclo completo de crear, listar, elegir por identificador y
-eliminar, para personal, tutor y alumno. También llegó
-`DELETE /classes/{aula}/staff/{usuario}`, que devuelve la retirada de
-profesorado al editor de aulas.
+Todo lo que pedía `peticion_backend.md` está entregado:
 
-**Queda una sola historia pendiente: SCRUM-325.** Un alumno no puede saber a
-qué aula pertenece:
+| Fecha | Qué llegó | Qué desbloquea |
+|---|---|---|
+| 10/11 | `DELETE /classes/{aula}/staff/{usuario}` | Retirar profesorado del aula |
+| 10/11 | `GET /student-tasks/me` y `GET /student-tasks/students/{alumno}` | SCRUM-31, 41 y 333 |
+| 10/11 | `/classes` y `/classes/{aula}` admiten peticiones sin sesión; el avatar también, si el alumno está matriculado | El acceso del alumno por foto y SCRUM-325 |
 
-- `GET /classes` le responde `1032 No tienes permiso para gestionar esta clase`.
-- La respuesta de `POST /auth/login` solo trae `username` y `role`.
+La última llegó por un camino distinto al que pedimos: en vez de un endpoint
+nuevo de directorio, hicieron opcional la autenticación en los que ya existían
+(`get_optional_current_user`). Sin sesión, `/classes` devuelve solo los nombres
+y `/classes/{aula}` el alumnado con su `avatar_url`. El cliente construye el
+directorio con esas dos llamadas.
 
-Cualquiera de estas dos opciones la resolvería, la que al equipo le resulte
-más barata:
+Comprobado con el código real del cliente contra la API en marcha:
 
-- Incluir `class_name` en el usuario que devuelve el login cuando el rol es
-  `student`.
-- O un `GET /classes/me` que devuelva solo el aula del alumno autenticado.
+```
+AULA "Aula de la autonomía" -> 2 alumnos
+   Ana García     foto: /users/students/ana/avatar-image
+   Pablo García   foto: /users/students/pablo/avatar-image
+FOTO de ana: 283 bytes
+CLASE de pablo: Aula de la autonomía
+```
 
-La aplicación ya la detectaría sola, sin cambios de pantalla.
+## Dos cosas que conviene vigilar
+
+1. **El directorio anónimo devuelve el nombre completo** (`full_name`), no solo
+   el nombre de pila. Expone apellidos de menores sin autenticación. Merece
+   quedar anotado como riesgo aceptado, o pedir que se recorte al nombre de
+   pila.
+2. **Un tutor autenticado no puede ver la foto de su alumno.** El permiso del
+   avatar contempla anónimo, administración y personal, pero no a las familias:
+   con su token recibe 403. La aplicación lo tolera y dibuja la silueta, pero
+   es un descuido que merece la pena señalarles.
 
 ## Cómo se comporta la interfaz mientras tanto
 
