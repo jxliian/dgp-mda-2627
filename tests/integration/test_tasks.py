@@ -120,9 +120,11 @@ def test_la_agenda_queda_ordenada_por_hora(client, engine):
     assert orden == [antes, tarde, sin_hora]
 
 
-@pytest.mark.xfail(strict=True, reason="Horario: se aplica de 9 a 15 también en fin de semana")
-def test_la_familia_crea_un_sabado_por_la_manana(client):
-    assert create_task(client, "madre", hora="10:00", fecha=SABADO).status_code == 201
+def test_la_familia_no_crea_un_sabado_por_la_manana(client, count):
+    r = create_task(client, "madre", hora="10:00", fecha=SABADO)
+    assert r.status_code == 400
+    assert error_code(r) == 1024
+    assert count("Tasks") == 0
 
 
 # ---------------------------------------------------- HU-13: el personal crea tareas
@@ -168,9 +170,11 @@ def test_tarea_de_clase_llega_a_todos_sus_alumnos(client, count):
     assert count("stud_task WHERE class_name_fk = '1A'") == 2
 
 
-@pytest.mark.xfail(strict=True, reason="HU-13: al personal se le exige hora de inicio")
-def test_el_personal_crea_una_tarea_solo_con_duracion(client):
-    assert create_task(client, "lucia", hora=None, duracion=45).status_code == 201
+def test_el_personal_no_crea_una_tarea_solo_con_duracion(client, count):
+    r = create_task(client, "lucia", hora=None, duracion=45)
+    assert r.status_code == 400
+    assert error_code(r) == 1023
+    assert count("Tasks") == 0
 
 
 # ----------------------------------------------------------- HU-15: eliminar tareas
@@ -260,8 +264,36 @@ def test_eliminar_sin_sesion(client):
     assert r.status_code == 401
 
 
-@pytest.mark.xfail(strict=True, reason="HU-15: la fila de Tasks se queda sin agenda que la use")
-def test_eliminar_no_deja_la_tarea_huerfana(client, count):
-    tarea = create_task(client, "lucia", hora="10:00").json()["task_id"]
-    delete_task(client, "lucia", tarea)
-    assert count("Tasks WHERE task_id = :t", t=tarea) == 0
+def test_quitar_tarea_de_agenda_conserva_tarea_compartida_e_historico(client, count):
+    historica = create_task(client, "lucia", hora="10:00").json()["task_id"]
+    removed = delete_task(client, "lucia", historica, alumno="pablo")
+    assert removed.status_code == 200
+    assert count("stud_task WHERE task_id_fk = :t", t=historica) == 0
+    assert count("Tasks WHERE task_id = :t", t=historica) == 1
+    assert count("Generic_Task WHERE task_id_fk = :t", t=historica) == 1
+
+    client.post("/classes/1A/students/ana", headers=as_user("lucia"))
+    r = client.post(
+        "/classes/1A/tasks",
+        json={
+            "task_title": "Tarea compartida",
+            "task_date": LUNES,
+            "task_start_hour": "10:00",
+            "task_duration": 45,
+        },
+        headers=as_user("lucia"),
+    )
+    assert r.status_code == 201
+    tarea = r.json()["task_id"]
+
+    removed = delete_task(client, "lucia", tarea, alumno="pablo")
+    assert removed.status_code == 200
+    assert count("stud_task WHERE task_id_fk = :t AND stud_usr_fk = 'pablo'", t=tarea) == 0
+    assert count("stud_task WHERE task_id_fk = :t AND stud_usr_fk = 'ana'", t=tarea) == 1
+    assert count("Tasks WHERE task_id = :t", t=tarea) == 1
+
+    removed = delete_task(client, "lucia", tarea, alumno="ana")
+    assert removed.status_code == 200
+    assert count("stud_task WHERE task_id_fk = :t", t=tarea) == 0
+    assert count("Tasks WHERE task_id = :t", t=tarea) == 1
+    assert count("Generic_Task WHERE task_id_fk = :t", t=tarea) == 1

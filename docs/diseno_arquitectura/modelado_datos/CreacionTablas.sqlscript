@@ -46,9 +46,9 @@ CREATE TABLE Student (
     stud_access_talkback BOOLEAN NOT NULL,
     stud_access_profile_mod BOOLEAN NOT NULL,
     stud_access_task_mod BOOLEAN NOT NULL,
-    avatar_id_fk INT,
+    avatar_id_fk INT NOT NULL,
     CONSTRAINT fk_student_user FOREIGN KEY (stud_usr) REFERENCES users(username) ON UPDATE CASCADE ON DELETE CASCADE,
-    CONSTRAINT fk_student_avatar FOREIGN KEY (avatar_id_fk) REFERENCES Avatar(avatar_id) ON DELETE SET NULL
+    CONSTRAINT fk_student_avatar FOREIGN KEY (avatar_id_fk) REFERENCES Avatar(avatar_id) ON DELETE RESTRICT
 );
 
 CREATE TABLE Parents (

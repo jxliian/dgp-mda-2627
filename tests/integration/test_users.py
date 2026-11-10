@@ -135,7 +135,6 @@ def test_consultar_sin_sesion(client):
     assert client.get("/users").status_code == 401
 
 
-@pytest.mark.xfail(strict=True, reason="HU-03: no existe ruta para consultar una sola cuenta")
 def test_admin_consulta_una_cuenta_concreta(client):
     r = client.get("/users/parent/madre", headers=as_user("admin"))
     assert r.status_code == 200

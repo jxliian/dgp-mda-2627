@@ -71,6 +71,8 @@ Requiere un Bearer válido. La dependencia primero verifica que el token corresp
 
 Todas las rutas de este grupo tienen prefijo `/users`.
 
+En este módulo, “avatar” significa la foto de perfil del alumno. Aunque la tabla `Student` la referencia como `avatar_id_fk`, cada alumno debe tener siempre una foto asignada.
+
 ### `POST /users` — Crear usuario
 
 Solo administrador. Recibe un objeto JSON discriminado por `role`.
@@ -81,7 +83,7 @@ Para `role: "student"` también son obligatorios todos los campos de accesibilid
 
 Para `admin`, `staff` y `parent`, también es obligatorio `email`, que debe tener formato válido y no exceder 254 caracteres.
 
-La operación inserta la fila común en `users` (incluido el hash bcrypt de la contraseña y `full_name`) y después la especialización del rol en `Admn`, `Staff`, `Student` o `Parents`, con los datos de email o accesibilidad que correspondan. Se confirman ambas inserciones conjuntamente. El username es único en la tabla común, por lo que no puede repetirse entre roles. Según el conflicto, se devuelve `USERNAME_TAKEN` o `EMAIL_TAKEN` (HTTP 409); otros errores de creación usan `USER_CREATE_FAILED` (HTTP 500).
+La operación inserta la fila común en `users` (incluido el hash bcrypt de la contraseña y `full_name`) y después la especialización del rol en `Admn`, `Staff`, `Student` o `Parents`, con los datos de email o accesibilidad que correspondan. Al crear un alumno, también crea y asigna una foto de perfil SVG predeterminada en `Avatar`; el alumno nunca se crea con `avatar_id_fk` nulo. Todas las inserciones se confirman conjuntamente. El username es único en la tabla común, por lo que no puede repetirse entre roles. Según el conflicto, se devuelve `USERNAME_TAKEN` o `EMAIL_TAKEN` (HTTP 409); otros errores de creación usan `USER_CREATE_FAILED` (HTTP 500).
 
 El rol se fija al crear la cuenta y es inmutable. Ni el propio usuario ni un administrador pueden cambiarlo después; para cambiar el rol hay que crear una cuenta nueva con el rol correcto.
 
@@ -111,6 +113,17 @@ El parámetro `role` se valida contra los cuatro roles admitidos; un valor disti
 **Respuesta JSON (ejemplo abreviado):**
 ```json
 {"errorCode":0,"details":"successful","users":[{"username":"ana","full_name":"Ana López","role":"parent","email":"ana@example.com"},{"username":"luis","full_name":"Luis Pérez","role":"student","stud_access_main_col":"#ffffff","stud_access_sec_col":"#000000","stud_access_ntasks_visible":5,"stud_access_pictograms":true,"stud_access_contrast":false,"stud_access_fontsize":18,"stud_access_filters":true,"stud_access_ndays_visible":7,"stud_access_prof_mod":false,"stud_access_timebar":true,"stud_access_talkback":false,"stud_access_profile_mod":true,"stud_access_task_mod":true}]}
+```
+
+### `GET /users/{role}/{username}` — Consultar una cuenta concreta
+
+Solo administrador. Busca una cuenta por username dentro del rol indicado y devuelve sus datos de perfil: `username`, `full_name`, `role`, email cuando corresponda y preferencias de accesibilidad para estudiantes. No devuelve contraseña ni token. Si la cuenta no existe en ese rol, responde `USER_NOT_FOUND` (HTTP 404); si falla la consulta, `USER_LOOKUP_FAILED` (HTTP 500).
+
+**Entrada:** sin cuerpo. Ejemplo: `GET /users/parent/ana` con Bearer de administrador.
+
+**Respuesta JSON:**
+```json
+{"errorCode":0,"details":"successful","username":"ana","full_name":"Ana López","email":"ana@example.com","role":"parent"}
 ```
 
 ### `PUT /users/{role}/{username}` — Editar perfil o datos de usuario
@@ -146,19 +159,19 @@ Solo administrador. Borra la cuenta de `users` únicamente si existe la especial
 {"errorCode":0,"details":"successful"}
 ```
 
-### `PUT /users/students/me/avatar` — Actualizar mi avatar
+### `PUT /users/students/{student_username}/avatar` — Actualizar foto de perfil de alumno
 
-Requiere token de alumno. Recibe `multipart/form-data` con el archivo en el campo `file`. Admite PNG, JPEG y WebP de hasta 5 MB; el backend comprueba la firma y estructura básica del formato, y rechaza formatos no admitidos o archivos demasiado grandes con `AVATAR_INVALID_IMAGE` (HTTP 422) o `AVATAR_TOO_LARGE` (HTTP 413). La subida también requiere `stud_access_profile_mod = true`.
+Solo administrador. Recibe `multipart/form-data` con el archivo en el campo `file` y el username del alumno en la ruta. Admite PNG, JPEG y WebP de hasta 5 MB; el backend comprueba la firma y estructura básica del formato, y rechaza formatos no admitidos o archivos demasiado grandes con `AVATAR_INVALID_IMAGE` (HTTP 422) o `AVATAR_TOO_LARGE` (HTTP 413). Si el alumno no existe, devuelve `USER_NOT_FOUND`. El permiso `stud_access_profile_mod` no limita al administrador. El archivo es obligatorio, así que esta operación siempre reemplaza la foto por otra válida y nunca la deja nula.
 
-La imagen se guarda en `Avatar.avatar_bin` y su clave se vincula a `Student.avatar_id_fk` en una transacción. Al reemplazar una foto anterior, el backend la elimina si ya no está vinculada a ningún alumno. La respuesta JSON incluye `avatar_id`, `media_type` y `avatar_url`.
+La imagen se guarda en `Avatar.avatar_bin` y su clave se vincula a `Student.avatar_id_fk` en una transacción. Al reemplazar una foto anterior, el backend la elimina si ya no está vinculada a ningún alumno. La columna `avatar_id_fk` es obligatoria y la clave foránea impide borrar una imagen mientras un alumno la use. La respuesta JSON incluye `avatar_id`, `media_type` y `avatar_url`.
 
-El cliente puede abrir el selector de imágenes del dispositivo (por ejemplo, la galería) y enviar el archivo en `file`. Tras una respuesta correcta debe mostrar la foto nueva inmediatamente, usando la URL devuelta o `GET /users/students/me/avatar`; esta ruta evita caché con `Cache-Control: no-store`. El control para cambiarla debe ser visible, tener un área de pulsación amplia, un icono comprensible y un nombre accesible para lectores de pantalla. Si la subida falla por tamaño o formato, la interfaz debe conservar la foto que ya tenía el perfil y mostrar un mensaje de error sencillo. Estos requisitos describen el contrato esperado del cliente; esta guía documenta el backend y no implica que exista aquí una interfaz frontend implementada.
+La ruta devuelta en `avatar_url` permite recargar la imagen; evita caché con `Cache-Control: no-store`.
 
-**Entrada:** `multipart/form-data`, campo `file` con los bytes de la imagen; no es JSON.
+**Entrada:** `PUT /users/students/luis/avatar`, cabecera `Authorization: Bearer <token>` de administrador y `multipart/form-data`, campo `file` con los bytes de la imagen; no es JSON.
 
 **Respuesta JSON:**
 ```json
-{"errorCode":0,"details":"successful","avatar_id":12,"media_type":"image/png","avatar_url":"/users/students/me/avatar"}
+{"errorCode":0,"details":"successful","avatar_id":12,"media_type":"image/png","avatar_url":"/users/students/luis/avatar-image"}
 ```
 
 ### `GET /users/students/me/avatar` — Obtener mi avatar
@@ -265,7 +278,7 @@ Requiere token de alumno. Todos los alumnos pueden consultar su agenda, independ
 
 Responde HTTP 201. El JSON requiere `task_title`, `task_date` y `task_duration`. La fecha es obligatoria, puede ser futura y no se limita al día actual. El título se recorta y debe contener entre 1 y 100 caracteres; la duración es un entero positivo expresado en minutos. Son opcionales `task_start_hour` (hora local sin zona) y `alt_task_id_fk` (entero positivo). `task_index` no se envía: el backend lo calcula para la agenda del alumno. Si falta la duración, es `null` o no es positiva, FastAPI rechaza la petición con error de validación `1005` (HTTP 422). No admite propiedades adicionales.
 
-El alumno debe existir y el usuario autenticado debe estar asociado a él según su rol. El personal debe indicar `task_start_hour`; el intervalo completo `[hora de inicio, hora de inicio + duración)` debe quedar entre las 09:00 y las 15:00. `parent` puede indicar una hora, pero su intervalo completo no puede solaparse con `[09:00, 15:00)`. Las tareas de `parent` sin hora se permiten y se colocan después de todas las tareas con hora de esa fecha. En los límites, terminar exactamente a las 09:00 o empezar exactamente a las 15:00 no se considera solapamiento para tutores; el personal sí puede terminar exactamente a las 15:00. Si se indica alternativa, esta debe existir y no estar ya enlazada a otra tarea.
+El alumno debe existir y el usuario autenticado debe estar asociado a él según su rol. El personal debe indicar `task_start_hour`; el intervalo completo `[hora de inicio, hora de inicio + duración)` debe quedar entre las 09:00 y las 15:00. `parent` puede indicar una hora, pero su intervalo completo no puede solaparse con `[09:00, 15:00)`. La franja escolar se aplica todos los días; por ahora tampoco se admiten tareas de tutor entre las 09:00 y las 15:00 en fin de semana. Los festivos no se distinguen hasta disponer de un calendario del centro. Las tareas de `parent` sin hora se permiten y se colocan después de todas las tareas con hora de esa fecha. En los límites, terminar exactamente a las 09:00 o empezar exactamente a las 15:00 no se considera solapamiento para tutores; el personal sí puede terminar exactamente a las 15:00. Si se indica alternativa, esta debe existir y no estar ya enlazada a otra tarea.
 
 La operación inserta en `Tasks` con `task_creator` igual al username del creador, `task_duration` positiva y `task_finished = false`, añade el subtipo `Generic_Task` y crea la asignación `stud_task` con alumno, tarea, índice calculado y fecha. Las tareas con hora se insertan según su hora respecto a las tareas de esa fecha; las tareas sin hora de `parent` se colocan al final, por lo que su índice queda después de la última tarea de `staff`. Las tareas de `parent` con hora anterior a las 09:00 quedan antes de las de `staff`, y las posteriores a las 15:00 quedan después. Si se inserta una tarea antes de otras, sus índices se desplazan para abrirle sitio. La agenda del alumno se bloquea durante el cálculo para serializar inserciones concurrentes. Todo se confirma en una transacción. La respuesta incluye el índice asignado. El esquema también impone `NOT NULL` y `CHECK (> 0)` en `Tasks.task_duration` y `Alt_Tasks.alt_task_duration`; las alternativas ya almacenadas deben cumplirlo aunque esta API solo las asocie.
 

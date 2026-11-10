@@ -4,7 +4,7 @@ Revisado y verificado por el Gestor de Calidad ✅
 
 Este documento describe las pruebas automáticas del backend: qué comprueban, cómo se ejecutan y qué resultado dan.
 
-**Última ejecución:** 09/11/2026 · **Total:** 174 casos · **Resultado:** 170 correctos y 4 fallos esperados.
+**Última ejecución:** 09/11/2026 · **Total:** 174 casos · **Resultado:** 174 correctos y 0 fallos esperados.
 
 ## 1. Alcance
 
@@ -37,7 +37,7 @@ Son **pruebas de integración**. Cada prueba envía una petición HTTP a la API 
 uv run --with pytest python -m pytest ../../../tests/integration -v
 ```
 
-**Resultado esperado:** `169 passed, 5 xfailed`.
+**Resultado esperado:** `174 passed, 0 xfailed`.
 
 Las pruebas no modifican la base de datos de desarrollo (`autovida_db`). Trabajan en otra base, `autovida_test`, que se elimina y se crea de nuevo en cada ejecución con el script oficial `docs/diseno_arquitectura/modelado_datos/CreacionTablas.sqlscript`. Se usa PostgreSQL porque el backend emplea instrucciones que no existen en otros motores más ligeros, como `FOR UPDATE` y `LOCK TABLE`.
 
@@ -138,7 +138,7 @@ No contiene pruebas. `pytest` lo carga automáticamente antes de ejecutarlas.
 | `test_filtrar_por_rol_inventado` | Rol que no existe | 422 |
 | `test_solo_el_admin_puede_consultar` × 3 | Personal, familia y alumno lo intentan | 403, código 1003 |
 | `test_consultar_sin_sesion` | Petición sin sesión | 401 |
-| `test_admin_consulta_una_cuenta_concreta` | Consulta de una sola cuenta | **Fallo esperado** (F1) |
+| `test_admin_consulta_una_cuenta_concreta` | Consulta de una sola cuenta | 200 y datos del usuario |
 
 ### `test_associations.py`: alumnos con familias y personal (HU-07 y HU-08, 36 casos)
 
@@ -200,7 +200,7 @@ Las familias se asocian directamente con cada alumno. El personal se relaciona c
 | `test_crear_tarea_sin_sesion` | Petición sin sesión | 401 |
 | `test_crear_tarea_con_datos_invalidos` × 8 | Título vacío o largo, duración 0 o de texto, fecha y hora incorrectas, hora con zona horaria y campo extra | 422, código 1005, sin cambios |
 | `test_la_agenda_queda_ordenada_por_hora` | Orden de la agenda | Por hora, las tareas sin hora al final |
-| `test_la_familia_crea_un_sabado_por_la_manana` | Tarea en fin de semana | **Fallo esperado** (F3) |
+| `test_la_familia_no_crea_un_sabado_por_la_manana` | No permitir tareas familiares a las 10:00 del sábado | 400, código 1024, sin cambios |
 
 **Tareas creadas por el personal (HU-13)**
 
@@ -211,7 +211,7 @@ Las familias se asocian directamente con cada alumno. El personal se relaciona c
 | `test_el_personal_no_crea_fuera_del_horario` × 4 | 08:59 (30 min), 14:30 (31 min), 15:00 (10 min) y 17:00 (30 min) | 400, código 1023, sin cambios |
 | `test_personal_de_otra_clase` | Personal sin relación con el alumno | 403, código 1019, sin cambios |
 | `test_tarea_de_clase_llega_a_todos_sus_alumnos` | Tarea asignada a una clase | 201 y una fila por alumno |
-| `test_el_personal_crea_una_tarea_solo_con_duracion` | Tarea sin hora de inicio | **Fallo esperado** (F4) |
+| `test_el_personal_no_crea_una_tarea_solo_con_duracion` | Tarea sin hora de inicio | 400, código 1023, sin cambios |
 
 **Eliminar tareas (HU-15)**
 
@@ -230,7 +230,7 @@ La regla se aplica sobre la hora programada de la tarea: el personal elimina las
 | `test_eliminar_sin_relacion_con_el_alumno` × 2 | Personal y familia sin relación | 403, código 1019, sin cambios |
 | `test_solo_familia_y_personal_eliminan_de_un_alumno` × 2 | Administrador y alumno lo intentan | 403, código 1017 |
 | `test_eliminar_sin_sesion` | Petición sin sesión | 401 |
-| `test_eliminar_no_deja_la_tarea_huerfana` | La fila de `Tasks` se elimina | **Fallo esperado** (F5) |
+| `test_quitar_tarea_de_agenda_conserva_tarea_compartida_e_historico` | Al quitarla de un alumno, sigue asignada a otro; luego se conserva el histórico | 200, las asignaciones se retiran individualmente y quedan `Tasks` y `Generic_Task` |
 
 ### `test_sprint1.py`: resto de historias del sprint 1 (39 casos)
 
@@ -303,9 +303,9 @@ La regla se aplica sobre la hora programada de la tarea: el personal elimina las
 | `test_admin_y_personal_de_su_clase_ven_la_foto` | Acceso a la foto de un alumno | 200 para administrador y personal de su clase; 403 para personal de otra |
 | `test_la_familia_no_ve_la_foto` | Comportamiento actual de la ruta de fotos | 403 |
 
-## 6. Funcionalidad pendiente (fallos esperados)
+## 6. Decisiones pendientes
 
-Estas cinco pruebas describen un comportamiento que el backend todavía no ofrece, o que el equipo debe confirmar. Están marcadas con `@pytest.mark.xfail`, por lo que aparecen como `xfailed` y no interrumpen la ejecución. Si el comportamiento se implementa, `pytest` lo notifica para retirar la marca.
+No quedan pruebas marcadas con `@pytest.mark.xfail`. Esta tabla registra el tratamiento de festivos, que aún requiere un calendario del centro.
 
 | Ref. | Prueba | Situación actual | Decisión pendiente |
 | :---: | :--- | :--- | :--- |
