@@ -5,7 +5,7 @@ from pydantic import BaseModel, ConfigDict, EmailStr, Field, StrictBool, StrictI
 from sqlalchemy.orm import Session
 
 from ..DB.database import get_db
-from ..auth.auth_backend import get_current_user, require_admin
+from ..auth.auth_backend import get_current_user, get_optional_current_user, require_admin
 from ..errors import ErrorCode, raise_api_error
 from .users_mng_db import STUDENT_ACCESS_FIELDS, users_mng_db
 
@@ -325,13 +325,17 @@ def get_my_avatar(
 def get_class_student_avatar(
     student_username: UsernamePath,
     db: Session = Depends(get_db),
-    user: dict = Depends(get_current_user),
+    user: dict | None = Depends(get_optional_current_user),
 ) -> Response:
     """Sirve el avatar a admin o a personal que comparte clase con el alumno."""
-    if user["role"] != "admin" and not (
-        user["role"] == "staff"
-        and users_mng_db.staffCanViewStudentAvatar(db, user["username"], student_username)
-    ):
+    if user is None:
+        authorized = users_mng_db.studentIsInAnyClass(db, student_username)
+    else:
+        authorized = user["role"] == "admin" or (
+            user["role"] == "staff"
+            and users_mng_db.staffCanViewStudentAvatar(db, user["username"], student_username)
+        )
+    if not authorized:
         raise_api_error(ErrorCode.ASSOCIATION_ACCESS_DENIED)
 
     result = users_mng_db.getAvatar(db, student_username)

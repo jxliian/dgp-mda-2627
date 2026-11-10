@@ -6,7 +6,7 @@ from pydantic import BaseModel, ConfigDict, Field, StrictInt, field_validator
 from sqlalchemy.orm import Session
 
 from ..DB.database import get_db
-from ..auth.auth_backend import get_current_user, require_admin
+from ..auth.auth_backend import get_current_user, get_optional_current_user, require_admin
 from ..errors import CatalogError, ErrorCode, raise_api_error, success_response
 from . import clases_db
 
@@ -73,9 +73,11 @@ def create_class(payload: ClassRequest, db: Session = Depends(get_db)) -> dict:
 
 @router.get("")
 def list_classes(
-    db: Session = Depends(get_db), user: dict = Depends(get_current_user)
+    db: Session = Depends(get_db), user: dict | None = Depends(get_optional_current_user)
 ) -> dict:
-    """Admin lista todas las clases y staff solo las clases que tiene asignadas."""
+    """Sin sesión lista solo nombres; admin y staff reciben sus clases con alumnos."""
+    if user is None:
+        return success_response(classes=clases_db.list_class_names(db))
     if user["role"] == "admin":
         return success_response(classes=clases_db.list_classes(db))
     if user["role"] != "staff":
@@ -87,9 +89,11 @@ def list_classes(
 def get_class(
     class_name: ClassNamePath,
     db: Session = Depends(get_db),
-    user: dict = Depends(get_current_user),
+    user: dict | None = Depends(get_optional_current_user),
 ) -> dict:
-    """Admin consulta cualquier clase; staff solo consulta las clases asignadas."""
+    """Sin sesión muestra los alumnos; admin consulta cualquier clase y staff las suyas."""
+    if user is None:
+        return _run_db_operation(clases_db.get_class, db, class_name)
     if user["role"] == "admin":
         return _run_db_operation(clases_db.get_class, db, class_name)
     if user["role"] != "staff":

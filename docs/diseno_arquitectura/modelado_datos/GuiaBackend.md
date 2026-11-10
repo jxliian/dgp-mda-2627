@@ -171,9 +171,9 @@ Requiere token de alumno y devuelve directamente la imagen con su tipo MIME. Si 
 
 ### `GET /users/students/{student_username}/avatar-image` — Obtener avatar de alumno de una clase
 
-Requiere token de administrador o de personal. El personal solo puede consultar el avatar de alumnos que estén matriculados en alguna de sus clases; el administrador puede consultar el de cualquier alumno. Devuelve la imagen almacenada o el SVG predeterminado si el alumno no tiene avatar. La respuesta usa `Cache-Control: no-store`. Sin autorización para consultar al alumno, devuelve `ASSOCIATION_ACCESS_DENIED` (HTTP 403).
+Puede consultarse sin token para mostrar la selección de alumno antes del login, siempre que el alumno esté matriculado en alguna clase. El personal solo puede consultar el avatar de alumnos que estén matriculados en alguna de sus clases; el administrador puede consultar el de cualquier alumno. Devuelve la imagen almacenada o el SVG predeterminado si el alumno no tiene avatar. La respuesta usa `Cache-Control: no-store`. Sin autorización para consultar al alumno, devuelve `ASSOCIATION_ACCESS_DENIED` (HTTP 403).
 
-**Entrada:** sin cuerpo. Cabecera `Authorization: Bearer <token>` y username en la ruta.
+**Entrada:** sin cuerpo; username en la ruta. La cabecera Bearer es opcional para alumnos matriculados.
 
 **Respuesta:** contenido binario de imagen (PNG, JPEG o WebP), o SVG predeterminado; no devuelve JSON.
 
@@ -357,24 +357,24 @@ Solo administrador. JSON `{ "class_name": "..." }`. El nombre se recorta, debe q
 
 ### `GET /classes` — Listar clases
 
-Requiere autenticación. El administrador recibe todas las clases; el personal recibe únicamente las clases que tiene asignadas. Otros roles reciben `CLASS_ACCESS_DENIED` (HTTP 403). Cada clase incluye `class_name`, `student_count` y `students`; cada alumno incluye `username`, `full_name` y `avatar_url`. Esa URL permite al administrador consultar el avatar de cualquier alumno y al personal consultar solo el de alumnos matriculados en alguna de sus clases. Si el usuario no tiene clases visibles, `classes` es una lista vacía; si una clase no tiene alumnos, `students` es una lista vacía y `student_count` vale 0.
+La consulta es pública para permitir la selección de clase antes del login. Sin token, devuelve únicamente el campo `class_name` para cada clase, sin otros datos. Con token, el administrador recibe todas las clases y el personal únicamente las clases que tiene asignadas; otros roles reciben `CLASS_ACCESS_DENIED` (HTTP 403). Cada clase autenticada incluye `class_name`, `student_count` y `students`; cada alumno incluye `username`, `full_name` y `avatar_url`. El endpoint de avatar permite acceso anónimo solo a alumnos matriculados en alguna clase. Si el usuario autenticado no tiene clases visibles, `classes` es una lista vacía; si una clase no tiene alumnos, `students` es una lista vacía y `student_count` vale 0.
 
-**Entrada:** sin cuerpo. Cabecera Bearer.
+**Entrada:** sin cuerpo; cabecera Bearer opcional.
 
 **Respuesta JSON:**
 ```json
-{"errorCode":0,"details":"successful","classes":[{"class_name":"Primero A","student_count":1,"students":[{"username":"luis","full_name":"Luis Pérez","avatar_url":"/users/students/luis/avatar-image"}]}]}
+{"errorCode":0,"details":"successful","classes":[{"class_name":"Primero A"},{"class_name":"Segundo B"}]}
 ```
 
 ### `GET /classes/{class_name}` — Consultar detalle de clase
 
-Requiere autenticación. El administrador puede consultar cualquier clase; el personal solo puede consultar una clase a la que esté asignado. Devuelve el nombre, los alumnos inscritos (`username`, `full_name`, `avatar_url`) y el personal asignado (`username`, `full_name`). Una clase inexistente da `CLASS_NOT_FOUND`; una clase existente a la que ese staff no está asignado da `CLASS_ACCESS_DENIED`. Las colecciones `students` y `staff` pueden estar vacías.
+Puede consultarse sin token para mostrar los alumnos de la clase elegida antes del login. El administrador y las solicitudes anónimas pueden consultar cualquier clase; el personal autenticado solo puede consultar una clase a la que esté asignado. Devuelve el nombre y los alumnos inscritos (`username`, `full_name`, `avatar_url`); no devuelve el personal asignado. Una clase inexistente da `CLASS_NOT_FOUND`; una clase existente a la que ese staff no está asignado da `CLASS_ACCESS_DENIED`. `students` puede estar vacía.
 
-**Entrada:** sin cuerpo; cabecera Bearer y nombre de clase en la ruta.
+**Entrada:** sin cuerpo; cabecera Bearer opcional y nombre de clase en la ruta.
 
 **Respuesta JSON:**
 ```json
-{"errorCode":0,"details":"successful","class_name":"Primero A","students":[{"username":"luis","full_name":"Luis Pérez","avatar_url":"/users/students/luis/avatar-image"}],"staff":[{"username":"marta","full_name":"Marta Ruiz"}]}
+{"errorCode":0,"details":"successful","class_name":"Primero A","students":[{"username":"luis","full_name":"Luis Pérez","avatar_url":"/users/students/luis/avatar-image"}]}
 ```
 
 ### `PUT /classes/{current_class_name}` — Renombrar clase

@@ -62,6 +62,19 @@ def get_current_user(
     return user
 
 
+def get_optional_current_user(
+    credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
+    db: Session = Depends(get_db),
+) -> dict | None:
+    """Devuelve la sesión válida si existe y permite solicitudes anónimas."""
+    if credentials is None:
+        return None
+    user = auth_db.getUserByToken(db, credentials.credentials)
+    if user is None:
+        raise _unauthorized()
+    return user
+
+
 def require_admin(user: dict = Depends(get_current_user)) -> dict:
     """Permite la operación únicamente si la sesión pertenece a un administrador."""
     if user["role"] != "admin":

@@ -209,6 +209,14 @@ def list_classes(db: Session, staff_username: str | None = None) -> list[dict]:
     return classes
 
 
+def list_class_names(db: Session) -> list[dict]:
+    """Lista solo los nombres de las clases para selección previa al login."""
+    rows = db.execute(
+        text("SELECT class_name FROM Class ORDER BY class_name")
+    ).mappings().all()
+    return [dict(row) for row in rows]
+
+
 def get_class(db: Session, class_name: str, staff_username: str | None = None) -> dict:
     """Devuelve el detalle de una clase; limita el acceso del staff a sus clases."""
     class_info = (
@@ -217,20 +225,7 @@ def get_class(db: Session, class_name: str, staff_username: str | None = None) -
         else _ensure_class(db, class_name)
     )
     students = _list_class_students(db, class_name)
-    teachers = db.execute(
-        text(
-            "SELECT s.staff_usr AS username, u.full_name "
-            "FROM class_staff cs JOIN Staff s ON s.staff_usr = cs.staff_usr_fk "
-            "JOIN users u ON u.username = s.staff_usr "
-            "WHERE cs.class_name_fk = :class_name ORDER BY s.staff_usr"
-        ),
-        {"class_name": class_name},
-    ).mappings().all()
-    return success_response(
-        **class_info,
-        students=students,
-        staff=[dict(row) for row in teachers],
-    )
+    return success_response(**class_info, students=students)
 
 
 def add_student(db: Session, class_name: str, staff_username: str, student_username: str) -> dict:
