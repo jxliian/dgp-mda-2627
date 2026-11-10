@@ -49,7 +49,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   static const _anchoFormulario = 560.0;
-  static const _anchoConTeclado = 720.0;
+  static const _anchoConTeclado = 1080.0;
 
   final form = GlobalKey<FormState>();
   final username = TextEditingController();
@@ -57,11 +57,9 @@ class _LoginScreenState extends State<LoginScreen> {
   late UserRole role;
   bool entrando = false;
   bool ocultarContrasena = true;
-  bool usarDibujos = true;
   String? error;
 
   bool get esAlumno => role == UserRole.student;
-  bool get usaTecladoDeDibujos => esAlumno && usarDibujos;
   bool get hayQueElegirPerfil =>
       widget.student == null && widget.roles.length > 1;
 
@@ -80,7 +78,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> entrar() async {
-    if (usaTecladoDeDibujos && password.text.isEmpty) {
+    if (esAlumno && password.text.isEmpty) {
       setState(() => error = 'Introduce tu contraseña.');
       return;
     }
@@ -112,7 +110,7 @@ class _LoginScreenState extends State<LoginScreen> {
     child: Center(
       child: ConstrainedBox(
         constraints: BoxConstraints(
-          maxWidth: usaTecladoDeDibujos ? _anchoConTeclado : _anchoFormulario,
+          maxWidth: esAlumno ? _anchoConTeclado : _anchoFormulario,
         ),
         child: Column(
           children: [
@@ -166,7 +164,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 20),
             ],
-            if (usaTecladoDeDibujos)
+            if (esAlumno)
               _TecladoDeDibujos(
                 password: password,
                 habilitado: !entrando,
@@ -174,12 +172,20 @@ class _LoginScreenState extends State<LoginScreen> {
               )
             else
               _campoContrasena(),
-            if (esAlumno) _cambiarModoDeContrasena(),
             if (error != null) Notice(error!, error: true),
             const SizedBox(height: 14),
             FilledButton.icon(
               onPressed: entrando ? null : entrar,
               icon: const Icon(Icons.login),
+              style: esAlumno
+                  ? FilledButton.styleFrom(
+                      minimumSize: const Size(0, 88),
+                      textStyle: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    )
+                  : null,
               label: Text(entrando ? 'Entrando…' : 'Iniciar sesión'),
             ),
             if (!esAlumno) _recordatorioDeContrasena(),
@@ -198,9 +204,11 @@ class _LoginScreenState extends State<LoginScreen> {
     autofillHints: const [AutofillHints.password],
     onFieldSubmitted: (_) => entrando ? null : entrar(),
     decoration: InputDecoration(
-      labelText: esAlumno ? 'Mi contraseña o PIN' : 'Contraseña',
+      labelText: 'Contraseña',
       suffixIcon: IconButton(
-        tooltip: ocultarContrasena ? 'Mostrar contraseña' : 'Ocultar contraseña',
+        tooltip: ocultarContrasena
+            ? 'Mostrar contraseña'
+            : 'Ocultar contraseña',
         onPressed: () => setState(() => ocultarContrasena = !ocultarContrasena),
         icon: Icon(
           ocultarContrasena
@@ -208,15 +216,6 @@ class _LoginScreenState extends State<LoginScreen> {
               : Icons.visibility_off_outlined,
         ),
       ),
-    ),
-  );
-
-  Widget _cambiarModoDeContrasena() => TextButton(
-    onPressed: entrando
-        ? null
-        : () => setState(() => usarDibujos = !usarDibujos),
-    child: Text(
-      usarDibujos ? 'Escribir la contraseña con el teclado' : 'Usar dibujos',
     ),
   );
 
@@ -229,8 +228,9 @@ class _LoginScreenState extends State<LoginScreen> {
     UserRole.admin => 'Cuenta de prueba: admin. Contraseña: 1234.',
     UserRole.student =>
       'Contraseña de prueba: Corazón, Estrella, Animal y Flor.',
-    _ => 'Cuentas de prueba: lucia (personal) y familia (tutor). '
-        'Contraseña: 1234.',
+    _ =>
+      'Cuentas de prueba: lucia (personal) y familia (tutor). '
+          'Contraseña: 1234.',
   };
 
   static const _pedirCambioAlAdministrador =
@@ -326,12 +326,18 @@ class _AlumnoElegido extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(top: 12, bottom: 16),
-    child: Column(
+    padding: const EdgeInsets.only(top: 8, bottom: 12),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        UserAvatar(user: student, size: 84),
-        const SizedBox(height: 10),
-        Text(student.displayName, style: Theme.of(context).textTheme.titleLarge),
+        UserAvatar(user: student, size: 96),
+        const SizedBox(width: 20),
+        Flexible(
+          child: Text(
+            student.displayName,
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
+        ),
       ],
     ),
   );
@@ -361,7 +367,7 @@ class _TecladoDeDibujos extends StatelessWidget {
     (Icons.park_outlined, 'Árbol'),
     (Icons.music_note_outlined, 'Música'),
   ];
-  static const _anchoMinimoTecla = 104.0;
+  static const _anchoMinimoTecla = 140.0;
   static const _separacion = 10.0;
   static const _maximoCaracteres = 72;
   static const _casillasMinimas = 4;
@@ -386,7 +392,7 @@ class _TecladoDeDibujos extends StatelessWidget {
       Text(
         'Pulsa tus dibujos en orden.',
         textAlign: TextAlign.center,
-        style: Theme.of(context).textTheme.bodyMedium,
+        style: Theme.of(context).textTheme.titleLarge,
       ),
       const SizedBox(height: 10),
       _marcador(),
@@ -395,7 +401,8 @@ class _TecladoDeDibujos extends StatelessWidget {
         builder: (context, restricciones) {
           final columnas = _columnasQueCaben(restricciones.maxWidth);
           final ancho =
-              (restricciones.maxWidth - _separacion * (columnas - 1)) / columnas;
+              (restricciones.maxWidth - _separacion * (columnas - 1)) /
+              columnas;
           return Wrap(
             spacing: _separacion,
             runSpacing: _separacion,
@@ -407,18 +414,31 @@ class _TecladoDeDibujos extends StatelessWidget {
           );
         },
       ),
-      const SizedBox(height: 4),
-      TextButton.icon(
-        onPressed: habilitado ? _borrar : null,
-        icon: const Icon(Icons.backspace_outlined),
-        label: const Text('Borrar el último dibujo'),
+      const SizedBox(height: 16),
+      SizedBox(
+        width: double.infinity,
+        child: OutlinedButton.icon(
+          onPressed: habilitado && password.text.isNotEmpty ? _borrar : null,
+          style: OutlinedButton.styleFrom(
+            minimumSize: const Size(0, 88),
+            textStyle: const TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          icon: const Icon(Icons.backspace_outlined, size: 36),
+          label: const Text(
+            'Borrar el último dibujo',
+            textAlign: TextAlign.center,
+          ),
+        ),
       ),
     ],
   );
 
   int _columnasQueCaben(double ancho) {
-    final caben =
-        ((ancho + _separacion) / (_anchoMinimoTecla + _separacion)).floor();
+    final caben = ((ancho + _separacion) / (_anchoMinimoTecla + _separacion))
+        .floor();
     return caben.clamp(2, 5);
   }
 
@@ -434,8 +454,8 @@ class _TecladoDeDibujos extends StatelessWidget {
       children: [
         for (var i = 0; i < _casillasVisibles; i++)
           Container(
-            width: 58,
-            height: 66,
+            width: 68,
+            height: 76,
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: i < password.text.length
@@ -469,16 +489,17 @@ class _TecladoDeDibujos extends StatelessWidget {
         onPressed: habilitado ? () => _escribir(cifra) : null,
         style: OutlinedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
+          minimumSize: const Size(0, 120),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icono, size: 38),
+            Icon(icono, size: 56),
             const SizedBox(height: 4),
             Text(
               '$nombre · $cifra',
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 14),
+              style: const TextStyle(fontSize: 18),
             ),
           ],
         ),

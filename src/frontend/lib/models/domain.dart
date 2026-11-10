@@ -18,6 +18,7 @@ enum UserRole {
 class AccessSettings {
   AccessSettings([Json? source]) : values = {...defaults, ...?source};
   final Json values;
+
   /// Todo nace apagado, apoyos y permisos: se activan uno a uno con la familia
   /// y el tutor, según lo que cada alumno necesite. En particular, de base un
   /// alumno no crea ni borra tareas; se lo habilita quien le acompaña.
@@ -85,12 +86,19 @@ class Classroom {
     required this.name,
     this.students = const [],
     this.staff = const [],
-  });
+    this.staffComplete = true,
+    int? studentCount,
+  }) : _studentCount = studentCount;
   final String name;
   final List<AppUser> students;
   final List<AppUser> staff;
+  final bool staffComplete;
+  final int? _studentCount;
+  int get studentCount => _studentCount ?? students.length;
   factory Classroom.fromJson(Json json) => Classroom(
     name: json['class_name'] as String,
+    studentCount: json['student_count'] as int?,
+    staffComplete: json['staff'] is List,
     students: (json['students'] as List? ?? [])
         .map(
           (e) => AppUser.fromJson(

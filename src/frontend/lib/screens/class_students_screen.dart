@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../models/domain.dart';
-import '../models/validation.dart';
 import '../state/app_state.dart';
 import '../ui/ui.dart';
 import 'class_tasks_screen.dart';
@@ -17,72 +16,34 @@ class ClassStudentsScreen extends StatefulWidget {
 }
 
 class _ClassStudentsScreenState extends State<ClassStudentsScreen> {
-  final nuevoAlumno = TextEditingController();
   int revision = 0;
-
-  /// Alumnos que el personal puede matricular, para no tener que saberse el
-  /// nombre de usuario. Se cargan una vez al abrir la gestión.
-  List<AppUser>? candidatos;
-  bool cargandoCandidatos = false;
   bool gestionando = false;
   bool ocupado = false;
   String? aviso;
   String? error;
 
-  @override
-  void dispose() {
-    nuevoAlumno.dispose();
-    super.dispose();
-  }
-
-  Future<void> _matricular({required String username, required bool retirar}) async {
+  Future<void> _retirarAlumno(String username) async {
     setState(() {
       ocupado = true;
       error = null;
       aviso = null;
     });
     try {
-      await AppScope.of(context).repository.enroll(
-        widget.className,
-        username,
-        remove: retirar,
-      );
+      await AppScope.of(
+        context,
+      ).repository.enroll(widget.className, username, remove: true);
       if (mounted) {
         setState(() {
           revision++;
-          nuevoAlumno.clear();
-          aviso = retirar ? 'Alumno retirado del aula.' : 'Alumno matriculado.';
+          aviso = 'Alumno retirado del aula.';
         });
+        AppScope.of(context).classroomsChanged();
       }
     } on Object catch (e) {
       if (mounted) setState(() => error = e.toString());
     } finally {
       if (mounted) setState(() => ocupado = false);
     }
-  }
-
-  /// Carga los alumnos del personal, que son los que puede matricular.
-  Future<void> cargarCandidatos() async {
-    if (candidatos != null || cargandoCandidatos) return;
-    setState(() => cargandoCandidatos = true);
-    final state = AppScope.of(context);
-    try {
-      final lista = await state.repository.linkedStudents(state.user!);
-      if (mounted) setState(() => candidatos = lista);
-    } on Object {
-      // Sin listado seguimos adelante: queda el usuario escrito a mano.
-      if (mounted) setState(() => candidatos = const []);
-    } finally {
-      if (mounted) setState(() => cargandoCandidatos = false);
-    }
-  }
-
-  Future<void> apuntar() async {
-    if (usernameError(nuevoAlumno.text) != null) {
-      setState(() => error = 'Escribe un nombre de usuario válido.');
-      return;
-    }
-    await _matricular(username: nuevoAlumno.text.trim(), retirar: false);
   }
 
   Future<void> retirar(AppUser alumno) async {
@@ -93,7 +54,7 @@ class _ClassStudentsScreenState extends State<ClassStudentsScreen> {
           'Su cuenta y sus tareas personales se conservan.',
     );
     if (!confirmado || !mounted) return;
-    await _matricular(username: alumno.username, retirar: true);
+    await _retirarAlumno(alumno.username);
   }
 
   @override
@@ -106,6 +67,11 @@ class _ClassStudentsScreenState extends State<ClassStudentsScreen> {
       load: () => AppScope.of(context).repository.classDetail(widget.className),
       builder: (aula) => Column(
         children: [
+          Text(
+            'Total: ${aula.studentCount} alumnos',
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 12),
           StudentGrid(
             students: aula.students,
             empty: 'Todavía no hay alumnos en esta aula.',
@@ -134,9 +100,8 @@ class _ClassStudentsScreenState extends State<ClassStudentsScreen> {
         OutlinedButton.icon(
           onPressed: () {
             setState(() => gestionando = !gestionando);
-            if (gestionando) cargarCandidatos();
           },
-          icon: const Icon(Icons.person_add_alt),
+          icon: const Icon(Icons.manage_accounts_outlined),
           label: Text(
             gestionando ? 'Cerrar matrículas' : 'Gestionar matrículas',
           ),
@@ -144,51 +109,12 @@ class _ClassStudentsScreenState extends State<ClassStudentsScreen> {
     ],
   );
 
-  /// Quita de la búsqueda a quien ya está en el aula.
-  List<AppUser> _sinMatricular(Classroom aula) {
-    final dentro = aula.students.map((a) => a.username).toSet();
-    return (candidatos ?? const <AppUser>[])
-        .where((alumno) => !dentro.contains(alumno.username))
-        .toList();
-  }
-
   Widget _gestionDeMatriculas(Classroom aula) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       const SectionTitle(
         'Matrículas del aula',
-        hint: 'Apunta o retira alumnos de esta clase.',
-      ),
-      if (cargandoCandidatos)
-        const Padding(
-          padding: EdgeInsets.symmetric(vertical: 12),
-          child: LinearProgressIndicator(),
-        )
-      else
-        StudentPicker(
-          students: _sinMatricular(aula),
-          enabled: !ocupado,
-          empty: 'No hay más alumnos tuyos para matricular en esta aula.',
-          onPick: (alumno) =>
-              _matricular(username: alumno.username, retirar: false),
-        ),
-      const SizedBox(height: 16),
-      const SectionTitle(
-        'Por nombre de usuario',
-        hint: 'Si el alumno no sale en la búsqueda, escribe su usuario.',
-      ),
-      TextField(
-        controller: nuevoAlumno,
-        enabled: !ocupado,
-        decoration: const InputDecoration(
-          labelText: 'Usuario del alumno para matricular',
-        ),
-      ),
-      const SizedBox(height: 12),
-      FilledButton.icon(
-        onPressed: ocupado ? null : apuntar,
-        icon: const Icon(Icons.add),
-        label: const Text('Matricular alumno'),
+        hint: 'Consulta o retira alumnos ya matriculados en esta clase.',
       ),
       const SizedBox(height: 20),
       const SectionTitle('Alumnos matriculados'),

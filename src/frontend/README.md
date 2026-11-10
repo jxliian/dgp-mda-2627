@@ -2,6 +2,9 @@
 
 Frontend basado en `docs/Pantallas/flujo-pantallas.png`, los bocetos de Figma y los bocetos a mano. La documentación original se conserva sin cambios.
 
+Estado de la integración con `main`, correcciones de acceso y permisos y
+carencias pendientes del backend: [notas de integración](NOTAS_INTEGRACION_MAIN.md).
+
 ## Ejecutar
 
 Con Flutter estable instalado y disponible en el PATH:
@@ -68,7 +71,7 @@ Se conservan tarjetas grandes, paginación con flechas, fotografía del alumno, 
 | Portadas V1 / V2 | `WelcomeScreen` |
 | Elección de aulas del alumno | `StudentClassesScreen` |
 | Buscarse por foto | `StudentSelectionScreen` |
-| Login del alumno | `LoginScreen`, dibujos para dígitos y alternativa de teclado |
+| Login del alumno | `LoginScreen`, acceso exclusivo con dibujos para dígitos |
 | Selección de días | `DaysScreen` |
 | Pantalla inicial del alumno | `AgendaScreen`, fecha, filtros y paginación |
 | Vista de tarea | `TaskDetailScreen` |
@@ -86,13 +89,13 @@ Se conservan tarjetas grandes, paginación con flechas, fotografía del alumno, 
 | Asociaciones | `AssociationsScreen` |
 | Ajustes y foto | `SettingsScreen` |
 
-El teclado visual representa los dígitos `0–9` mediante símbolos estables; envía la contraseña numérica habitual, compatible con bcrypt. Las contraseñas alfanuméricas utilizan el teclado convencional.
+El teclado visual representa los dígitos `0–9` mediante símbolos estables; envía la contraseña numérica habitual, compatible con bcrypt. Administración debe configurar una contraseña numérica para el alumnado. Las cuentas de personal, familia y administración mantienen el teclado convencional.
 
 Personal: tareas dentro de **09:00–15:00**. Familias y alumnado: fuera de ese intervalo o sin hora fija. Se valida la duración completa también en el servidor y se conserva la regla original de horario escolar en fines de semana.
 
 La selección de varios días crea una tarea independiente por fecha de la semana. Si una petición falla, se indican los días ya guardados y el reintento omite esas fechas. Los datos y los pasos de cada tarea se guardan en una transacción. Sustituir instrucciones reinicia su progreso anterior.
 
-La administración dispone de rutas adicionales para gestionar matrículas desde el editor de aulas; las rutas originales del personal mantienen sus restricciones. Solo administración concede permisos de modificar perfiles o crear tareas.
+En el frontend, solo administración añade alumnos a un aula. El personal consulta y gestiona los ya matriculados, incluida su retirada del aula. Se mantienen las rutas `/classes/{class_name}/students/{student_username}` y el backend sin cambios. Solo administración concede permisos de modificar perfiles o crear tareas.
 
 ## API ampliada
 
@@ -107,7 +110,7 @@ La administración dispone de rutas adicionales para gestionar matrículas desde
 | Editar tarea individual asociada | `PUT /student-tasks/students/{student_username}/{task_id}?task_date=FECHA_ORIGINAL` |
 | Progreso propio | `PATCH /student-tasks/me/{task_id}/progress?task_date=AAAA-MM-DD` |
 | Retirar personal | `DELETE /classes/{class_name}/staff/{staff_username}` |
-| Matrículas administrativas | `POST` / `DELETE /admin/classes/{class_name}/students/{student_username}` |
+| Matrículas de administración y personal | `POST` / `DELETE /classes/{class_name}/students/{student_username}` |
 
 Creación y edición de tareas aceptan `steps` y `task_image`. Las imágenes se codifican en base64: PNG, JPEG o WebP de hasta 5 MB por imagen. Cada paso contiene `step_title`, `step_description`, `step_duration`, `step_required` y `step_image`; el array determina el orden. El alumno no puede terminar con pasos obligatorios pendientes.
 
@@ -123,7 +126,7 @@ La autenticación requiere conexión y el token no se persiste. Después de rein
 
 ## Accesibilidad y límites
 
-Interfaz en español, controles amplios, etiquetas de acciones, teclado, texto escalable, estados con texto e iconos, colores configurables, contraste alto y lectura en voz cuando esté habilitada. Las fotos se cargan según los permisos y el alumno puede actualizar la suya desde Ajustes.
+Interfaz en español, controles amplios, etiquetas de acciones, teclado, texto escalable, estados con texto e iconos, colores configurables, contraste alto y lectura en voz cuando esté habilitada. Administración gestiona las fotos. El alumno solo dispone de ajustes de accesibilidad cuando tiene permiso para modificar su perfil.
 
 Los apoyos predeterminados son iconos Material y fotos subidas, no pictogramas ARASAAC. Se pueden adjuntar los materiales específicos del centro a tareas y pasos con su atribución y permisos. La voz depende de las voces españolas del dispositivo; no sustituye una grabación familiar. Queda pendiente la validación con TalkBack, ayudas motrices y alumnado real.
 

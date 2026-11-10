@@ -7,6 +7,9 @@ analyzer:
     - android/**
     - web/**
     - linux/**
+    - ios/**
+    - windows/**
+    - macos/**
 linter:
   rules:
     use_build_context_synchronously: true

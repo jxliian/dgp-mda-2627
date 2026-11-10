@@ -49,11 +49,12 @@ class _AppFooterState extends State<AppFooter> {
             icon: const Icon(Icons.home_outlined),
             label: const Text('Inicio'),
           ),
-          TextButton.icon(
-            onPressed: () => openPage(context, const SettingsScreen()),
-            icon: const Icon(Icons.settings_outlined),
-            label: const Text('Ajustes'),
-          ),
+          if (AppScope.of(context).canEditOwnSettings)
+            TextButton.icon(
+              onPressed: () => openPage(context, const SettingsScreen()),
+              icon: const Icon(Icons.settings_outlined),
+              label: const Text('Ajustes'),
+            ),
           OutlinedButton.icon(
             onPressed: saliendo ? null : cerrarSesion,
             icon: const Icon(Icons.logout),

@@ -6,6 +6,27 @@ import 'package:autovida/models/validation.dart';
 
 void main() {
   test(
+    'class totals preserve the server count when the pupil list is omitted',
+    () {
+      expect(
+        Classroom.fromJson({
+          'class_name': 'Aula 1',
+          'student_count': 5,
+        }).studentCount,
+        5,
+      );
+      expect(
+        Classroom.fromJson({
+          'class_name': 'Aula 1',
+          'students': [
+            {'username': 'ana'},
+          ],
+        }).studentCount,
+        1,
+      );
+    },
+  );
+  test(
     'school interval validates the entire duration and midnight crossing',
     () {
       expect(scheduleError(UserRole.staff, '09:00:00', 360), isNull);
@@ -45,25 +66,28 @@ void main() {
     expect(timer.remainingSeconds, 60);
     timer.dispose();
   });
-  test('task submission uses strict field names and keeps the task as a unit', () {
-    final draft = TaskDraft(
-      title: 'Leer',
-      date: DateTime(2026, 11, 9),
-      duration: 20,
-      description: 'Busca la primera página.',
-    );
-    final json = jsonDecode(jsonEncode(draft.toApiJson())) as Map;
-    expect(json['task_date'], '2026-11-09');
-    expect(json['task_duration'], isA<int>());
-    expect(json.containsKey('task_image'), false);
-    // La descripción viaja como un único paso no obligatorio.
-    final steps = json['steps'] as List;
-    expect(steps.length, 1);
-    expect(steps.first['step_description'], 'Busca la primera página.');
-    expect(steps.first['step_title'], 'Leer');
-    expect(steps.first['step_required'], false);
-    expect(steps.first.containsKey('step_finished'), false);
-  });
+  test(
+    'task submission uses strict field names and keeps the task as a unit',
+    () {
+      final draft = TaskDraft(
+        title: 'Leer',
+        date: DateTime(2026, 11, 9),
+        duration: 20,
+        description: 'Busca la primera página.',
+      );
+      final json = jsonDecode(jsonEncode(draft.toApiJson())) as Map;
+      expect(json['task_date'], '2026-11-09');
+      expect(json['task_duration'], isA<int>());
+      expect(json.containsKey('task_image'), false);
+      // La descripción viaja como un único paso no obligatorio.
+      final steps = json['steps'] as List;
+      expect(steps.length, 1);
+      expect(steps.first['step_description'], 'Busca la primera página.');
+      expect(steps.first['step_title'], 'Leer');
+      expect(steps.first['step_required'], false);
+      expect(steps.first.containsKey('step_finished'), false);
+    },
+  );
   test('a task without description sends no steps at all', () {
     final draft = TaskDraft(
       title: 'Leer',

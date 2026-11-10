@@ -34,7 +34,7 @@ class _AdminScreenState extends State<AdminScreen> {
       context,
       UserEditorScreen(user: usuario),
     );
-    if (guardado == true && mounted) _recargar('Usuario guardado.');
+    if (mounted) _recargar(guardado == true ? 'Usuario guardado.' : null);
   }
 
   Future<void> editarAula([Classroom? aula]) async {
@@ -74,6 +74,7 @@ class _AdminScreenState extends State<AdminScreen> {
     });
     try {
       await accion(AppScope.of(context).repository);
+      if (mounted) AppScope.of(context).classroomsChanged();
       if (mounted) _recargar('Eliminado correctamente.');
     } on Object catch (e) {
       if (mounted) setState(() => error = e.toString());
@@ -160,7 +161,7 @@ class _AdminScreenState extends State<AdminScreen> {
   );
 
   Widget _listaDeAulas(AppState state) => LoadPanel<List<Classroom>>(
-    key: ValueKey('aulas/$revision'),
+    key: ValueKey('aulas/$revision/${state.classroomVersion}'),
     load: state.repository.classes,
     builder: (aulas) => PagedItems<Classroom>(
       items: aulas
@@ -192,12 +193,17 @@ class _AdminScreenState extends State<AdminScreen> {
     subtitle: 'Toca para editar el aula',
     icon: Icons.school_outlined,
     badges: [
-      const StatusBadge('Aula', tone: BadgeTone.main, icon: Icons.groups_outlined),
-      StatusBadge('${aula.students.length} alumnos', icon: Icons.person_outline),
-      StatusBadge(
-        '${aula.staff.length} del personal',
-        icon: Icons.supervisor_account_outlined,
+      const StatusBadge(
+        'Aula',
+        tone: BadgeTone.main,
+        icon: Icons.groups_outlined,
       ),
+      StatusBadge('${aula.studentCount} alumnos', icon: Icons.person_outline),
+      if (aula.staffComplete)
+        StatusBadge(
+          '${aula.staff.length} del personal',
+          icon: Icons.supervisor_account_outlined,
+        ),
     ],
     onTap: ocupado ? null : () => editarAula(aula),
     trailing: IconAction(

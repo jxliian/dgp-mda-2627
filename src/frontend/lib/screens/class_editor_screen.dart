@@ -30,8 +30,7 @@ class _ClassEditorScreenState extends State<ClassEditorScreen> {
   bool get existe => nombreGuardado != null;
 
   /// En algunos servidores la matrícula la hace solo el personal del aula.
-  bool get puedeMatricular =>
-      AppScope.of(context).repository.canEnrollStudents;
+  bool get puedeMatricular => AppScope.of(context).repository.canEnrollStudents;
   bool get puedeRetirarPersonal =>
       AppScope.of(context).repository.canRemoveStaff;
 
@@ -65,6 +64,7 @@ class _ClassEditorScreenState extends State<ClassEditorScreen> {
           alumnoElegido = null;
           aviso = exito;
         });
+        AppScope.of(context).classroomsChanged();
       }
     } on Object catch (e) {
       if (mounted) setState(() => error = e.toString());
@@ -76,15 +76,12 @@ class _ClassEditorScreenState extends State<ClassEditorScreen> {
   Future<void> guardarNombre() async {
     if (!form.currentState!.validate()) return;
     final nuevo = nombre.text.trim();
-    await _operar(
-      () async {
-        await AppScope.of(
-          context,
-        ).repository.saveClass(nuevo, previous: nombreGuardado);
-        nombreGuardado = nuevo;
-      },
-      exito: 'Aula guardada. Ya puedes asignar su personal.',
-    );
+    await _operar(() async {
+      await AppScope.of(
+        context,
+      ).repository.saveClass(nuevo, previous: nombreGuardado);
+      nombreGuardado = nuevo;
+    }, exito: 'Aula guardada. Ya puedes asignar su personal.');
   }
 
   Future<void> cambiarPersonal(String username, {required bool retirar}) {
@@ -137,7 +134,11 @@ class _ClassEditorScreenState extends State<ClassEditorScreen> {
           if (existe) _miembros(),
           if (error != null) Notice(error!, error: true),
           if (aviso != null) Notice(aviso!),
-          FormActions(busy: ocupado, onSave: guardarNombre, label: 'Guardar aula'),
+          FormActions(
+            busy: ocupado,
+            onSave: guardarNombre,
+            label: 'Guardar aula',
+          ),
           if (existe)
             Padding(
               padding: const EdgeInsets.only(top: 20),
@@ -161,13 +162,6 @@ class _ClassEditorScreenState extends State<ClassEditorScreen> {
           'Personal del aula',
           hint: 'Asigna el profesorado responsable de esta clase.',
         ),
-        for (final miembro in aula.staff)
-          _filaDeMiembro(
-            miembro,
-            onRemove: puedeRetirarPersonal
-                ? () => cambiarPersonal(miembro.username, retirar: true)
-                : null,
-          ),
         _selector(
           etiqueta: 'Añadir personal',
           rol: UserRole.staff,
@@ -178,12 +172,28 @@ class _ClassEditorScreenState extends State<ClassEditorScreen> {
           textoBoton: 'Asignar personal',
           vacio: 'No hay más miembros del personal para asignar.',
         ),
+        const SectionTitle('Personal asociado al aula'),
+        if (!aula.staffComplete)
+          const Notice(
+            'Se muestran las asignaciones confirmadas durante esta sesión. '
+            'Para consultar todo el personal existente, el aula debe tener alumnos.',
+          ),
+        if (aula.staffComplete && aula.staff.isEmpty)
+          const Notice('No hay personal asociado a esta aula.'),
+        for (final miembro in aula.staff)
+          _filaDeMiembro(
+            miembro,
+            onRemove: puedeRetirarPersonal
+                ? () => cambiarPersonal(miembro.username, retirar: true)
+                : null,
+          ),
         SectionTitle(
           'Alumnos del aula',
           hint: puedeMatricular
               ? 'Matricula o retira alumnos de esta clase.'
               : 'Las matrículas las gestiona el personal asignado al aula.',
         ),
+        Text('Total: ${aula.studentCount} alumnos'),
         for (final alumno in aula.students)
           _filaDeMiembro(
             alumno,
@@ -233,7 +243,9 @@ class _ClassEditorScreenState extends State<ClassEditorScreen> {
     required String vacio,
   }) => LoadPanel<List<AppUser>>(
     key: ValueKey('${rol.name}/$revision'),
-    load: AppScope.of(context).repository.users,
+    load: rol == UserRole.student
+        ? AppScope.of(context).repository.unassignedStudents
+        : AppScope.of(context).repository.users,
     builder: (todos) {
       final candidatos = todos
           .where(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/domain.dart';
+import '../models/student_search.dart';
 import '../state/app_state.dart';
 import '../ui/ui.dart';
 import 'student_grid.dart';
@@ -15,6 +16,7 @@ class StaffStudentsScreen extends StatefulWidget {
 
 class _StaffStudentsScreenState extends State<StaffStudentsScreen> {
   int revision = 0;
+  String busqueda = '';
 
   @override
   Widget build(BuildContext context) {
@@ -23,14 +25,31 @@ class _StaffStudentsScreenState extends State<StaffStudentsScreen> {
       title: 'Mis alumnos',
       subtitle: 'Alumnado de todas tus aulas',
       footer: const AppFooter(),
-      child: LoadPanel<List<AppUser>>(
-        key: ValueKey(revision),
-        load: () => state.repository.linkedStudents(state.user!),
-        builder: (alumnos) => StudentGrid(
-          students: alumnos,
-          empty: 'Todavía no tienes alumnos asignados.',
-          onReturn: () => setState(() => revision++),
-        ),
+      child: Column(
+        children: [
+          TextField(
+            decoration: const InputDecoration(
+              labelText: 'Buscar alumno por nombre o usuario',
+              prefixIcon: Icon(Icons.search),
+            ),
+            onChanged: (valor) => setState(() => busqueda = valor),
+          ),
+          const SizedBox(height: 16),
+          LoadPanel<List<AppUser>>(
+            key: ValueKey(revision),
+            load: () => state.repository.linkedStudents(state.user!),
+            builder: (alumnos) => StudentGrid(
+              key: ValueKey(busqueda),
+              students: filterStudents(alumnos, busqueda),
+              grid: false,
+              pageSize: 3,
+              empty: alumnos.isEmpty
+                  ? 'Todavía no tienes alumnos asignados.'
+                  : 'Ningún alumno coincide con «${busqueda.trim()}».',
+              onReturn: () => setState(() => revision++),
+            ),
+          ),
+        ],
       ),
     );
   }

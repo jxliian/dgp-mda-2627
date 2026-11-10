@@ -33,9 +33,7 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
 
   /// Cambiar la foto de otra persona depende de que el servidor lo ofrezca.
   bool get puedeCambiarLaFoto =>
-      !esNueva &&
-      esAlumno &&
-      AppScope.of(context).repository.canSetAvatarOf;
+      !esNueva && esAlumno && AppScope.of(context).repository.canSetAvatarOf;
 
   bool get esNueva => widget.user == null;
   bool get esAlumno => rol == UserRole.student;
@@ -77,7 +75,10 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
       error = null;
     });
     try {
-      await state.repository.saveUser(_datosParaGuardar(), previous: widget.user);
+      await state.repository.saveUser(
+        _datosParaGuardar(),
+        previous: widget.user,
+      );
       final esLaPropia = widget.user?.username == state.user?.username;
       if (state.user != null && esLaPropia) await state.refreshProfile();
       if (mounted) Navigator.pop(context, true);
@@ -151,11 +152,19 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
           const SizedBox(height: 18),
           _campoRepeticion(),
           if (esAlumno)
-            AccessEditor(settings: ajustes, permissions: true, enabled: !guardando),
+            AccessEditor(
+              settings: ajustes,
+              permissions: true,
+              enabled: !guardando,
+            ),
           _asociaciones(),
           if (error != null) Notice(error!, error: true),
           if (aviso != null) Notice(aviso!),
-          FormActions(busy: guardando, onSave: guardar, label: 'Guardar usuario'),
+          FormActions(
+            busy: guardando,
+            onSave: guardar,
+            label: 'Guardar usuario',
+          ),
         ],
       ),
     ),
@@ -235,12 +244,19 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
     controller: contrasena,
     enabled: !guardando,
     obscureText: true,
-    validator: (valor) =>
-        !esNueva && valor!.isEmpty ? null : passwordError(valor),
+    keyboardType: esAlumno ? TextInputType.number : TextInputType.text,
+    validator: (valor) {
+      if (!esNueva && (valor == null || valor.isEmpty)) return null;
+      final error = passwordError(valor);
+      if (error != null) return error;
+      return esAlumno && !RegExp(r'^[0-9]+$').hasMatch(valor!)
+          ? 'Usa solo números del 0 al 9 para el acceso con dibujos.'
+          : null;
+    },
     decoration: InputDecoration(
       labelText: esNueva ? 'Contraseña *' : 'Nueva contraseña (opcional)',
       helperText: esAlumno
-          ? 'Una contraseña numérica permite usar el teclado de dibujos.'
+          ? 'Solo números del 0 al 9: cada cifra corresponde a un dibujo.'
           : null,
     ),
   );

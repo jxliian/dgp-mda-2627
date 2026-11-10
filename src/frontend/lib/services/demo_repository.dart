@@ -233,6 +233,22 @@ class DemoRepository implements AutovidaRepository {
   }
 
   @override
+  Future<List<AppUser>> unassignedStudents() async {
+    _signedIn();
+    if (_current!.role != UserRole.admin && _current!.role != UserRole.staff) {
+      throw const ApiException('No tienes permiso para consultar matrículas.');
+    }
+    final enrolled = _students.values.expand((students) => students).toSet();
+    return _users.values
+        .where(
+          (user) =>
+              user.role == UserRole.student &&
+              !enrolled.contains(user.username),
+        )
+        .toList();
+  }
+
+  @override
   Future<void> saveUser(Json payload, {AppUser? previous}) async {
     _signedIn();
     final own = _current!.username == previous?.username;
@@ -363,6 +379,11 @@ class DemoRepository implements AutovidaRepository {
     bool remove = false,
   }) async {
     _signedIn();
+    if (_current!.role == UserRole.staff && !remove) {
+      throw const ApiException(
+        'Solo administración puede añadir alumnos a un aula.',
+      );
+    }
     if (_current!.role != UserRole.admin &&
         (_current!.role != UserRole.staff ||
             !_staff[classroom]!.contains(_current!.username))) {

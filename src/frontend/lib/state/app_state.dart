@@ -27,9 +27,12 @@ class AppState extends ChangeNotifier {
   );
   int sessionVersion = 0;
   int avatarVersion = 0;
+  int classroomVersion = 0;
   Timer? _syncTimer;
   bool get demo => repository.isDemo;
   bool get student => user?.role == UserRole.student;
+  bool get canEditOwnSettings =>
+      user != null && (!student || access.flag('profile_mod'));
   AccessSettings get access => user?.access ?? AccessSettings();
 
   LiveRepository _live() {
@@ -87,6 +90,11 @@ class AppState extends ChangeNotifier {
 
   void photoChanged() {
     avatarVersion++;
+    notifyListeners();
+  }
+
+  void classroomsChanged() {
+    classroomVersion++;
     notifyListeners();
   }
 
