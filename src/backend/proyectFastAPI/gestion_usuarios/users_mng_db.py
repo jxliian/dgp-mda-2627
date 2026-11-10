@@ -492,5 +492,12 @@ class UsersManagementDB:
             {"staff_username": staff_username, "student_username": student_username},
         ).scalar_one_or_none() is not None
 
+    def studentIsInAnyClass(self, db: Session, student_username: str) -> bool:
+        """Comprueba que el alumno esté matriculado, para servir su avatar en selección pública."""
+        return db.execute(
+            text("SELECT 1 FROM class_stud WHERE stud_usr_fk = :student_username"),
+            {"student_username": student_username},
+        ).scalar_one_or_none() is not None
+
 
 users_mng_db = UsersManagementDB()
