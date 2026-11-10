@@ -4,7 +4,7 @@ Revisado y verificado por el Gestor de Calidad ✅
 
 Este documento describe las pruebas automáticas del backend: qué comprueban, cómo se ejecutan y qué resultado dan.
 
-**Última ejecución:** 09/11/2026 · **Total:** 174 casos · **Resultado:** 170 correctos y 4 fallos esperados.
+**Última ejecución:** 09/11/2026 · **Total:** 174 casos · **Resultado:** 174 correctos y 0 fallos esperados.
 
 ## 1. Alcance
 
