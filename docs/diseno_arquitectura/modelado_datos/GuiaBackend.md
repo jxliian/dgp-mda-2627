@@ -126,6 +126,17 @@ Solo administrador. Busca una cuenta por username dentro del rol indicado y devu
 {"errorCode":0,"details":"successful","username":"ana","full_name":"Ana López","email":"ana@example.com","role":"parent"}
 ```
 
+### `GET /users/me` — Consultar mi propia ficha
+
+Requiere autenticación y devuelve únicamente la ficha del usuario asociado al token. El endpoint obtiene el rol y el username de la sesión; el cliente no puede indicar otra cuenta. Para el alumnado incluye los ajustes de accesibilidad (`stud_access_*`), de modo que pueda cargar su configuración al iniciar sesión. Para los demás roles devuelve los campos propios de su perfil. No devuelve contraseña ni token. Una sesión ausente o inválida recibe `INVALID_TOKEN` (HTTP 401); si no se encuentra la ficha asociada a la sesión, responde `USER_NOT_FOUND` (HTTP 404).
+
+**Entrada:** sin cuerpo ni parámetros. Ejemplo: `GET /users/me` con el Bearer del alumno autenticado.
+
+**Respuesta JSON (ejemplo de alumno):**
+```json
+{"errorCode":0,"details":"successful","username":"luis","full_name":"Luis Pérez","stud_access_main_col":"#ffffff","stud_access_sec_col":"#000000","stud_access_ntasks_visible":5,"stud_access_pictograms":true,"stud_access_contrast":false,"stud_access_fontsize":18,"stud_access_filters":true,"stud_access_ndays_visible":7,"stud_access_prof_mod":false,"stud_access_timebar":true,"stud_access_talkback":false,"stud_access_profile_mod":true,"stud_access_task_mod":true,"role":"student"}
+```
+
 ### `PUT /users/{role}/{username}` — Editar perfil o datos de usuario
 
 Requiere autenticación. Un administrador puede editar cualquier cuenta. Un `parent`, `staff` o `student` solo puede editar su propio perfil y no puede enviar `username`, `full_name` ni `role`. Para estudiantes, además se comprueba que `stud_access_profile_mod` sea verdadero; si es falso, se rechaza la edición propia. Ningún usuario puede cambiar el rol de una cuenta: un administrador que envíe un `role` distinto del actual recibe `ROLE_CHANGE_DENIED` (HTTP 403); un usuario no administrador que envíe `role` recibe `PROFILE_UPDATE_DENIED` (HTTP 403).
