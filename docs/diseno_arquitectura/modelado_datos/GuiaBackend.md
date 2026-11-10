@@ -242,6 +242,25 @@ Las relaciones vigentes también controlan las tareas individuales. El tutor deb
 
 Prefijo `/student-tasks`. El personal (`staff`) puede crear tareas para alumnos inscritos en alguna clase que imparte; los tutores (`parent`) pueden hacerlo para alumnos enlazados mediante `par_stud`. El alumno puede crear y eliminar solo sus propias tareas mediante las rutas `/me`, si `stud_access_task_mod` está activado. El administrador no está autorizado por este router. Las rutas de edición de tareas alternativas siguen reservadas a `staff` y `parent`; también validan la relación actual con al menos un alumno asignado a la tarea.
 
+### `GET /student-tasks/students/{student_username}?task_date=AAAA-MM-DD` — Consultar tareas de un alumno por día
+
+Requiere personal asignado a una clase compartida con el alumno o tutor asociado mediante `par_stud`. Devuelve las tareas de la agenda de ese alumno para la fecha indicada, ordenadas según `task_index`; incluye también `class_name_fk` para identificar las asignaciones que proceden de una clase. Si el alumno no existe, devuelve `TASK_STUDENT_NOT_FOUND`; si el usuario autenticado no está asociado a él, devuelve `TASK_STUDENT_NOT_ASSOCIATED`.
+
+**Entrada:** sin cuerpo. Ejemplo: `GET /student-tasks/students/luis?task_date=2026-11-10`.
+
+**Respuesta JSON:**
+```json
+{"errorCode":0,"details":"successful","stud_usr_fk":"luis","task_date":"2026-11-10","tasks":[{"task_id":41,"task_title":"Leer un cuento","task_start_hour":"10:00:00","task_duration":20,"task_creator":"marta","task_finished":false,"alt_task_id_fk":null,"task_date":"2026-11-10","task_index":0,"class_name_fk":"Primero A"}]}
+```
+
+### `GET /student-tasks/me?task_date=AAAA-MM-DD` — Consultar tareas propias por día
+
+Requiere token de alumno. Todos los alumnos pueden consultar su agenda, independientemente del permiso `stud_access_task_mod`, que solo controla la creación o modificación de sus propias tareas. Devuelve las tareas de la agenda propia para esa fecha, en orden de `task_index`. Si no hay tareas para ese día, `tasks` es una lista vacía.
+
+**Entrada:** sin cuerpo. Ejemplo: `GET /student-tasks/me?task_date=2026-11-10`.
+
+**Respuesta JSON:** usa el mismo formato de la consulta de tareas de un alumno.
+
 ### `POST /student-tasks/students/{student_username}` — Crear tarea en la agenda de un alumno
 
 Responde HTTP 201. El JSON requiere `task_title`, `task_date` y `task_duration`. La fecha es obligatoria, puede ser futura y no se limita al día actual. El título se recorta y debe contener entre 1 y 100 caracteres; la duración es un entero positivo expresado en minutos. Son opcionales `task_start_hour` (hora local sin zona) y `alt_task_id_fk` (entero positivo). `task_index` no se envía: el backend lo calcula para la agenda del alumno. Si falta la duración, es `null` o no es positiva, FastAPI rechaza la petición con error de validación `1005` (HTTP 422). No admite propiedades adicionales.

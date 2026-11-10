@@ -80,6 +80,27 @@ def create_student_task(
     )
 
 
+@router.get("/students/{student_username}")
+def get_student_tasks(
+    student_username: UsernamePath,
+    task_date: date,
+    db: Session = Depends(get_db),
+    user: dict = Depends(get_current_user),
+) -> dict:
+    """Consulta las tareas de un alumno asociado al personal o tutor autenticado."""
+    if user["role"] not in {"staff", "parent"}:
+        raise_api_error(ErrorCode.TASK_CREATOR_REQUIRED)
+
+    return _run_db_operation(
+        tasks_db.list_student_tasks,
+        db,
+        user["role"],
+        user["username"],
+        student_username,
+        task_date,
+    )
+
+
 @router.post("/me", status_code=201)
 def create_my_task(
     payload: CreateTaskRequest,
@@ -101,6 +122,26 @@ def create_my_task(
         payload.task_start_hour,
         payload.task_duration,
         payload.alt_task_id_fk,
+    )
+
+
+@router.get("/me")
+def get_my_tasks(
+    task_date: date,
+    db: Session = Depends(get_db),
+    user: dict = Depends(get_current_user),
+) -> dict:
+    """Consulta las tareas del alumno autenticado si tiene permiso de modificación."""
+    if user["role"] != "student":
+        raise_api_error(ErrorCode.TASK_CREATOR_REQUIRED)
+
+    return _run_db_operation(
+        tasks_db.list_student_tasks,
+        db,
+        "student",
+        user["username"],
+        user["username"],
+        task_date,
     )
 
 

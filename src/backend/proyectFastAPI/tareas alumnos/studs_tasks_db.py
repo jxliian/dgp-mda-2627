@@ -56,6 +56,62 @@ def _assigned_student_relationship_sql(creator_role: str) -> str:
     raise CatalogError(ErrorCode.TASK_CREATOR_REQUIRED)
 
 
+def list_student_tasks(
+    db: Session,
+    requester_role: str,
+    requester_username: str,
+    student_username: str,
+    task_date: date,
+) -> dict:
+    """Lista por fecha las tareas del alumno para un requester autorizado."""
+    if requester_role == "student":
+        if requester_username != student_username:
+            raise CatalogError(ErrorCode.TASK_CREATOR_REQUIRED)
+        student_exists = db.execute(
+            text("SELECT 1 FROM Student WHERE stud_usr = :username"),
+            {"username": student_username},
+        ).scalar_one_or_none()
+        if student_exists is None:
+            raise CatalogError(ErrorCode.TASK_STUDENT_NOT_FOUND)
+    elif requester_role in {"staff", "parent"}:
+        student_exists = db.execute(
+            text(
+                "SELECT 1 FROM users account JOIN Student profile "
+                "ON profile.stud_usr = account.username "
+                "WHERE account.username = :student_username"
+            ),
+            {"student_username": student_username},
+        ).scalar_one_or_none()
+        if student_exists is None:
+            raise CatalogError(ErrorCode.TASK_STUDENT_NOT_FOUND)
+        if not _has_student_relationship(
+            db, requester_role, requester_username, student_username
+        ):
+            raise CatalogError(ErrorCode.TASK_STUDENT_NOT_ASSOCIATED)
+    else:
+        raise CatalogError(ErrorCode.TASK_CREATOR_REQUIRED)
+
+    rows = db.execute(
+        text(
+            "SELECT task.task_id, task.task_title, task.task_start_hour, "
+            "task.task_duration, task.task_creator, task.task_finished, "
+            "task.alt_task_id_fk, assigned.task_date, assigned.task_index, "
+            "assigned.class_name_fk "
+            "FROM stud_task assigned JOIN Tasks task "
+            "ON task.task_id = assigned.task_id_fk "
+            "WHERE assigned.stud_usr_fk = :student_username "
+            "AND assigned.task_date = :task_date "
+            "ORDER BY assigned.task_index, task.task_id"
+        ),
+        {"student_username": student_username, "task_date": task_date},
+    ).mappings().all()
+    return success_response(
+        stud_usr_fk=student_username,
+        task_date=task_date,
+        tasks=[dict(row) for row in rows],
+    )
+
+
 def create_task(
     db: Session,
     creator_role: str,
