@@ -3,7 +3,9 @@
 **Proyecto:** Agenda Accesible - Proyecto AUTOVIDA (Purísima Concepción)  
 **Asignaturas:** Dirección y Gestión de Proyectos (DGP) & Metodologías de Desarrollo Ágil (MDA) - UGR  
 **Fecha:** [DD/MM/AAAA]  
-**Hora Inicio:** [HH:MM] | **Hora Fin:** [HH:MM]  
+**Hora Inicio:** [HH:MM] | **Hora Fin:** [HH:MM]
+**Tiempo de reunión:** []
+**Tiempo de trabajo:**  [] 
 **Modalidad:** [Presencial - Aula / Telemática - Discord / Google Meet]  
 **Moderador:** [Nombre del Moderador]  
 **Catalogador:** [Nombre del Catalogador]  
