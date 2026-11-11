@@ -54,9 +54,10 @@ src/frontend/
 ├── android/                     Integración Android/Kotlin/Gradle
 ├── web/                         Contenedor web e iconos
 ├── README.md                    Entrada a la documentación
-├── GUIA_FRONTEND.md              Esta guía
 └── NOTAS_INTEGRACION_MAIN.md     Decisiones y límites de integración
 ```
+
+Esta guía se encuentra en `docs/explicacion frontend/GUIA_FRONTEND.md`, fuera del proyecto Flutter.
 
 `lib/` contiene la lógica compartida entre plataformas. Las carpetas `linux/`, `android/` y `web/` aportan el contenedor nativo, permisos y recursos de cada destino; no duplican las pantallas Dart.
 
@@ -171,7 +172,7 @@ El YAML declara el rango permitido de versiones y el lock conserva la resolució
 
 ### 3.1. Punto de entrada y composición de la aplicación
 
-[main.dart](lib/main.dart) inicializa Flutter y monta el widget raíz:
+[main.dart](../../src/frontend/lib/main.dart) inicializa Flutter y monta el widget raíz:
 
 ```dart
 void main() {
@@ -180,7 +181,7 @@ void main() {
 }
 ```
 
-[app.dart](lib/app.dart) contiene `AutovidaApp` y su estado. Sus responsabilidades son crear o recibir `AppState`, seleccionar el inicio por rol, configurar español como idioma y aplicar tema y escala de texto.
+[app.dart](../../src/frontend/lib/app.dart) contiene `AutovidaApp` y su estado. Sus responsabilidades son crear o recibir `AppState`, seleccionar el inicio por rol, configurar español como idioma y aplicar tema y escala de texto.
 
 El inicio depende de la sesión, no de una ruta de texto:
 
@@ -231,7 +232,7 @@ flowchart LR
 
 ### 3.4. Estado global
 
-[state/app_state.dart](lib/state/app_state.dart) define `AppState`, que hereda de `ChangeNotifier`.
+[state/app_state.dart](../../src/frontend/lib/state/app_state.dart) define `AppState`, que hereda de `ChangeNotifier`.
 
 | Miembro | Función |
 | --- | --- |
@@ -280,7 +281,7 @@ Después de una operación asíncrona, las pantallas comprueban `mounted` antes 
 
 ### 4.1. Modelo de dominio
 
-[models/domain.dart](lib/models/domain.dart) reúne los objetos compartidos:
+[models/domain.dart](../../src/frontend/lib/models/domain.dart) reúne los objetos compartidos:
 
 | Tipo | Contenido | Uso principal |
 | --- | --- | --- |
@@ -356,7 +357,7 @@ Las fechas se serializan con `isoDate()` como `AAAA-MM-DD`; las horas se envían
 
 ### 5.1. Tema y escalado
 
-[ui/theme.dart](lib/ui/theme.dart) concentra la identidad visual:
+[ui/theme.dart](../../src/frontend/lib/ui/theme.dart) concentra la identidad visual:
 
 - `Paleta`: colores de fondo, superficie, texto, estados y controles.
 - `Medidas`: tamaños, radios, trazos y ancho máximo del contenido.
@@ -471,9 +472,9 @@ Los controles compartidos incorporan tamaños amplios, etiquetas, foco y estados
 
 ### 6.1. Contrato del repositorio y cliente HTTP
 
-[services/repository.dart](lib/services/repository.dart) contiene `AutovidaRepository`, las acciones derivadas y `LiveRepository`. [services/demo_repository.dart](lib/services/demo_repository.dart) implementa el mismo contrato con datos en memoria.
+[services/repository.dart](../../src/frontend/lib/services/repository.dart) contiene `AutovidaRepository`, las acciones derivadas y `LiveRepository`. [services/demo_repository.dart](../../src/frontend/lib/services/demo_repository.dart) implementa el mismo contrato con datos en memoria.
 
-`LiveRepository` selecciona rutas, transforma respuestas en modelos y mantiene cachés. [services/api_client.dart](lib/services/api_client.dart) prepara peticiones, Bearer, JSON UTF-8, timeout de 20 segundos, respuestas binarias y subida multipart.
+`LiveRepository` selecciona rutas, transforma respuestas en modelos y mantiene cachés. [services/api_client.dart](../../src/frontend/lib/services/api_client.dart) prepara peticiones, Bearer, JSON UTF-8, timeout de 20 segundos, respuestas binarias y subida multipart.
 
 La petición utiliza `Accept: application/json`; añade `Content-Type` cuando hay cuerpo JSON y `Authorization` cuando la operación es protegida y existe token. Los identificadores de ruta se codifican mediante `segment()`.
 
@@ -596,7 +597,7 @@ Esta condición permite que una misma pantalla funcione con demostración o con 
 
 ### 7.1. Navegación tipada por resultados
 
-[ui/routes.dart](lib/ui/routes.dart) utiliza `Navigator` y `MaterialPageRoute`:
+[ui/routes.dart](../../src/frontend/lib/ui/routes.dart) utiliza `Navigator` y `MaterialPageRoute`:
 
 ```dart
 Future<T?> openPage<T>(BuildContext context, Widget page) =>
