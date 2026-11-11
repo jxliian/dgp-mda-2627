@@ -1,5 +1,7 @@
 # AUTOVIDA · Flutter / Dart
 
+La [guía técnica del frontend](GUIA_FRONTEND.md) describe la jerarquía Flutter, su arquitectura, el código principal, el flujo entre pantallas y los endpoints consumidos. Incluye la preparación del entorno, el uso del lanzador, las pruebas y el diagnóstico de errores.
+
 Frontend basado en `docs/Pantallas/flujo-pantallas.png`, los bocetos de Figma y los bocetos a mano. La documentación original se conserva sin cambios.
 
 Estado de la integración con `main`, correcciones de acceso y permisos y
