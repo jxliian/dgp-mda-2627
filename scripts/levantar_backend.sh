@@ -74,14 +74,15 @@ DB_NAME=$BASE_DE_DATOS
 EOF
     chmod 600 "$PAQUETE/.env"
   fi
-  local clave
-  clave="$(set -a; . "$PAQUETE/.env"; set +a; printf '%s' "${DB_PASSWORD:-}")"
-  if [[ -z "$clave" ]]; then
+  # Cargar en el proceso principal para que la API y su recargador hereden
+  # la configuración, independientemente del directorio de trabajo.
+  set -a
+  . "$PAQUETE/.env"
+  set +a
+  if [[ -z "${DB_PASSWORD:-}" ]]; then
     fallo "Falta DB_PASSWORD en src/backend/proyectFastAPI/.env
          Pon ahí la contraseña acordada por el equipo, la misma para todos.
-         La documenta $GUIA
-         También puedes darla de una vez:
-           DB_PASSWORD='la acordada' ./scripts/levantar_backend.sh"
+         La documenta $GUIA"
   fi
 }
 

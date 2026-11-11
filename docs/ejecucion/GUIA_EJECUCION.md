@@ -75,6 +75,8 @@ DB_NAME=autovida_db
 
 Si existe una configuración y datos previos, deben mantenerse valores compatibles con ese entorno. El script lee el archivo también como shell: sin espacios alrededor de `=` y con valores entrecomillados cuando corresponda.
 
+El lanzador carga y exporta automáticamente las variables del `.env` antes de iniciar los servicios. La API y su proceso de recarga heredan esa configuración; no es necesario ejecutar `source` ni exportar variables manualmente en la terminal.
+
 El lanzador crea el archivo si falta, pero se detiene si no contiene contraseña. Cuando el archivo ya existe con la clave vacía, hay que editarlo; el script no lo completa a partir de una variable antepuesta al comando.
 
 ### 1.3. Lanzar el entorno completo
@@ -238,7 +240,9 @@ El lanzador puede sugerir `docker compose down -v` en algunos de estos casos. Es
 
 #### Configuración y dependencias
 
-Si aparece `Falta DB_PASSWORD`, editar `src/backend/proyectFastAPI/.env` y completar la clave acordada. Aunque el mensaje proponga pasarla como variable al comando, esa alternativa solo rellena el archivo cuando todavía no existe. Un error de sintaxis al leerlo se resuelve revisando las asignaciones y sus comillas.
+Si aparece `Falta DB_PASSWORD`, editar `src/backend/proyectFastAPI/.env` y completar la clave acordada. Pasarla como variable al comando solo rellena el archivo cuando todavía no existe. Un error de sintaxis al leerlo se resuelve revisando las asignaciones y sus comillas.
+
+Si la API muestra `Define DB_PASSWORD en el entorno antes de iniciar la API`, comprobar que se está usando la versión actual de `scripts/levantar_backend.sh`. Las versiones anteriores validaban el archivo en subprocesos, pero no exportaban sus variables al arrancar Uvicorn. Con el lanzador actual basta con completar el `.env` y ejecutar `bash scripts/levantar_backend.sh`.
 
 Si falla la creación del entorno Python, instalar `python3-venv` para el intérprete utilizado y comprobar su versión. Si falla la instalación de paquetes, revisar el primer error de `pip`, la conexión y los permisos de `src/backend/.venv`. Un entorno incompleto puede apartarse y recrearse con el lanzador; deben conservarse el `.env` y los datos. No se necesita activar manualmente el entorno: el script invoca su intérprete directamente.
 
