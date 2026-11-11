@@ -519,6 +519,16 @@ class UsersManagementDB:
             {"staff_username": staff_username, "student_username": student_username},
         ).scalar_one_or_none() is not None
 
+    def parentCanViewStudentAvatar(self, db: Session, parent_username: str, student_username: str) -> bool:
+        """Comprueba que el tutor o familiar está asociado al alumno."""
+        return db.execute(
+            text(
+                "SELECT 1 FROM par_stud "
+                "WHERE par_usr_fk = :parent_username AND stud_usr_fk = :student_username"
+            ),
+            {"parent_username": parent_username, "student_username": student_username},
+        ).scalar_one_or_none() is not None
+
     def studentIsInAnyClass(self, db: Session, student_username: str) -> bool:
         """Comprueba que el alumno esté matriculado, para servir su avatar en selección pública."""
         return db.execute(

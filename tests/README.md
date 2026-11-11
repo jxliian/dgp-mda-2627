@@ -310,20 +310,19 @@ La regla se aplica sobre la hora programada de la tarea: el personal elimina las
 | `test_se_rechazan_ficheros_invalidos_o_demasiado_grandes` | Fichero que no es imagen y fichero de más de 5 MB | 422 y 413 |
 | `test_solo_el_admin_cambia_la_foto_de_perfil` | Solo el administrador puede cambiar la foto | 200 para admin; 403 para alumno, personal y familia |
 | `test_admin_y_personal_de_su_clase_ven_la_foto` | Acceso a la foto de un alumno | 200 para administrador y personal de su clase; 403 para personal de otra |
-| `test_la_familia_no_ve_la_foto` | Comportamiento actual de la ruta de fotos | 403 |
+| `test_la_familia_ve_la_foto_de_su_alumno` | Acceso de la familia a la foto | 200 para su familia; 403 para otra familia |
 
-## 6. Decisiones pendientes
+## 6. Decisiones tomadas y pendientes
 
-No quedan pruebas marcadas con `@pytest.mark.xfail`. Esta tabla registra el tratamiento de festivos, que aún requiere un calendario del centro.
+No quedan pruebas marcadas con `@pytest.mark.xfail`. Esta tabla recoge cómo se resolvió cada una de las que lo estuvieron. Solo sigue abierto el tratamiento de los festivos, que aún requiere un calendario del centro.
 
-| Ref. | Prueba | Situación actual | Decisión pendiente |
+| Ref. | Prueba | Situación actual | Decisión |
 | :---: | :--- | :--- | :--- |
-| F1 | `test_admin_consulta_una_cuenta_concreta` | Solo existe el listado de cuentas | Añadir `GET /users/{role}/{username}` CORREGIDO ✅ |
-| F2 | `test_admin_quita_personal_de_una_clase` | Se puede asignar personal a una clase, pero no quitarlo | Añadir `DELETE /classes/{class_name}/staff/{staff_username}` CORREGIDO ✅| 
-| F3 | `test_la_familia_crea_un_sabado_por_la_manana` | El horario de 09:00 a 15:00 se aplica todos los días | Definir el tratamiento de fines de semana y festivos DECIDIDO ✅ Por ahora no se permitirá la asignación de tareas por la mañana en fin de semana.|
-| F4 | `test_el_personal_crea_una_tarea_solo_con_duracion` | Al personal se le exige hora de inicio | Confirmar si el personal puede crear tareas solo con duración
-CORREGIDO ✅ El personal debe crear tareas con hora de inicio obligatoriamente|
-| F5 | `test_eliminar_no_deja_la_tarea_huerfana` | La tarea sale de la agenda, pero su fila permanece en `Tasks` | Decidir si se elimina la fila o se conserva como histórico. DECIDIDO ✅ Se conserva para que otros alumnos que la compartan sigan teniéndola y a modo de histórico|
+| F1 | `test_admin_consulta_una_cuenta_concreta` | Existe `GET /users/{role}/{username}`, solo para administradores | Corregido ✅ |
+| F2 | `test_admin_quita_personal_de_una_clase` | Existe `DELETE /classes/{class_name}/staff/{staff_username}`, solo para administradores | Corregido ✅ |
+| F3 | `test_la_familia_no_crea_un_sabado_por_la_manana` | Las tareas familiares por la mañana en fin de semana se rechazan | Decidido ✅ Por ahora no se permiten. **Pendiente:** definir los horarios de los festivos cuando exista calendario del centro |
+| F4 | `test_el_personal_no_crea_una_tarea_solo_con_duracion` | Al personal se le exige hora de inicio | Decidido ✅ El personal debe crear tareas con hora de inicio obligatoriamente |
+| F5 | `test_quitar_tarea_de_agenda_conserva_tarea_compartida_e_historico` | La tarea sale de la agenda, pero su fila permanece en `Tasks` | Decidido ✅ Se conserva para que otros alumnos que la compartan sigan teniéndola y a modo de histórico |
 
 ## 7. Validación de las pruebas
 

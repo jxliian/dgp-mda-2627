@@ -346,14 +346,17 @@ def get_class_student_avatar(
     db: Session = Depends(get_db),
     user: dict | None = Depends(get_optional_current_user),
 ) -> Response:
-    """Sirve el avatar a admin o a personal que comparte clase con el alumno."""
+    """Sirve el avatar a admin, a personal que comparte clase y a la familia del alumno."""
     if user is None:
         authorized = users_mng_db.studentIsInAnyClass(db, student_username)
+    elif user["role"] == "admin":
+        authorized = True
+    elif user["role"] == "staff":
+        authorized = users_mng_db.staffCanViewStudentAvatar(db, user["username"], student_username)
+    elif user["role"] == "parent":
+        authorized = users_mng_db.parentCanViewStudentAvatar(db, user["username"], student_username)
     else:
-        authorized = user["role"] == "admin" or (
-            user["role"] == "staff"
-            and users_mng_db.staffCanViewStudentAvatar(db, user["username"], student_username)
-        )
+        authorized = False
     if not authorized:
         raise_api_error(ErrorCode.ASSOCIATION_ACCESS_DENIED)
 

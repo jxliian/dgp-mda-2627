@@ -333,6 +333,7 @@ def test_admin_y_personal_de_su_clase_ven_la_foto(client):
     assert client.get("/users/students/pablo/avatar-image", headers=as_user("pedro")).status_code == 403
 
 
-def test_la_familia_no_ve_la_foto(client):
+def test_la_familia_ve_la_foto_de_su_alumno(client):
     subir_foto(client, "admin", JPEG)
-    assert client.get("/users/students/pablo/avatar-image", headers=as_user("madre")).status_code == 403
+    assert client.get("/users/students/pablo/avatar-image", headers=as_user("madre")).status_code == 200
+    assert client.get("/users/students/pablo/avatar-image", headers=as_user("otra_madre")).status_code == 403
