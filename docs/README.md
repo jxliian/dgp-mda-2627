@@ -2,6 +2,8 @@
 
 Este directorio centraliza toda la documentación técnica, de gestión, calidad y diseño elaborada para el proyecto en el marco de las asignaturas **Dirección y Gestión de Proyectos (DGP)** y **Metodologías de Desarrollo Ágil (MDA)** del Grado en Ingeniería Informática (UGR, curso 2026-2027).
 
+La [guía técnica del frontend](explicacion%20frontend/GUIA_FRONTEND.md) documenta la estructura Flutter, los flujos de datos y los endpoints consumidos. La [guía de ejecución](ejecucion/GUIA_EJECUCION.md) explica la preparación del entorno, el arranque y la resolución de errores.
+
 ---
 
 ## Estructura de Carpetas en `docs/`
@@ -41,6 +43,12 @@ docs/
 │   ├── arquitectura/              # Diagramas de arquitectura del sistema y componentes
 │   ├── modelado_datos/            # Diagramas entidad-relación, esquemas y modelos
 │   └── bocetos_ux_ui/             # Wireframes, flujos visuales y mockups accesibles
+│
+├── explicacion frontend/          # Guía técnica de la aplicación Flutter
+│   └── GUIA_FRONTEND.md
+│
+├── ejecucion/                     # Arranque del entorno y resolución de errores
+│   └── GUIA_EJECUCION.md
 │
 ├── calidad_accesibilidad/         # Gestión de calidad y accesibilidad (roles especializados)
 │   ├── auditorias_accesibilidad/  # Auditorías WCAG 2.1 AA, pruebas de lectores de pantalla y validadores

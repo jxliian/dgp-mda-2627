@@ -1,0 +1,19 @@
+{
+    "name": "AUTOVIDA · Mi agenda",
+    "short_name": "AUTOVIDA",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#00695c",
+    "description": "Agenda visual accesible y tareas guiadas.",
+    "orientation": "any",
+    "prefer_related_applications": false,
+    "icons": [
+        {
+            "src": "favicon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any"
+        }
+    ]
+}
