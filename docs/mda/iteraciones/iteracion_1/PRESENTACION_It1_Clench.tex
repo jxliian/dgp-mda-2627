@@ -278,6 +278,107 @@ Amine Azzammouri & 32 & 2,46\\
 \pie{6}
 \newpage
 
+% ============================================================ 7. HORAS
+\pagecolor{white}
+\titulo{Lo que costó en horas}
+\vfill
+
+\begin{minipage}[b]{0.70\textwidth}
+\vspace{0pt}
+\begin{tikzpicture}[every node/.style={inner sep=1pt}]
+  % Linea de la media de las seis primeras semanas (30,5 h).
+  \draw[linea, dashed, line width=0.5pt] (-0.25,1.22) -- (12.55,1.22);
+  \node[right, font=\scriptsize, text=gris] at (12.65,1.22) {media semanal: 30,5 h};
+  \foreach \i/\v/\lab/\col in {%
+      0/24,5/22 sep/cian!28, 1/25/28 sep/cian!28, 2/30,5/5 oct/cian!28,
+      3/32/12 oct/cian!28, 4/38,5/19 oct/cian!28,
+      5/32,5/26 oct/cian!60, 6/52,5/2 nov/cian!60, 7/103,5/6 nov/magenta}{
+    \pgfmathsetmacro{\x}{\i*1.55}
+  }
+  % Las barras se dibujan explicitamente para controlar color y altura.
+  \fill[cian!28] (0,0) rectangle (1.05,0.98);
+  \fill[cian!28] (1.55,0) rectangle (2.60,1.00);
+  \fill[cian!28] (3.10,0) rectangle (4.15,1.22);
+  \fill[cian!28] (4.65,0) rectangle (5.70,1.28);
+  \fill[cian!28] (6.20,0) rectangle (7.25,1.54);
+  \fill[cian!60] (7.75,0) rectangle (8.80,1.30);
+  \fill[cian!60] (9.30,0) rectangle (10.35,2.10);
+  \fill[magenta] (10.85,0) rectangle (11.90,4.14);
+  \foreach \x/\v in {0.525/24,5, 2.075/25, 3.625/30,5, 5.175/32,
+                     6.725/38,5, 8.275/32,5, 9.825/52,5}{}
+  \node[above, font=\footnotesize, text=gris] at (0.525,0.98) {24,5};
+  \node[above, font=\footnotesize, text=gris] at (2.075,1.00) {25};
+  \node[above, font=\footnotesize, text=gris] at (3.625,1.22) {30,5};
+  \node[above, font=\footnotesize, text=gris] at (5.175,1.28) {32};
+  \node[above, font=\footnotesize, text=gris] at (6.725,1.54) {38,5};
+  \node[above, font=\footnotesize, text=gris] at (8.275,1.30) {32,5};
+  \node[above, font=\footnotesize, text=gris] at (9.825,2.10) {52,5};
+  \node[above, font=\small\bfseries, text=magenta] at (11.375,4.14) {103,5};
+  \foreach \x/\lab in {0.525/22 sep, 2.075/28 sep, 3.625/5 oct, 5.175/12 oct,
+                       6.725/19 oct, 8.275/26 oct, 9.825/2 nov, 11.375/6 nov}{
+    \node[below, font=\scriptsize, text=gris] at (\x,-0.1) {\lab};
+  }
+  \draw[linea, line width=0.5pt] (-0.25,0) -- (12.55,0);
+  % Marca del periodo del sprint 1.
+  \draw[cian, line width=1.4pt] (7.75,-0.62) -- (11.90,-0.62);
+  \node[below, font=\scriptsize, text=cianoscuro] at (9.825,-0.68) {Sprint 1};
+\end{tikzpicture}
+
+\vspace{0.75cm}
+{\footnotesize\color{gris} Horas semanales de todo el equipo, según el registro del documento de equipo.}
+\end{minipage}%
+\hfill
+\begin{minipage}[b]{0.26\textwidth}
+\vspace{0pt}
+{\footnotesize\color{gris} Última semana}\\[0.2cm]
+{\fontsize{32}{34}\selectfont\bfseries\color{magenta} 103,5}\ {\large\color{gris} h}\\[0.35cm]
+{\small\color{tinta} \textbf{3,4 veces} la media de las seis primeras semanas.}\\[0.35cm]
+{\small\color{gris} El 55\,\% del esfuerzo del sprint se hizo en sus últimos seis días.}
+\end{minipage}
+
+\pie{7}
+\newpage
+
+% ============================================================ 8. HORAS/PERSONA
+\pagecolor{white}
+\titulo{El alcance no se repartió: se concentró}
+\vfill
+
+\begin{minipage}[t]{0.47\textwidth}
+\vspace{0pt}
+{\small Las 14 historias nuevas y las 4 adelantadas entraron con el sprint ya en marcha. No se absorbieron redistribuyendo el trabajo a lo largo de las tres semanas, sino \textbf{acumulándolo al final}: cada persona dedicó una media de \textbf{14,8 horas en seis días}.}
+
+\vspace{0.4cm}
+{\small Es el mismo patrón que explica los conflictos de integración ---todo se fusionó a la vez--- y el motivo de los dos planes de mejora.}
+
+\vspace{0.4cm}
+{\footnotesize\color{gris} 339 horas registradas en el proyecto desde el 22 de septiembre.}
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.47\textwidth}
+\vspace{0pt}
+{\small
+\rowcolors{2}{white}{cebra}
+\begin{tabularx}{\textwidth}{@{}L>{\raggedleft\arraybackslash}p{1.5cm}>{\raggedleft\arraybackslash}p{1.9cm}>{\raggedleft\arraybackslash}p{1.1cm}@{}}
+\hline
+\cabtxt{Integrante} & \cabtxt{Total} & \cabtxt{Última sem.} & \cabtxt{\%}\\
+\hline
+Pablo de la Torre Roldán & 57,0 & 20,0 & 35\\
+Yeray Rodríguez Navas & 58,5 & 19,5 & 33\\
+José Rodríguez Fernández & 41,5 & 15,5 & 37\\
+Pablo Hernández Ibáñez & 60,0 & 14,0 & 23\\
+Amine Azzammouri & 36,0 & 14,0 & 39\\
+Julián Carrión Tovar & 44,0 & 12,5 & 28\\
+Miguel Ángel Luque Gómez & 42,0 & 8,0 & 19\\
+\hline
+\textbf{Equipo} & \textbf{339,0} & \textbf{103,5} & \textbf{31}\\
+\hline
+\end{tabularx}}
+\end{minipage}
+
+\pie{8}
+\newpage
+
 % ============================================================ 7. QUÉ FALLÓ
 \pagecolor{white}
 \titulo{Qué nos costó}
@@ -290,10 +391,10 @@ Amine Azzammouri & 32 & 2,46\\
   \item \textbf{Cuadrar horarios.} Otros proyectos y compromisos personales dificultaron encontrar huecos comunes.
 \end{itemize}
 
-\pie{7}
+\pie{9}
 \newpage
 
-% ============================================================ 8. MEJORAS
+% ============================================================ 10. MEJORAS
 \pagecolor{white}
 \titulo{Qué vamos a cambiar}
 \vfill
@@ -313,10 +414,10 @@ Amine Azzammouri & 32 & 2,46\\
 \vspace{0.7cm}
 {\color{gris} Son propuestas, no acuerdos: se validan en la reunión de planificación del sprint 2, donde cada acción recibirá responsable y fecha de revisión.}
 
-\pie{8}
+\pie{10}
 \newpage
 
-% ============================================================ 9. CIERRE
+% ============================================================ 11. CIERRE
 \pagecolor{tinta}
 \tituloclaro{Hacia el sprint 2}
 \vfill
@@ -339,6 +440,6 @@ Amine Azzammouri & 32 & 2,46\\
 \end{itemize}}
 \end{minipage}
 
-\pieclaro{9}
+\pieclaro{11}
 
 \end{document}
