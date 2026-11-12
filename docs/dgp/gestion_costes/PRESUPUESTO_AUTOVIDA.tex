@@ -1,0 +1,636 @@
+% ==============================================================================
+% PRESUPUESTO DESGLOSADO — PROYECTO AUTOVIDA
+% CLENCH Software Development · Oferta PRE-2627-01
+% Diseño: eje único de importes, Fira Sans, acento magenta reservado al total.
+% ==============================================================================
+\documentclass[a4paper,10pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-tabla,es-nodecimaldot]{babel}
+\usepackage[left=2.1cm, right=2.1cm, top=3.0cm, bottom=2.6cm,
+            headheight=1.6cm, headsep=0.9cm, footskip=1.2cm]{geometry}
+\usepackage{graphicx}
+\usepackage[table]{xcolor}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage{lastpage}
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+\usepackage{textcomp}
+\usepackage{amsmath}
+
+% Fira Sans como única familia: humanista, técnica, cifras de altura uniforme.
+\usepackage[sfdefault,lf]{FiraSans}
+\renewcommand{\familydefault}{\sfdefault}
+\linespread{1.12}
+
+% ------------------------------------------------------------------ Paleta
+\definecolor{tinta}{HTML}{0E2A33}     % texto y titulares
+\definecolor{cian}{HTML}{00A6C7}      % estructura: reglas, numeración
+\definecolor{cianoscuro}{HTML}{005D75}
+\definecolor{magenta}{HTML}{AD0090}   % reservado al importe total
+\definecolor{gris}{HTML}{5A6872}      % texto secundario
+\definecolor{banda}{HTML}{EDF5F7}     % cabeceras de tabla
+\definecolor{cebra}{HTML}{F7FAFB}     % filas alternas
+\definecolor{linea}{HTML}{C9D9DF}
+
+\usepackage[hyperfootnotes=false,colorlinks=true,linkcolor=cianoscuro,
+            urlcolor=cianoscuro]{hyperref}
+
+% ------------------------------------------------------------------ Titulares
+% El número de capítulo es un dato, no un adorno: pequeño, cian, colgado.
+\titleformat{\section}[block]
+  {\color{tinta}\Large\bfseries}
+  {\color{cian}\large\bfseries\thesection\hspace{0.55em}}{0pt}{}
+\titlespacing*{\section}{0pt}{20pt}{8pt}
+
+\titleformat{\subsection}[block]
+  {\color{cianoscuro}\normalsize\bfseries}{}{0pt}{}
+\titlespacing*{\subsection}{0pt}{14pt}{4pt}
+
+\setcounter{secnumdepth}{0}
+% Solo los cuatro capitulos de coste directo llevan numero, y es el mismo
+% que aparece en sus tablas y en el resumen economico.
+\newcommand{\capitulo}[2]{\section{{\color{cian}#1}\hspace{0.55em}#2}}
+
+% ------------------------------------------------------------------ Membrete
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\footnotesize\color{gris} Presupuesto PRE-2627-01\, ·\, Proyecto AUTOVIDA}
+\fancyhead[R]{\raisebox{-0.35\height}{\includegraphics[height=0.85cm]{images/logo_clench.png}}}
+\fancyfoot[L]{\scriptsize\color{gris} CLENCH Software Development\, ·\, E.T.S.I.I.T., c/ Periodista Daniel Saucedo Aranda s/n, 18014 Granada\, ·\, contacto@clench.dev}
+\fancyfoot[R]{\scriptsize\color{gris} \thepage\,/\,\pageref{LastPage}}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+\fancyheadoffset{0pt}
+
+% Regla fina bajo el membrete, dibujada a mano para controlar su color.
+\renewcommand{\headrule}{\vspace{3pt}\hbox to\headwidth{\color{linea}\leaders\hrule height 0.4pt\hfill}}
+
+% ------------------------------------------------------------------ Tablas
+% \hline solo se usa para cerrar bloques de subtotal, de ahi el color y grosor.
+\setlength{\arrayrulewidth}{0.7pt}
+\arrayrulecolor{cianoscuro}
+\renewcommand{\arraystretch}{1.45}
+\setlength{\tabcolsep}{7pt}
+
+% Eje único de importes: toda cifra final cae en esta columna.
+\newcolumntype{E}{>{\raggedleft\arraybackslash}p{2.75cm}}
+\newcolumntype{N}{>{\raggedleft\arraybackslash}p{2.0cm}}
+\newcolumntype{H}{>{\raggedleft\arraybackslash}p{1.7cm}}
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+
+\newcommand{\tablacebra}{\rowcolors{2}{white}{cebra}}
+\newcommand{\cabtxt}[1]{\textbf{\color{tinta}#1}}
+
+% Regla de cierre de bloque, más visible que la de separación de filas.
+\newcommand{\reglasubtotal}{\hline}
+
+% Fila de subtotal de capítulo.
+\newcommand{\sub}{\rowcolor{white}}
+
+% ------------------------------------------------------------------ Bloques
+\newtcolorbox{nota}[1][]{
+  colback=cebra, colframe=cebra, coltext=tinta,
+  borderline west={2.2pt}{0pt}{cian},
+  sharp corners, boxrule=0pt,
+  top=3.5mm, bottom=3.5mm, left=4mm, right=4mm,
+  fontupper=\small, #1}
+
+\newtcolorbox{condiciones}[1][]{
+  colback=cebra, colframe=cebra, coltext=tinta,
+  borderline west={2.2pt}{0pt}{cian},
+  sharp corners, boxrule=0pt,
+  top=3.5mm, bottom=3.5mm, left=4mm, right=4mm,
+  fontupper=\small, #1}
+
+\newcommand{\eu}{\,\texteuro}
+
+\begin{document}
+\color{tinta}
+
+% ==============================================================================
+% PÁGINA 1 — MEMBRETE DE LA OFERTA. Abre con la cifra, no con un índice.
+% ==============================================================================
+\thispagestyle{fancy}
+
+\noindent
+\begin{minipage}[t]{0.46\textwidth}
+  \vspace{0pt}
+  \includegraphics[width=5.2cm]{images/logo_clench.png}\\[0.35cm]
+  {\footnotesize\color{gris}
+   Desarrollo de software accesible\\
+   Granada, España}
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.50\textwidth}
+  \vspace{0pt}
+  {\footnotesize
+  \setlength{\tabcolsep}{0pt}
+  \begin{tabularx}{\textwidth}{@{}>{\color{gris}}p{3.1cm}X@{}}
+  Oferta & \textbf{PRE-2627-01}, versión 1.0\\[2pt]
+  Emitida el & 12 de noviembre de 2026\\[2pt]
+  Válida hasta el & \textbf{11 de enero de 2027}\\[2pt]
+  Destinataria & C.E.E. Fundación Purísima Concepción, Granada\\[2pt]
+  Ejecución & 24/09/2026 --- 22/12/2026\\
+  \end{tabularx}}
+\end{minipage}
+
+\vspace{1.5cm}
+
+\noindent{\color{cian}\rule{\textwidth}{2pt}}\\[0.7cm]
+
+\noindent{\fontsize{30}{34}\selectfont\bfseries Presupuesto de desarrollo}\\[0.45cm]
+{\Large\color{cianoscuro} Proyecto AUTOVIDA}\\[0.25cm]
+{\large\color{gris} Agenda digital accesible para alumnado con necesidades específicas de apoyo educativo}
+
+\vspace{1.3cm}
+
+% ---- La cifra. Único uso del magenta en todo el documento. ----
+\noindent
+\begin{tcolorbox}[colback=banda, colframe=banda, sharp corners, boxrule=0pt,
+                  borderline west={4pt}{0pt}{magenta},
+                  top=6mm, bottom=6mm, left=6mm, right=6mm]
+\begin{minipage}[b]{0.52\textwidth}
+  {\footnotesize\color{gris} Importe total, impuestos incluidos}\\[0.25cm]
+  {\fontsize{34}{36}\selectfont\bfseries\color{magenta} 31.049,64\eu}
+\end{minipage}%
+\hfill
+\begin{minipage}[b]{0.44\textwidth}
+  {\footnotesize\color{gris}
+  \setlength{\tabcolsep}{0pt}
+  \begin{tabularx}{\textwidth}{@{}Xr@{}}
+  Base imponible & \color{tinta}25.660,86\eu\\
+  IVA, 21\,\% & \color{tinta}5.388,78\eu\\[3pt]
+  \multicolumn{2}{@{}l@{}}{\color{linea}\rule{\textwidth}{0.4pt}}\\[1pt]
+  Horas de ingeniería & \color{tinta}1.229,5 h\\
+  Coste medio por hora & \color{tinta}20,87\eu\\
+  \end{tabularx}}
+\end{minipage}
+\end{tcolorbox}
+
+\vspace{0.9cm}
+
+\noindent{\small Treinta y un mil cuarenta y nueve euros con sesenta y cuatro céntimos. El desglose por capítulos, el detalle de cada partida y el reparto por iteraciones figuran en las páginas siguientes.}
+
+\newpage
+
+\noindent
+{\small
+\tablacebra
+\begin{tabularx}{\textwidth}{@{}LE@{}}
+\hline
+\cabtxt{Resumen por capítulos} & \cabtxt{Importe}\\
+\hline
+Personal del equipo, 1.229,5 h a 15,84\eu/h & 19.475,28\eu\\
+Amortización de equipos informáticos & 268,69\eu\\
+Licencias, suscripciones y servicios & 589,36\eu\\
+Otros gastos directos & 196,92\eu\\
+\hline
+\textbf{Costes directos} & \textbf{20.530,25\eu}\\
+Costes indirectos de estructura, 13\,\% & 2.668,93\eu\\
+Provisión para riesgos & 1.009,18\eu\\
+\hline
+\textbf{Coste de ejecución} & \textbf{24.208,36\eu}\\
+Beneficio industrial, 6\,\% & 1.452,50\eu\\
+\hline
+\textbf{Base imponible} & \textbf{25.660,86\eu}\\
+\hline
+\end{tabularx}}
+
+% ==============================================================================
+\section{Qué se contrata}
+
+AUTOVIDA es una agenda digital accesible para el alumnado del programa PTVAL del C.E.E. Fundación Purísima Concepción, su profesorado y sus familias. Este presupuesto cubre el proyecto completo, desde el análisis de requisitos con el centro hasta la entrega del producto y su transferencia.
+
+\subsection{Incluido en el precio}
+\begin{itemize}[leftmargin=1.2em, itemsep=2pt, topsep=4pt]
+  \item Análisis y especificación de requisitos con participación del centro: personas y escenarios, catálogo de historias de usuario y estimación por \textit{Planning Poker}.
+  \item Diseño de la arquitectura ---cliente Flutter, servicio FastAPI, persistencia PostgreSQL--- y prototipado de interfaz en Figma bajo criterios WCAG 2.2 AA y accesibilidad cognitiva.
+  \item Implementación en tres iteraciones, cada una con entrega funcional revisable por el centro.
+  \item Pruebas unitarias, de integración y de extremo a extremo, más auditorías de accesibilidad con lectores de pantalla y validadores automáticos.
+  \item Documentación técnica y de gestión, manual de usuario en lectura fácil y actas de todas las reuniones.
+  \item Puesta en marcha del entorno, transferencia y formación básica al personal del centro.
+\end{itemize}
+
+\subsection{Fuera del precio}
+\begin{itemize}[leftmargin=1.2em, itemsep=2pt, topsep=4pt]
+  \item Mantenimiento correctivo y evolutivo posterior a la entrega final, presupuestable aparte.
+  \item Explotación en producción: alojamiento más allá del periodo de ejecución, copias de seguridad de larga duración y soporte a personas usuarias.
+  \item Adquisición de tabletas o terminales para el alumnado.
+  \item Publicación y mantenimiento en tiendas de aplicaciones una vez finalizado el proyecto.
+\end{itemize}
+
+\begin{nota}
+\textbf{De dónde salen las horas.} Las de la fase inicial y la iteración 1 son horas ejecutadas, obtenidas de las once actas de reunión del equipo ---con sus horarios de inicio y fin---, del historial del repositorio y de los entregables producidos. Las de las iteraciones 2 y 3 son una estimación por analogía con la iteración 1, ajustada al alcance pendiente.
+\end{nota}
+
+% ==============================================================================
+\newpage
+\section{El equipo}
+
+Siete personas. Los roles de coordinación del método de trabajo ---Coordinador, Catalogador, Moderador y Presentador--- rotan en cada iteración; los de Gestor de Calidad y Gestor de Usabilidad y Accesibilidad son fijos.
+
+Todo el equipo se factura a una \textbf{tarifa única de 15,84\eu{} por hora}, con independencia del rol que cada persona desempeñe en cada iteración. Los siete integrantes son titulados del mismo nivel, con responsabilidad equivalente sobre el resultado, y los roles rotan por diseño del método de trabajo: diferenciar la tarifa obligaría a reajustarla en cada iteración y haría que el precio dependiese de quién ocupa qué puesto esa semana. Una tarifa única mantiene el precio estable ante cualquier cambio de reparto interno.
+
+\vspace{0.4cm}
+\noindent{\small
+\tablacebra
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{4.4cm}L>{\raggedright\arraybackslash}p{3.5cm}H@{}}
+\hline
+\cabtxt{Integrante} & \cabtxt{Responsabilidad} & \cabtxt{Categoría} & \cabtxt{\texteuro/h}\\
+\hline
+José Rodríguez Fernández & Coordinación del proyecto; Presentador en la fase inicial & Ingeniero de Software Junior & 15,84\\
+Julián Carrión Tovar & Usabilidad y accesibilidad (rol fijo); desarrollo frontend & Ingeniero de Software Junior & 15,84\\
+Yeray Rodríguez Navas & Calidad del producto y del proceso (rol fijo) & Ingeniero de Software Junior & 15,84\\
+Pablo de la Torre Roldán & Moderación; desarrollo backend & Ingeniero de Software Junior & 15,84\\
+Pablo Hernández Ibáñez & Comunicación con el centro; desarrollo frontend & Ingeniero de Software Junior & 15,84\\
+Miguel Ángel Luque & Catalogación documental; desarrollo & Ingeniero de Software Junior & 15,84\\
+Amine Azzammouri & Refuerzo de roles rotativos; soporte documental & Ingeniero de Software Junior & 15,84\\
+\hline
+\end{tabularx}}
+
+\subsection{De dónde sale la tarifa horaria}
+
+La tarifa es el coste para la empresa de un perfil \textit{junior} recién titulado, no el salario neto que percibe cada persona. Se obtiene dividiendo el salario bruto anual incrementado en la cuota patronal entre las horas efectivamente trabajables al año:
+
+\vspace{0.25cm}
+\begin{center}
+{\color{cianoscuro}
+ \large Coste por hora\ \ =\ \
+ \begin{tabular}[c]{@{}c@{}}
+ salario bruto anual\ $\times$\ 1,32\\[1pt]
+ \hline
+ \rule{0pt}{14pt}1.750 horas efectivas
+ \end{tabular}}
+\end{center}
+\vspace{0.25cm}
+
+El coeficiente 1,32 recoge la cuota patronal a la Seguridad Social: contingencias comunes, desempleo, FOGASA, formación profesional y accidentes de trabajo, en torno a un 32\,\% sobre el bruto. Las 1.750 horas resultan de la jornada anual del convenio estatal de empresas de consultoría y tecnologías de la información, 1.800 horas, descontando formación interna y absentismo medio.
+
+Con un salario bruto de 21.000 euros anuales ---franja habitual para un titulado recién incorporado en Andalucía--- la tarifa sale directamente de la fórmula, sin redondeos:
+
+\vspace{0.4cm}
+\noindent{\small
+\tablacebra
+\begin{tabularx}{\textwidth}{@{}L>{\raggedleft\arraybackslash}p{4.0cm}E@{}}
+\hline
+\cabtxt{Concepto} & \cabtxt{Cálculo} & \cabtxt{Resultado}\\
+\hline
+Salario bruto anual & & 21.000,00\eu\\
+Cuota patronal a la Seguridad Social & 32\,\% & 6.720,00\eu\\
+\hline
+\textbf{Coste anual para la empresa} & & \textbf{27.720,00\eu}\\
+Horas efectivas al año & 1.800 $-$ 50 & 1.750 h\\
+\hline
+\textbf{Tarifa horaria única} & & \textbf{15,84\eu/h}\\
+\hline
+\end{tabularx}}
+
+% ==============================================================================
+\capitulo{1}{Personal}
+
+\subsection{Dedicación por integrante y fase, en horas}
+
+\noindent{\small
+\tablacebra
+\begin{tabularx}{\textwidth}{@{}L H H H H N@{}}
+\hline
+\cabtxt{Integrante} & \cabtxt{Inicial} & \cabtxt{Iter. 1} & \cabtxt{Iter. 2} & \cabtxt{Iter. 3} & \cabtxt{Total}\\
+\hline
+José Rodríguez Fernández & 46,5 & 47,5 & 45,5 & 40,5 & 180,0\\
+Julián Carrión Tovar & 46,5 & 52,5 & 50,0 & 44,5 & 193,5\\
+Yeray Rodríguez Navas & 42,5 & 51,5 & 49,5 & 44,0 & 187,5\\
+Pablo de la Torre Roldán & 42,5 & 50,0 & 48,0 & 42,5 & 183,0\\
+Pablo Hernández Ibáñez & 42,5 & 45,0 & 43,0 & 38,0 & 168,5\\
+Miguel Ángel Luque & 42,5 & 42,5 & 40,5 & 36,0 & 161,5\\
+Amine Azzammouri & 42,5 & 40,0 & 38,5 & 34,5 & 155,5\\
+\hline
+\textbf{Total} & \textbf{305,5} & \textbf{329,0} & \textbf{315,0} & \textbf{280,0} & \textbf{1.229,5}\\
+\hline
+\end{tabularx}}
+
+\vspace{0.3cm}
+\noindent{\footnotesize\color{gris} Las cuatro horas adicionales de José Rodríguez y Julián Carrión en la fase inicial corresponden a la visita presencial al centro del 02/10/2026.}
+
+\subsection{Importe por integrante}
+
+Con tarifa única, lo que cada persona factura depende solo de las horas que dedica.
+
+\noindent{\small
+\tablacebra
+\begin{tabularx}{\textwidth}{@{}L N N E@{}}
+\hline
+\cabtxt{Integrante} & \cabtxt{Horas} & \cabtxt{\texteuro/h} & \cabtxt{Importe}\\
+\hline
+José Rodríguez Fernández & 180,0 & 15,84 & 2.851,20\eu\\
+Julián Carrión Tovar & 193,5 & 15,84 & 3.065,04\eu\\
+Yeray Rodríguez Navas & 187,5 & 15,84 & 2.970,00\eu\\
+Pablo de la Torre Roldán & 183,0 & 15,84 & 2.898,72\eu\\
+Pablo Hernández Ibáñez & 168,5 & 15,84 & 2.669,04\eu\\
+Miguel Ángel Luque & 161,5 & 15,84 & 2.558,16\eu\\
+Amine Azzammouri & 155,5 & 15,84 & 2.463,12\eu\\
+\hline
+\textbf{Capítulo 1} & \textbf{1.229,5} & \textbf{15,84} & \textbf{19.475,28\eu}\\
+\hline
+\end{tabularx}}
+
+\subsection{En qué se emplean esas horas}
+
+\noindent{\small
+\tablacebra
+\begin{tabularx}{\textwidth}{@{}L N E@{}}
+\hline
+\cabtxt{Actividad} & \cabtxt{\%} & \cabtxt{Horas}\\
+\hline
+Implementación \textit{frontend} y \textit{backend} & 32,0\,\% & 393,5\\
+Reuniones de coordinación, seguimiento y cliente & 27,0\,\% & 332,0\\
+Pruebas y auditorías de accesibilidad & 12,0\,\% & 147,5\\
+Análisis, requisitos y gestión del \textit{backlog} & 10,0\,\% & 123,0\\
+Documentación, actas y entregables & 10,0\,\% & 123,0\\
+Diseño de arquitectura y prototipado de interfaz & 9,0\,\% & 110,5\\
+\hline
+\textbf{Total} & \textbf{100,0\,\%} & \textbf{1.229,5}\\
+\hline
+\end{tabularx}}
+
+\vspace{0.4cm}
+\noindent Las 332 horas de reuniones corresponden a las once sesiones documentadas en actas entre el 1 de octubre y el 11 de noviembre de 2026 ---45 horas por persona--- más las sesiones previstas para las iteraciones 2 y 3.
+
+% ==============================================================================
+\newpage
+\capitulo{2}{Equipos informáticos}
+
+Los equipos no se imputan por su precio de compra, sino por la parte de su valor consumida durante el proyecto. Se aplica amortización lineal al 25\,\% anual ---cuatro años de vida útil--- dentro de los límites de la tabla oficial para equipos de procesos de información. Los equipos de uso compartido se imputan por horas, a razón de su valor dividido entre cuatro años de 1.750 horas; los dispositivos dedicados en exclusiva a pruebas, por los 90 días naturales de ejecución.
+
+\vspace{0.4cm}
+\noindent{\small
+\tablacebra
+\begin{tabularx}{\textwidth}{@{}L>{\raggedleft\arraybackslash}p{2.0cm}>{\raggedright\arraybackslash}p{3.6cm}E@{}}
+\hline
+\cabtxt{Elemento} & \cabtxt{Valor} & \cabtxt{Imputación} & \cabtxt{Importe}\\
+\hline
+Portátiles de desarrollo, 7 ud. a 1.100\eu & 7.700,00\eu & 0,157\eu/h × 1.229,5 h & 193,03\eu\\
+Tabletas Android de 10" para pruebas en el dispositivo objetivo, 2 ud. & 500,00\eu & 25\,\% anual × 90/365 días & 30,82\eu\\
+Terminal Android para validación con TalkBack & 300,00\eu & 25\,\% anual × 90/365 días & 18,49\eu\\
+Monitores y periféricos, 7 ud. a 150\eu & 1.050,00\eu & 0,021\eu/h × 1.229,5 h & 26,35\eu\\
+\hline
+\textbf{Capítulo 2} & \textbf{9.550,00\eu} & & \textbf{268,69\eu}\\
+\hline
+\end{tabularx}}
+
+\begin{nota}
+\textbf{Por qué la cifra es tan baja.} El proyecto dura tres meses y los equipos tienen cuatro años de vida útil. Imputar el precio íntegro de los portátiles ---7.700 euros--- encarecería el proyecto de forma artificial y cargaría al centro con un activo que se queda en la empresa.
+\end{nota}
+
+% ==============================================================================
+\capitulo{3}{Licencias y servicios}
+
+Importes correspondientes a los tres meses de ejecución, a precio de mercado de cada servicio.
+
+\vspace{0.4cm}
+\noindent{\small
+\tablacebra
+\begin{tabularx}{\textwidth}{@{}L>{\raggedright\arraybackslash}p{4.4cm}E@{}}
+\hline
+\cabtxt{Servicio} & \cabtxt{Cálculo} & \cabtxt{Importe}\\
+\hline
+Jira Software \textit{Standard}, gestión del \textit{backlog} y los sprints & 7 usuarios × 8,60\eu/mes × 3 meses & 180,60\eu\\
+Figma \textit{Professional}, prototipado accesible & 3 editores × 15,00\eu/mes × 3 meses & 135,00\eu\\
+GitHub \textit{Team}, repositorio, revisiones e integración continua & 7 usuarios × 3,67\eu/mes × 3 meses & 77,07\eu\\
+Alojamiento del servicio backend y la base de datos & VPS 2 vCPU y 4 GB: 24,00\eu/mes × 3 & 72,00\eu\\
+Discord \textit{Nitro}, reuniones telemáticas y pantalla compartida & 9,99\eu/mes × 3 meses & 29,97\eu\\
+Almacenamiento y copias de seguridad, 2 TB & 9,99\eu/mes × 3 meses & 29,97\eu\\
+Visual Paradigm \textit{Modeler}, modelado UML & Licencia anual de 99,00\eu × 3/12 & 24,75\eu\\
+Alta de desarrollador en Google Play Console & Pago único & 22,00\eu\\
+Dominio \texttt{.es} y certificado TLS & Anualidad prorrateada & 18,00\eu\\
+\hline
+\textbf{Capítulo 3} & & \textbf{589,36\eu}\\
+\hline
+\end{tabularx}}
+
+\vspace{0.4cm}
+\noindent Los pictogramas de ARASAAC se emplean bajo licencia Creative Commons BY-NC-SA, sin coste, con la obligación de citar la autoría. Flutter, FastAPI y PostgreSQL son software libre y no generan coste de licencia.
+
+% ==============================================================================
+\newpage
+\capitulo{4}{Otros gastos directos}
+
+\noindent{\small
+\tablacebra
+\begin{tabularx}{\textwidth}{@{}L>{\raggedright\arraybackslash}p{4.4cm}E@{}}
+\hline
+\cabtxt{Concepto} & \cabtxt{Cálculo} & \cabtxt{Importe}\\
+\hline
+Desplazamientos al centro & 4 visitas × 2 personas × 24 km × 0,26\eu/km & 49,92\eu\\
+Impresión y encuadernación de entregables & 3 entregas documentales & 60,00\eu\\
+Material fungible para las sesiones con personas usuarias: pictogramas impresos, tarjetas y hojas de consentimiento & Alzado & 45,00\eu\\
+Conectividad imputada al proyecto & 7 personas × 2,00\eu/mes × 3 meses & 42,00\eu\\
+\hline
+\textbf{Capítulo 4} & & \textbf{196,92\eu}\\
+\hline
+\end{tabularx}}
+
+% ==============================================================================
+\section{Estructura, riesgos y beneficio}
+
+Los tres conceptos que se suman a los costes directos responden a preguntas distintas: qué cuesta sostener la empresa que ejecuta el proyecto, qué puede torcerse por el camino y qué margen queda al final.
+
+\subsection{Costes indirectos de estructura}
+
+Son los gastos que la empresa soporta para que el proyecto pueda ejecutarse, pero que no pueden atribuirse a una tarea concreta ni medirse por horas. Se repercuten como un 13\,\% sobre los costes directos, porcentaje de referencia habitual en contratación pública y en proyectos cofinanciados. El desglose orientativo de ese 13\,\% es:
+
+\vspace{0.4cm}
+\noindent{\small
+\tablacebra
+\begin{tabularx}{\textwidth}{@{}L>{\raggedright\arraybackslash}p{4.4cm}E@{}}
+\hline
+\cabtxt{Concepto} & \cabtxt{Cálculo} & \cabtxt{Importe}\\
+\hline
+Espacio de trabajo, suministros y limpieza & 5,0\,\% de los directos & 1.026,51\eu\\
+Administración, contabilidad y facturación & 3,0\,\% & 615,91\eu\\
+Formación interna y actualización técnica & 2,0\,\% & 410,61\eu\\
+Seguro de responsabilidad civil profesional & 1,5\,\% & 307,95\eu\\
+Sistemas corporativos y gestión documental & 1,5\,\% & 307,95\eu\\
+\hline
+\textbf{Capítulo 5} & \textbf{13,0\,\%} & \textbf{2.668,93\eu}\\
+\hline
+\end{tabularx}}
+
+\subsection{Provisión para riesgos}
+
+La provisión no es un porcentaje redondo puesto por costumbre: se calcula sumando el valor esperado de cada riesgo del registro del proyecto, es decir, su probabilidad multiplicada por el sobrecoste que provocaría si llegara a materializarse. El sobrecoste se expresa en horas de reproceso, valoradas a la misma tarifa de 15,84\eu/h.
+
+\vspace{0.4cm}
+\noindent{\small
+\tablacebra
+\begin{tabularx}{\textwidth}{@{}L>{\raggedleft\arraybackslash}p{1.6cm}>{\raggedleft\arraybackslash}p{1.5cm}>{\raggedleft\arraybackslash}p{2.3cm}E@{}}
+\hline
+\cabtxt{Riesgo} & \cabtxt{Prob.} & \cabtxt{Impacto} & \cabtxt{Sobrecoste} & \cabtxt{Valor esp.}\\
+\hline
+El centro solicita cambios de alcance tras las sesiones de validación & 40\,\% & 40 h & 633,60\eu & 253,44\eu\\
+La auditoría de accesibilidad obliga a rehacer pantallas ya entregadas & 50\,\% & 30 h & 475,20\eu & 237,60\eu\\
+El frontend queda bloqueado esperando endpoints del backend & 35\,\% & 25 h & 396,00\eu & 138,60\eu\\
+Baja temporal de un integrante y reasignación de su trabajo & 25\,\% & 20 h & 316,80\eu & 79,20\eu\\
+Retraso del centro en facilitar fechas para validar con usuarios & 30\,\% & 12 h & 190,08\eu & 57,02\eu\\
+Incidencia en el entorno de despliegue o pérdida de datos de desarrollo & 15\,\% & 16 h & 253,44\eu & 38,02\eu\\
+\hline
+\textbf{Riesgos identificados} & & \textbf{143 h} & & \textbf{803,88\eu}\\
+Reserva de gestión para riesgos no identificados & \multicolumn{3}{r}{1,0\,\% de los directos} & 205,30\eu\\
+\hline
+\textbf{Capítulo 6} & & & & \textbf{1.009,18\eu}\\
+\hline
+\end{tabularx}}
+
+\vspace{0.4cm}
+\noindent La provisión equivale al 4,92\,\% de los costes directos. Si todos los riesgos se materializaran a la vez, el sobrecoste alcanzaría las 143 horas, unos 2.265 euros; la provisión cubre el escenario probable, no el peor escenario posible.
+
+\begin{nota}
+\textbf{Qué pasa con lo que no se gasta.} La provisión para riesgos se liquida al cierre del proyecto contra los sobrecostes realmente producidos, que deben quedar documentados. \textbf{La parte no consumida no se factura al centro.} Si los riesgos superaran la provisión, el exceso se tramitaría como modificación de alcance, con aprobación previa.
+\end{nota}
+
+\subsection{Beneficio industrial}
+
+Un 6\,\% sobre el coste de ejecución, el tipo de referencia en contratación pública. Es el margen de la empresa una vez cubiertos todos los costes: retribuye el riesgo empresarial de comprometerse a un precio cerrado y financia la capacidad de la empresa de seguir operando entre proyectos. No cubre sobrecostes ---para eso está el capítulo 6--- ni gastos de estructura, que ya van en el capítulo 5.
+
+\subsection{Resumen económico}
+
+\vspace{0.2cm}
+\noindent{\small
+\tablacebra
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{1.0cm}L>{\raggedleft\arraybackslash}p{2.0cm}E@{}}
+\hline
+\cabtxt{Cap.} & \cabtxt{Concepto} & \cabtxt{\% s/ base} & \cabtxt{Importe}\\
+\hline
+1 & Personal, 1.229,5 h a 15,84\eu/h & 75,89\,\% & 19.475,28\eu\\
+2 & Amortización de equipos informáticos & 1,05\,\% & 268,69\eu\\
+3 & Licencias, suscripciones y servicios & 2,30\,\% & 589,36\eu\\
+4 & Otros gastos directos & 0,77\,\% & 196,92\eu\\
+\hline
+ & \textbf{Costes directos} & \textbf{80,01\,\%} & \textbf{20.530,25\eu}\\
+5 & Costes indirectos de estructura, 13\,\% & 10,40\,\% & 2.668,93\eu\\
+6 & Provisión para riesgos & 3,93\,\% & 1.009,18\eu\\
+\hline
+ & \textbf{Coste de ejecución} & \textbf{94,34\,\%} & \textbf{24.208,36\eu}\\
+7 & Beneficio industrial, 6\,\% & 5,66\,\% & 1.452,50\eu\\
+\hline
+ & \textbf{Base imponible} & \textbf{100,00\,\%} & \textbf{25.660,86\eu}\\
+ & IVA, 21\,\% & & 5.388,78\eu\\
+\hline
+ & \textbf{Importe total} & & \textbf{31.049,64\eu}\\
+\hline
+\end{tabularx}}
+
+% ==============================================================================
+\newpage
+\section{Reparto por iteraciones}
+
+El proyecto se organiza en una fase inicial de análisis y tres iteraciones de desarrollo, cada una cerrada con una entrega revisable por el centro. Los importes de cada fase reparten los capítulos 2 a 7 en proporción a las horas imputadas.
+
+\subsection{Calendario}
+
+\noindent{\small
+\tablacebra
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.4cm}>{\raggedright\arraybackslash}p{3.1cm}L>{\raggedright\arraybackslash}p{1.9cm}@{}}
+\hline
+\cabtxt{Fase} & \cabtxt{Periodo} & \cabtxt{Resultado} & \cabtxt{Estado}\\
+\hline
+Fase inicial & 24/09 --- 22/10/2026 & Requisitos, personas y escenarios, catálogo de historias de usuario estimadas, manual de coordinación y propuesta técnica & Ejecutada\\
+Iteración 1 & 23/10 --- 11/11/2026 & Arquitectura, API REST y cliente Flutter cubriendo 32 historias de usuario; primera auditoría de accesibilidad & Ejecutada\\
+Iteración 2 & 12/11 --- 03/12/2026 & Agenda completa, pasos guiados de actividad, ajustes de accesibilidad por perfil y validación con usuarios & Estimada\\
+Iteración 3 & 04/12 --- 22/12/2026 & Funcionalidades alternativas, corrección de la auditoría final, manual en lectura fácil y transferencia & Estimada\\
+\hline
+\end{tabularx}}
+
+\subsection{Importe por fase}
+
+\noindent{\small
+\tablacebra
+\begin{tabularx}{\textwidth}{@{}L H>{\raggedleft\arraybackslash}p{1.9cm}>{\raggedleft\arraybackslash}p{1.6cm}>{\raggedleft\arraybackslash}p{1.7cm}>{\raggedleft\arraybackslash}p{1.5cm}E@{}}
+\hline
+\cabtxt{Fase} & \cabtxt{Horas} & \cabtxt{Personal} & \cabtxt{Directos} & \cabtxt{Estruct.} & \cabtxt{Riesgos} & \cabtxt{Base imp.}\\
+\hline
+Fase inicial & 305,5 & 4.839,12\eu & 262,13\eu & 663,16\eu & 250,76\eu & 6.376,08\eu\\
+Iteración 1 & 329,0 & 5.211,36\eu & 282,30\eu & 714,17\eu & 270,04\eu & 6.866,54\eu\\
+Iteración 2 & 315,0 & 4.989,60\eu & 270,29\eu & 683,78\eu & 258,55\eu & 6.574,35\eu\\
+Iteración 3 & 280,0 & 4.435,20\eu & 240,25\eu & 607,82\eu & 229,83\eu & 5.843,89\eu\\
+\hline
+\textbf{Total} & \textbf{1.229,5} & \textbf{19.475,28\eu} & \textbf{1.054,97\eu} & \textbf{2.668,93\eu} & \textbf{1.009,18\eu} & \textbf{25.660,86\eu}\\
+\hline
+\end{tabularx}}
+
+\vspace{0.3cm}
+\noindent{\footnotesize\color{gris} «Directos» recoge la parte de amortización, licencias y gastos directos imputable a la fase. La base imponible de cada fase incluye su parte del beneficio industrial del 6\,\%, que suma 1.452,50\eu{} en el conjunto del proyecto.}
+
+\subsection{Cómo se han estimado las iteraciones 2 y 3}
+
+\begin{itemize}[leftmargin=1.2em, itemsep=3pt, topsep=4pt]
+  \item \textbf{Iteración 2, 315 horas.} Estimada por analogía con la iteración 1, que consumió 329 horas para cubrir 32 historias de usuario. El alcance previsto es comparable en volumen, pero el equipo parte de una arquitectura, un entorno y unas convenciones ya establecidos, lo que reduce la dedicación en torno a un 4\,\%.
+  \item \textbf{Iteración 3, 280 horas.} Un 15\,\% por debajo de la iteración 1. Las historias pendientes son funcionalidades alternativas de menor complejidad, aunque se reserva dedicación para corregir la auditoría final de accesibilidad, redactar el manual en lectura fácil y transferir el producto al centro.
+  \item Ambas estimaciones mantienen el reparto relativo de horas entre integrantes observado en la iteración 1 y asumen la continuidad del equipo y de los roles.
+\end{itemize}
+
+% ==============================================================================
+\newpage
+\section{Calendario de facturación}
+
+Se factura al cierre y aceptación de cada fase, contra la entrega revisable correspondiente.
+
+\vspace{0.4cm}
+\noindent{\small
+\tablacebra
+\begin{tabularx}{\textwidth}{@{}L>{\raggedright\arraybackslash}p{2.2cm}N N E@{}}
+\hline
+\cabtxt{Hito} & \cabtxt{Fecha} & \cabtxt{Base} & \cabtxt{IVA 21\,\%} & \cabtxt{Total}\\
+\hline
+Cierre de la fase inicial & 22/10/2026 & 6.376,08\eu & 1.338,98\eu & 7.715,06\eu\\
+Entrega de la iteración 1 & 11/11/2026 & 6.866,54\eu & 1.441,97\eu & 8.308,51\eu\\
+Entrega de la iteración 2 & 03/12/2026 & 6.574,35\eu & 1.380,61\eu & 7.954,96\eu\\
+Entrega final y transferencia & 22/12/2026 & 5.843,89\eu & 1.227,22\eu & 7.071,11\eu\\
+\hline
+\textbf{Total} & & \textbf{25.660,86\eu} & \textbf{5.388,78\eu} & \textbf{31.049,64\eu}\\
+\hline
+\end{tabularx}}
+
+\vspace{1.2cm}
+\section{Condiciones}
+
+\begin{enumerate}[leftmargin=1.4em, itemsep=4pt, topsep=4pt]
+  \item \textbf{Validez.} Esta oferta es válida durante 60 días naturales desde su emisión, hasta el 11 de enero de 2027 inclusive. Pasado ese plazo sin aceptación expresa, los importes se revisarán conforme a las tarifas vigentes.
+  \item \textbf{Impuestos.} Los importes de los capítulos se expresan sin IVA. El impuesto se repercute al tipo general del 21\,\% vigente a la fecha de emisión; cualquier modificación legal del tipo se trasladará a la facturación pendiente.
+  \item \textbf{Forma de pago.} Transferencia bancaria a 30 días desde la emisión de cada factura, según el calendario de hitos.
+  \item \textbf{Revisión de precios.} No se aplica revisión dentro del periodo de ejecución previsto.
+  \item \textbf{Cambios de alcance.} Toda petición que amplíe el alcance descrito se tramita por el procedimiento de control de cambios del manual de coordinación, con estimación previa de horas e importe y aprobación escrita del centro antes de ejecutarse.
+  \item \textbf{Propiedad intelectual.} El código fuente y la documentación se entregan al centro con licencia de uso perpetua, no exclusiva y sin coste adicional. Los pictogramas de ARASAAC conservan su licencia Creative Commons original.
+  \item \textbf{Protección de datos.} El tratamiento de datos del alumnado se ajusta al RGPD y a la LOPDGDD. No se incluye la designación de delegado de protección de datos, que corresponde al centro como responsable del tratamiento.
+  \item \textbf{Garantía.} Treinta días naturales desde la entrega final para la corrección de defectos imputables al desarrollo, sin coste adicional.
+\end{enumerate}
+
+\vspace{0.6cm}
+\begin{condiciones}
+\textbf{Coste de mercado y coste soportado en el piloto académico.} Este presupuesto refleja lo que cuesta ejecutar el proyecto en condiciones de mercado. En el marco del curso 2026/2027 varias partidas se cubren con licencias educativas o planes gratuitos ---Jira y GitHub en plan \textit{Free} para equipos pequeños, Figma con licencia de estudiante, Visual Paradigm en versión académica--- y los equipos informáticos son propiedad de los integrantes. El desembolso efectivo durante el piloto ronda los 200 euros. La diferencia no es un descuento sobre la oferta, sino una aportación en especie del equipo y de la Universidad de Granada.
+\end{condiciones}
+
+\vspace{1.6cm}
+
+\noindent
+\begin{minipage}[t]{0.47\textwidth}
+{\footnotesize\color{gris} Por CLENCH Software Development}\\[1.8cm]
+{\color{linea}\rule{\textwidth}{0.4pt}}\\[2pt]
+{\small José Rodríguez Fernández}\\
+{\footnotesize\color{gris} Coordinador del proyecto\\ Granada, 12 de noviembre de 2026}
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.47\textwidth}
+{\footnotesize\color{gris} Conforme, por el C.E.E. Fundación Purísima Concepción}\\[1.8cm]
+{\color{linea}\rule{\textwidth}{0.4pt}}\\[2pt]
+{\small Dirección del centro}\\
+{\footnotesize\color{gris} Nombre y fecha}
+\end{minipage}
+
+\end{document}
