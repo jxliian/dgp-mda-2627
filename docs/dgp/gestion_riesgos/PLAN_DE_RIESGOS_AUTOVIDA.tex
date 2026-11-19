@@ -1,0 +1,584 @@
+% ==============================================================================
+% PLAN DE GESTION DE RIESGOS — PROYECTO AUTOVIDA
+% CLENCH Software Development · Documento RSK-2627-01
+% Diseno: el mismo sistema del presupuesto (PRESUPUESTO_AUTOVIDA.tex), con el
+% preambulo copiado tal cual para que los dos documentos sean la misma familia.
+% ==============================================================================
+\documentclass[a4paper,10pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-tabla,es-nodecimaldot]{babel}
+\usepackage[left=2.1cm, right=2.1cm, top=3.0cm, bottom=2.6cm,
+            headheight=1.6cm, headsep=0.9cm, footskip=1.2cm]{geometry}
+\usepackage{graphicx}
+\usepackage[table]{xcolor}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage{lastpage}
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+\usepackage{textcomp}
+\usepackage{amsmath}
+\usepackage{eso-pic}
+\usepackage{pdflscape}
+\usepackage{needspace}
+\usepackage{letterspace}
+
+% Fira Sans como única familia: humanista, técnica, cifras de altura uniforme.
+\usepackage[sfdefault,lf]{FiraSans}
+\renewcommand{\familydefault}{\sfdefault}
+\linespread{1.12}
+
+% ------------------------------------------------------------------ Paleta
+\definecolor{tinta}{HTML}{0E2A33}     % texto y titulares
+\definecolor{cian}{HTML}{00A6C7}      % estructura: reglas, numeración
+\definecolor{cianoscuro}{HTML}{005D75}
+\definecolor{magenta}{HTML}{AD0090}   % reservado al importe total
+\definecolor{gris}{HTML}{5A6872}      % texto secundario
+\definecolor{banda}{HTML}{EDF5F7}     % cabeceras de tabla
+\definecolor{cebra}{HTML}{F7FAFB}     % filas alternas
+\definecolor{linea}{HTML}{C9D9DF}
+\definecolor{cianclaro}{HTML}{8FC7D6} % texto secundario sobre fondo tinta
+
+\usepackage[hyperfootnotes=false,colorlinks=true,linkcolor=cianoscuro,
+            urlcolor=cianoscuro]{hyperref}
+
+% ------------------------------------------------------------------ Rotulos
+% Mayusculas con tracking abierto: el recurso tipografico de la marca.
+\newcommand{\rotulo}[1]{{\fontsize{8}{10}\selectfont\bfseries\textls[200]{\MakeUppercase{#1}}}}
+
+% Fondo de la portada: tinta a sangre y zocalo cian.
+\newcommand{\fondoportada}{%
+  \AddToShipoutPictureBG*{%
+    \AtPageLowerLeft{\color{tinta}\rule{\paperwidth}{\paperheight}}%
+    \AtPageLowerLeft{\color{cian}\rule{\paperwidth}{7mm}}%
+  }%
+}
+
+% ------------------------------------------------------------------ Titulares
+% El número de capítulo es un dato, no un adorno: pequeño, cian, colgado.
+\titleformat{\section}[block]
+  {\color{tinta}\Large\bfseries}
+  {\color{cian}\large\bfseries\thesection\hspace{0.55em}}{0pt}{}
+  [\vspace{4pt}\hbox to\linewidth{{\color{cian}\rule[0pt]{2.2cm}{1.4pt}}%
+   {\color{linea}\leaders\hrule height 0.5pt\hfill}}]
+\titlespacing*{\section}{0pt}{22pt}{4pt}
+
+% El cuadrado cian marca el nivel de subapartado sin gastar un numero.
+\titleformat{\subsection}[block]
+  {\color{cianoscuro}\normalsize\bfseries}{}{0pt}
+  {\raisebox{0.22ex}{\color{cian}\rule{2.8pt}{2.8pt}}\hspace{0.5em}}
+\titlespacing*{\subsection}{0pt}{14pt}{4pt}
+
+\titleformat{\subsubsection}[block]
+  {\color{cianoscuro}\small\bfseries}{}{0pt}
+  {\raisebox{0.2ex}{\color{cian}\rule{2.2pt}{2.2pt}}\hspace{0.45em}}
+\titlespacing*{\subsubsection}{0pt}{12pt}{3pt}
+
+\setcounter{secnumdepth}{0}
+% Solo los cuatro capitulos de coste directo llevan numero, y es el mismo
+% que aparece en sus tablas y en el resumen economico.
+\newcommand{\capitulo}[2]{\section{{\color{cian}#1}\hspace{0.55em}#2}}
+
+% ------------------------------------------------------------------ Membrete
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\color{gris}\rotulo{Plan de riesgos RSK-2627-01\ \ ·\ \ Proyecto AUTOVIDA}}
+\fancyhead[R]{\raisebox{-0.35\height}{\includegraphics[height=0.85cm]{images/logo_clench.png}}}
+\fancyfoot[L]{\scriptsize\color{gris} CLENCH Software Development\, ·\, E.T.S.I.I.T., c/ Periodista Daniel Saucedo Aranda s/n, 18014 Granada\, ·\, contacto@clench.dev}
+\fancyfoot[R]{\scriptsize\color{gris} \thepage\,/\,\pageref{LastPage}}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+\fancyheadoffset{0pt}
+
+% Regla fina bajo el membrete, dibujada a mano para controlar su color.
+% Regla del membrete en dos tonos: tramo cian de marca y filete fino.
+\renewcommand{\headrule}{\vspace{3pt}\hbox to\headwidth{%
+  {\color{cian}\rule[0pt]{2.2cm}{1.6pt}}%
+  {\color{linea}\leaders\hrule height 0.4pt\hfill}}}
+% Filete sobre el pie, para cerrar la caja de texto por abajo.
+\renewcommand{\footrule}{\hbox to\headwidth{\color{linea}\leaders\hrule height 0.4pt\hfill}\vspace{4pt}}
+
+% ------------------------------------------------------------------ Tablas
+% \hline solo se usa para cerrar bloques de subtotal, de ahi el color y grosor.
+\setlength{\arrayrulewidth}{0.7pt}
+\arrayrulecolor{cianoscuro}
+\renewcommand{\arraystretch}{1.45}
+\setlength{\tabcolsep}{7pt}
+
+% Eje único de importes: toda cifra final cae en esta columna.
+\newcolumntype{E}{>{\raggedleft\arraybackslash}p{2.75cm}}
+\newcolumntype{N}{>{\raggedleft\arraybackslash}p{2.0cm}}
+\newcolumntype{H}{>{\raggedleft\arraybackslash}p{1.7cm}}
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+
+\newcommand{\tablacebra}{\rowcolors{2}{white}{cebra}}
+% Cabecera de tabla: banda tinta y texto en blanco, celda a celda para que
+% tabularx pueda reprocesar el cuerpo sin romperse.
+\newcommand{\cabtxt}[1]{\cellcolor{tinta}\textbf{\color{white}#1}}
+
+% Regla de cierre de bloque, más visible que la de separación de filas.
+\newcommand{\reglasubtotal}{\hline}
+
+% Fila de subtotal de capítulo.
+\newcommand{\sub}{\rowcolor{white}}
+
+% ------------------------------------------------------------------ Bloques
+\newtcolorbox{nota}[1][]{
+  colback=cebra, colframe=cebra, coltext=tinta,
+  borderline west={2.2pt}{0pt}{cian},
+  sharp corners, boxrule=0pt,
+  top=3.5mm, bottom=3.5mm, left=4mm, right=4mm,
+  fontupper=\small, #1}
+
+\newtcolorbox{condiciones}[1][]{
+  colback=cebra, colframe=cebra, coltext=tinta,
+  borderline west={2.2pt}{0pt}{cian},
+  sharp corners, boxrule=0pt,
+  top=3.5mm, bottom=3.5mm, left=4mm, right=4mm,
+  fontupper=\small, #1}
+
+\newcommand{\eu}{\,\texteuro}
+
+\begin{document}
+\color{tinta}
+
+% ==============================================================================
+% PORTADA — tinta a sangre, la misma que el presupuesto.
+% ==============================================================================
+\fondoportada
+\thispagestyle{empty}
+\color{white}
+
+\vspace*{0.4cm}
+\noindent\includegraphics[width=5.8cm]{images/logo_clench_portada.png}
+
+\vfill
+
+\noindent{\color{cianclaro}\rotulo{Plan de gestión de riesgos}}\\[0.55cm]
+\noindent{\color{cian}\rule{3.4cm}{3pt}}\\[0.8cm]
+\noindent{\fontsize{52}{54}\selectfont\bfseries AUTOVIDA}\\[0.5cm]
+\noindent{\fontsize{15}{21}\selectfont\color{cianclaro} Diez riesgos identificados, cinco gestionados\\ y lo que vamos a hacer con cada uno}
+
+\vfill
+
+\noindent{\color{cian}\rule{\textwidth}{0.5pt}}\\[0.55cm]
+\noindent
+\begin{minipage}[t]{0.34\textwidth}
+  {\color{cian}\rotulo{Documento}}\\[0.30cm]
+  {\small RSK-2627-01, versión 1.0\\ Emitido el 19/11/2026}
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.28\textwidth}
+  {\color{cian}\rotulo{Vigencia}}\\[0.30cm]
+  {\small Iteraciones 2 y 3\\ 12/11/2026 --- 22/12/2026}
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.30\textwidth}
+  {\color{cian}\rotulo{Próxima revisión}}\\[0.30cm]
+  {\small 03/12/2026, al cerrar\\ la iteración 2}
+\end{minipage}
+
+\vspace{1.15cm}
+\noindent{\scriptsize\color{cianclaro} CLENCH Software Development\ \ ·\ \ E.T.S.I.I.T., Universidad de Granada\ \ ·\ \ contacto@clench.dev}
+\vspace*{0.2cm}
+
+\newpage
+\color{tinta}
+
+% ==============================================================================
+% PÁGINA 2 — DE QUÉ VA ESTE DOCUMENTO. Abre con la exposición, no con un índice.
+% ==============================================================================
+\thispagestyle{fancy}
+
+\noindent
+\begin{minipage}[t]{0.46\textwidth}
+  \vspace{0pt}
+  \includegraphics[width=5.2cm]{images/logo_clench.png}\\[0.35cm]
+  {\footnotesize\color{gris}
+   Desarrollo de software accesible\\
+   Granada, España}
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.50\textwidth}
+  \vspace{0pt}
+  {\footnotesize
+  \setlength{\tabcolsep}{0pt}
+  \begin{tabularx}{\textwidth}{@{}>{\color{gris}}p{3.1cm}X@{}}
+  Documento & \textbf{RSK-2627-01}, versión 1.0\\[2pt]
+  Emitido el & 19 de noviembre de 2026\\[2pt]
+  Proyecto & AUTOVIDA, agenda digital accesible\\[2pt]
+  Centro & C.E.E. Fundación Purísima Concepción, Granada\\[2pt]
+  Revisión & Al cierre de cada iteración\\
+  \end{tabularx}}
+\end{minipage}
+
+\vspace{1.5cm}
+
+\noindent{\color{cian}\rule{\textwidth}{2pt}}\\[0.7cm]
+
+\noindent{\fontsize{30}{34}\selectfont\bfseries Plan de gestión de riesgos}\\[0.45cm]
+{\Large\color{cianoscuro} Proyecto AUTOVIDA}\\[0.25cm]
+{\large\color{gris} Qué puede torcerse en lo que queda de proyecto y qué hacemos para que no pase}
+
+\vspace{1.3cm}
+
+% ---- La exposición. Único uso del magenta en todo el documento. ----
+\noindent
+\begin{tcolorbox}[colback=banda, colframe=banda, sharp corners, boxrule=0pt,
+                  borderline west={4pt}{0pt}{magenta},
+                  top=6mm, bottom=6mm, left=6mm, right=6mm]
+\begin{minipage}[b]{0.52\textwidth}
+  {\footnotesize\color{gris} Exposición esperada del proyecto}\\[0.25cm]
+  {\fontsize{34}{36}\selectfont\bfseries\color{magenta} 88,35 h}
+\end{minipage}%
+\hfill
+\begin{minipage}[b]{0.44\textwidth}
+  {\footnotesize\color{gris}
+  \setlength{\tabcolsep}{0pt}
+  \begin{tabularx}{\textwidth}{@{}Xr@{}}
+  Riesgos identificados & \color{tinta}10\\
+  Riesgos que se gestionan & \color{tinta}5\\[3pt]
+  \multicolumn{2}{@{}l@{}}{\color{linea}\rule{\textwidth}{0.4pt}}\\[1pt]
+  Si todos se materializaran & \color{tinta}245 h\\
+  Valorado a 19,51\eu/h & \color{tinta}1.723,71\eu\\
+  \end{tabularx}}
+\end{minipage}
+\end{tcolorbox}
+
+\vspace{0.9cm}
+
+\noindent{\small La exposición esperada es la suma, riesgo a riesgo, de su probabilidad multiplicada por las horas de reproceso que costaría. No es lo que va a pasar: es lo que cabe esperar que pase si no se hace nada. Los cinco riesgos que se gestionan concentran \textbf{el 74\,\% de esa cifra}, y por eso son esos cinco y no otros.}
+
+\vfill
+
+\noindent
+\begin{minipage}[t]{0.31\textwidth}
+  {\color{cianoscuro}\rotulo{Lo más probable}}\\[0.25cm]
+  {\fontsize{21}{23}\selectfont\bfseries 50\,\%}\;{\small\color{gris} auditoría}\\[0.12cm]
+  {\footnotesize\color{gris} Rehacer pantallas ya entregadas}
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.31\textwidth}
+  {\color{cianoscuro}\rotulo{Lo más caro}}\\[0.25cm]
+  {\fontsize{21}{23}\selectfont\bfseries 40}\;{\small\color{gris} horas}\\[0.12cm]
+  {\footnotesize\color{gris} Cambios de alcance tras validar}
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.31\textwidth}
+  {\color{cianoscuro}\rotulo{Ya ocurrido}}\\[0.25cm]
+  {\fontsize{21}{23}\selectfont\bfseries 4}\;{\small\color{gris} riesgos}\\[0.12cm]
+  {\footnotesize\color{gris} Se materializaron en la iteración 1}
+\end{minipage}
+
+\vspace{1.1cm}
+
+\newpage
+
+% ==============================================================================
+\section{Qué cubre este plan}
+
+Este documento recoge los riesgos del proyecto AUTOVIDA para el tramo que queda: las iteraciones 2 y 3, del 12 de noviembre al 22 de diciembre de 2026. Se ha elaborado con la fase inicial y la iteración 1 ya cerradas, de modo que la mayoría de las probabilidades no son una estimación a ciegas: salen de lo que ya ha ocurrido.
+
+Sigue el procedimiento del plan de gestión de riesgos de la asignatura: identificar, analizar, documentar, mitigar, monitorizar y controlar. Cada riesgo lleva su descripción, la parte del proyecto afectada, la probabilidad de ocurrencia, quién lo vigila, quién responde de él y qué se hace si llega a pasar.
+
+\begin{nota}
+\textbf{Este documento no es definitivo.} La lista de riesgos se revisa al cerrar cada iteración: se recalculan las probabilidades con lo observado, se retiran los riesgos que ya no aplican y se añaden los que aparezcan. La próxima revisión es el 03/12/2026, al cerrar la iteración 2.
+\end{nota}
+
+\subsection{Cómo se mide la probabilidad}
+
+No se usan etiquetas como «alta» o «media», que cada cual interpreta a su manera. Cada riesgo lleva un porcentaje, y ese porcentaje se justifica en su ficha. Hay tres orígenes:
+
+\begin{itemize}[leftmargin=1.2em, itemsep=3pt, topsep=4pt]
+  \item \textbf{Ya ocurrió en la iteración 1.} La probabilidad parte de ahí y se corrige a la baja solo si se ha tomado alguna medida. Es el caso de R2, R3, R4 y R5: cuatro de los diez ya han pasado una vez.
+  \item \textbf{Ocurrió parcialmente o estuvo a punto.} Probabilidad intermedia, entre el 30 y el 45\,\%.
+  \item \textbf{No ha ocurrido pero es verosímil.} Probabilidad baja, del 15 al 25\,\%, y se razona con qué apoyo.
+\end{itemize}
+
+\subsection{Cómo se mide el impacto}
+
+El impacto se expresa en \textbf{horas de reproceso} ---horas de trabajo que habría que repetir o añadir--- porque es la unidad que el equipo lleva registrada desde el principio y la que permite comparar riesgos distintos entre sí. De ahí se derivan las otras dos lecturas que pide el enunciado:
+
+\begin{itemize}[leftmargin=1.2em, itemsep=3pt, topsep=4pt]
+  \item \textbf{Coste}: las horas valoradas a 19,51\eu/h, la tarifa única del presupuesto PRE-2627-01, y su peso sobre el coste de ejecución (29.419,54\eu).
+  \item \textbf{Tiempo}: las horas sobre las 315 planificadas para la iteración 2, y los días naturales de retraso que supondrían en su cierre.
+  \item \textbf{Alcance}: qué historias de usuario concretas se quedarían fuera.
+\end{itemize}
+
+\subsection{Cómo se ordenan}
+
+Por \textbf{valor esperado}: probabilidad multiplicada por horas de impacto. Ese es el criterio que decide cuáles son los cinco que se gestionan, y no la probabilidad por separado ni el impacto por separado. Un riesgo del 15\,\% que cuesta 16 horas (2,4 h esperadas) importa menos que uno del 45\,\% que cuesta 32 (14,4 h esperadas), aunque el segundo parezca menos grave de oír.
+
+% ==============================================================================
+% Margenes propios de las paginas apaisadas. Al girar la pagina, el ancho de
+% la caja de texto sale del alto de la pagina vertical y viceversa: por eso se
+% estrechan los laterales, que es lo que da sitio a mas filas.
+\newgeometry{left=1.6cm, right=1.6cm, top=2.4cm, bottom=2.0cm,
+             headheight=1.1cm, headsep=0.6cm, footskip=1.0cm}
+\begin{landscape}
+\section{Los diez riesgos}
+
+\noindent La tabla va ordenada de mayor a menor valor esperado. Los \textbf{cinco primeros se gestionan}: llevan actividades para mitigarlos y para evitarlos, y una ficha propia en el apartado siguiente. Los cinco restantes se vigilan con un indicador, que es lo que corresponde a su exposición.
+
+\vspace{0.45cm}
+% Filas mas juntas que en el resto del documento: diez riesgos con cinco
+% columnas solo caben en una pagina si se aprieta el interlineado.
+\noindent{\footnotesize
+\renewcommand{\arraystretch}{1.18}%
+\setlength{\tabcolsep}{5pt}%
+\tablacebra
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{3.5cm}>{\raggedleft\arraybackslash}p{1.5cm}>{\raggedright\arraybackslash}p{5.3cm}>{\raggedright\arraybackslash}p{6.0cm}>{\raggedright\arraybackslash}p{6.0cm}@{}}
+\hline
+\cabtxt{Nombre del riesgo} & \cabtxt{Prob.} & \cabtxt{Impacto (tiempo / coste / alcance)} & \cabtxt{Actividades para mitigar el riesgo} & \cabtxt{Actividades para evitar el riesgo}\\
+\hline
+\endfirsthead
+\hline
+\cabtxt{Nombre del riesgo} & \cabtxt{Prob.} & \cabtxt{Impacto (tiempo / coste / alcance)} & \cabtxt{Actividades para mitigar el riesgo} & \cabtxt{Actividades para evitar el riesgo}\\
+\hline
+\endhead
+
+\textbf{R1.} El centro pide cambios de alcance tras las sesiones de validación
+& 40\,\%
+& 40 h de reproceso (12,7\,\% de la iteración 2); 780,40\eu, un 2,65\,\% del coste de ejecución; retraso de 3 días naturales en el cierre. Alcance: los pasos guiados de actividad se irían a la iteración 3
+& Reservar 10 h por iteración para correcciones de validación, ya contadas en la planificación. Cerrar cada sesión con la lista de cambios priorizada y estimada en el acta, y aplicar en la iteración en curso solo los de prioridad alta
+& Enseñar el prototipo de Figma antes de implementar cada historia. Llevar a la sesión de planificación los criterios de aceptación escritos y que el centro los acepte antes de empezar a programar
+\\
+
+\textbf{R2.} La auditoría de accesibilidad obliga a rehacer pantallas ya entregadas
+& 50\,\%
+& 30 h (9,5\,\% de la iteración 2); 585,30\eu, un 1,99\,\% del coste de ejecución; retraso de 2 días. Alcance: la validación con personas usuarias se aplazaría a la iteración 3
+& Mantener la auditoría automática de \texttt{test/accessibility\_test.dart}, que recorre la semántica de seis pantallas y falla la ejecución si algo pulsable no tiene nombre, el objetivo táctil baja de 48 px o un par de colores no llega al umbral
+& Aplicar WCAG 2.2 AA en la biblioteca de componentes \texttt{lib/ui/}, no pantalla a pantalla: contraste 7:1, objetivos de 64 px y nombre accesible obligatorio. Revisión del Gestor de Usabilidad antes de dar una historia por terminada
+\\
+
+\textbf{R3.} El esfuerzo se concentra en los últimos días de la iteración
+& 45\,\%
+& 32 h (10,2\,\% de la iteración 2); 624,32\eu, un 2,12\,\% del coste de ejecución; retraso de 2 días. Alcance: entrega con defectos que consumen la iteración siguiente
+& Cierre parcial a mitad de iteración: el 24/11 debe haber al menos la mitad de las historias en revisión. Si no, se retira alcance ese mismo día en lugar de al final
+& Reparto semanal de tareas en la reunión de seguimiento, con un máximo de trabajo en curso por persona, y revisión del registro de horas en esa misma reunión para detectar la acumulación antes de que ocurra
+\\
+
+\textbf{R4.} El alcance de la iteración crece una vez empezada
+& 40\,\%
+& 28 h (8,9\,\% de la iteración 2); 546,28\eu, un 1,86\,\% del coste de ejecución. Alcance: desplaza a la iteración 3 las historias planificadas más tarde, con el riesgo de que no entren
+& Estimar en \textit{Planning Poker} toda historia que se proponga añadir y aceptarla solo si se retira otra de tamaño equivalente, de modo que los puntos de historia de la iteración no suban
+& Congelar el alcance al terminar la sesión de planificación. Toda historia nueva entra en el \textit{backlog} y espera a la siguiente iteración, salvo acuerdo expreso del equipo registrado en acta
+\\
+
+\textbf{R5.} El frontend queda bloqueado esperando \textit{endpoints} del backend
+& 35\,\%
+& 25 h (7,9\,\% de la iteración 2); 487,75\eu, un 1,66\,\% del coste de ejecución; retraso de 2 días. Alcance: historias que dependen de la API quedan sin cerrar, como le pasó a SCRUM-325
+& Seguir desarrollando contra el repositorio de demostración (\texttt{DemoRepository}) mientras llega la API, y declarar las capacidades del servidor (\texttt{canReadAgenda}, \texttt{canTrackProgress}) para que la interfaz se degrade con un aviso en vez de romperse
+& Acordar el contrato de la API en la planificación de cada iteración y comprobarlo contra el OpenAPI del servidor antes de comprometer la historia. Petición escrita al equipo de backend, con fecha, en cuanto se detecte el hueco
+\\
+\hline
+\pagebreak
+
+\textbf{R6.} Exámenes y entregas de otras asignaturas en diciembre
+& 35\,\% & 24 h · 468,24\eu · 2 días de retraso en la iteración 3
+& \multicolumn{2}{@{}>{\raggedright\arraybackslash}p{12.3cm}@{}}{Solo vigilancia. Indicador: horas registradas por persona y semana, con umbral de aviso por debajo de 6 h}
+\\
+
+\textbf{R7.} Baja temporal de un integrante
+& 25\,\% & 20 h · 390,20\eu · 1 día de retraso
+& \multicolumn{2}{@{}>{\raggedright\arraybackslash}p{12.3cm}@{}}{Solo vigilancia. Indicador: ausencias no avisadas en la reunión semanal de seguimiento}
+\\
+
+\textbf{R8.} El centro retrasa las fechas para validar con personas usuarias
+& 30\,\% & 12 h · 234,12\eu · 1 día de retraso
+& \multicolumn{2}{@{}>{\raggedright\arraybackslash}p{12.3cm}@{}}{Solo vigilancia. Indicador: días transcurridos desde la última comunicación con el centro, con umbral de 10}
+\\
+
+\textbf{R9.} El backend de \texttt{main} cambia y rompe la integración
+& 20\,\% & 18 h · 351,18\eu · 1 día de retraso
+& \multicolumn{2}{@{}>{\raggedright\arraybackslash}p{12.3cm}@{}}{Solo vigilancia. Indicador: \texttt{git diff main -- src/backend/} y la batería de pruebas del cliente, en cada integración}
+\\
+
+\textbf{R10.} Incidencia en el entorno de despliegue o pérdida de datos de desarrollo
+& 15\,\% & 16 h · 312,16\eu · 1 día de retraso
+& \multicolumn{2}{@{}>{\raggedright\arraybackslash}p{12.3cm}@{}}{Solo vigilancia. Indicador: antigüedad de la última copia de seguridad de la base de datos de desarrollo}
+\\
+\hline
+\textbf{Exposición esperada} & & \textbf{88,35 h · 1.723,71\eu} & \multicolumn{2}{@{}>{\raggedright\arraybackslash}p{12.3cm}@{}}{\textbf{Los cinco gestionados concentran 65,35 h, el 74\,\% del total}}\\
+\hline
+\end{longtable}}
+\end{landscape}
+\restoregeometry
+
+% ==============================================================================
+\section{Los cinco riesgos que se gestionan}
+
+Cada uno con lo que pide el plan de gestión de riesgos: de dónde sale la probabilidad, quién lo vigila, quién responde y qué se hace si llega a pasar.
+
+\newcommand{\fichaDeRiesgo}[6]{%
+\vspace{0.35cm}
+\noindent{\small
+\tablacebra
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.4cm}L@{}}
+\hline
+\cabtxt{Probabilidad} & \cabtxt{#1}\\
+\hline
+Impacto & #2\\
+Monitor & #3\\
+Responsable & #4\\
+Contingencia & #5\\
+Indicador & #6\\
+\hline
+\end{tabularx}}
+\vspace{0.2cm}}
+
+\Needspace*{10.5cm}
+\subsection{R1. El centro pide cambios de alcance tras las sesiones de validación}
+
+Las sesiones de validación con el alumnado y el profesorado del centro son el método de trabajo del proyecto, no un trámite: se hacen para que salgan cosas. Lo que se gestiona aquí no es que haya cambios ---son bienvenidos--- sino que entren sin control a mitad de una iteración ya planificada.
+
+\textbf{De dónde sale el 40\,\%.} En la iteración 1 la revisión con el centro produjo una lista de observaciones que se priorizaron para el sprint siguiente; algunas afectaban a pantallas ya dadas por terminadas. Con dos sesiones más previstas, una por iteración, la probabilidad de que vuelva a pasar al menos una vez es alta.
+
+\fichaDeRiesgo
+  {40\,\%}
+  {40 h de reproceso · 780,40\eu · 3 días de retraso en el cierre de la iteración}
+  {Pablo Hernández Ibáñez, Comunicación con el centro}
+  {José Rodríguez Fernández, Coordinación del proyecto}
+  {Se aplican en la iteración en curso solo los cambios de prioridad alta, contra las 10 h reservadas. El resto pasa al \textit{backlog} con su estimación y se acuerda con el centro en qué iteración entra}
+  {Número de cambios pedidos por sesión de validación. Más de tres abre revisión del alcance}
+
+\Needspace*{10.5cm}
+\subsection{R2. La auditoría de accesibilidad obliga a rehacer pantallas ya entregadas}
+
+AUTOVIDA es una aplicación para alumnado con necesidades específicas de apoyo educativo: la accesibilidad no es un extra que se repasa al final, es el producto. Una pantalla que no cumple no está terminada, y rehacerla cuesta más que haberla hecho bien.
+
+\textbf{De dónde sale el 50\,\%.} Ya ocurrió. La auditoría de la iteración 1 encontró dos defectos de contraste que obligaron a tocar la paleta entera: el trazo de los controles daba 1,4:1 sobre blanco y hubo que separarlo en dos colores, y el filo de las bandas de aviso se quedaba en 2,85:1. Son correcciones que alcanzaron a todas las pantallas a la vez. Es el riesgo más probable de la lista precisamente porque tiene antecedente.
+
+\fichaDeRiesgo
+  {50\,\%}
+  {30 h de reproceso · 585,30\eu · 2 días de retraso; la validación con personas usuarias se aplazaría}
+  {Julián Carrión Tovar, Gestor de Usabilidad y Accesibilidad}
+  {Julián Carrión Tovar, Gestor de Usabilidad y Accesibilidad}
+  {Se corrige en la biblioteca de componentes, no pantalla a pantalla, de modo que una corrección arregle todas las pantallas afectadas de una vez}
+  {Fallos de \texttt{accessibility\_test.dart} en la última ejecución. Cualquier fallo distinto de cero bloquea la entrega}
+
+\Needspace*{10.5cm}
+\subsection{R3. El esfuerzo se concentra en los últimos días de la iteración}
+
+Trabajar a última hora no solo cansa: produce entregas con defectos que se pagan en la iteración siguiente, y deja sin margen para reaccionar si algo sale mal.
+
+\textbf{De dónde sale el 45\,\%.} Ya ocurrió, y con datos. En la iteración 1 el equipo registró 339 horas, de las cuales \textbf{103,5 se concentraron en la última semana}: 3,4 veces la media semanal y el 55\,\% del esfuerzo del sprint. No fue una impresión, está en el registro de horas del equipo.
+
+\fichaDeRiesgo
+  {45\,\%}
+  {32 h de reproceso · 624,32\eu · 2 días de retraso y entrega con defectos}
+  {Yeray Rodríguez Navas, Gestor de Calidad}
+  {José Rodríguez Fernández, Coordinación del proyecto}
+  {Si el 24/11 no hay la mitad de las historias en revisión, se retira alcance ese mismo día y se comunica al centro, en vez de apurar hasta el cierre}
+  {Porcentaje de horas de la última semana sobre el total de la iteración. Por encima del 35\,\% se considera materializado}
+
+\Needspace*{10.5cm}
+\subsection{R4. El alcance de la iteración crece una vez empezada}
+
+Distinto del R1: aquí el alcance no lo mueve el centro, lo movemos nosotros. Entran historias que parecían pequeñas, nadie retira nada a cambio y la iteración termina pesando mucho más de lo que se planificó.
+
+\textbf{De dónde sale el 40\,\%.} Ya ocurrió, y en grande. La iteración 1 se planificó con 67 puntos de historia y cerró con \textbf{116}: un \textbf{73\,\% más}. El alcance cambió incluso el 10/11, a un día del cierre, cuando se retiró SCRUM-325 y entraron SCRUM-27, SCRUM-36 y SCRUM-43. La iteración 2 arranca con 53 puntos, un planteamiento más prudente, pero el mecanismo que lo provocó sigue ahí.
+
+\fichaDeRiesgo
+  {40\,\%}
+  {28 h de reproceso · 546,28\eu · desplaza historias planificadas a la iteración 3}
+  {José Rodríguez Fernández, Coordinación del proyecto}
+  {Yeray Rodríguez Navas, Gestor de Calidad}
+  {Las historias que entraron de más se devuelven al \textit{backlog} y se replanifican en la iteración siguiente; no se absorben alargando la jornada}
+  {Puntos de historia añadidos después de la planificación. Por encima del 10\,\% de los planificados se considera materializado}
+
+\Needspace*{10.5cm}
+\subsection{R5. El frontend queda bloqueado esperando \textit{endpoints} del backend}
+
+El cliente y el servicio los desarrollan equipos distintos, y el backend de \texttt{main} no se modifica desde este lado. Cuando falta una ruta, el frontend no puede terminar la historia aunque tenga la pantalla hecha.
+
+\textbf{De dónde sale el 35\,\%.} Ya ocurrió. En la iteración 1 faltaba un \texttt{GET} que listara las tareas de un alumno, lo que dejó a medias SCRUM-31, SCRUM-41 y SCRUM-333, y obligó a \textbf{retirar SCRUM-325 del sprint}. El equipo de backend lo resolvió el 10/11, pero el hueco no estaba en el backend: estaba en la especificación, que no recogía esa consulta en ninguna parte. Mientras la especificación siga escribiéndose por delante del desarrollo, el riesgo sigue vivo; la probabilidad baja del 100\,\% observado al 35\,\% porque ahora el contrato de la API se revisa en la planificación.
+
+\fichaDeRiesgo
+  {35\,\%}
+  {25 h de reproceso · 487,75\eu · 2 días de retraso; historias sin cerrar}
+  {Pablo de la Torre Roldán, desarrollo backend}
+  {Pablo de la Torre Roldán, desarrollo backend}
+  {La historia se desarrolla y se prueba contra el repositorio de demostración, se entrega la interfaz con el aviso de servidor sin soporte y se cierra en cuanto llega la ruta}
+  {Historias bloqueadas por la API y días que llevan bloqueadas. Más de dos días escala a la coordinación}
+
+% ==============================================================================
+\newpage
+\section{Seguimiento}
+
+\subsection{Quién y cuándo}
+
+La gestión de riesgos no es responsabilidad de una sola persona. Cada riesgo tiene un \textbf{monitor}, que vigila su indicador, y un \textbf{responsable}, que actúa si el indicador se dispara. Los dos papeles pueden recaer en la misma persona cuando el riesgo es de su ámbito, como en R2 y R5.
+
+\vspace{0.4cm}
+\noindent{\small
+\tablacebra
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.6cm}>{\raggedright\arraybackslash}p{4.6cm}L@{}}
+\hline
+\cabtxt{Momento} & \cabtxt{Quién} & \cabtxt{Qué se hace}\\
+\hline
+Cada semana & Todo el equipo, en la reunión de seguimiento & Se repasan los indicadores de los cinco riesgos gestionados y se anota en el acta si alguno ha cruzado su umbral\\
+Al cerrar la iteración & Gestor de Calidad y Coordinación & Se recalculan las probabilidades con lo ocurrido, se retiran los riesgos que ya no aplican y se incorporan los nuevos\\
+Al materializarse & El responsable del riesgo & Se ejecuta la contingencia de su ficha y se registra en el acta el coste real en horas\\
+\hline
+\end{tabularx}}
+
+\subsection{Calendario de revisiones}
+
+\vspace{0.4cm}
+\noindent{\small
+\tablacebra
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.0cm}L@{}}
+\hline
+\cabtxt{Fecha} & \cabtxt{Revisión}\\
+\hline
+19/11/2026 & Emisión de este plan, con la iteración 2 ya en marcha\\
+24/11/2026 & Punto de control de mitad de iteración (indicador de R3)\\
+03/12/2026 & Revisión al cierre de la iteración 2 y actualización del plan\\
+22/12/2026 & Revisión final al cierre de la iteración 3 y del proyecto\\
+\hline
+\end{tabularx}}
+
+\subsection{Los cinco que no se gestionan}
+
+No se gestionan porque su exposición no lo justifica: entre los cinco suman 23 horas esperadas, poco más de una cuarta parte del total y menos de lo que suman R1 y R2 juntos, que son 31. Se vigilan con el indicador de la tabla y, si alguno cruza su umbral, pasa a gestionarse en la revisión siguiente y desplaza al de menor exposición de los cinco actuales. La lista no es estática.
+
+\begin{nota}
+\textbf{Un riesgo vigilado puede ascender.} R6, los exámenes de diciembre, es el candidato más claro: su ventana coincide con la iteración 3 y su probabilidad subirá en la revisión del 03/12 si para entonces el equipo ya está arrastrando horas. Conviene mirarlo ese día con los datos del registro, no antes y de memoria.
+\end{nota}
+
+\subsection{Relación con el presupuesto}
+
+Seis de estos diez riesgos son los que sostienen la provisión del capítulo 6 del presupuesto PRE-2627-01: R1, R2, R5, R7, R8 y R10. Su valor esperado suma \textbf{50,75 h, es decir 990,13\eu}, que es exactamente la provisión para riesgos identificados de aquel documento. Las dos cifras salen del mismo cálculo y deben seguir cuadrando en cada revisión.
+
+Los otros cuatro ---R3, R4, R6 y R9--- no están en el presupuesto y no se repercuten al centro: son riesgos de organización interna del equipo. Que nos concentremos el esfuerzo al final, que nos ampliemos el alcance nosotros mismos, que tengamos exámenes o que integremos mal nuestra propia rama no es algo que deba pagar el cliente. Su valor esperado, 37,6 h o 733,58\eu, lo absorbe el equipo.
+
+\vspace{0.6cm}
+\begin{condiciones}
+\textbf{Por qué la exposición esperada no es una previsión de retraso.} Las 88,35 horas son una suma ponderada, no una suma de retrasos: la mayoría de los riesgos no se materializarán, y los que lo hagan no lo harán todos a la vez. Si ocurrieran todos ---245 horas, 4.779,95\eu--- el proyecto no se entregaría en diciembre. El plan está para que esa suma baje en cada revisión, no para justificar de antemano un retraso.
+\end{condiciones}
+
+\vfill
+
+\noindent
+\begin{minipage}[t]{0.47\textwidth}
+{\footnotesize\color{gris} Redactado y mantenido por}\\[1.8cm]
+{\color{linea}\rule{\textwidth}{0.4pt}}\\[2pt]
+{\small Yeray Rodríguez Navas}\\
+{\footnotesize\color{gris} Gestor de Calidad del producto y del proceso\\ Granada, 19 de noviembre de 2026}
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.47\textwidth}
+{\footnotesize\color{gris} Aprobado por}\\[1.8cm]
+{\color{linea}\rule{\textwidth}{0.4pt}}\\[2pt]
+{\small José Rodríguez Fernández}\\
+{\footnotesize\color{gris} Coordinador del proyecto\\ CLENCH Software Development}
+\end{minipage}
+
+\end{document}
