@@ -121,7 +121,7 @@
 \noindent
 \begin{minipage}[t]{0.34\textwidth}
   {\color{cian}\rotulo{Documento}}\\[0.30cm]
-  {\small RSK-2627-01, versión 1.4\\ Revisado el 19/11/2026}
+  {\small RSK-2627-01, versión 1.5\\ Revisado el 19/11/2026}
 \end{minipage}%
 \hfill
 \begin{minipage}[t]{0.28\textwidth}
@@ -152,7 +152,7 @@
 \noindent Los riesgos se presentan por probabilidad estimada para las iteraciones restantes. Se mantiene la selección de los \textbf{cinco primeros como prioritarios} y se revisan sus medidas.
 
 \smallskip
-\noindent{\footnotesize\textbf{Horas revisadas:} esfuerzo adicional total del equipo en un escenario acotado, con valor central, rango orientativo y desglose; pendiente de contrastar con horas reales. Costes: 19,51\eu/h; porcentajes sobre 315 h de iteración 2. La prevención se planifica aparte. El retraso depende de responsables, dependencias y espera: no equivale a horas-persona. No sumar reprocesos solapados.}
+\noindent{\footnotesize\textbf{Horas revisadas:} esfuerzo adicional total del equipo en un escenario acotado, con valor central, rango orientativo y desglose; pendiente de contrastar con horas reales. Costes: 19,51\eu/h; porcentajes sobre 323 h de iteración 2. La prevención se planifica aparte. El retraso depende de responsables, dependencias y espera: no equivale a horas-persona. No sumar reprocesos solapados.}
 
 \vspace{0.22cm}
 \noindent{\footnotesize
@@ -171,35 +171,35 @@
 
 \textbf{R1.} La app no resulta usable para el alumnado PTVAL
 & 50\,\%
-& \textbf{24 h-persona} (rango 16--40 h; 7,6\,\% iter. 2); 468,24\eu{}. Desglose: 4 h validación repetida + 12 h ajustes de interfaz + 8 h regresión. Alcance: corregir flujos y apoyos esenciales; replanificar mejoras secundarias.
+& \textbf{24 h-persona} (rango 16--40 h; 7,4\,\% iter. 2); 468,24\eu{}. Desglose: 4 h validación repetida + 12 h ajustes de interfaz + 8 h regresión. Alcance: corregir flujos y apoyos esenciales; replanificar mejoras secundarias.
 & Corregir los flujos que fallen con los perfiles evaluados; ajustar componentes compartidos y apoyos individuales. Repetir pruebas con usuarios y de regresión, manteniendo los apoyos esenciales y las pruebas de accesibilidad y desplazamiento.
 & Validar prototipos y pantallas en tablet con profesorado y alumnado PTVAL. Acordar criterios de comprensión, errores y ayuda necesaria. Aplicar WCAG 2.2 AA; distinguir los objetivos propios de contraste 7:1 y controles de 64 px. Revisión del Gestor de Usabilidad.
 \\
 
 \textbf{R2.} Se exponen datos personales de menores
 & 45\,\%
-& \textbf{20 h-persona} (rango 12--32 h; 6,3\,\% iter. 2); 390,20\eu{}. Desglose: 4 h revisar accesos + 8 h permisos + 8 h pruebas. Alcance: pausa del piloto con datos reales. El importe cubre corrección, no todos los daños de una exposición.
+& \textbf{20 h-persona} (rango 12--32 h; 6,2\,\% iter. 2); 390,20\eu{}. Desglose: 4 h revisar accesos + 8 h permisos + 8 h pruebas. Alcance: pausa del piloto con datos reales. El importe cubre corrección, no todos los daños de una exposición.
 & Suspender accesos no autorizados y revocar sus sesiones. Corregir permisos de alumnado y avatares y comprobar que cada cuenta accede solo a sus alumnos autorizados. Usar datos ficticios durante la revisión.
 & Aumentar la seguridad de a quién se entrega la app: verificar con el centro personas y dispositivos autorizados, registrar entregas y asignar cuentas individuales. Complementar el control de entrega con restricciones de la API y pruebas de permisos; retirar accesos cuando proceda.
 \\
 
 \textbf{R3.} El cliente o la profesora cambian requisitos, o los criterios de las historias son ambiguos
 & 45\,\%
-& \textbf{20 h-persona} (rango 12--32 h; 6,3\,\% iter. 2); 390,20\eu{}. Desglose: 4 h aclarar y reestimar + 12 h adaptar una historia + 4 h regresión. Alcance: replanificar la historia afectada; cambios mayores requieren reestimar.
+& \textbf{20 h-persona} (rango 12--32 h; 6,2\,\% iter. 2); 390,20\eu{}. Desglose: 4 h aclarar y reestimar + 12 h adaptar una historia + 4 h regresión. Alcance: replanificar la historia afectada; cambios mayores requieren reestimar.
 & Planear semanalmente revisiones con el cliente para acordar cambios. Registrar acuerdos en acta, aclarar criterios y reestimar historias; ajustar el sprint según valor, esfuerzo y dependencias.
 & Preparar criterios y bocetos antes de las revisiones; mantener el alcance validado y distinguir aclaraciones de nuevas peticiones. Acordar quién aprueba cada cambio y su entrega; confirmar la disponibilidad semanal con el centro.
 \\
 
 \textbf{R4.} El diseño de la base de datos da errores de datos (estado de tareas compartido, historial que se pierde)
 & 40\,\%
-& \textbf{32 h-persona} (rango 24--40 h; 10,2\,\% iter. 2); 624,32\eu{}. Desglose: 8 h modelo + 12 h migración y consultas + 12 h pruebas y recuperación. Alcance: retrabajo de una implementación con estados compartidos; bloquea aceptar el progreso individual.
+& \textbf{32 h-persona} (rango 24--40 h; 9,9\,\% iter. 2); 624,32\eu{}. Desglose: 8 h modelo + 12 h migración y consultas + 12 h pruebas y recuperación. Alcance: retrabajo de una implementación con estados compartidos; bloquea aceptar el progreso individual.
 & Separar definición y realización por alumno y fecha, incluido cada paso. Corregir consultas y migrar con copia y reversión si el progreso se implementó sobre estados compartidos. Revisar borrados según el histórico acordado; conservar las cascadas correctas.
 & Revisar antes del desarrollo los estados globales de \texttt{Tasks} y \texttt{Steps} y las asignaciones de \texttt{stud\_task}. Definir progreso individual e histórico. Probar dos alumnos con avances diferentes, dos fechas y borrados. El esquema actual justifica mantener este riesgo.
 \\
 
 \textbf{R5.} Frontend y backend dejan de encajar porque uno cambia la API sin avisar
 & 40\,\%
-& \textbf{16 h-persona} (rango 8--24 h; 5,1\,\% iter. 2); 312,16\eu{}. Desglose: 4 h diagnóstico + 6 h adaptar contrato y cliente + 6 h integración real. Alcance: corregir un contrato y cerrar el flujo afectado; no rehacer la API.
+& \textbf{16 h-persona} (rango 8--24 h; 5,0\,\% iter. 2); 312,16\eu{}. Desglose: 4 h diagnóstico + 6 h adaptar contrato y cliente + 6 h integración real. Alcance: corregir un contrato y cerrar el flujo afectado; no rehacer la API.
 & Localizar el contrato incompatible; restaurar una combinación compatible o adaptar cliente y API conjuntamente. Verificar flujo, respuestas, errores y permisos contra la API real. Usar \texttt{DemoRepository} para trabajo independiente; registrar funciones ocultadas como pendientes.
 & Acordar y versionar OpenAPI; revisar rutas y JSON entre ambos equipos y comprobar contratos e integración en cada cambio compartido. Mantener la detección de capacidades. El desajuste de consulta de agenda, resuelto en iteración 1, justifica vigilar su repetición.
 \\
@@ -208,7 +208,7 @@
 
 \textbf{R6.} No llegamos al plazo y todo se acumula al final de la iteración
 & 35\,\%
-& \textbf{24 h-persona} (rango 16--40 h; 7,6\,\% iter. 2); 468,24\eu{}. Desglose: 4 h replanificar + 12 h resolver pendientes + 8 h integración y pruebas. Alcance: peligran el cierre y las mejoras secundarias; acordar su aplazamiento.
+& \textbf{24 h-persona} (rango 16--40 h; 7,4\,\% iter. 2); 468,24\eu{}. Desglose: 4 h replanificar + 12 h resolver pendientes + 8 h integración y pruebas. Alcance: peligran el cierre y las mejoras secundarias; acordar su aplazamiento.
 & \multicolumn{2}{>{\raggedright\arraybackslash}p{13.42cm}@{}}{Sin medidas específicas desarrolladas; se mantiene en seguimiento por debajo de los cinco prioritarios.}
 \\
 
@@ -220,7 +220,7 @@
 
 \textbf{R8.} El conocimiento queda aislado: solo un subgrupo entiende su parte
 & 25\,\%
-& \textbf{16 h-persona} (rango 8--24 h; 5,1\,\% iter. 2); 312,16\eu{}. Desglose: 6 h transferencia + 4 h completar guías + 6 h corrección acompañada. Alcance: se ralentiza el módulo cuyo referente falte, según su cobertura.
+& \textbf{16 h-persona} (rango 8--24 h; 5,0\,\% iter. 2); 312,16\eu{}. Desglose: 6 h transferencia + 4 h completar guías + 6 h corrección acompañada. Alcance: se ralentiza el módulo cuyo referente falte, según su cobertura.
 & \multicolumn{2}{>{\raggedright\arraybackslash}p{13.42cm}@{}}{Sin medidas específicas desarrolladas; se mantiene en seguimiento por debajo de los cinco prioritarios.}
 \\
 

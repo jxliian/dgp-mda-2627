@@ -80,12 +80,12 @@
 \setcounter{secnumdepth}{0}
 % Solo los cuatro capitulos de coste directo llevan numero, y es el mismo
 % que aparece en sus tablas y en el resumen economico.
-\newcommand{\capitulo}[2]{\section{{\color{cian}#1}\hspace{0.55em}#2}}
+\newcommand{\capitulo}[2]{\section{\texorpdfstring{{\color{cian}#1}\hspace{0.55em}#2}{#1 #2}}}
 
 % ------------------------------------------------------------------ Membrete
 \pagestyle{fancy}
 \fancyhf{}
-\fancyhead[L]{\color{gris}\rotulo{Presupuesto PRE-2627-01\ \ ·\ \ Proyecto AUTOVIDA}}
+\fancyhead[L]{\color{gris}\rotulo{Presupuesto PRE-2627-01\ \ /\ \ Proyecto AUTOVIDA}}
 \fancyhead[R]{\raisebox{-0.35\height}{\includegraphics[height=0.85cm]{images/logo_clench.png}}}
 \fancyfoot[L]{\scriptsize\color{gris} CLENCH Software Development\, ·\, E.T.S.I.I.T., c/ Periodista Daniel Saucedo Aranda s/n, 18014 Granada}
 \fancyfoot[R]{\scriptsize\color{gris} \thepage\,/\,\pageref{LastPage}}
@@ -161,6 +161,20 @@
 \noindent{\color{cian}\rule{3.4cm}{3pt}}\\[0.8cm]
 \noindent{\fontsize{52}{54}\selectfont\bfseries AUTOVIDA}
 
+\vspace{0.8cm}
+\noindent{\color{cianclaro}\rotulo{Integrantes de CLENCH Software Development}}\\[0.3cm]
+{\small
+\setlength{\tabcolsep}{0pt}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X@{}}
+José Rodríguez Fernández & Julián Carrión Tovar\\[3pt]
+Yeray Rodríguez Navas & Pablo de la Torre Roldán\\[3pt]
+Pablo Hernández Ibáñez & Miguel Ángel Luque Gómez\\[3pt]
+Amine Azzammouri & \\
+\end{tabularx}}
+\vspace{0.3cm}
+\noindent{\small\textbf{Coordinador:} Pablo Hernández Ibáñez}\\[0.15cm]
+\noindent{\small Granada, 19 de noviembre de 2026}
+
 \vfill
 
 \noindent{\color{cian}\rule{\textwidth}{0.5pt}}\\[0.55cm]
@@ -172,16 +186,17 @@
 \hfill
 \begin{minipage}[t]{0.28\textwidth}
   {\color{cian}\rotulo{Ejecución}}\\[0.30cm]
-  {\small 24/09/2026 --- 22/12/2026\\ Fase inicial y tres iteraciones}
+  {\small 24/09/2026 --- 21/12/2026\\ Fase inicial y tres iteraciones\\ Defensa: 12/01/2027}
 \end{minipage}%
 \hfill
 \begin{minipage}[t]{0.30\textwidth}
   {\color{cian}\rotulo{Oferta}}\\[0.30cm]
-  {\small PRE-2627-01, versión 1.0\\ Válida hasta el 11/01/2027}
+  {\small PRE-2627-01, versión 1.2\\ Válida hasta el 11/01/2027}
 \end{minipage}
 
 \vspace{1.15cm}
-\noindent{\scriptsize\color{cianclaro} CLENCH Software Development\ \ ·\ \ E.T.S.I.I.T., Universidad de Granada}
+\noindent{\scriptsize\color{cianclaro} Escuela Técnica Superior de Ingenierías Informática y de Telecomunicación (ETSIIT), Universidad de Granada\\
+c/ Periodista Daniel Saucedo Aranda, s/n, 18014 Granada, España}
 \vspace*{0.2cm}
 
 \newpage
@@ -198,7 +213,9 @@
   \includegraphics[width=5.2cm]{images/logo_clench.png}\\[0.35cm]
   {\footnotesize\color{gris}
    Desarrollo de software accesible\\
-   Granada, España}
+   ETSIIT, Universidad de Granada\\
+   c/ Periodista Daniel Saucedo Aranda, s/n\\
+   18014 Granada, España}
 \end{minipage}%
 \hfill
 \begin{minipage}[t]{0.50\textwidth}
@@ -206,17 +223,18 @@
   {\footnotesize
   \setlength{\tabcolsep}{0pt}
   \begin{tabularx}{\textwidth}{@{}>{\color{gris}}p{3.1cm}X@{}}
-  Oferta & \textbf{PRE-2627-01}, versión 1.0\\[2pt]
-  Emitida el & 12 de noviembre de 2026\\[2pt]
+  Oferta & \textbf{PRE-2627-01}, versión 1.2\\[2pt]
+  Emitida / revisada & 12 / 19 de noviembre de 2026\\[2pt]
+  Coordinador & Pablo Hernández Ibáñez\\[2pt]
   Válida hasta el & \textbf{11 de enero de 2027}\\[2pt]
   Destinataria & C.E.E. Fundación Purísima Concepción, Granada\\[2pt]
-  Ejecución & 24/09/2026 --- 22/12/2026\\
+  Ejecución & 24/09/2026 --- 21/12/2026; cierre 12/01/2027\\
   \end{tabularx}}
 \end{minipage}
 
 \vspace{1.5cm}
 
-\noindent{\color{cian}\rule{\textwidth}{2pt}}\\[0.7cm]
+\noindent{\color{cian}\rule{\textwidth}{2pt}}\par\vspace{0.7cm}
 
 \noindent{\fontsize{30}{34}\selectfont\bfseries Presupuesto de desarrollo}\\[0.45cm]
 {\Large\color{cianoscuro} Proyecto AUTOVIDA}
@@ -230,25 +248,25 @@
                   top=6mm, bottom=6mm, left=6mm, right=6mm]
 \begin{minipage}[b]{0.52\textwidth}
   {\footnotesize\color{gris} Importe total, impuestos incluidos}\\[0.25cm]
-  {\fontsize{34}{36}\selectfont\bfseries\color{magenta} 35.063,60\eu}
+  {\fontsize{34}{36}\selectfont\bfseries\color{magenta} 31.622,36\eu}
 \end{minipage}%
 \hfill
 \begin{minipage}[b]{0.44\textwidth}
   {\footnotesize\color{gris}
   \setlength{\tabcolsep}{0pt}
   \begin{tabularx}{\textwidth}{@{}Xr@{}}
-  Base imponible & \color{tinta}28.978,18\eu\\
-  IVA, 21\,\% & \color{tinta}6.085,42\eu\\[3pt]
+  Base imponible & \color{tinta}26.134,18\eu\\
+  IVA, 21\,\% & \color{tinta}5.488,18\eu\\[3pt]
   \multicolumn{2}{@{}l@{}}{\color{linea}\rule{\textwidth}{0.4pt}}\\[1pt]
-  Horas de ingeniería & \color{tinta}1.229,5 h\\
-  Coste medio por hora & \color{tinta}23,57\eu\\
+  Horas de ingeniería & \color{tinta}1.109,15 h\\
+  Precio medio por hora, sin IVA & \color{tinta}23,56\eu\\
   \end{tabularx}}
 \end{minipage}
 \end{tcolorbox}
 
 \vspace{0.9cm}
 
-\noindent{\small Treinta y cinco mil sesenta y tres euros con sesenta céntimos.}
+\noindent{\small Importe calculado con la reconstrucción documental y las estimaciones de trabajo detalladas en el capítulo de personal.}
 
 \vfill
 
@@ -261,14 +279,14 @@
 \hfill
 \begin{minipage}[t]{0.31\textwidth}
   {\color{cianoscuro}\rotulo{Dedicación}}\\[0.25cm]
-  {\fontsize{21}{23}\selectfont\bfseries 1.229,5}\;{\small\color{gris} horas}\\[0.12cm]
-  {\footnotesize\color{gris} 634,5 ejecutadas, 595 estimadas}
+  {\fontsize{21}{23}\selectfont\bfseries 1.109,15}\;{\small\color{gris} horas}\\[0.12cm]
+  {\footnotesize\color{gris} 314,15 de base documental; 192,00 retrospectivas y 603,00 previstas}
 \end{minipage}%
 \hfill
 \begin{minipage}[t]{0.31\textwidth}
   {\color{cianoscuro}\rotulo{Entregas}}\\[0.25cm]
   {\fontsize{21}{23}\selectfont\bfseries 4}\;{\small\color{gris} hitos}\\[0.12cm]
-  {\footnotesize\color{gris} Fase inicial y tres iteraciones}
+  {\footnotesize\color{gris} Fase inicial y tres iteraciones\\ Defensa: 12/01/2027}
 \end{minipage}
 
 \vspace{1.1cm}
@@ -282,17 +300,17 @@
 \hline
 \cabtxt{Resumen por capítulos} & \cabtxt{Importe}\\
 \hline
-Personal del equipo, 1.229,5 h a 19,51\eu/h & 23.987,57\eu\\
-Inventariable: amortización de equipos informáticos & 164,23\eu\\
+Personal del equipo, 1.109,15 h a 19,51\eu/h & 21.639,50\eu\\
+Inventariable: amortización de equipos informáticos & 137,95\eu\\
 Fungible: desplazamientos e impresión & 41,04\eu\\
 \hline
-\textbf{Costes directos} & \textbf{24.192,84\eu}\\
-Costes indirectos de estructura, 13\,\% & 3.145,07\eu\\
+\textbf{Costes directos} & \textbf{21.818,49\eu}\\
+Costes indirectos de estructura, 13\,\% & 2.836,40\eu\\
 \hline
-\textbf{Coste de ejecución} & \textbf{27.337,91\eu}\\
-Beneficio industrial, 6\,\% & 1.640,27\eu\\
+\textbf{Coste de ejecución} & \textbf{24.654,89\eu}\\
+Beneficio industrial, 6\,\% & 1.479,29\eu\\
 \hline
-\textbf{Base imponible} & \textbf{28.978,18\eu}\\
+\textbf{Base imponible} & \textbf{26.134,18\eu}\\
 \hline
 \end{tabularx}}
 
@@ -312,16 +330,16 @@ El presupuesto se presenta de dos formas complementarias: por \textbf{tipo de ga
 \hline
 \cabtxt{Tipo} & \cabtxt{Qué incluye} & \cabtxt{Cap.} & \cabtxt{Importe}\\
 \hline
-Personal & Las 1.229,5 horas de los siete integrantes, a coste de empresa & 1 & 23.987,57\eu\\
-Inventariable & Equipos informáticos, imputados por el desgaste que produce el proyecto y no por su precio de compra & 2 & 164,23\eu\\
+Personal & Las 1.109,15 horas de los siete integrantes, a coste de empresa & 1 & 21.639,50\eu\\
+Inventariable & Equipos informáticos, imputados por el desgaste que produce el proyecto y no por su precio de compra & 2 & 137,95\eu\\
 Fungible & Desplazamiento de toma de contacto al centro e impresión de entregables (las herramientas software se usan con licencias de estudiante) & 3 & 41,04\eu\\
 \hline
-\textbf{Costes directos} & & & \textbf{24.192,84\eu}\\
+\textbf{Costes directos} & & & \textbf{21.818,49\eu}\\
 \hline
-Indirectos & Estructura de la empresa, compartida con el resto de proyectos (13\,\%) & 4 & 3.145,07\eu\\
-Beneficio & Margen empresarial y financiación de inversiones futuras (6\,\%) & 5 & 1.640,27\eu\\
+Indirectos & Estructura de la empresa, compartida con el resto de proyectos (13\,\%) & 4 & 2.836,40\eu\\
+Beneficio & Margen empresarial y financiación de inversiones futuras (6\,\%) & 5 & 1.479,29\eu\\
 \hline
-\textbf{Base imponible} & & & \textbf{28.978,18\eu}\\
+\textbf{Base imponible} & & & \textbf{26.134,18\eu}\\
 \hline
 \end{tabularx}}
 
@@ -354,22 +372,22 @@ Beneficio & Margen empresarial y financiación de inversiones futuras (6\,\%) & 
 
 Siete personas. Los roles de coordinación del método de trabajo ---Coordinador, Catalogador, Moderador y Presentador--- rotan en cada iteración; los de Gestor de Calidad y Gestor de Usabilidad y Accesibilidad son fijos.
 
-Todo el equipo se factura a una \textbf{tarifa única de 19,51\eu{} por hora}, con independencia del rol que cada persona desempeñe en cada iteración. Los siete integrantes son titulados del mismo nivel, con responsabilidad equivalente sobre el resultado, y los roles rotan por diseño del método de trabajo: diferenciar la tarifa obligaría a reajustarla en cada iteración y haría que el precio dependiese de quién ocupa qué puesto esa semana. Una tarifa única mantiene el precio estable ante cualquier cambio de reparto interno.
+Todo el equipo se imputa a una \textbf{tarifa única de 19,51\eu{} por hora}, con independencia del rol que cada persona desempeñe en cada iteración. Se utiliza para los siete integrantes un perfil de referencia del mismo nivel, con responsabilidad equivalente sobre el resultado, y los roles rotan por diseño del método de trabajo: diferenciar la tarifa obligaría a reajustarla en cada iteración y haría que el precio dependiese de quién ocupa qué puesto esa semana. Una tarifa única mantiene el precio estable ante cualquier cambio de reparto interno.
 
 \vspace{0.4cm}
 \noindent{\small
 \tablacebra
 \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{4.4cm}L>{\raggedright\arraybackslash}p{3.5cm}H@{}}
 \hline
-\cabtxt{Integrante} & \cabtxt{Responsabilidad} & \cabtxt{Categoría} & \cabtxt{\texteuro/h}\\
+\cabtxt{Integrante} & \cabtxt{Responsabilidad (iteración 2)} & \cabtxt{Categoría} & \cabtxt{\texteuro/h}\\
 \hline
-José Rodríguez Fernández & Coordinación del proyecto; Presentador en la fase inicial & Área 3, grupo C, nivel 2 & 19,51\\
+José Rodríguez Fernández & Catalogación documental; desarrollo frontend & Área 3, grupo C, nivel 2 & 19,51\\
 Julián Carrión Tovar & Usabilidad y accesibilidad (rol fijo); desarrollo frontend & Área 3, grupo C, nivel 2 & 19,51\\
 Yeray Rodríguez Navas & Calidad del producto y del proceso (rol fijo) & Área 3, grupo C, nivel 2 & 19,51\\
-Pablo de la Torre Roldán & Moderación; desarrollo backend & Área 3, grupo C, nivel 2 & 19,51\\
-Pablo Hernández Ibáñez & Comunicación con el centro; desarrollo frontend & Área 3, grupo C, nivel 2 & 19,51\\
-Miguel Ángel Luque & Catalogación documental; desarrollo & Área 3, grupo C, nivel 2 & 19,51\\
-Amine Azzammouri & Refuerzo de roles rotativos; soporte documental & Área 3, grupo C, nivel 2 & 19,51\\
+Pablo de la Torre Roldán & Presentación; desarrollo backend & Área 3, grupo C, nivel 2 & 19,51\\
+Pablo Hernández Ibáñez & Coordinación del proyecto; comunicación con el centro y desarrollo frontend & Área 3, grupo C, nivel 2 & 19,51\\
+Miguel Ángel Luque Gómez & Moderación; desarrollo & Área 3, grupo C, nivel 2 & 19,51\\
+Amine Azzammouri & Refuerzo de Moderación; soporte documental & Área 3, grupo C, nivel 2 & 19,51\\
 \hline
 \end{tabularx}}
 
@@ -402,7 +420,36 @@ Jornada anual de trabajo efectivo & Según convenio colectivo & 1.800 h\\
 \newpage
 \capitulo{1}{Personal}
 
-\subsection{Dedicación por integrante y fase, en horas}
+\subsection{Base documental y estimaciones separadas}
+La revisión del 19/11/2026 sustituye el reparto anterior por una reconstrucción trazable, con corte de evidencias al 11/11/2026. Se distinguen \textbf{D: base documental adoptada}, obtenida de horarios y asistencia; \textbf{R: estimación retrospectiva} de trabajo adicional fuera de sesión; y \textbf{P: previsión} del trabajo pendiente. D recoge presencia documentada, pendiente de confirmar como tiempo efectivo. R y P son supuestos presupuestarios, no partes horarios reales ni asignaciones aceptadas.
+
+\noindent{\small
+\tablacebra
+\begin{tabularx}{\textwidth}{@{}L H H H N@{}}
+\hline
+\cabtxt{Fase} & \cabtxt{D (h)} & \cabtxt{R (h)} & \cabtxt{P (h)} & \cabtxt{Total (h)}\\
+\hline
+Inicial & 170,15 & 48,00 & 0,00 & 218,15\\
+Iteración 1 & 144,00 & 144,00 & 0,00 & 288,00\\
+Iteración 2 & 0,00 & 0,00 & 323,00 & 323,00\\
+Iteración 3 y cierre & 0,00 & 0,00 & 280,00 & 280,00\\
+\hline
+\textbf{Total} & \textbf{314,15} & \textbf{192,00} & \textbf{603,00} & \textbf{1.109,15}\\
+\hline
+\end{tabularx}}
+
+\begin{itemize}[leftmargin=1.2em,itemsep=3pt]
+\item Se cuentan solo asistentes: el acta 09 tiene cuatro integrantes presentes; no se multiplican todas las sesiones por siete.
+\item Se respeta inicio--fin en las actas 09 y 11, donde reunión y trabajo sumados exceden la sesión. Solo se separa como reunión el tiempo expresamente indicado; el resto queda como sesión mixta.
+\item La entrevista se imputa a 1,5 h por persona y la visita a 2,5 h de Julián. Quedan por confirmar los 30 minutos adicionales de entrevista de Pablo de la Torre y la diferencia entre las 4 h del horario de visita y las 2,5 h de su ficha.
+\item Las 12 h de tareas anotadas por Pablo de la Torre sin horario suficiente no se añaden otra vez: podrían solaparse con sesiones y una entrada abarca dos fases. Su validación sustituirá estimaciones, sin sumarlas automáticamente.
+\item Las 192 h retrospectivas son una hipótesis explícita: 48 h para finalizar entregables iniciales y 144 h para código, integración, pruebas y guías de iteración 1. No se han deducido de commits ni se presentan como ejecución medida.
+\end{itemize}
+El detalle por persona, sesión, paquete y fuente está en \path{docs/dgp/seguimiento_horas/RECONSTRUCCION_HORAS.md}, junto a los registros CSV y JSON. Antes de facturar trabajo histórico, el equipo deberá conciliar esta reconstrucción con sus fichas individuales.
+
+\newpage
+\subsection{Dedicación por integrante y fase, en horas-persona}
+Las dos primeras columnas combinan D y R; las dos últimas son P. El reparto futuro se propone según los ámbitos técnicos y roles, y debe confirmarse con disponibilidad y planificación del sprint.
 
 \noindent{\small
 \tablacebra
@@ -410,24 +457,20 @@ Jornada anual de trabajo efectivo & Según convenio colectivo & 1.800 h\\
 \hline
 \cabtxt{Integrante} & \cabtxt{Inicial} & \cabtxt{Iter. 1} & \cabtxt{Iter. 2} & \cabtxt{Iter. 3} & \cabtxt{Total}\\
 \hline
-José Rodríguez Fernández & 46,5 & 47,5 & 45,5 & 40,5 & 180,0\\
-Julián Carrión Tovar & 46,5 & 52,5 & 50,0 & 44,5 & 193,5\\
-Yeray Rodríguez Navas & 42,5 & 51,5 & 49,5 & 44,0 & 187,5\\
-Pablo de la Torre Roldán & 42,5 & 50,0 & 48,0 & 42,5 & 183,0\\
-Pablo Hernández Ibáñez & 42,5 & 45,0 & 43,0 & 38,0 & 168,5\\
-Miguel Ángel Luque & 42,5 & 42,5 & 40,5 & 36,0 & 161,5\\
-Amine Azzammouri & 42,5 & 40,0 & 38,5 & 34,5 & 155,5\\
+José Rodríguez Fernández & 31,95 & 40,50 & 48,50 & 31,00 & 151,95\\
+Julián Carrión Tovar & 35,45 & 52,00 & 58,00 & 56,00 & 201,45\\
+Yeray Rodríguez Navas & 29,95 & 50,50 & 50,50 & 55,50 & 186,45\\
+Pablo de la Torre Roldán & 29,95 & 40,50 & 43,00 & 40,50 & 153,95\\
+Pablo Hernández Ibáñez & 31,95 & 42,50 & 53,00 & 39,00 & 166,45\\
+Miguel Ángel Luque Gómez & 29,95 & 33,00 & 37,00 & 33,00 & 132,95\\
+Amine Azzammouri & 28,95 & 29,00 & 33,00 & 25,00 & 115,95\\
 \hline
-\textbf{Total} & \textbf{305,5} & \textbf{329,0} & \textbf{315,0} & \textbf{280,0} & \textbf{1.229,5}\\
+\textbf{Total} & \textbf{218,15} & \textbf{288,00} & \textbf{323,00} & \textbf{280,00} & \textbf{1.109,15}\\
 \hline
 \end{tabularx}}
 
-\vspace{0.3cm}
-\noindent{\footnotesize\color{gris} La dedicación adicional en la fase inicial de José Rodríguez y Julián Carrión responde a las tareas de coordinación, especificación de requisitos y la visita presencial de toma de contacto con el centro.}
-
 \subsection{Importe por integrante}
-
-Con tarifa única, lo que cada persona factura depende solo de las horas que dedica.
+El coste de personal se calcula a 19,51\eu/h y se redondea por integrante. El reparto por fases concilia el último importe con ese total.
 
 \noindent{\small
 \tablacebra
@@ -435,19 +478,22 @@ Con tarifa única, lo que cada persona factura depende solo de las horas que ded
 \hline
 \cabtxt{Integrante} & \cabtxt{Horas} & \cabtxt{\texteuro/h} & \cabtxt{Importe}\\
 \hline
-José Rodríguez Fernández & 180,0 & 19,51 & 3.511,80\eu\\
-Julián Carrión Tovar & 193,5 & 19,51 & 3.775,19\eu\\
-Yeray Rodríguez Navas & 187,5 & 19,51 & 3.658,13\eu\\
-Pablo de la Torre Roldán & 183,0 & 19,51 & 3.570,33\eu\\
-Pablo Hernández Ibáñez & 168,5 & 19,51 & 3.287,44\eu\\
-Miguel Ángel Luque & 161,5 & 19,51 & 3.150,87\eu\\
-Amine Azzammouri & 155,5 & 19,51 & 3.033,81\eu\\
+José Rodríguez Fernández & 151,95 & 19,51 & 2.964,54\eu\\
+Julián Carrión Tovar & 201,45 & 19,51 & 3.930,29\eu\\
+Yeray Rodríguez Navas & 186,45 & 19,51 & 3.637,64\eu\\
+Pablo de la Torre Roldán & 153,95 & 19,51 & 3.003,56\eu\\
+Pablo Hernández Ibáñez & 166,45 & 19,51 & 3.247,44\eu\\
+Miguel Ángel Luque Gómez & 132,95 & 19,51 & 2.593,85\eu\\
+Amine Azzammouri & 115,95 & 19,51 & 2.262,18\eu\\
 \hline
-\textbf{Capítulo 1} & \textbf{1.229,5} & \textbf{19,51} & \textbf{23.987,57\eu}\\
+\textbf{Capítulo 1} & \textbf{1.109,15} & \textbf{19,51} & \textbf{21.639,50\eu}\\
 \hline
 \end{tabularx}}
 
-\subsection{En qué se emplean esas horas}
+\newpage
+\subsection{Distribución por actividad y naturaleza de las horas}
+Las sesiones mixtas se muestran separadas porque las actas no permiten atribuir su duración entre requisitos, diseño, programación y documentación. El resto distingue las actividades identificables y las estimadas; los porcentajes se calculan a partir de sus horas, no al revés.
+Los porcentajes parciales se redondean y pueden diferir del 100\,\% al sumarse.
 
 \noindent{\small
 \tablacebra
@@ -455,19 +501,24 @@ Amine Azzammouri & 155,5 & 19,51 & 3.033,81\eu\\
 \hline
 \cabtxt{Actividad} & \cabtxt{\%} & \cabtxt{Horas}\\
 \hline
-Implementación \textit{frontend} y \textit{backend} & 32,0\,\% & 393,5\\
-Reuniones de coordinación, seguimiento y cliente & 27,0\,\% & 332,0\\
-Pruebas y auditorías de accesibilidad & 12,0\,\% & 147,5\\
-Análisis, requisitos y gestión del \textit{backlog} & 10,0\,\% & 123,0\\
-Documentación, actas y entregables & 10,0\,\% & 123,0\\
-Diseño de arquitectura y prototipado de interfaz & 9,0\,\% & 110,5\\
+Sesiones documentadas sin reparto de actividad acreditado & 26,2\,\% & 290,15\\
+Reuniones, revisiones y coordinación & 9,2\,\% & 102,50\\
+Análisis, requisitos y planificación & 4,6\,\% & 50,50\\
+Diseño y arquitectura & 2,5\,\% & 28,00\\
+Implementación e integración & 30,1\,\% & 334,00\\
+Pruebas, auditorías y validación & 13,0\,\% & 144,00\\
+Documentación, manuales y presentación & 8,7\,\% & 96,00\\
+Formación, transferencia y relevo técnico & 2,2\,\% & 24,00\\
+Reserva de capacidad para incidencias no previstas & 3,6\,\% & 40,00\\
 \hline
-\textbf{Total} & \textbf{100,0\,\%} & \textbf{1.229,5}\\
+\textbf{Total} & \textbf{100,0\,\%} & \textbf{1.109,15}\\
 \hline
 \end{tabularx}}
 
-\vspace{0.4cm}
-\noindent Las 332 horas de reuniones corresponden a las once sesiones documentadas en actas entre el 1 de octubre y el 11 de noviembre de 2026 ---45 horas por persona--- más las sesiones previstas para las iteraciones 2 y 3.
+\smallskip
+Las reuniones futuras se estiman por convocatoria: por iteración, tres reuniones internas de una hora con siete personas (21 h), una revisión de cierre de una hora con siete personas (7 h), tres revisiones con el cliente de una hora con dos representantes (6 h) y tres seguimientos con el tutor de media hora con dos representantes (3 h): \textbf{37 h por iteración}. El cierre añade 7 h de presencia para la defensa del 12/01/2027, sujetas al horario definitivo. Las sesiones de prácticas se imputan al trabajo realizado y no se añaden otra vez como reuniones.
+
+Se reservan \textbf{24 h en iteración 2 y 16 h en iteración 3} para incidencias adicionales, dentro del total, y no se suman los diez impactos de riesgos. Las correcciones normales tras pruebas ya figuran en sus paquetes. La espera de respuesta del centro afecta al calendario, no añade automáticamente horas-persona. Si se agota la reserva, se reestima y se acuerda alcance o presupuesto antes de asumir trabajo adicional.
 
 % ==============================================================================
 \newpage
@@ -478,7 +529,7 @@ Los equipos son material \textbf{inventariable}: bienes duraderos que siguen sie
 \begin{enumerate}[leftmargin=1.4em, itemsep=3pt, topsep=4pt]
   \item El \textbf{coste real del equipo hoy}, tomado de precios de venta al público vigentes en 2026 para equipos equivalentes.
   \item Su \textbf{duración estimada}: cuatro años, que es el periodo más corto admitido por la tabla de amortización del impuesto sobre sociedades para equipos de procesos de información, cuyo coeficiente lineal máximo es del 25\,\% anual.
-  \item El \textbf{tiempo de uso en el proyecto}, en horas, no en meses de calendario: un portátil se imputa por las horas de trabajo efectivo y los dispositivos de prueba por las horas de pruebas.
+  \item El \textbf{tiempo de uso presupuestado}, en horas: los puestos se aproximan por la dedicación agregada; cada dispositivo de prueba tiene una previsión de uso propia, independiente de las horas-persona dedicadas a pruebas.
 \end{enumerate}
 
 \vspace{0.35cm}
@@ -500,17 +551,17 @@ Los equipos son material \textbf{inventariable}: bienes duraderos que siguen sie
 \hline
 \cabtxt{Equipo} & \cabtxt{Coste hoy} & \cabtxt{\texteuro/h} & \cabtxt{Uso} & \cabtxt{Importe}\\
 \hline
-Portátil de desarrollo, 16 GB de RAM y SSD de 512 GB (7 ud.) & 755,16\eu & 0,1049 & 1.229,5 h & 128,95\eu\\
-Monitor externo de 24\,pulgadas (7 ud.) & 129,00\eu & 0,0179 & 1.229,5 h & 22,03\eu\\
-Tableta Android de 10\,pulgadas para pruebas en el dispositivo objetivo (2 ud.) & 199,00\eu & 0,0276 & 147,5 h & 8,15\eu\\
-Terminal Android para validación con TalkBack (1 ud.) & 249,00\eu & 0,0346 & 147,5 h & 5,10\eu\\
+Portátil de desarrollo, 16 GB de RAM y SSD de 512 GB (7 ud.) & 755,16\eu & 0,1049 & 1.109,15 h & 116,33\eu\\
+Monitor externo de 24\,pulgadas (7 ud.) & 129,00\eu & 0,0179 & 1.109,15 h & 19,87\eu\\
+Tableta Android de 10\,pulgadas para pruebas en el dispositivo objetivo (2 ud.) & 199,00\eu & 0,0276 & 24 h/ud. & 1,33\eu\\
+Terminal Android para validación con TalkBack (1 ud.) & 249,00\eu & 0,0346 & 12 h & 0,42\eu\\
 \hline
-\textbf{Capítulo 2} & & & & \textbf{164,23\eu}\\
+\textbf{Capítulo 2} & & & & \textbf{137,95\eu}\\
 \hline
 \end{tabularx}}
 
 \vspace{0.4cm}
-\noindent{\footnotesize\color{gris} Los portátiles y los monitores se imputan por las 1.229,5 horas de trabajo del equipo, porque cada hora de trabajo ocupa un puesto completo. Las tabletas y el terminal de pruebas se imputan por las 147,5 horas dedicadas a pruebas y auditorías de accesibilidad, que es el único momento en que se usan, y por las unidades empleadas.}
+\noindent{\footnotesize\color{gris} Los puestos se aproximan por la dedicación presupuestada agregada del equipo, sin multiplicar otra vez por siete. El uso propio previsto de dispositivos es de 24 h por tableta y 12 h de terminal, repartido entre las iteraciones 2 y 3; no se identifica con las horas-persona de pruebas. Son supuestos a contrastar con uso real, no mediciones. Se calculan importes con coeficientes completos y se redondea al final de cada fila.}
 
 
 
@@ -556,19 +607,19 @@ Son los gastos que la empresa soporta para hacer viable el proyecto pero que \te
 \hline
 \cabtxt{Concepto} & \cabtxt{Cálculo} & \cabtxt{Importe}\\
 \hline
-Espacio de trabajo, suministros y limpieza & 5,0\,\% de los directos & 1.209,64\eu\\
-Administración, contabilidad y facturación & 3,0\,\% & 725,79\eu\\
-Formación interna y actualización técnica & 2,0\,\% & 483,86\eu\\
-Seguro de responsabilidad civil profesional & 1,5\,\% & 362,89\eu\\
-Sistemas corporativos y gestión documental & 1,5\,\% & 362,89\eu\\
+Espacio de trabajo, suministros y limpieza & 5,0\,\% de los directos & 1.090,92\eu\\
+Administración, contabilidad y facturación & 3,0\,\% & 654,55\eu\\
+Formación interna y actualización técnica & 2,0\,\% & 436,37\eu\\
+Seguro de responsabilidad civil profesional & 1,5\,\% & 327,28\eu\\
+Sistemas corporativos y gestión documental & 1,5\,\% & 327,28\eu\\
 \hline
-\textbf{Capítulo 4} & \textbf{13,0\,\%} & \textbf{3.145,07\eu}\\
+\textbf{Capítulo 4} & \textbf{13,0\,\%} & \textbf{2.836,40\eu}\\
 \hline
 \end{tabularx}}
 
 \subsection{Beneficio industrial}
 
-Se aplica un 6\,\% sobre el coste de ejecución (27.337,91\eu), tipo de referencia estándar en la contratación del sector público español. Retribuye la actividad empresarial a precio cerrado, compensando posibles oscilaciones operativas de esfuerzo interno y posibilitando la reinversión y sostenimiento tecnológico del equipo.
+Se aplica un 6\,\% sobre el coste de ejecución (24.654,89\eu), tipo de referencia estándar en la contratación del sector público español. Retribuye la actividad empresarial a precio cerrado, compensando posibles oscilaciones operativas de esfuerzo interno y posibilitando la reinversión y sostenimiento tecnológico del equipo.
 
 \vspace{0.4cm}
 \noindent{\small
@@ -577,9 +628,9 @@ Se aplica un 6\,\% sobre el coste de ejecución (27.337,91\eu), tipo de referenc
 \hline
 \cabtxt{Concepto} & \cabtxt{Cálculo} & \cabtxt{Importe}\\
 \hline
-Beneficio industrial & 6,0\,\% sobre coste de ejecución & 1.640,27\eu\\
+Beneficio industrial & 6,0\,\% sobre coste de ejecución & 1.479,29\eu\\
 \hline
-\textbf{Capítulo 5} & & \textbf{1.640,27\eu}\\
+\textbf{Capítulo 5} & & \textbf{1.479,29\eu}\\
 \hline
 \end{tabularx}}
 
@@ -592,20 +643,20 @@ Beneficio industrial & 6,0\,\% sobre coste de ejecución & 1.640,27\eu\\
 \hline
 \cabtxt{Cap.} & \cabtxt{Concepto} & \cabtxt{\% s/ base} & \cabtxt{Importe}\\
 \hline
-1 & Personal, 1.229,5 h a 19,51\eu/h & 82,78\,\% & 23.987,57\eu\\
-2 & Inventariable: equipos informáticos & 0,57\,\% & 164,23\eu\\
-3 & Fungible: desplazamientos e impresión & 0,14\,\% & 41,04\eu\\
+1 & Personal, 1.109,15 h a 19,51\eu/h & 82,80\,\% & 21.639,50\eu\\
+2 & Inventariable: equipos informáticos & 0,53\,\% & 137,95\eu\\
+3 & Fungible: desplazamientos e impresión & 0,16\,\% & 41,04\eu\\
 \hline
- & \textbf{Costes directos} & \textbf{83,49\,\%} & \textbf{24.192,84\eu}\\
-4 & Costes indirectos de estructura, 13\,\% & 10,85\,\% & 3.145,07\eu\\
+ & \textbf{Costes directos} & \textbf{83,49\,\%} & \textbf{21.818,49\eu}\\
+4 & Costes indirectos de estructura, 13\,\% & 10,85\,\% & 2.836,40\eu\\
 \hline
- & \textbf{Coste de ejecución} & \textbf{94,34\,\%} & \textbf{27.337,91\eu}\\
-5 & Beneficio industrial, 6\,\% & 5,66\,\% & 1.640,27\eu\\
+ & \textbf{Coste de ejecución} & \textbf{94,34\,\%} & \textbf{24.654,89\eu}\\
+5 & Beneficio industrial, 6\,\% & 5,66\,\% & 1.479,29\eu\\
 \hline
- & \textbf{Base imponible} & \textbf{100,00\,\%} & \textbf{28.978,18\eu}\\
- & IVA, 21\,\% & & 6.085,42\eu\\
+ & \textbf{Base imponible} & \textbf{100,00\,\%} & \textbf{26.134,18\eu}\\
+ & IVA, 21\,\% & & 5.488,18\eu\\
 \hline
- & \textbf{Importe total} & & \textbf{35.063,60\eu}\\
+ & \textbf{Importe total} & & \textbf{31.622,36\eu}\\
 \hline
 \end{tabularx}}
 
@@ -623,10 +674,10 @@ El proyecto se organiza en una fase inicial de análisis y tres iteraciones de d
 \hline
 \cabtxt{Fase} & \cabtxt{Periodo} & \cabtxt{Resultado} & \cabtxt{Estado}\\
 \hline
-Fase inicial & 24/09 --- 22/10/2026 & Requisitos, personas y escenarios, catálogo de historias de usuario estimadas, manual de coordinación y propuesta técnica & Ejecutada\\
-Iteración 1 & 23/10 --- 11/11/2026 & Arquitectura, API REST y cliente Flutter cubriendo 32 historias de usuario; primera auditoría de accesibilidad & Ejecutada\\
-Iteración 2 & 12/11 --- 03/12/2026 & Agenda completa, pasos guiados de actividad, ajustes de accesibilidad por perfil y validación con usuarios & Estimada\\
-Iteración 3 & 04/12 --- 22/12/2026 & Funcionalidades alternativas, corrección de la auditoría final, manual en lectura fácil y transferencia & Estimada\\
+Fase inicial & 24/09 --- 22/10/2026 & Requisitos, personas y escenarios, catálogo de historias de usuario estimadas, manual de coordinación y propuesta técnica & Reconstruida\\
+Iteración 1 & 23/10 --- 11/11/2026 & Arquitectura, API REST y cliente Flutter cubriendo 32 historias de usuario; primera auditoría de accesibilidad & Reconstruida\\
+Iteración 2 & 12/11 --- 03/12/2026 & Agenda completa, pasos guiados de actividad, ajustes de accesibilidad por perfil y validación con usuarios & Prevista\\
+Iteración 3 y cierre & 04/12 --- 21/12/2026 & Funcionalidades alternativas, corrección de la auditoría final, manual en lectura fácil y transferencia & Prevista\\
 \hline
 \end{tabularx}}
 
@@ -638,32 +689,49 @@ Iteración 3 & 04/12 --- 22/12/2026 & Funcionalidades alternativas, corrección 
 \hline
 \cabtxt{Fase} & \cabtxt{Horas} & \cabtxt{Personal} & \cabtxt{Invent. y fung.} & \cabtxt{Estruct.} & \cabtxt{Base imp.}\\
 \hline
-Fase inicial & 305,5 & 5.960,31\eu & 51,00\eu & 781,47\eu & 7.200,35\eu\\
-Iteración 1 & 329,0 & 6.418,79\eu & 54,93\eu & 841,58\eu & 7.754,22\eu\\
-Iteración 2 & 315,0 & 6.145,65\eu & 52,59\eu & 805,77\eu & 7.424,25\eu\\
-Iteración 3 & 280,0 & 5.462,82\eu & 46,75\eu & 716,25\eu & 6.599,36\eu\\
+Fase inicial & 218,15 & 4.256,11\eu & 35,20\eu & 557,87\eu & 5.140,13\eu\\
+Iteración 1 & 288,00 & 5.618,88\eu & 46,48\eu & 736,49\eu & 6.785,96\eu\\
+Iteración 2 & 323,00 & 6.301,73\eu & 52,12\eu & 826,00\eu & 7.610,64\eu\\
+Iteración 3 y cierre & 280,00 & 5.462,78\eu & 45,19\eu & 716,04\eu & 6.597,45\eu\\
 \hline
-\textbf{Total} & \textbf{1.229,5} & \textbf{23.987,57\eu} & \textbf{205,27\eu} & \textbf{3.145,07\eu} & \textbf{28.978,18\eu}\\
+\textbf{Total} & \textbf{1.109,15} & \textbf{21.639,50\eu} & \textbf{178,99\eu} & \textbf{2.836,40\eu} & \textbf{26.134,18\eu}\\
 \hline
 \end{tabularx}}
 
 \vspace{0.3cm}
-\noindent{\footnotesize\color{gris} La cuarta columna recoge la amortización de inventariable y los gastos fungibles imputables a la fase. La base imponible de cada fase incluye su parte proporcional del beneficio industrial del 6\,\%, que suma 1.640,27\eu{} en el conjunto del proyecto.}
+\noindent{\footnotesize\color{gris} La cuarta columna recoge la amortización de inventariable y los gastos fungibles imputables a la fase. La base imponible de cada fase incluye su parte proporcional del beneficio industrial del 6\,\%, que suma 1.479,29\eu{} en el conjunto del proyecto.}
 
+\newpage
 \subsection{Cómo se han estimado las iteraciones 2 y 3}
+Se estiman paquetes de trabajo pendientes y se propone su reparto por persona; el detalle está en el registro de reconstrucción. No se aplica una reducción porcentual automática sobre la iteración 1. La previsión parte del corte documental del 11/11: una fecha transcurrida no convierte P en ejecución acreditada.
 
-\begin{itemize}[leftmargin=1.2em, itemsep=3pt, topsep=4pt]
-  \item \textbf{Iteración 2, 315 horas.} Estimada por analogía con la iteración 1, que consumió 329 horas para cubrir 32 historias de usuario. El alcance previsto es comparable en volumen, pero el equipo parte de una arquitectura, un entorno y unas convenciones ya establecidos, lo que reduce la dedicación en torno a un 4\,\%.
-  \item \textbf{Iteración 3, 280 horas.} Un 15\,\% por debajo de la iteración 1. Las historias pendientes son funcionalidades alternativas de menor complejidad, aunque se reserva dedicación para corregir la auditoría final de accesibilidad, redactar el manual en lectura fácil y transferir el producto al centro.
-  \item Ambas estimaciones mantienen el reparto relativo de horas entre integrantes observado en la iteración 1 y asumen la continuidad del equipo y de los roles.
-\end{itemize}
+\noindent{\small
+\tablacebra
+\begin{tabularx}{\textwidth}{@{}L N N@{}}
+\hline
+\cabtxt{Trabajo previsto (horas-persona)} & \cabtxt{Iter. 2} & \cabtxt{Iter. 3}\\
+\hline
+Reuniones, revisiones y coordinación & 37,00 & 44,00\\
+Análisis, requisitos y planificación & 28,00 & 0,00\\
+Diseño y arquitectura & 20,00 & 0,00\\
+Implementación e integración & 150,00 & 84,00\\
+Pruebas, auditorías y validación & 44,00 & 72,00\\
+Documentación, manuales y presentación & 12,00 & 48,00\\
+Formación, transferencia y relevo técnico & 8,00 & 16,00\\
+Reserva de capacidad para incidencias no previstas & 24,00 & 16,00\\
+\hline
+\textbf{Total} & \textbf{323,00} & \textbf{280,00}\\
+\hline
+\end{tabularx}}
+
+La iteración 2 incluye progreso individual, pasos, temporizador, sincronización y apoyos; la iteración 3 concentra alternativas, auditoría, manual, transferencia y cierre. Las reservas están incluidas en los totales. La columna de cierre comprende 12 h de preparación de la presentación y 7 h de asistencia a la defensa de enero. Su duración se confirmará con la convocatoria; no altera la entrega del software del 21/12/2026.
 
 % ==============================================================================
 
 \newpage
 \section{Calendario de facturación}
 
-Se factura al cierre y aceptación de cada fase, contra la entrega revisable correspondiente.
+El reparto económico se presenta por hitos. Los dos primeros son históricos reconstruidos, pendientes de conciliar; los siguientes son previsiones. La defensa de enero se incluye en el último hito. La facturación se condiciona a la aceptación de alcance, horas e importes por las partes.
 
 \vspace{0.4cm}
 \noindent{\small
@@ -672,12 +740,12 @@ Se factura al cierre y aceptación de cada fase, contra la entrega revisable cor
 \hline
 \cabtxt{Hito} & \cabtxt{Fecha} & \cabtxt{Base} & \cabtxt{IVA 21\,\%} & \cabtxt{Total}\\
 \hline
-Cierre de la fase inicial & 22/10/2026 & 7.200,35\eu & 1.512,07\eu & 8.712,42\eu\\
-Entrega de la iteración 1 & 11/11/2026 & 7.754,22\eu & 1.628,39\eu & 9.382,61\eu\\
-Entrega de la iteración 2 & 03/12/2026 & 7.424,25\eu & 1.559,09\eu & 8.983,34\eu\\
-Entrega final y transferencia & 22/12/2026 & 6.599,36\eu & 1.385,87\eu & 7.985,23\eu\\
+Cierre de la fase inicial & 22/10/2026 & 5.140,13\eu & 1.079,43\eu & 6.219,56\eu\\
+Entrega de la iteración 1 & 11/11/2026 & 6.785,96\eu & 1.425,05\eu & 8.211,01\eu\\
+Entrega de la iteración 2 & 03/12/2026 & 7.610,64\eu & 1.598,23\eu & 9.208,87\eu\\
+Entrega final y transferencia & 21/12/2026 & 6.597,45\eu & 1.385,47\eu & 7.982,92\eu\\
 \hline
-\textbf{Total} & & \textbf{28.978,18\eu} & \textbf{6.085,42\eu} & \textbf{35.063,60\eu}\\
+\textbf{Total} & & \textbf{26.134,18\eu} & \textbf{5.488,18\eu} & \textbf{31.622,36\eu}\\
 \hline
 \end{tabularx}}
 % ==============================================================================
@@ -726,8 +794,11 @@ Las cifras normativas y de referencia aplicadas en esta oferta proceden de fuent
 \begin{minipage}[t]{0.47\textwidth}
 {\footnotesize\color{gris} Por CLENCH Software Development}\\[1.8cm]
 {\color{linea}\rule{\textwidth}{0.4pt}}\\[2pt]
-{\small José Rodríguez Fernández}\\
-{\footnotesize\color{gris} Coordinador del proyecto\\ Granada, 12 de noviembre de 2026}
+{\small Pablo Hernández Ibáñez}\\
+{\footnotesize\color{gris} Coordinador del proyecto\\ Granada, 19 de noviembre de 2026\\
+ETSIIT, Universidad de Granada\\
+c/ Periodista Daniel Saucedo Aranda, s/n\\
+18014 Granada, España}
 \end{minipage}%
 \hfill
 \begin{minipage}[t]{0.47\textwidth}
