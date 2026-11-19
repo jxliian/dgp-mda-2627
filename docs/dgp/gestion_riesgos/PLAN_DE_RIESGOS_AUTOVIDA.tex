@@ -72,7 +72,7 @@
 % ------------------------------------------------------------------ Membrete
 \pagestyle{fancy}
 \fancyhf{}
-\fancyhead[L]{\color{gris}\rotulo{Plan de riesgos RSK-2627-01\ \ ·\ \ Proyecto AUTOVIDA}}
+\fancyhead[L]{\color{gris}\rotulo{Plan de riesgos RSK-2627-01\ \ /\ \ Proyecto AUTOVIDA}}
 \fancyhead[R]{\raisebox{-0.35\height}{\includegraphics[height=0.85cm]{images/logo_clench.png}}}
 \fancyfoot[L]{\scriptsize\color{gris} CLENCH Software Development\, ·\, E.T.S.I.I.T., c/ Periodista Daniel Saucedo Aranda s/n, 18014 Granada}
 \fancyfoot[R]{\scriptsize\color{gris} \thepage\,/\,\pageref{LastPage}}
@@ -113,7 +113,7 @@
 \noindent{\color{cianclaro}\rotulo{Gestión de riesgos del proyecto}}\\[0.55cm]
 \noindent{\color{cian}\rule{3.4cm}{3pt}}\\[0.8cm]
 \noindent{\fontsize{52}{54}\selectfont\bfseries AUTOVIDA}\\[0.5cm]
-\noindent{\fontsize{15}{21}\selectfont\color{cianclaro} Lista de diez riesgos identificados y medidas\\ de mitigación y evitación de los cinco prioritarios}
+\noindent{\fontsize{15}{21}\selectfont\color{cianclaro} Diez riesgos identificados y cinco prioritarios\\ Lista de riesgos y medidas de respuesta}
 
 \vfill
 
@@ -121,12 +121,12 @@
 \noindent
 \begin{minipage}[t]{0.34\textwidth}
   {\color{cian}\rotulo{Documento}}\\[0.30cm]
-  {\small RSK-2627-01, versión 1.0\\ Emitido el 19/11/2026}
+  {\small RSK-2627-01, versión 1.4\\ Revisado el 19/11/2026}
 \end{minipage}%
 \hfill
 \begin{minipage}[t]{0.28\textwidth}
   {\color{cian}\rotulo{Alcance}}\\[0.30cm]
-  {\small 10 riesgos identificados\\ 5 prioritarios gestionados}
+  {\small 10 riesgos identificados\\ 5 riesgos prioritarios gestionados}
 \end{minipage}%
 \hfill
 \begin{minipage}[t]{0.32\textwidth}
@@ -149,7 +149,10 @@
 \begin{landscape}
 \section{Lista de riesgos del proyecto}
 
-\noindent Los diez riesgos están ordenados de mayor a menor probabilidad de ocurrencia e impacto. Los \textbf{cinco primeros se gestionan}, indicando sus actividades para mitigarlos y para evitarlos.
+\noindent Los riesgos se presentan por probabilidad estimada para las iteraciones restantes. Se mantiene la selección de los \textbf{cinco primeros como prioritarios} y se revisan sus medidas.
+
+\smallskip
+\noindent{\footnotesize\textbf{Horas revisadas:} esfuerzo adicional total del equipo en un escenario acotado, con valor central, rango orientativo y desglose; pendiente de contrastar con horas reales. Costes: 19,51\eu/h; porcentajes sobre 315 h de iteración 2. La prevención se planifica aparte. El retraso depende de responsables, dependencias y espera: no equivale a horas-persona. No sumar reprocesos solapados.}
 
 \vspace{0.22cm}
 \noindent{\footnotesize
@@ -168,72 +171,77 @@
 
 \textbf{R1.} La app no resulta usable para el alumnado PTVAL
 & 50\,\%
-& 40 h de reproceso (12,7\,\% iter. 2); retraso de 3 días naturales; incremento de 780,40\eu{} (+2,85\,\% en coste). Alcance: se aplazarían a iter. 3 los pasos guiados (RF-04), el temporizador (RF-06) y los apoyos \texttt{stud\_access\_*}.
-& Corregir fallos sobre la librería compartida \texttt{lib/ui/} para arreglar todas las pantallas a la vez, mantener \texttt{accessibility\_test.dart} y \texttt{sin\_scroll\_test.dart} y activar los apoyos por perfil de forma gradual.
-& Validar prototipos en Figma y pantallas en tablet con profesorado y alumnado PTVAL antes de cerrar cada historia; aplicar WCAG 2.2 AA (contraste 7:1, objetivos de al menos 64\,px, sin desplazamiento) y revisión del Gestor de Usabilidad.
+& \textbf{24 h-persona} (rango 16--40 h; 7,6\,\% iter. 2); 468,24\eu{}. Desglose: 4 h validación repetida + 12 h ajustes de interfaz + 8 h regresión. Alcance: corregir flujos y apoyos esenciales; replanificar mejoras secundarias.
+& Corregir los flujos que fallen con los perfiles evaluados; ajustar componentes compartidos y apoyos individuales. Repetir pruebas con usuarios y de regresión, manteniendo los apoyos esenciales y las pruebas de accesibilidad y desplazamiento.
+& Validar prototipos y pantallas en tablet con profesorado y alumnado PTVAL. Acordar criterios de comprensión, errores y ayuda necesaria. Aplicar WCAG 2.2 AA; distinguir los objetivos propios de contraste 7:1 y controles de 64 px. Revisión del Gestor de Usabilidad.
 \\
 
 \textbf{R2.} Se exponen datos personales de menores
 & 45\,\%
-& 36 h de reproceso (11,4\,\% iter. 2); retraso de 3 días naturales por auditoría previa al piloto; incremento de 702,36\eu{} (+2,57\,\% en coste). Alcance: retirada del directorio visual sin sesión y avatares (SCRUM-329), volviendo a usuario/PIN (RF-07).
-& Recortar \texttt{full\_name} en el directorio a nombre de pila o alias, exigir token válido en rutas de alumnos y avatares (\texttt{/users/students/\{a\}/avatar-image}) y revocar sesiones si se detecta exposición.
-& Aplicar minimización RGPD/LOPDGDD en la API: retirar consultas anónimas (\texttt{get\_optional\_current\_user}) sobre alumnado, usar solo cuentas ficticias de \texttt{datos\_de\_prueba.py} y revisar permisos en cada endpoint nuevo.
+& \textbf{20 h-persona} (rango 12--32 h; 6,3\,\% iter. 2); 390,20\eu{}. Desglose: 4 h revisar accesos + 8 h permisos + 8 h pruebas. Alcance: pausa del piloto con datos reales. El importe cubre corrección, no todos los daños de una exposición.
+& Suspender accesos no autorizados y revocar sus sesiones. Corregir permisos de alumnado y avatares y comprobar que cada cuenta accede solo a sus alumnos autorizados. Usar datos ficticios durante la revisión.
+& Aumentar la seguridad de a quién se entrega la app: verificar con el centro personas y dispositivos autorizados, registrar entregas y asignar cuentas individuales. Complementar el control de entrega con restricciones de la API y pruebas de permisos; retirar accesos cuando proceda.
 \\
 
 \textbf{R3.} El cliente o la profesora cambian requisitos, o los criterios de las historias son ambiguos
 & 45\,\%
-& 34 h de reproceso (10,8\,\% iter. 2); retraso de 2 días naturales en el cierre; incremento de 663,34\eu{} (+2,43\,\% en coste). Alcance: quedarían fuera de iter. 2 el temporizador visual (RF-06) y las actividades alternativas (\texttt{Alt\_Tasks}).
-& Reservar 10 h por iteración para ajustes de validación, reestimar en \textit{Planning Poker} cualquier cambio y aceptarlo en el sprint en curso solo si se retira otra historia de tamaño equivalente.
-& Llevar criterios de aceptación escritos y bocetos de Figma a la planificación para que el centro y la profesora los aprueben antes de programar; registrar acuerdos en acta y congelar alcance al arrancar.
+& \textbf{20 h-persona} (rango 12--32 h; 6,3\,\% iter. 2); 390,20\eu{}. Desglose: 4 h aclarar y reestimar + 12 h adaptar una historia + 4 h regresión. Alcance: replanificar la historia afectada; cambios mayores requieren reestimar.
+& Planear semanalmente revisiones con el cliente para acordar cambios. Registrar acuerdos en acta, aclarar criterios y reestimar historias; ajustar el sprint según valor, esfuerzo y dependencias.
+& Preparar criterios y bocetos antes de las revisiones; mantener el alcance validado y distinguir aclaraciones de nuevas peticiones. Acordar quién aprueba cada cambio y su entrega; confirmar la disponibilidad semanal con el centro.
 \\
 
 \textbf{R4.} El diseño de la base de datos da errores de datos (estado de tareas compartido, historial que se pierde)
 & 40\,\%
-& 32 h de reproceso (10,2\,\% iter. 2); retraso de 2 días naturales por migración SQL; incremento de 624,32\eu{} (+2,28\,\% en coste). Alcance: el progreso paso a paso (RF-04) y el histórico de tareas completadas quedarían bloqueados o solo individuales.
-& Migrar el estado de \texttt{Tasks.task\_finished} y \texttt{Steps.step\_finished} a \texttt{stud\_task} por alumno y fecha, sustituir \texttt{ON DELETE CASCADE} por borrado lógico/histórico y hacer copia de seguridad antes de migrar.
-& Revisar \texttt{CreacionTablas.sqlscript} entre todo el subequipo de backend antes de abrir historias de pasos o histórico e incluir pruebas de integración con varios alumnos compartiendo una misma tarea de clase.
+& \textbf{32 h-persona} (rango 24--40 h; 10,2\,\% iter. 2); 624,32\eu{}. Desglose: 8 h modelo + 12 h migración y consultas + 12 h pruebas y recuperación. Alcance: retrabajo de una implementación con estados compartidos; bloquea aceptar el progreso individual.
+& Separar definición y realización por alumno y fecha, incluido cada paso. Corregir consultas y migrar con copia y reversión si el progreso se implementó sobre estados compartidos. Revisar borrados según el histórico acordado; conservar las cascadas correctas.
+& Revisar antes del desarrollo los estados globales de \texttt{Tasks} y \texttt{Steps} y las asignaciones de \texttt{stud\_task}. Definir progreso individual e histórico. Probar dos alumnos con avances diferentes, dos fechas y borrados. El esquema actual justifica mantener este riesgo.
 \\
 
 \textbf{R5.} Frontend y backend dejan de encajar porque uno cambia la API sin avisar
 & 40\,\%
-& 30 h de reproceso (9,5\,\% iter. 2); retraso de 2 días naturales en pruebas E2E; incremento de 585,30\eu{} (+2,14\,\% en coste). Alcance: historias dependientes de nuevos contratos (RF-04, personal en \texttt{GET /classes/\{aula\}}, SCRUM-325) quedarían degradadas o sin cerrar.
-& Trabajar en paralelo contra \texttt{DemoRepository}, inspeccionar \texttt{/openapi.json} al iniciar sesión para degradar vistas sin romper la app y convocar reunión inmediata de integración si cambia un JSON o código HTTP.
-& Acordar el contrato OpenAPI (rutas, campos y errores) antes de empezar cada historia, prohibir cambios en \texttt{main} sin aviso previo y prueba de contrato en \textit{pull request}, e integrar ramas semanalmente.
+& \textbf{16 h-persona} (rango 8--24 h; 5,1\,\% iter. 2); 312,16\eu{}. Desglose: 4 h diagnóstico + 6 h adaptar contrato y cliente + 6 h integración real. Alcance: corregir un contrato y cerrar el flujo afectado; no rehacer la API.
+& Localizar el contrato incompatible; restaurar una combinación compatible o adaptar cliente y API conjuntamente. Verificar flujo, respuestas, errores y permisos contra la API real. Usar \texttt{DemoRepository} para trabajo independiente; registrar funciones ocultadas como pendientes.
+& Acordar y versionar OpenAPI; revisar rutas y JSON entre ambos equipos y comprobar contratos e integración en cada cambio compartido. Mantener la detección de capacidades. El desajuste de consulta de agenda, resuelto en iteración 1, justifica vigilar su repetición.
 \\
 \hline
 \pagebreak
 
 \textbf{R6.} No llegamos al plazo y todo se acumula al final de la iteración
 & 35\,\%
-& 24 h de reproceso (7,6\,\% iter. 2); retraso de 2 días naturales; incremento de 468,24\eu{} (+1,71\,\% en coste). Alcance: las actividades alternativas (\texttt{Alt\_Tasks}) y el pulido final pasarían a la iteración 3.
-& \multicolumn{2}{>{\raggedright\arraybackslash}p{13.42cm}@{}}{No se gestiona (menor probabilidad e impacto que los cinco priorizados).}
+& \textbf{24 h-persona} (rango 16--40 h; 7,6\,\% iter. 2); 468,24\eu{}. Desglose: 4 h replanificar + 12 h resolver pendientes + 8 h integración y pruebas. Alcance: peligran el cierre y las mejoras secundarias; acordar su aplazamiento.
+& \multicolumn{2}{>{\raggedright\arraybackslash}p{13.42cm}@{}}{Sin medidas específicas desarrolladas; se mantiene en seguimiento por debajo de los cinco prioritarios.}
 \\
 
 \textbf{R7.} El colegio no tiene tiempo para validar ni para hacer pruebas con usuarios
 & 30\,\%
-& 20 h de reproceso (6,3\,\% iter. 2); retraso de 2 días naturales en el cierre de validación; incremento de 390,20\eu{} (+1,43\,\% en coste). Alcance: la validación presencial con alumnado PTVAL (RF-03, RF-04) se aplazaría a la iteración 3 o se limitaría al profesorado.
-& \multicolumn{2}{>{\raggedright\arraybackslash}p{13.42cm}@{}}{No se gestiona (menor probabilidad e impacto que los cinco priorizados).}
+& \textbf{8 h-persona} (rango 4--12 h; 2,5\,\% iter. 2); 156,08\eu{}. Desglose: 2 h recoordinar + 2 h preparar de nuevo + 4 h repetir validación. Alcance: validación con alumnado pendiente. La espera del centro puede exceder el esfuerzo del equipo.
+& \multicolumn{2}{>{\raggedright\arraybackslash}p{13.42cm}@{}}{Sin medidas específicas desarrolladas; se mantiene en seguimiento por debajo de los cinco prioritarios.}
 \\
 
 \textbf{R8.} El conocimiento queda aislado: solo un subgrupo entiende su parte
 & 25\,\%
-& 18 h de reproceso (5,7\,\% iter. 2); retraso de 1 día natural; incremento de 351,18\eu{} (+1,28\,\% en coste). Alcance: ante ausencias en diciembre, se frena el mantenimiento de Flutter o FastAPI/SQL y cae la cobertura de pruebas cruzadas.
-& \multicolumn{2}{>{\raggedright\arraybackslash}p{13.42cm}@{}}{No se gestiona (menor probabilidad e impacto que los cinco priorizados).}
+& \textbf{16 h-persona} (rango 8--24 h; 5,1\,\% iter. 2); 312,16\eu{}. Desglose: 6 h transferencia + 4 h completar guías + 6 h corrección acompañada. Alcance: se ralentiza el módulo cuyo referente falte, según su cobertura.
+& \multicolumn{2}{>{\raggedright\arraybackslash}p{13.42cm}@{}}{Sin medidas específicas desarrolladas; se mantiene en seguimiento por debajo de los cinco prioritarios.}
 \\
 
 \textbf{R9.} Jira no refleja el estado real del código
 & 25\,\%
-& 14 h de reproceso (4,4\,\% iter. 2); retraso de 1 día natural en el cierre de sprint; incremento de 273,14\eu{} (+1,00\,\% en coste). Alcance: historias terminadas en código quedan sin verificar ni cerrar formalmente (como SCRUM-27 y SCRUM-36) y se duplica trabajo.
-& \multicolumn{2}{>{\raggedright\arraybackslash}p{13.42cm}@{}}{No se gestiona (menor probabilidad e impacto que los cinco priorizados).}
+& \textbf{6 h-persona} (rango 4--10 h; 1,9\,\% iter. 2); 117,06\eu{}. Desglose: 2 h auditar tablero + 2 h conciliar evidencias + 2 h verificar y actualizar. Alcance: cierre formal y previsión poco fiables hasta conciliar código y tablero.
+& \multicolumn{2}{>{\raggedright\arraybackslash}p{13.42cm}@{}}{Sin medidas específicas desarrolladas; se mantiene en seguimiento por debajo de los cinco prioritarios.}
 \\
 
 \textbf{R10.} El entorno falla en algún equipo (Windows/Linux, Docker, Flutter, CORS)
 & 20\,\%
-& 12 h de reproceso (3,8\,\% iter. 2); retraso de 1 día natural en los equipos afectados; incremento de 234,12\eu{} (+0,86\,\% en coste). Alcance: imposibilidad temporal de probar Flutter Web contra FastAPI en Windows, limitando la verificación a Linux o a \texttt{DemoRepository}.
-& \multicolumn{2}{>{\raggedright\arraybackslash}p{13.42cm}@{}}{No se gestiona (menor probabilidad e impacto que los cinco priorizados).}
+& \textbf{8 h-persona} (rango 4--16 h; 2,5\,\% iter. 2); 156,08\eu{}. Desglose: 2 h diagnóstico + 4 h corregir entorno + 2 h verificar arranque. Alcance: bloqueo temporal de un equipo; varios equipos afectados requieren reestimar.
+& \multicolumn{2}{>{\raggedright\arraybackslash}p{13.42cm}@{}}{Sin medidas específicas desarrolladas; se mantiene en seguimiento por debajo de los cinco prioritarios.}
 \\
 \hline
 \end{longtable}}
+% Base de la revisión de R4: CreacionTablas.sqlscript, Tasks.task_finished,
+% Steps.step_finished y stud_task; clases_db.assign_task comparte task_id.
+% Base de R5: peticion_backend.md (antecedente resuelto) y repository.dart,
+% discover/camposDelCuerpo/canTrackProgress; no se presupone una avería activa.
+% Las estimaciones cubren reproceso acotado, no el desarrollo funcional normal.
 \end{landscape}
 \restoregeometry
 
