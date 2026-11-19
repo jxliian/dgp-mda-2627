@@ -64,13 +64,18 @@
   {\color{cian}\large\bfseries\thesection\hspace{0.55em}}{0pt}{}
   [\vspace{4pt}\hbox to\linewidth{{\color{cian}\rule[0pt]{2.2cm}{1.4pt}}%
    {\color{linea}\leaders\hrule height 0.5pt\hfill}}]
-\titlespacing*{\section}{0pt}{22pt}{9pt}
+\titlespacing*{\section}{0pt}{22pt}{4pt}
 
 % El cuadrado cian marca el nivel de subapartado sin gastar un numero.
 \titleformat{\subsection}[block]
   {\color{cianoscuro}\normalsize\bfseries}{}{0pt}
   {\raisebox{0.22ex}{\color{cian}\rule{2.8pt}{2.8pt}}\hspace{0.5em}}
 \titlespacing*{\subsection}{0pt}{14pt}{4pt}
+
+\titleformat{\subsubsection}[block]
+  {\color{cianoscuro}\small\bfseries}{}{0pt}
+  {\raisebox{0.2ex}{\color{cian}\rule{2.2pt}{2.2pt}}\hspace{0.45em}}
+\titlespacing*{\subsubsection}{0pt}{12pt}{3pt}
 
 \setcounter{secnumdepth}{0}
 % Solo los cuatro capitulos de coste directo llevan numero, y es el mismo
@@ -148,7 +153,7 @@
 \color{white}
 
 \vspace*{0.4cm}
-{\setlength{\fboxsep}{5mm}\noindent\colorbox{white}{\includegraphics[width=4.9cm]{images/logo_clench.png}}}
+\noindent\includegraphics[width=5.8cm]{images/logo_clench_portada.png}
 
 \vfill
 
@@ -301,7 +306,7 @@ AUTOVIDA es una agenda digital accesible para el alumnado del programa PTVAL del
 
 \subsection{Clasificación por tipo de gasto}
 
-El presupuesto se presenta de dos formas complementarias: por \textbf{tipo de gasto}, en los capítulos que siguen, y por \textbf{iteraciones}, en el apartado 9. Ambas suman lo mismo.
+El presupuesto se presenta de dos formas complementarias: por \textbf{tipo de gasto}, en los capítulos que siguen, y por \textbf{iteraciones}, en el apartado «Reparto por iteraciones». Ambas suman lo mismo.
 
 \vspace{0.35cm}
 \noindent{\small
@@ -350,7 +355,6 @@ Beneficio & Margen empresarial y financiación de inversiones futuras & 7 & 1.76
 \end{nota}
 
 % ==============================================================================
-\newpage
 \section{El equipo}
 
 Siete personas. Los roles de coordinación del método de trabajo ---Coordinador, Catalogador, Moderador y Presentador--- rotan en cada iteración; los de Gestor de Calidad y Gestor de Usabilidad y Accesibilidad son fijos.
@@ -507,7 +511,6 @@ Diseño de arquitectura y prototipado de interfaz & 9,0\,\% & 110,5\\
 \noindent Las 332 horas de reuniones corresponden a las once sesiones documentadas en actas entre el 1 de octubre y el 11 de noviembre de 2026 ---45 horas por persona--- más las sesiones previstas para las iteraciones 2 y 3.
 
 % ==============================================================================
-\newpage
 \capitulo{2}{Material inventariable: equipos informáticos}
 
 Los equipos son material \textbf{inventariable}: bienes duraderos que siguen siendo de la empresa cuando el proyecto termina. Por eso no se imputa su precio de compra, sino la parte de su valor que el proyecto consume. El prorrateo combina tres datos:
@@ -574,7 +577,7 @@ Discord \textit{Nitro}, reuniones telemáticas y pantalla compartida & 9,99\eu/m
 Almacenamiento y copias de seguridad, 2 TB & 9,99\eu/mes × 3 meses & 29,97\eu\\
 Visual Paradigm \textit{Modeler}, modelado UML & Licencia anual de 99,00\eu × 3/12 & 24,75\eu\\
 Alta de desarrollador en Google Play Console & Pago único & 22,00\eu\\
-Dominio \texttt{.es} y certificado TLS & Anualidad prorrateada & 18,00\eu\\
+Dominio .es y certificado TLS & Anualidad prorrateada & 18,00\eu\\
 \hline
 \textbf{Capítulo 3} & & \textbf{589,36\eu}\\
 \hline
@@ -584,7 +587,6 @@ Dominio \texttt{.es} y certificado TLS & Anualidad prorrateada & 18,00\eu\\
 \noindent Los pictogramas de ARASAAC se emplean bajo licencia Creative Commons BY-NC-SA, sin coste, con la obligación de citar la autoría. Flutter, FastAPI y PostgreSQL son software libre y no generan coste de licencia.
 
 % ==============================================================================
-\newpage
 \capitulo{4}{Material fungible: consumibles y desplazamientos}
 
 Gasto corriente que se agota con el proyecto y no genera ningún bien inventariable.
@@ -704,7 +706,6 @@ Un 6\,\% sobre el coste de ejecución, el tipo de referencia en contratación p�
 \end{tabularx}}
 
 % ==============================================================================
-\newpage
 \section{Reparto por iteraciones}
 
 El proyecto se organiza en una fase inicial de análisis y tres iteraciones de desarrollo, cada una cerrada con una entrega revisable por el centro. Los importes de cada fase reparten los capítulos 2 a 7 en proporción a las horas imputadas.
@@ -753,7 +754,6 @@ Iteración 3 & 280,0 & 5.462,82\eu & 216,46\eu & 738,31\eu & 282,28\eu & 7.101,8
 \end{itemize}
 
 % ==============================================================================
-\newpage
 \section{Calendario de facturación}
 
 Se factura al cierre y aceptación de cada fase, contra la entrega revisable correspondiente.
@@ -789,24 +789,22 @@ Las cifras que no proceden del propio proyecto están tomadas de las fuentes sig
 \end{enumerate}
 
 \subsection{Material inventariable}
-\begin{enumerate}[leftmargin=1.4em, itemsep=6pt, topsep=4pt, start=5]
+\begin{enumerate}[leftmargin=1.4em, itemsep=6pt, topsep=4pt, start=6]
   \item \textbf{Vida útil.} Tabla de amortización del artículo 12.1.a) de la Ley 27/2014, del Impuesto sobre Sociedades: los equipos para procesos de información admiten un coeficiente lineal máximo del 25\,\% anual y un periodo máximo de 8 años. Se aplica el coeficiente máximo, equivalente a una vida útil de cuatro años.
   \item \textbf{Precios de los equipos.} Precios de venta al público vigentes en noviembre de 2026 en el comercio minorista español. Para portátiles con 16 GB de RAM y SSD de 512 GB, la horquilla observada en catálogo va de 429\eu{} ---Lenovo IdeaPad Slim 3 con Ryzen 5--- a 779\eu{} ---HP OmniBook 5 de 16\,pulgadas---, con modelos intermedios como el ASUS Vivobook 14 con Core Ultra 5 (649,99\eu), el Acer Aspire 16 (649\eu) y el Lenovo IdeaPad Slim 3 con i5-13420H (569\eu). Se toma un valor representativo de 755,16\eu{} por tratarse de equipos que deben sostener un emulador de Android y un entorno Flutter en ejecución simultánea, carga que sitúa la configuración necesaria en la parte alta de esa horquilla. Los importes del capítulo 2 se sustituirán por el coste de factura de los equipos reales del equipo en cuanto se incorpore su inventario; el efecto sobre el precio es inferior a 50\eu{} en cualquier caso.
 \end{enumerate}
 
 \subsection{Porcentajes aplicados}
-\begin{enumerate}[leftmargin=1.4em, itemsep=6pt, topsep=4pt, start=7]
+\begin{enumerate}[leftmargin=1.4em, itemsep=6pt, topsep=4pt, start=8]
   \item \textbf{Costes indirectos, 13\,\%.} Porcentaje de referencia habitual para gastos generales de estructura en contratación pública y en proyectos cofinanciados con fondos públicos.
   \item \textbf{Beneficio industrial, 6\,\%.} Tipo de referencia tradicional en la contratación del sector público español.
   \item \textbf{Kilometraje, 0,26\eu/km.} Cuantía exceptuada de gravamen para gastos de locomoción en el impuesto sobre la renta de las personas físicas.
 \end{enumerate}
 
 \begin{nota}
-\textbf{Las horas del proyecto no son una fuente externa.} Las 1.229,5 horas salen del propio proyecto: la fase inicial y la iteración 1, de las once actas de reunión del equipo con sus horarios de inicio y fin y del historial del repositorio; las iteraciones 2 y 3, de una estimación por analogía con la iteración 1, explicada en el apartado 9.3.
+\textbf{Las horas del proyecto no son una fuente externa.} Las 1.229,5 horas salen del propio proyecto: la fase inicial y la iteración 1, de las once actas de reunión del equipo con sus horarios de inicio y fin y del historial del repositorio; las iteraciones 2 y 3, de una estimación por analogía con la iteración 1, explicada en «Cómo se han estimado las iteraciones 2 y 3».
 \end{nota}
 
-
-\vspace{1.2cm}
 \section{Condiciones}
 
 \begin{enumerate}[leftmargin=1.4em, itemsep=4pt, topsep=4pt]
