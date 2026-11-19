@@ -1,0 +1,64 @@
+# Acta de Reunión Interna de Equipo nº 12
+
+**Proyecto:** Agenda Accesible - Proyecto AUTOVIDA (Purísima Concepción)  
+**Asignaturas:** Dirección y Gestión de Proyectos (DGP) & Metodologías de Desarrollo Ágil (MDA) - UGR  
+**Fecha:** 19/11/2026  
+**Hora Inicio:** 08:30 | **Hora Fin:** 14:30  
+**Tiempo de reunión:** 10 minutos  
+**Tiempo de trabajo:**  4 horas y 30 minutos  
+**Modalidad:** Telemática - Discord  
+**Moderador:** Miguel Ángel Luque Gómez  
+**Catalogador:** José Rodríguez Fernández  
+
+---
+
+## 1. Asistencia
+
+| Miembro del Equipo | Rol Actual | Asistencia (Sí / No / Justificada) |
+| :--- | :--- | :---: |
+| José Rodríguez Fernández | Catalogador | Sí |
+| Miguel Ángel Luque Gómez | Moderador | Sí |
+| Yeray Rodríguez Navas | Gestor de Calidad | Sí |
+| Julián Carrión Tovar | Gestor de Usabilidad y Accesibilidad | Sí |
+| Pablo de la Torre Roldán | Presentador | Sí |
+| Pablo Hernández Ibáñez | Coordinador | Sí |
+| Amine Azzammouri | Refuerzo | Sí |
+
+---
+
+## 2. Orden del Día
+1. Revisar con el cliente el prototipo entregado en la iteración 1
+2. Arreglar los posibles cambios que sean comentados
+
+---
+
+## 3. Puntos Tratados y Discusión
+- **Punto 1:** Se revisó de forma exhaustiva el prototipo entregado al cliente. Se le ha hecho un seguimiento de la planificación llevada a cabo y de los problemas afrontados durante el desarrollo.
+
+- **Punto 2:** Discusión con el cliente de las pantallas y elementos de accesibilidad presentes hasta la fecha.
+
+---
+
+## 4. Acuerdos y Decisiones Tomadas
+- **[DEC-12.1]:** Es necesario simplificar las pantallas de creación de tareas así como de los pasos necesarios para llevarlas a cabo.
+- **[DEC-12.2]:** Eliminar elementos redundantes y poco accesibles.
+- **[DEC-12.3]:** Cambiar de lugar ciertos elementos como las flechas de movilidad entre pantallas y aligerar la carga de contenido para hacer los diseños más visuales.
+- **[DEC-12.4]:** Eliminar el scroll mínimo que existe en la lista de tareas asignadas.
+
+---
+
+## 5. Compromisos y Asignación de Tareas
+
+| ID Tarea | Descripción de la Tarea | Responsable(s) | Fecha Límite | Estado |
+| :---: | :--- | :--- | :---: | :---: |
+| T-12.1 | Simplificar las pantallas de creación de tareas y el flujo de pasos necesarios para completarlas. | Pablo Hernández Ibáñez, José Rodríguez Fernández y Julián Carrión Tovar | 26/11/2026 | Pendiente |
+| T-12.2 | Eliminar de las pantallas los elementos redundantes o que dificulten la accesibilidad. | Pablo Hernández Ibáñez, José Rodríguez Fernández y Julián Carrión Tovar | 26/11/2026 | Pendiente |
+| T-12.3 | Reubicar las flechas de navegación y aligerar el contenido para mejorar la claridad visual de los diseños. | Pablo Hernández Ibáñez, José Rodríguez Fernández y Julián Carrión Tovar | 26/11/2026 | Pendiente |
+| T-12.4 | Eliminar el desplazamiento mínimo de la lista de tareas asignadas y comprobar su visualización. | Pablo Hernández Ibáñez y José Rodríguez Fernández | 26/11/2026 | Pendiente |
+| T-12.5 | Revisar los cambios implementados frente a los acuerdos del cliente y los criterios de usabilidad y accesibilidad. | Yeray Rodríguez Navas y Julián Carrión Tovar | 26/11/2026 | Pendiente |
+
+---
+
+## 6. Próxima Convocatoria
+- **Fecha y hora prevista:** 26/11/2026 - 08:30 (Hora aproximada)  
+- **Objetivo principal:** Continuar el desarrollo de la iteración 2, e implementar historias de usuario necesarias para adaptar el modelo a los nuevos requerimientos
