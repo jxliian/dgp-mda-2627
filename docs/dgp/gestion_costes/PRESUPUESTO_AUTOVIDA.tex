@@ -23,6 +23,8 @@
 \tcbuselibrary{skins,breakable}
 \usepackage{textcomp}
 \usepackage{amsmath}
+\usepackage{eso-pic}
+\usepackage{letterspace}
 
 % Fira Sans como única familia: humanista, técnica, cifras de altura uniforme.
 \usepackage[sfdefault,lf]{FiraSans}
@@ -38,19 +40,36 @@
 \definecolor{banda}{HTML}{EDF5F7}     % cabeceras de tabla
 \definecolor{cebra}{HTML}{F7FAFB}     % filas alternas
 \definecolor{linea}{HTML}{C9D9DF}
+\definecolor{cianclaro}{HTML}{8FC7D6} % texto secundario sobre fondo tinta
 
 \usepackage[hyperfootnotes=false,colorlinks=true,linkcolor=cianoscuro,
             urlcolor=cianoscuro]{hyperref}
+
+% ------------------------------------------------------------------ Rotulos
+% Mayusculas con tracking abierto: el recurso tipografico de la marca.
+\newcommand{\rotulo}[1]{{\fontsize{8}{10}\selectfont\bfseries\textls[200]{\MakeUppercase{#1}}}}
+
+% Fondo de la portada: tinta a sangre y zocalo cian.
+\newcommand{\fondoportada}{%
+  \AddToShipoutPictureBG*{%
+    \AtPageLowerLeft{\color{tinta}\rule{\paperwidth}{\paperheight}}%
+    \AtPageLowerLeft{\color{cian}\rule{\paperwidth}{7mm}}%
+  }%
+}
 
 % ------------------------------------------------------------------ Titulares
 % El número de capítulo es un dato, no un adorno: pequeño, cian, colgado.
 \titleformat{\section}[block]
   {\color{tinta}\Large\bfseries}
   {\color{cian}\large\bfseries\thesection\hspace{0.55em}}{0pt}{}
-\titlespacing*{\section}{0pt}{20pt}{8pt}
+  [\vspace{4pt}\hbox to\linewidth{{\color{cian}\rule[0pt]{2.2cm}{1.4pt}}%
+   {\color{linea}\leaders\hrule height 0.5pt\hfill}}]
+\titlespacing*{\section}{0pt}{22pt}{9pt}
 
+% El cuadrado cian marca el nivel de subapartado sin gastar un numero.
 \titleformat{\subsection}[block]
-  {\color{cianoscuro}\normalsize\bfseries}{}{0pt}{}
+  {\color{cianoscuro}\normalsize\bfseries}{}{0pt}
+  {\raisebox{0.22ex}{\color{cian}\rule{2.8pt}{2.8pt}}\hspace{0.5em}}
 \titlespacing*{\subsection}{0pt}{14pt}{4pt}
 
 \setcounter{secnumdepth}{0}
@@ -61,7 +80,7 @@
 % ------------------------------------------------------------------ Membrete
 \pagestyle{fancy}
 \fancyhf{}
-\fancyhead[L]{\footnotesize\color{gris} Presupuesto PRE-2627-01\, ·\, Proyecto AUTOVIDA}
+\fancyhead[L]{\color{gris}\rotulo{Presupuesto PRE-2627-01\ \ ·\ \ Proyecto AUTOVIDA}}
 \fancyhead[R]{\raisebox{-0.35\height}{\includegraphics[height=0.85cm]{images/logo_clench.png}}}
 \fancyfoot[L]{\scriptsize\color{gris} CLENCH Software Development\, ·\, E.T.S.I.I.T., c/ Periodista Daniel Saucedo Aranda s/n, 18014 Granada\, ·\, contacto@clench.dev}
 \fancyfoot[R]{\scriptsize\color{gris} \thepage\,/\,\pageref{LastPage}}
@@ -70,7 +89,12 @@
 \fancyheadoffset{0pt}
 
 % Regla fina bajo el membrete, dibujada a mano para controlar su color.
-\renewcommand{\headrule}{\vspace{3pt}\hbox to\headwidth{\color{linea}\leaders\hrule height 0.4pt\hfill}}
+% Regla del membrete en dos tonos: tramo cian de marca y filete fino.
+\renewcommand{\headrule}{\vspace{3pt}\hbox to\headwidth{%
+  {\color{cian}\rule[0pt]{2.2cm}{1.6pt}}%
+  {\color{linea}\leaders\hrule height 0.4pt\hfill}}}
+% Filete sobre el pie, para cerrar la caja de texto por abajo.
+\renewcommand{\footrule}{\hbox to\headwidth{\color{linea}\leaders\hrule height 0.4pt\hfill}\vspace{4pt}}
 
 % ------------------------------------------------------------------ Tablas
 % \hline solo se usa para cerrar bloques de subtotal, de ahi el color y grosor.
@@ -86,7 +110,9 @@
 \newcolumntype{L}{>{\raggedright\arraybackslash}X}
 
 \newcommand{\tablacebra}{\rowcolors{2}{white}{cebra}}
-\newcommand{\cabtxt}[1]{\textbf{\color{tinta}#1}}
+% Cabecera de tabla: banda tinta y texto en blanco, celda a celda para que
+% tabularx pueda reprocesar el cuerpo sin romperse.
+\newcommand{\cabtxt}[1]{\cellcolor{tinta}\textbf{\color{white}#1}}
 
 % Regla de cierre de bloque, más visible que la de separación de filas.
 \newcommand{\reglasubtotal}{\hline}
@@ -115,7 +141,50 @@
 \color{tinta}
 
 % ==============================================================================
-% PÁGINA 1 — MEMBRETE DE LA OFERTA. Abre con la cifra, no con un índice.
+% PORTADA — tinta a sangre. Identidad primero; la cifra llega en la pagina 2.
+% ==============================================================================
+\fondoportada
+\thispagestyle{empty}
+\color{white}
+
+\vspace*{0.4cm}
+{\setlength{\fboxsep}{5mm}\noindent\colorbox{white}{\includegraphics[width=4.9cm]{images/logo_clench.png}}}
+
+\vfill
+
+\noindent{\color{cianclaro}\rotulo{Presupuesto de desarrollo de software}}\\[0.55cm]
+\noindent{\color{cian}\rule{3.4cm}{3pt}}\\[0.8cm]
+\noindent{\fontsize{52}{54}\selectfont\bfseries AUTOVIDA}\\[0.5cm]
+\noindent{\fontsize{15}{21}\selectfont\color{cianclaro} Agenda digital accesible para el alumnado con necesidades\\ específicas de apoyo educativo, su profesorado y sus familias}
+
+\vfill
+
+\noindent{\color{cian}\rule{\textwidth}{0.5pt}}\\[0.55cm]
+\noindent
+\begin{minipage}[t]{0.34\textwidth}
+  {\color{cian}\rotulo{Destinataria}}\\[0.30cm]
+  {\small C.E.E. Fundación Purísima Concepción\\ Granada}
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.28\textwidth}
+  {\color{cian}\rotulo{Ejecución}}\\[0.30cm]
+  {\small 24/09/2026 --- 22/12/2026\\ Fase inicial y tres iteraciones}
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.30\textwidth}
+  {\color{cian}\rotulo{Oferta}}\\[0.30cm]
+  {\small PRE-2627-01, versión 1.0\\ Válida hasta el 11/01/2027}
+\end{minipage}
+
+\vspace{1.15cm}
+\noindent{\scriptsize\color{cianclaro} CLENCH Software Development\ \ ·\ \ E.T.S.I.I.T., Universidad de Granada\ \ ·\ \ contacto@clench.dev}
+\vspace*{0.2cm}
+
+\newpage
+\color{tinta}
+
+% ==============================================================================
+% PÁGINA 2 — MEMBRETE DE LA OFERTA. Abre con la cifra, no con un índice.
 % ==============================================================================
 \thispagestyle{fancy}
 
@@ -177,6 +246,29 @@
 \vspace{0.9cm}
 
 \noindent{\small Treinta y siete mil setecientos treinta y tres euros con cincuenta céntimos. El desglose por capítulos, el detalle de cada partida y el reparto por iteraciones figuran en las páginas siguientes.}
+
+\vfill
+
+\noindent
+\begin{minipage}[t]{0.31\textwidth}
+  {\color{cianoscuro}\rotulo{Equipo}}\\[0.25cm]
+  {\fontsize{21}{23}\selectfont\bfseries 7}\;{\small\color{gris} personas}\\[0.12cm]
+  {\footnotesize\color{gris} Tarifa única para los siete}
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.31\textwidth}
+  {\color{cianoscuro}\rotulo{Dedicación}}\\[0.25cm]
+  {\fontsize{21}{23}\selectfont\bfseries 1.229,5}\;{\small\color{gris} horas}\\[0.12cm]
+  {\footnotesize\color{gris} 634,5 ejecutadas, 595 estimadas}
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.31\textwidth}
+  {\color{cianoscuro}\rotulo{Entregas}}\\[0.25cm]
+  {\fontsize{21}{23}\selectfont\bfseries 4}\;{\small\color{gris} hitos}\\[0.12cm]
+  {\footnotesize\color{gris} Fase inicial y tres iteraciones}
+\end{minipage}
+
+\vspace{1.1cm}
 
 \newpage
 
@@ -294,13 +386,13 @@ La tarifa es el coste para la empresa de un titulado que se incorpora sin experi
 \cabtxt{Dato} & \cabtxt{Fuente} & \cabtxt{Valor}\\
 \hline
 Retribución anual & XIX Convenio colectivo estatal de empresas de consultoría, tecnologías de la información y estudios de mercado. Tablas de 2026 publicadas en el BOE núm. 100, de 24 de abril de 2026, anexo I, página 58076 (BOE-A-2026-9024). Área 3, grupo C, nivel 2: salario base 24.461,42\eu{} más plus de convenio 2.115,20\eu & 26.576,62\eu\\
-Cotización empresarial & Tipos vigentes en 2026 para el Régimen General, contrato indefinido, actividad CNAE 62 & 32,15\,\%\\
+Cotización empresarial & Orden PJC/297/2026, de 30 de marzo (\textit{BOE} de 31 de marzo de 2026), que desarrolla las normas de cotización para el ejercicio 2026. Régimen General, contrato indefinido, actividad CNAE 62 & 32,15\,\%\\
 Jornada anual & XIX Convenio colectivo, jornada máxima de trabajo efectivo en cómputo anual (BOE-A-2025-7766) & 1.800 h\\
 \hline
 \end{tabularx}}
 
 \vspace{0.45cm}
-\noindent El grupo C, nivel 2 del área 3 ---el área de desarrollo y explotación de sistemas--- es el encuadramiento que corresponde a una persona titulada que se incorpora a tareas de programación sin experiencia previa, que es exactamente el rango del equipo. El convenio fija un mínimo exigible: no es posible retribuir por debajo de esa cifra. Como contraste, las guías salariales del sector para 2026 sitúan al desarrollador \textit{junior} entre 22.000 y 30.000\eu{} brutos anuales, horquilla en la que la cifra de convenio queda comprendida.
+\noindent El grupo C, nivel 2 del área 3 ---el área de desarrollo y explotación de sistemas--- es el encuadramiento que corresponde a una persona titulada que se incorpora a tareas de programación sin experiencia previa, que es exactamente el rango del equipo. El convenio fija un mínimo exigible: no es posible retribuir por debajo de esa cifra. Como contraste, la \textit{Guía Salarial 2026} de Manfred sitúa al perfil \textit{junior} de cero a dos años de experiencia entre 20.000 y 30.000\eu{} brutos anuales, y las medias publicadas por los agregadores de ofertas rondan los 24.700\eu. La cifra de convenio queda dentro de esa horquilla y por encima de la media de mercado, lo que es coherente: el convenio es un mínimo exigible y el mercado paga por debajo de él con más frecuencia de la que debiera.
 
 \subsubsection*{Desglose de la cotización empresarial}
 
@@ -446,8 +538,8 @@ Los equipos son material \textbf{inventariable}: bienes duraderos que siguen sie
 \cabtxt{Equipo} & \cabtxt{Coste hoy} & \cabtxt{\texteuro/h} & \cabtxt{Uso} & \cabtxt{Importe}\\
 \hline
 Portátil de desarrollo, 16 GB de RAM y SSD de 512 GB (7 ud.) & 755,16\eu & 0,1049 & 1.229,5 h & 128,95\eu\\
-Monitor externo de 24" (7 ud.) & 129,00\eu & 0,0179 & 1.229,5 h & 22,03\eu\\
-Tableta Android de 10" para pruebas en el dispositivo objetivo (2 ud.) & 199,00\eu & 0,0276 & 147,5 h & 8,15\eu\\
+Monitor externo de 24\,pulgadas (7 ud.) & 129,00\eu & 0,0179 & 1.229,5 h & 22,03\eu\\
+Tableta Android de 10\,pulgadas para pruebas en el dispositivo objetivo (2 ud.) & 199,00\eu & 0,0276 & 147,5 h & 8,15\eu\\
 Terminal Android para validación con TalkBack (1 ud.) & 249,00\eu & 0,0346 & 147,5 h & 5,10\eu\\
 \hline
 \textbf{Capítulo 2} & & & & \textbf{164,23\eu}\\
@@ -691,14 +783,15 @@ Las cifras que no proceden del propio proyecto están tomadas de las fuentes sig
 \begin{enumerate}[leftmargin=1.4em, itemsep=6pt, topsep=4pt]
   \item \textbf{Tablas salariales de 2026.} Resolución de 13 de abril de 2026, de la Dirección General de Trabajo, por la que se registra y publica el Acta de la Comisión paritaria del XIX Convenio colectivo estatal de empresas de consultoría, tecnologías de la información y estudios de mercado y de la opinión pública. \textit{Boletín Oficial del Estado} núm. 100, de 24 de abril de 2026, anexo I, página 58076. Identificador BOE-A-2026-9024. Área 3, grupo C, nivel 2: salario base 24.461,42\eu{} y plus de convenio 2.115,20\eu.
   \item \textbf{Convenio colectivo y jornada anual.} Resolución de 4 de abril de 2025, de la Dirección General de Trabajo, por la que se registra y publica el XIX Convenio colectivo estatal de empresas de consultoría, tecnologías de la información y estudios de mercado y de la opinión pública. \textit{BOE} núm. 92, de 16 de abril de 2025. Identificador BOE-A-2025-7766. Jornada máxima de trabajo efectivo en cómputo anual: 1.800 horas.
-  \item \textbf{Tipos de cotización empresarial de 2026}, Régimen General de la Seguridad Social, contrato indefinido: contingencias comunes 23,60\,\%, desempleo 5,50\,\%, FOGASA 0,20\,\%, formación profesional 0,60\,\% y Mecanismo de Equidad Intergeneracional 0,75\,\%. El tipo por accidentes de trabajo y enfermedades profesionales, 1,50\,\%, corresponde a la actividad CNAE 62, programación y consultoría informática, según la tarifa de primas vigente.
-  \item \textbf{Contraste de mercado.} Guías salariales del sector tecnológico para 2026, que sitúan al desarrollador \textit{junior} en España entre 22.000 y 30.000\eu{} brutos anuales. Se emplean solo para comprobar que la cifra de convenio es coherente con el mercado, no como base de cálculo.
+  \item \textbf{Tipos de cotización empresarial de 2026.} Orden PJC/297/2026, de 30 de marzo, por la que se desarrollan las normas legales de cotización a la Seguridad Social, desempleo, protección por cese de actividad, Fondo de Garantía Salarial y formación profesional para el ejercicio 2026, publicada en el \textit{BOE} de 31 de marzo de 2026 y con efectos desde el 1 de enero de 2026. Régimen General, contrato indefinido: contingencias comunes 23,60\,\% a cargo de la empresa ---sobre un tipo conjunto del 28,30\,\%---, desempleo 5,50\,\%, FOGASA 0,20\,\% y formación profesional 0,60\,\%. El MEI asciende en 2026 al 0,90\,\%, del que 0,75\,\% corresponde a la empresa y 0,15\,\% a la persona trabajadora; solo se imputa la parte empresarial.
+  \item \textbf{Prima por contingencias profesionales, 1,50\,\%.} Tarifa de primas de la disposición adicional cuarta de la Ley 42/2006, de 28 de diciembre, en su redacción vigente, epígrafe correspondiente a la división 62 de la CNAE-2009, programación, consultoría y otras actividades relacionadas con la informática.
+  \item \textbf{Contraste de mercado.} \textit{Guía Salarial 2026} de Manfred, elaborada sobre los datos de más de 120.000 profesionales del sector en España, que sitúa al perfil \textit{junior} de cero a dos años entre 20.000 y 30.000\eu{} brutos anuales para desarrollo \textit{backend} y \textit{frontend}. Como segunda referencia, las medias agregadas de portales de empleo para «desarrollador junior» en España se sitúan en torno a 24.700\eu{} anuales. Ambas se emplean solo para comprobar que la cifra de convenio es coherente con el mercado, nunca como base de cálculo: el convenio prevalece por ser un mínimo de derecho necesario.
 \end{enumerate}
 
 \subsection{Material inventariable}
 \begin{enumerate}[leftmargin=1.4em, itemsep=6pt, topsep=4pt, start=5]
   \item \textbf{Vida útil.} Tabla de amortización del artículo 12.1.a) de la Ley 27/2014, del Impuesto sobre Sociedades: los equipos para procesos de información admiten un coeficiente lineal máximo del 25\,\% anual y un periodo máximo de 8 años. Se aplica el coeficiente máximo, equivalente a una vida útil de cuatro años.
-  \item \textbf{Precios de los equipos.} Precios de venta al público vigentes en 2026 en el comercio minorista español para equipos equivalentes. Para portátiles de desarrollo con 16 GB de RAM y SSD de 512 GB, la horquilla observada va de 549 a 919\eu, de la que se toma un valor representativo de 755,16\eu.
+  \item \textbf{Precios de los equipos.} Precios de venta al público vigentes en noviembre de 2026 en el comercio minorista español. Para portátiles con 16 GB de RAM y SSD de 512 GB, la horquilla observada en catálogo va de 429\eu{} ---Lenovo IdeaPad Slim 3 con Ryzen 5--- a 779\eu{} ---HP OmniBook 5 de 16\,pulgadas---, con modelos intermedios como el ASUS Vivobook 14 con Core Ultra 5 (649,99\eu), el Acer Aspire 16 (649\eu) y el Lenovo IdeaPad Slim 3 con i5-13420H (569\eu). Se toma un valor representativo de 755,16\eu{} por tratarse de equipos que deben sostener un emulador de Android y un entorno Flutter en ejecución simultánea, carga que sitúa la configuración necesaria en la parte alta de esa horquilla. Los importes del capítulo 2 se sustituirán por el coste de factura de los equipos reales del equipo en cuanto se incorpore su inventario; el efecto sobre el precio es inferior a 50\eu{} en cualquier caso.
 \end{enumerate}
 
 \subsection{Porcentajes aplicados}
@@ -732,7 +825,7 @@ Las cifras que no proceden del propio proyecto están tomadas de las fuentes sig
 \textbf{Coste de mercado y coste soportado en el piloto académico.} Este presupuesto refleja lo que cuesta ejecutar el proyecto en condiciones de mercado. En el marco del curso 2026/2027 varias partidas se cubren con licencias educativas o planes gratuitos ---Jira y GitHub en plan \textit{Free} para equipos pequeños, Figma con licencia de estudiante, Visual Paradigm en versión académica--- y los equipos informáticos son propiedad de los integrantes. El desembolso efectivo durante el piloto ronda los 200 euros. La diferencia no es un descuento sobre la oferta, sino una aportación en especie del equipo y de la Universidad de Granada.
 \end{condiciones}
 
-\vspace{1.6cm}
+\vfill
 
 \noindent
 \begin{minipage}[t]{0.47\textwidth}
