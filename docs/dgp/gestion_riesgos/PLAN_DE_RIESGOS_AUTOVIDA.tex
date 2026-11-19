@@ -1,8 +1,7 @@
 % ==============================================================================
 % PLAN DE GESTION DE RIESGOS — PROYECTO AUTOVIDA
 % CLENCH Software Development · Documento RSK-2627-01
-% Diseno: el mismo sistema del presupuesto (PRESUPUESTO_AUTOVIDA.tex), con el
-% preambulo copiado tal cual para que los dos documentos sean la misma familia.
+% Diseno: el mismo sistema del presupuesto (PRESUPUESTO_AUTOVIDA.tex).
 % ==============================================================================
 \documentclass[a4paper,10pt]{article}
 \usepackage[utf8]{inputenc}
@@ -61,27 +60,14 @@
 }
 
 % ------------------------------------------------------------------ Titulares
-% El número de capítulo es un dato, no un adorno: pequeño, cian, colgado.
 \titleformat{\section}[block]
   {\color{tinta}\Large\bfseries}
   {\color{cian}\large\bfseries\thesection\hspace{0.55em}}{0pt}{}
   [\vspace{4pt}\hbox to\linewidth{{\color{cian}\rule[0pt]{2.2cm}{1.4pt}}%
    {\color{linea}\leaders\hrule height 0.5pt\hfill}}]
-\titlespacing*{\section}{0pt}{22pt}{4pt}
-
-% El cuadrado cian marca el nivel de subapartado sin gastar un numero.
-\titleformat{\subsection}[block]
-  {\color{cianoscuro}\normalsize\bfseries}{}{0pt}
-  {\raisebox{0.22ex}{\color{cian}\rule{2.8pt}{2.8pt}}\hspace{0.5em}}
-\titlespacing*{\subsection}{0pt}{14pt}{4pt}
-
-\titleformat{\subsubsection}[block]
-  {\color{cianoscuro}\small\bfseries}{}{0pt}
-  {\raisebox{0.2ex}{\color{cian}\rule{2.2pt}{2.2pt}}\hspace{0.45em}}
-\titlespacing*{\subsubsection}{0pt}{12pt}{3pt}
+\titlespacing*{\section}{0pt}{8pt}{4pt}
 
 \setcounter{secnumdepth}{0}
-\newcommand{\capitulo}[2]{\section{{\color{cian}#1}\hspace{0.55em}#2}}
 
 % ------------------------------------------------------------------ Membrete
 \pagestyle{fancy}
@@ -94,53 +80,19 @@
 \renewcommand{\footrulewidth}{0pt}
 \fancyheadoffset{0pt}
 
-% Regla fina bajo el membrete, dibujada a mano para controlar su color.
-% Regla del membrete en dos tonos: tramo cian de marca y filete fino.
 \renewcommand{\headrule}{\vspace{3pt}\hbox to\headwidth{%
   {\color{cian}\rule[0pt]{2.2cm}{1.6pt}}%
   {\color{linea}\leaders\hrule height 0.4pt\hfill}}}
-% Filete sobre el pie, para cerrar la caja de texto por abajo.
 \renewcommand{\footrule}{\hbox to\headwidth{\color{linea}\leaders\hrule height 0.4pt\hfill}\vspace{4pt}}
 
 % ------------------------------------------------------------------ Tablas
-% \hline solo se usa para cerrar bloques de subtotal, de ahi el color y grosor.
 \setlength{\arrayrulewidth}{0.7pt}
 \arrayrulecolor{cianoscuro}
 \renewcommand{\arraystretch}{1.45}
 \setlength{\tabcolsep}{7pt}
 
-% Eje único de importes: toda cifra final cae en esta columna.
-\newcolumntype{E}{>{\raggedleft\arraybackslash}p{2.75cm}}
-\newcolumntype{N}{>{\raggedleft\arraybackslash}p{2.0cm}}
-\newcolumntype{H}{>{\raggedleft\arraybackslash}p{1.7cm}}
-\newcolumntype{L}{>{\raggedright\arraybackslash}X}
-
 \newcommand{\tablacebra}{\rowcolors{2}{white}{cebra}}
-% Cabecera de tabla: banda tinta y texto en blanco, celda a celda para que
-% tabularx pueda reprocesar el cuerpo sin romperse.
 \newcommand{\cabtxt}[1]{\cellcolor{tinta}\textbf{\color{white}#1}}
-
-% Regla de cierre de bloque, más visible que la de separación de filas.
-\newcommand{\reglasubtotal}{\hline}
-
-% Fila de subtotal de capítulo.
-\newcommand{\sub}{\rowcolor{white}}
-
-% ------------------------------------------------------------------ Bloques
-\newtcolorbox{nota}[1][]{
-  colback=cebra, colframe=cebra, coltext=tinta,
-  borderline west={2.2pt}{0pt}{cian},
-  sharp corners, boxrule=0pt,
-  top=3.5mm, bottom=3.5mm, left=4mm, right=4mm,
-  fontupper=\small, #1}
-
-\newtcolorbox{condiciones}[1][]{
-  colback=cebra, colframe=cebra, coltext=tinta,
-  borderline west={2.2pt}{0pt}{cian},
-  sharp corners, boxrule=0pt,
-  top=3.5mm, bottom=3.5mm, left=4mm, right=4mm,
-  fontupper=\small, #1}
-
 \newcommand{\eu}{\,\texteuro}
 
 \begin{document}
@@ -158,10 +110,10 @@
 
 \vfill
 
-\noindent{\color{cianclaro}\rotulo{Plan de gestión de riesgos}}\\[0.55cm]
+\noindent{\color{cianclaro}\rotulo{Gestión de riesgos del proyecto}}\\[0.55cm]
 \noindent{\color{cian}\rule{3.4cm}{3pt}}\\[0.8cm]
 \noindent{\fontsize{52}{54}\selectfont\bfseries AUTOVIDA}\\[0.5cm]
-\noindent{\fontsize{15}{21}\selectfont\color{cianclaro} Diez riesgos identificados, cinco gestionados\\ y lo que vamos a hacer con cada uno}
+\noindent{\fontsize{15}{21}\selectfont\color{cianclaro} Lista de diez riesgos identificados y medidas\\ de mitigación y evitación de los cinco prioritarios}
 
 \vfill
 
@@ -173,13 +125,13 @@
 \end{minipage}%
 \hfill
 \begin{minipage}[t]{0.28\textwidth}
-  {\color{cian}\rotulo{Vigencia}}\\[0.30cm]
-  {\small Iteraciones 2 y 3\\ 12/11/2026 --- 22/12/2026}
+  {\color{cian}\rotulo{Alcance}}\\[0.30cm]
+  {\small 10 riesgos identificados\\ 5 prioritarios gestionados}
 \end{minipage}%
 \hfill
-\begin{minipage}[t]{0.30\textwidth}
-  {\color{cian}\rotulo{Próxima revisión}}\\[0.30cm]
-  {\small 03/12/2026, al cerrar\\ la iteración 2}
+\begin{minipage}[t]{0.32\textwidth}
+  {\color{cian}\rotulo{Destinataria}}\\[0.30cm]
+  {\small C.E.E. Fundación Purísima Concepción\\ Granada}
 \end{minipage}
 
 \vspace{1.15cm}
@@ -190,144 +142,18 @@
 \color{tinta}
 
 % ==============================================================================
-% PÁGINA 2 — DE QUÉ VA ESTE DOCUMENTO. Abre con la exposición, no con un índice.
-% ==============================================================================
-\thispagestyle{fancy}
-
-\noindent
-\begin{minipage}[t]{0.46\textwidth}
-  \vspace{0pt}
-  \includegraphics[width=5.2cm]{images/logo_clench.png}\\[0.35cm]
-  {\footnotesize\color{gris}
-   Desarrollo de software accesible\\
-   Granada, España}
-\end{minipage}%
-\hfill
-\begin{minipage}[t]{0.50\textwidth}
-  \vspace{0pt}
-  {\footnotesize
-  \setlength{\tabcolsep}{0pt}
-  \begin{tabularx}{\textwidth}{@{}>{\color{gris}}p{3.1cm}X@{}}
-  Documento & \textbf{RSK-2627-01}, versión 1.0\\[2pt]
-  Emitido el & 19 de noviembre de 2026\\[2pt]
-  Proyecto & AUTOVIDA, agenda digital accesible\\[2pt]
-  Centro & C.E.E. Fundación Purísima Concepción, Granada\\[2pt]
-  Revisión & Al cierre de cada iteración\\
-  \end{tabularx}}
-\end{minipage}
-
-\vspace{1.5cm}
-
-\noindent{\color{cian}\rule{\textwidth}{2pt}}\\[0.7cm]
-
-\noindent{\fontsize{30}{34}\selectfont\bfseries Plan de gestión de riesgos}\\[0.45cm]
-{\Large\color{cianoscuro} Proyecto AUTOVIDA}\\[0.25cm]
-{\large\color{gris} Qué puede torcerse en lo que queda de proyecto y qué hacemos para que no pase}
-
-\vspace{1.3cm}
-
-% ---- La exposición. Único uso del magenta en todo el documento. ----
-\noindent
-\begin{tcolorbox}[colback=banda, colframe=banda, sharp corners, boxrule=0pt,
-                  borderline west={4pt}{0pt}{magenta},
-                  top=6mm, bottom=6mm, left=6mm, right=6mm]
-\begin{minipage}[b]{0.52\textwidth}
-  {\footnotesize\color{gris} Exposición esperada del proyecto}\\[0.25cm]
-  {\fontsize{34}{36}\selectfont\bfseries\color{magenta} 101,10 h}
-\end{minipage}%
-\hfill
-\begin{minipage}[b]{0.44\textwidth}
-  {\footnotesize\color{gris}
-  \setlength{\tabcolsep}{0pt}
-  \begin{tabularx}{\textwidth}{@{}Xr@{}}
-  Riesgos identificados & \color{tinta}10\\
-  Riesgos que se gestionan & \color{tinta}5\\[3pt]
-  \multicolumn{2}{@{}l@{}}{\color{linea}\rule{\textwidth}{0.4pt}}\\[1pt]
-  Si todos se materializaran & \color{tinta}260 h\\
-  Valorado a 19,51\eu/h & \color{tinta}1.972,46\eu\\
-  \end{tabularx}}
-\end{minipage}
-\end{tcolorbox}
-
-\vspace{0.9cm}
-
-\noindent{\small La exposición esperada es la suma, riesgo a riesgo, de su probabilidad multiplicada por las horas de reproceso que costaría. No es lo que va a pasar: es lo que cabe esperar que pase si no se hace nada. Los cinco riesgos prioritarios que se gestionan concentran \textbf{el 75,5\,\% de esa cifra} (76,30 h), y además presentan la probabilidad y el impacto más altos de la lista.}
-
-\vfill
-
-\noindent
-\begin{minipage}[t]{0.31\textwidth}
-  {\color{cianoscuro}\rotulo{Lo más probable}}\\[0.25cm]
-  {\fontsize{21}{23}\selectfont\bfseries 50\,\%}\;{\small\color{gris} usabilidad}\\[0.12cm]
-  {\footnotesize\color{gris} La app no resulta usable para PTVAL}
-\end{minipage}%
-\hfill
-\begin{minipage}[t]{0.31\textwidth}
-  {\color{cianoscuro}\rotulo{Lo más caro}}\\[0.25cm]
-  {\fontsize{21}{23}\selectfont\bfseries 40}\;{\small\color{gris} horas}\\[0.12cm]
-  {\footnotesize\color{gris} Reproceso de interfaz accesible}
-\end{minipage}%
-\hfill
-\begin{minipage}[t]{0.31\textwidth}
-  {\color{cianoscuro}\rotulo{Con antecedente}}\\[0.25cm]
-  {\fontsize{21}{23}\selectfont\bfseries 5}\;{\small\color{gris} riesgos}\\[0.12cm]
-  {\footnotesize\color{gris} Detectados ya en la iteración 1}
-\end{minipage}
-
-\vspace{1.1cm}
-
-\newpage
-
-% ==============================================================================
-% PÁGINA 3 — METODOLOGÍA Y CRITERIOS
-% ==============================================================================
-\section{Qué cubre este plan}
-
-Este documento recoge los riesgos del proyecto AUTOVIDA para el tramo que queda: las iteraciones 2 y 3, del 12 de noviembre al 22 de diciembre de 2026. Se ha elaborado con la fase inicial y la iteración 1 ya cerradas, de modo que la mayoría de las probabilidades no son una estimación a ciegas: salen de lo que ya ha ocurrido en el código, en el esquema de datos y en la dinámica del equipo.
-
-Sigue el procedimiento del plan de gestión de riesgos de la asignatura: identificar, analizar, documentar, mitigar, monitorizar y controlar. Cada riesgo lleva su descripción, la parte del proyecto afectada, la probabilidad de ocurrencia, su impacto concreto en tiempo, costes y alcance, y las actividades para evitarlo o mitigarlo.
-
-\begin{nota}
-\textbf{Este documento no es definitivo.} La lista de riesgos se revisa al cerrar cada iteración: se recalculan las probabilidades con lo observado, se retiran los riesgos que ya no aplican y se añaden los que aparezcan. La próxima revisión es el 03/12/2026, al cerrar la iteración 2.
-\end{nota}
-
-\subsection{Cómo se mide la probabilidad}
-
-No se usan etiquetas vagas como «alta» o «media», que cada cual interpreta a su manera. Cada riesgo lleva un porcentaje justificado con los antecedentes reales del proyecto:
-
-\begin{itemize}[leftmargin=1.2em, itemsep=2pt, topsep=3pt]
-  \item \textbf{Antecedente directo o defecto presente en la iteración 1 (40--50\,\%).} Es el caso de R1 a R5: defectos de contraste sin prueba aún con alumnado PTVAL (R1), nombres completos expuestos sin sesión (R2), +73\,\% de alcance y criterios modificados (R3), estado de tareas compartido en SQL (R4) y desajustes API--cliente (R5).
-  \item \textbf{Ocurrió en parte o depende del centro (30--35\,\%).} Acumulación de horas al final del sprint (R6, mitigado al bajar a 53 puntos) y disponibilidad del colegio para validar (R7, pendiente tras el cierre del sprint 1).
-  \item \textbf{Riesgo organizativo o técnico latente (20--25\,\%).} Conocimiento repartido en subgrupos (R8), desfases en Jira (R9) e incidencias de entorno entre Windows, Linux, Docker, Flutter y CORS (R10).
-\end{itemize}
-
-\subsection{Cómo se mide el impacto}
-
-El impacto se expresa en \textbf{horas de reproceso} ---trabajo que habría que repetir o añadir--- para comparar riesgos distintos en la misma unidad. De ahí se derivan las tres dimensiones concretas:
-
-\begin{itemize}[leftmargin=1.2em, itemsep=2pt, topsep=3pt]
-  \item \textbf{Tiempo}: porcentaje sobre las 315 horas planificadas para la iteración 2 y días naturales de retraso en su cierre.
-  \item \textbf{Costes}: horas valoradas a 19,51\eu/h (tarifa única del presupuesto PRE-2627-01) e incremento porcentual sobre el coste de ejecución (27.337,91\eu).
-  \item \textbf{Alcance}: historias de usuario o funcionalidades concretas que quedarían aplazadas, degradadas o fuera de la entrega.
-\end{itemize}
-
-\subsection{Cómo se ordenan y priorizan}
-
-Por \textbf{probabilidad e impacto combinados} (valor esperado: probabilidad multiplicada por horas de reproceso). Los cinco riesgos prioritarios (R1 a R5) encabezan la lista tanto en probabilidad (40--50\,\%) como en impacto (30--40 h), sumando 76,30 h esperadas (75,5\,\% del total) frente a las 24,80 h de los cinco restantes.
-
-% ==============================================================================
 % TABLA DE LOS DIEZ RIESGOS (APAISADA)
 % ==============================================================================
 \newgeometry{left=1.6cm, right=1.6cm, top=2.4cm, bottom=2.0cm,
              headheight=1.1cm, headsep=0.6cm, footskip=1.0cm}
 \begin{landscape}
-\section{Los diez riesgos}
+\section{Lista de riesgos del proyecto}
 
-\noindent La tabla va ordenada de mayor a menor exposición esperada. Los \textbf{cinco primeros se gestionan activamente}: detallan actividades para mitigarlos y evitarlos, y cuentan con ficha propia en el apartado siguiente. Los cinco restantes se mantienen bajo vigilancia con un indicador concreto.
+\noindent Los diez riesgos están ordenados de mayor a menor probabilidad de ocurrencia e impacto. Los \textbf{cinco primeros se gestionan}, indicando sus actividades para mitigarlos y para evitarlos.
 
-\vspace{0.20cm}
+\vspace{0.22cm}
 \noindent{\footnotesize
-\renewcommand{\arraystretch}{1.08}%
+\renewcommand{\arraystretch}{1.10}%
 \setlength{\tabcolsep}{4.5pt}%
 \tablacebra
 \begin{longtable}{@{}>{\raggedright\arraybackslash}p{3.4cm}>{\raggedleft\arraybackslash}p{2.1cm}>{\raggedright\arraybackslash}p{5.2cm}>{\raggedright\arraybackslash}p{6.55cm}>{\raggedright\arraybackslash}p{6.55cm}@{}}
@@ -342,238 +168,73 @@ Por \textbf{probabilidad e impacto combinados} (valor esperado: probabilidad mul
 
 \textbf{R1.} La app no resulta usable para el alumnado PTVAL
 & 50\,\%
-& 40 h (12,7\,\% iter. 2); retraso de 3 días; +780,40\eu{} (+2,85\,\% sobre ejecución). Alcance: se aplazarían a iter. 3 pasos guiados (RF-04), temporizador (RF-06) y apoyos \texttt{stud\_access\_*}.
-& Corregir fallos en la librería compartida \texttt{lib/ui/} para arreglar todas las pantallas a la vez, mantener \texttt{accessibility\_test.dart} y \texttt{sin\_scroll\_test.dart} y activar apoyos por perfil de forma gradual.
-& Validar Figma y pantallas en tablet con profesorado y alumnado PTVAL antes de cerrar cada historia; aplicar WCAG 2.2 AA (contraste 7:1, objetivos de al menos 64\,px, sin desplazamiento) y revisión del Gestor de Usabilidad.
+& 40 h de reproceso (12,7\,\% iter. 2); retraso de 3 días naturales; incremento de 780,40\eu{} (+2,85\,\% en coste). Alcance: se aplazarían a iter. 3 los pasos guiados (RF-04), el temporizador (RF-06) y los apoyos \texttt{stud\_access\_*}.
+& Corregir fallos sobre la librería compartida \texttt{lib/ui/} para arreglar todas las pantallas a la vez, mantener \texttt{accessibility\_test.dart} y \texttt{sin\_scroll\_test.dart} y activar los apoyos por perfil de forma gradual.
+& Validar prototipos en Figma y pantallas en tablet con profesorado y alumnado PTVAL antes de cerrar cada historia; aplicar WCAG 2.2 AA (contraste 7:1, objetivos de al menos 64\,px, sin desplazamiento) y revisión del Gestor de Usabilidad.
 \\
 
 \textbf{R2.} Se exponen datos personales de menores
 & 45\,\%
-& 36 h (11,4\,\% iter. 2); retraso de 3 días por auditoría previa al piloto; +702,36\eu{} (+2,57\,\% s/ ejecución). Alcance: retirada del directorio visual sin sesión y avatares (SCRUM-329), volviendo a usuario/PIN (RF-07).
-& Recortar \texttt{full\_name} en el directorio a nombre de pila o alias, exigir token válido en rutas de alumnos y avatares (\texttt{/users/students/\{a\}/avatar-image}) y revocar sesiones si hay fuga.
-& Aplicar minimización RGPD/LOPDGDD en la API: retirar acceso anónimo (\texttt{get\_optional\_current\_user}) sobre alumnado, usar solo cuentas sintéticas de \texttt{datos\_de\_prueba.py} y auditar permisos en cada endpoint.
+& 36 h de reproceso (11,4\,\% iter. 2); retraso de 3 días naturales por auditoría previa al piloto; incremento de 702,36\eu{} (+2,57\,\% en coste). Alcance: retirada del directorio visual sin sesión y avatares (SCRUM-329), volviendo a usuario/PIN (RF-07).
+& Recortar \texttt{full\_name} en el directorio a nombre de pila o alias, exigir token válido en rutas de alumnos y avatares (\texttt{/users/students/\{a\}/avatar-image}) y revocar sesiones si se detecta exposición.
+& Aplicar minimización RGPD/LOPDGDD en la API: retirar consultas anónimas (\texttt{get\_optional\_current\_user}) sobre alumnado, usar solo cuentas ficticias de \texttt{datos\_de\_prueba.py} y revisar permisos en cada endpoint nuevo.
 \\
 
 \textbf{R3.} El cliente o la profesora cambian requisitos, o los criterios de las historias son ambiguos
 & 45\,\%
-& 34 h (10,8\,\% iter. 2); retraso de 2 días en el cierre; +663,34\eu{} (+2,43\,\% s/ ejecución). Alcance: quedarían fuera de iter. 2 el temporizador visual (RF-06) y actividades alternativas (\texttt{Alt\_Tasks}).
-& Reservar 10 h por iteración para ajustes de validación, reestimar en \textit{Planning Poker} cualquier cambio y aceptarlo en el sprint actual solo si se retira otra historia de tamaño equivalente.
-& Llevar criterios de aceptación escritos y bocetos de Figma a la planificación para que centro y profesora los aprueben antes de programar; registrar acuerdos en acta y congelar alcance al arrancar.
+& 34 h de reproceso (10,8\,\% iter. 2); retraso de 2 días naturales en el cierre; incremento de 663,34\eu{} (+2,43\,\% en coste). Alcance: quedarían fuera de iter. 2 el temporizador visual (RF-06) y las actividades alternativas (\texttt{Alt\_Tasks}).
+& Reservar 10 h por iteración para ajustes de validación, reestimar en \textit{Planning Poker} cualquier cambio y aceptarlo en el sprint en curso solo si se retira otra historia de tamaño equivalente.
+& Llevar criterios de aceptación escritos y bocetos de Figma a la planificación para que el centro y la profesora los aprueben antes de programar; registrar acuerdos en acta y congelar alcance al arrancar.
 \\
 
 \textbf{R4.} El diseño de la base de datos da errores de datos (estado de tareas compartido, historial que se pierde)
 & 40\,\%
-& 32 h (10,2\,\% iter. 2); retraso de 2 días por migración SQL; +624,32\eu{} (+2,28\,\% s/ ejecución). Alcance: el progreso paso a paso (RF-04) y el histórico de tareas completadas quedarían bloqueados o solo individuales.
-& Migrar el estado de \texttt{Tasks.task\_finished} y \texttt{Steps.step\_finished} a \texttt{stud\_task} por alumno y fecha, sustituir \texttt{ON DELETE CASCADE} por borrado lógico/histórico y respaldar antes de migrar.
-& Revisar \texttt{CreacionTablas.sqlscript} en todo el subequipo backend antes de abrir historias de pasos o histórico e incluir pruebas con varios alumnos en una misma tarea de clase.
+& 32 h de reproceso (10,2\,\% iter. 2); retraso de 2 días naturales por migración SQL; incremento de 624,32\eu{} (+2,28\,\% en coste). Alcance: el progreso paso a paso (RF-04) y el histórico de tareas completadas quedarían bloqueados o solo individuales.
+& Migrar el estado de \texttt{Tasks.task\_finished} y \texttt{Steps.step\_finished} a \texttt{stud\_task} por alumno y fecha, sustituir \texttt{ON DELETE CASCADE} por borrado lógico/histórico y hacer copia de seguridad antes de migrar.
+& Revisar \texttt{CreacionTablas.sqlscript} entre todo el subequipo de backend antes de abrir historias de pasos o histórico e incluir pruebas de integración con varios alumnos compartiendo una misma tarea de clase.
 \\
 
 \textbf{R5.} Frontend y backend dejan de encajar porque uno cambia la API sin avisar
 & 40\,\%
-& 30 h (9,5\,\% iter. 2); retraso de 2 días en pruebas E2E; +585,30\eu{} (+2,14\,\% s/ ejecución). Alcance: historias de nuevos contratos (RF-04, personal en \texttt{GET /classes/\{aula\}}, SCRUM-325) quedarían degradadas o abiertas.
-& Desarrollar contra \texttt{DemoRepository}, leer \texttt{/openapi.json} al iniciar sesión para degradar vistas sin error fatal y convocar sesión conjunta inmediata si cambia un JSON o código HTTP.
-& Acordar el contrato OpenAPI (rutas, campos y errores) antes de empezar cada historia, prohibir cambios en \texttt{main} sin aviso y test de contrato en \textit{pull request}, e integrar ramas semanalmente.
+& 30 h de reproceso (9,5\,\% iter. 2); retraso de 2 días naturales en pruebas E2E; incremento de 585,30\eu{} (+2,14\,\% en coste). Alcance: historias dependientes de nuevos contratos (RF-04, personal en \texttt{GET /classes/\{aula\}}, SCRUM-325) quedarían degradadas o sin cerrar.
+& Trabajar en paralelo contra \texttt{DemoRepository}, inspeccionar \texttt{/openapi.json} al iniciar sesión para degradar vistas sin romper la app y convocar reunión inmediata de integración si cambia un JSON o código HTTP.
+& Acordar el contrato OpenAPI (rutas, campos y errores) antes de empezar cada historia, prohibir cambios en \texttt{main} sin aviso previo y prueba de contrato en \textit{pull request}, e integrar ramas semanalmente.
 \\
 \hline
 \pagebreak
 
 \textbf{R6.} No llegamos al plazo y todo se acumula al final de la iteración
-& 35\,\% & 24 h (7,6\,\% de la iteración 2); retraso de 2 días naturales; incremento de 468,24\eu{} (+1,71\,\% del coste de ejecución). Alcance: las actividades alternativas (\texttt{Alt\_Tasks}) y el pulido final se desplazarían a la iteración 3.
-& \multicolumn{2}{>{\raggedright\arraybackslash}p{13.42cm}@{}}{Solo vigilancia. Indicador: porcentaje de historias en revisión en el punto de control del 24/11 (umbral inferior al 50\,\%) y proporción de horas registradas en la última semana (superior al 35\,\%).}
+& 35\,\%
+& 24 h de reproceso (7,6\,\% iter. 2); retraso de 2 días naturales; incremento de 468,24\eu{} (+1,71\,\% en coste). Alcance: las actividades alternativas (\texttt{Alt\_Tasks}) y el pulido final pasarían a la iteración 3.
+& \multicolumn{2}{>{\raggedright\arraybackslash}p{13.42cm}@{}}{No se gestiona (menor probabilidad e impacto que los cinco priorizados).}
 \\
 
 \textbf{R7.} El colegio no tiene tiempo para validar ni para hacer pruebas con usuarios
-& 30\,\% & 20 h (6,3\,\% de la iteración 2); retraso de 2 días naturales en el cierre de validación; incremento de 390,20\eu{} (+1,43\,\% del coste de ejecución). Alcance: la validación presencial con alumnado PTVAL (RF-03, RF-04) se aplazaría a la iteración 3 o se limitaría al profesorado.
-& \multicolumn{2}{>{\raggedright\arraybackslash}p{13.42cm}@{}}{Solo vigilancia. Indicador: días transcurridos sin confirmación de fecha o respuesta del centro para las pruebas (umbral de 7 días naturales).}
+& 30\,\%
+& 20 h de reproceso (6,3\,\% iter. 2); retraso de 2 días naturales en el cierre de validación; incremento de 390,20\eu{} (+1,43\,\% en coste). Alcance: la validación presencial con alumnado PTVAL (RF-03, RF-04) se aplazaría a la iteración 3 o se limitaría al profesorado.
+& \multicolumn{2}{>{\raggedright\arraybackslash}p{13.42cm}@{}}{No se gestiona (menor probabilidad e impacto que los cinco priorizados).}
 \\
 
 \textbf{R8.} El conocimiento queda aislado: solo un subgrupo entiende su parte
-& 25\,\% & 18 h (5,7\,\% de la iteración 2); retraso de 1 día natural; incremento de 351,18\eu{} (+1,28\,\% del coste de ejecución). Alcance: ante ausencias por exámenes en diciembre, se ralentiza el mantenimiento de Flutter o FastAPI/SQL y cae la cobertura de pruebas cruzadas.
-& \multicolumn{2}{>{\raggedright\arraybackslash}p{13.42cm}@{}}{Solo vigilancia. Indicador: revisiones cruzadas entre frontend y backend en \textit{pull requests} y número de módulos sin segundo integrante familiarizado en cada seguimiento semanal.}
+& 25\,\%
+& 18 h de reproceso (5,7\,\% iter. 2); retraso de 1 día natural; incremento de 351,18\eu{} (+1,28\,\% en coste). Alcance: ante ausencias en diciembre, se frena el mantenimiento de Flutter o FastAPI/SQL y cae la cobertura de pruebas cruzadas.
+& \multicolumn{2}{>{\raggedright\arraybackslash}p{13.42cm}@{}}{No se gestiona (menor probabilidad e impacto que los cinco priorizados).}
 \\
 
 \textbf{R9.} Jira no refleja el estado real del código
-& 25\,\% & 14 h (4,4\,\% de la iteración 2); retraso de 1 día natural en el cierre de sprint; incremento de 273,14\eu{} (+1,00\,\% del coste de ejecución). Alcance: historias terminadas en código quedan sin verificar ni cerrar formalmente (como SCRUM-27 y SCRUM-36) y se genera trabajo duplicado.
-& \multicolumn{2}{>{\raggedright\arraybackslash}p{13.42cm}@{}}{Solo vigilancia. Indicador: número de historias con discrepancia entre el estado en Jira y las ramas verificadas en el repositorio al cierre de cada semana.}
+& 25\,\%
+& 14 h de reproceso (4,4\,\% iter. 2); retraso de 1 día natural en el cierre de sprint; incremento de 273,14\eu{} (+1,00\,\% en coste). Alcance: historias terminadas en código quedan sin verificar ni cerrar formalmente (como SCRUM-27 y SCRUM-36) y se duplica trabajo.
+& \multicolumn{2}{>{\raggedright\arraybackslash}p{13.42cm}@{}}{No se gestiona (menor probabilidad e impacto que los cinco priorizados).}
 \\
 
 \textbf{R10.} El entorno falla en algún equipo (Windows/Linux, Docker, Flutter, CORS)
-& 20\,\% & 12 h (3,8\,\% de la iteración 2); retraso de 1 día natural en los equipos afectados; incremento de 234,12\eu{} (+0,86\,\% del coste de ejecución). Alcance: imposibilidad temporal de probar Flutter Web contra FastAPI en Windows, limitando las pruebas a Linux o a \texttt{DemoRepository}.
-& \multicolumn{2}{>{\raggedright\arraybackslash}p{13.42cm}@{}}{Solo vigilancia. Indicador: incidencias abiertas al ejecutar \texttt{scripts/levantar\_backend.sh}, Docker o configuración de CORS en alguno de los sistemas operativos del equipo.}
+& 20\,\%
+& 12 h de reproceso (3,8\,\% iter. 2); retraso de 1 día natural en los equipos afectados; incremento de 234,12\eu{} (+0,86\,\% en coste). Alcance: imposibilidad temporal de probar Flutter Web contra FastAPI en Windows, limitando la verificación a Linux o a \texttt{DemoRepository}.
+& \multicolumn{2}{>{\raggedright\arraybackslash}p{13.42cm}@{}}{No se gestiona (menor probabilidad e impacto que los cinco priorizados).}
 \\
-\hline
-\textbf{Exposición esperada} & & \textbf{101,10 h · 1.972,46\eu} & \multicolumn{2}{>{\raggedright\arraybackslash}p{13.42cm}@{}}{\textbf{Los cinco riesgos gestionados concentran 76,30 h, el 75,5\,\% del total}}\\
 \hline
 \end{longtable}}
 \end{landscape}
 \restoregeometry
-
-% ==============================================================================
-\section{Los cinco riesgos que se gestionan}
-
-Cada uno de los cinco riesgos prioritarios cuenta con su justificación cuantitativa, el área del proyecto afectada, quién vigila su indicador, quién responde de él y el plan de contingencia que se ejecuta si llega a materializarse.
-
-\newcommand{\fichaDeRiesgo}[6]{%
-\vspace{0.35cm}
-\noindent{\small
-\tablacebra
-\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.4cm}L@{}}
-\hline
-\cabtxt{Probabilidad} & \cabtxt{#1}\\
-\hline
-Impacto & #2\\
-Monitor & #3\\
-Responsable & #4\\
-Contingencia & #5\\
-Indicador & #6\\
-\hline
-\end{tabularx}}
-\vspace{0.2cm}}
-
-\Needspace*{10.5cm}
-\subsection{R1. La app no resulta usable para el alumnado PTVAL}
-
-AUTOVIDA está diseñada para alumnado con necesidades específicas de apoyo educativo del programa PTVAL: si las pantallas no se comprenden de un vistazo, los objetivos táctiles son pequeños o los apoyos visuales y de lectura en voz fallan en tablet, la aplicación pierde su razón de ser aunque cumpla los requisitos funcionales.
-
-\textbf{De dónde sale el 50\,\%.} Ya tuvo antecedente en la iteración 1 y aún falta la prueba real más exigente. La auditoría interna de accesibilidad obligó a separar la paleta de trazos por contraste insuficiente (1,4:1 en bordes de controles y 2,85:1 en bandas de aviso) y a subir los tamaños táctiles hasta 64--76\,px. Además, los apoyos \texttt{stud\_access\_*} nacen desactivados por defecto y todavía no se ha probado con lectores de pantalla reales (TalkBack) ni directamente con alumnado del centro en su tablet habitual.
-
-\fichaDeRiesgo
-  {50\,\%}
-  {40 h de reproceso (12,7\,\% de la iteración 2) · 780,40\eu{} (+2,85\,\% sobre coste de ejecución) · 3 días de retraso; se aplazarían RF-04, RF-06 y el ajuste de apoyos a la iteración 3}
-  {Julián Carrión Tovar, Gestor de Usabilidad y Accesibilidad}
-  {Julián Carrión Tovar, Gestor de Usabilidad y Accesibilidad}
-  {Se corrigen los fallos directamente en los componentes reutilizables de \texttt{lib/ui/} para propagar el arreglo a todas las pantallas a la vez, priorizando los flujos de alumno (RF-03 y RF-04) y dejando ajustes secundarios para la iteración 3}
-  {Fallos en \texttt{test/accessibility\_test.dart} y \texttt{test/sin\_scroll\_test.dart}, o incidencias bloqueantes detectadas en la prueba de uso con tablet y TalkBack}
-
-\Needspace*{10.5cm}
-\subsection{R2. Se exponen datos personales de menores}
-
-El sistema trata cuentas, nombres completos, asociaciones familiares, aulas y fotografías de perfil de alumnado menor de edad o especialmente vulnerable. Cualquier fallo de control de acceso, filtrado en API o uso de datos reales fuera del entorno controlado supone un incumplimiento grave del RGPD y la LOPDGDD.
-
-\textbf{De dónde sale el 45\,\%.} Se detectó un precedente directo al verificar la iteración 1: las rutas \texttt{/classes} y \texttt{/classes/\{aula\}} admiten peticiones sin sesión (\texttt{get\_optional\_current\_user}) para permitir la entrada visual del alumno, y devuelven el \texttt{full\_name} completo (nombre y apellidos) junto con las rutas de avatar sin autenticación. Al ampliar funciones en la iteración 2, si no se corrige ese patrón, el riesgo pasará de latente a crítico en cuanto salga del entorno local.
-
-\fichaDeRiesgo
-  {45\,\%}
-  {36 h de reproceso (11,4\,\% de la iteración 2) · 702,36\eu{} (+2,57\,\% del coste de ejecución) · 3 días de retraso; retirada del acceso fotográfico sin sesión y de SCRUM-329, manteniendo solo usuario/PIN (RF-07)}
-  {Yeray Rodríguez Navas, Gestor de Calidad}
-  {Pablo de la Torre Roldán, desarrollo backend}
-  {Se deshabilita de inmediato el directorio anónimo (\texttt{get\_optional\_current\_user}), se recorta cualquier listado previo al inicio de sesión a alias o nombre de pila y se fuerza autenticación por usuario y PIN mientras se auditan todos los permisos de ruta}
-  {Número de \textit{endpoints} que devuelven datos personales o binarios sin token válido, o presencia de datos reales fuera de \texttt{datos\_de\_prueba.py}. Cualquier caso distinto de cero bloquea el despliegue}
-
-\Needspace*{10.5cm}
-\subsection{R3. El cliente o la profesora cambian requisitos, o los criterios de las historias son ambiguos}
-
-En un proyecto iterativo con validación docente y del centro educativo es natural que surjan matices al ver la aplicación funcionando. El riesgo no es recibir retroalimentación, sino incorporar cambios sin control o empezar a programar historias cuyos criterios de aceptación admiten varias interpretaciones.
-
-\textbf{De dónde sale el 45\,\%.} Ya ocurrió en la iteración 1 y fue el mayor factor de desviación: el sprint arrancó con 67 puntos de historia y cerró con 116 (+73\,\%) al aparecer el concepto de aula en clase con el profesorado (+14 historias). Además, historias como SCRUM-329 cambiaron su definición en mitad del sprint y la falta de definición en las consultas de agenda dejó bloqueadas SCRUM-31, SCRUM-41 y SCRUM-333 hasta el 10/11. Con dos iteraciones y nuevas validaciones por delante, la probabilidad sigue siendo alta.
-
-\fichaDeRiesgo
-  {45\,\%}
-  {34 h de reproceso (10,8\,\% de la iteración 2) · 663,34\eu{} (+2,43\,\% del coste de ejecución) · 2 días de retraso; RF-06 (temporizador) y \texttt{Alt\_Tasks} pasarían a la iteración 3}
-  {Pablo Hernández Ibáñez, Comunicación con el centro}
-  {José Rodríguez Fernández, Coordinación del proyecto}
-  {Los cambios de prioridad alta se absorben contra las 10 h reservadas; si superan esa bolsa, se retira alcance equivalente del sprint actual tras estimarlo en \textit{Planning Poker} y el resto pasa al \textit{backlog} de la iteración 3}
-  {Número de cambios o aclaraciones que alteran criterios de aceptación con el sprint empezado. Más de un cambio sin intercambio de puntos activa revisión de alcance}
-
-\Needspace*{10.5cm}
-\subsection{R4. El diseño de la base de datos da errores de datos (estado de tareas compartido, historial que se pierde)}
-
-La persistencia en PostgreSQL sostiene toda la agenda, los pasos guiados y las rutinas del alumnado. Un error de modelado en cardinalidades, claves o borrados provoca datos corruptos entre alumnos distintos y pérdida de trazabilidad histórica imposible de reconstruir desde el cliente.
-
-\textbf{De dónde sale el 40\,\%.} El problema ya está presente en el esquema actual (\texttt{CreacionTablas.sqlscript}): el campo booleano \texttt{task\_finished} reside en la tabla \texttt{Tasks} (y \texttt{step\_finished} en \texttt{Steps}), no en la relación por alumno \texttt{stud\_task}. En cuanto una tarea de clase (\texttt{class\_task}) se asigna a varios estudiantes, si uno la marca completada cambia el estado para toda el aula. Asimismo, las cascadas \texttt{ON DELETE CASCADE} y la sobreescritura directa sin tabla de histórico hacen que al borrar o editar una tarea se pierda el historial previo. Al abordar RF-04 y el progreso en la iteración 2, este fallo se disparará si no se migra antes.
-
-\fichaDeRiesgo
-  {40\,\%}
-  {32 h de reproceso (10,2\,\% de la iteración 2) · 624,32\eu{} (+2,28\,\% del coste de ejecución) · 2 días de retraso; bloqueo de RF-04 y del histórico de tareas}
-  {Miguel Ángel Luque Gómez, desarrollo backend y modelado de datos}
-  {Pablo de la Torre Roldán, desarrollo backend}
-  {Se aplica un guion de migración SQL para mover el estado de finalización y la fecha de registro a nivel de asignación por alumno (\texttt{stud\_task} y tabla de progreso de pasos), habilitando borrado lógico para conservar histórico antes de abrir las pantallas de progreso}
-  {Fallos en pruebas de concurrencia o aislamiento de estado entre dos alumnos de la misma aula, o pérdida de registros tras operaciones de actualización o borrado}
-
-\Needspace*{10.5cm}
-\subsection{R5. Frontend y backend dejan de encajar porque uno cambia la API sin avisar}
-
-El cliente Flutter y el servicio FastAPI los desarrollan dos subgrupos distintos del equipo en ramas separadas. Cuando un lado cambia nombres de campos, rutas, permisos o códigos de error sin actualizar el contrato común, las pantallas dejan de funcionar aunque ambos módulos pasen sus pruebas por separado.
-
-\textbf{De dónde sale el 40\,\%.} Ya ocurrió repetidamente en la iteración 1: el cliente leía \texttt{data['user']} en \texttt{GET /users/me} cuando el servidor devolvía los campos en la raíz; \texttt{GET /classes/\{aula\}} devolvía alumnado pero omitía el personal asignado; \texttt{GET /users} respondía 403 al perfil de personal; y faltaron dos \texttt{GET} de tareas hasta el último día. En la iteración 2 entran pasos, imágenes y progreso de tareas, multiplicando las superficies de contrato nuevas.
-
-\fichaDeRiesgo
-  {40\,\%}
-  {30 h de reproceso (9,5\,\% de la iteración 2) · 585,30\eu{} (+2,14\,\% del coste de ejecución) · 2 días de retraso; historias de pasos o asignación de aula quedan degradadas o sin cerrar}
-  {Pablo de la Torre Roldán, desarrollo backend}
-  {José Rodríguez Fernández, Coordinación del proyecto}
-  {El frontend se mantiene operativo sobre \texttt{DemoRepository} y la detección de capacidades en \texttt{/openapi.json} para no romper la interfaz, mientras se convoca una sesión conjunta de ajuste de contrato entre ambos subgrupos en menos de 24 h}
-  {Diferencias detectadas en la comparación semanal de \texttt{/openapi.json} frente al cliente o fallos en la batería de integración extremo a extremo}
-
-% ==============================================================================
-\newpage
-\section{Seguimiento}
-
-\subsection{Quién y cuándo}
-
-La gestión de riesgos es responsabilidad compartida. Cada riesgo prioritario tiene un \textbf{monitor}, que vigila su indicador, y un \textbf{responsable}, que ejecuta la respuesta si el indicador cruza su umbral. Cuando el riesgo pertenece a un ámbito técnico específico, como en R1, ambos roles pueden recaer en la misma persona para agilizar la reacción.
-
-\vspace{0.4cm}
-\noindent{\small
-\tablacebra
-\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.6cm}>{\raggedright\arraybackslash}p{4.6cm}L@{}}
-\hline
-\cabtxt{Momento} & \cabtxt{Quién} & \cabtxt{Qué se hace}\\
-\hline
-Cada semana & Todo el equipo, en la reunión de seguimiento & Se repasan los indicadores de R1 a R5 y se comprueba la vigilancia de R6 a R10, anotando en acta cualquier umbral superado\\
-Al cerrar la iteración & Gestor de Calidad y Coordinación & Se recalculan probabilidades e impactos con lo ocurrido, se retiran los riesgos cerrados y se reordenan los diez riesgos\\
-Al materializarse & El responsable del riesgo & Se ejecuta la contingencia de su ficha y se registra en el acta el coste real en horas de reproceso\\
-\hline
-\end{tabularx}}
-
-\subsection{Calendario de revisiones}
-
-\vspace{0.4cm}
-\noindent{\small
-\tablacebra
-\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.0cm}L@{}}
-\hline
-\cabtxt{Fecha} & \cabtxt{Revisión}\\
-\hline
-19/11/2026 & Emisión de este plan, con la iteración 2 en curso\\
-24/11/2026 & Punto de control de mitad de iteración (indicadores de R4, R5 y R6)\\
-03/12/2026 & Revisión al cierre de la iteración 2 y actualización de probabilidades\\
-22/12/2026 & Revisión final al cierre de la iteración 3 y transferencia del producto\\
-\hline
-\end{tabularx}}
-
-\subsection{Los cinco que no se gestionan activamente}
-
-R6 a R10 no llevan ficha completa porque su probabilidad e impacto combinados son menores: entre los cinco suman 24,80 horas esperadas (el 24,5\,\% del total), menos que R1 y R2 juntos (36,20 h). No se ignoran: se vigilan con el indicador de la tabla y, si alguno supera su umbral, asciende al grupo de los cinco gestionados en la siguiente revisión y desplaza al de menor exposición.
-
-\begin{nota}
-\textbf{Riesgos vigilados con mayor probabilidad de ascenso.} R6 (acumulación al final de la iteración, agravada por las entregas de diciembre) es el candidato más claro a subir si el 24/11 no hay al menos la mitad de las historias en revisión. R7 también ascenderá si el centro tarda más de siete días en confirmar la fecha de pruebas con usuarios.
-\end{nota}
-
-\subsection{Relación con el presupuesto}
-
-Todas las valoraciones económicas de este plan emplean la tarifa única de \textbf{19,51\eu/h} y se expresan sobre el coste de ejecución del presupuesto vigente PRE-2627-01 (\textbf{27.337,91\eu}). Como la oferta al centro se presenta a precio cerrado y sin una partida separada de provisión por riesgos repercutible al cliente, cualquier hora de reproceso provocada por R1 a R10 es absorbida internamente por el equipo o detraída del margen de beneficio industrial del 6\,\% (1.640,27\eu). Por ello, prevenir y contener R1 a R5 resulta crítico para la viabilidad económica del proyecto.
-
-\vspace{0.6cm}
-\begin{condiciones}
-\textbf{Por qué la exposición esperada no es una previsión de retraso.} Las 101,10 horas (1.972,46\eu) son una esperanza matemática ponderada por probabilidad, no una suma de retrasos ciertos: la mayoría de los riesgos no se materializarán si funcionan las medidas preventivas, y los que lo hagan no ocurrirán todos a la vez. Si se materializaran los diez al completo ---260 horas, 5.072,60\eu--- el proyecto no llegaría a la entrega de diciembre. Este plan existe precisamente para reducir esa exposición en cada revisión, no para justificar retrasos de antemano.
-\end{condiciones}
-
-\vfill
-
-\noindent
-\begin{minipage}[t]{0.47\textwidth}
-{\footnotesize\color{gris} Redactado y mantenido por}\\[1.8cm]
-{\color{linea}\rule{\textwidth}{0.4pt}}\\[2pt]
-{\small Yeray Rodríguez Navas}\\
-{\footnotesize\color{gris} Gestor de Calidad del producto y del proceso\\ Granada, 19 de noviembre de 2026}
-\end{minipage}%
-\hfill
-\begin{minipage}[t]{0.47\textwidth}
-{\footnotesize\color{gris} Aprobado por}\\[1.8cm]
-{\color{linea}\rule{\textwidth}{0.4pt}}\\[2pt]
-{\small José Rodríguez Fernández}\\
-{\footnotesize\color{gris} Coordinador del proyecto\\ CLENCH Software Development}
-\end{minipage}
 
 \end{document}
