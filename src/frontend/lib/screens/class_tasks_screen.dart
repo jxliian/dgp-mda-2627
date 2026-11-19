@@ -82,7 +82,6 @@ class _ClassTasksScreenState extends State<ClassTasksScreen> {
   Widget build(BuildContext context) => PageShell(
     title: 'Tareas de ${widget.classroom.name}',
     subtitle: 'Se asignan a todos los alumnos del aula',
-    footer: const AppFooter(),
     child: Column(
       children: [
         if (error != null) Notice(error!, error: true),

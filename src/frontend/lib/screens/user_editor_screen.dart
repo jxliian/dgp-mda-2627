@@ -1,13 +1,19 @@
-import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
+import 'dart:typed_data';
 import '../models/domain.dart';
 import '../models/validation.dart';
+import '../services/repository.dart';
 import '../state/app_state.dart';
 import '../ui/ui.dart';
 import 'access_editor.dart';
 import 'associations_screen.dart';
+import 'class_picker_screen.dart';
 
 /// Alta y edición de cuentas (SCRUM-8 y SCRUM-9).
+///
+/// La plantilla es la misma para cualquier rol: arriba, lo que se puede hacer
+/// con la cuenta y su foto; debajo, los datos, repartidos en horizontal para
+/// que una tablet no desperdicie el ancho con campos de lado a lado.
 class UserEditorScreen extends StatefulWidget {
   const UserEditorScreen({super.key, this.user});
 
@@ -22,6 +28,7 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
   final form = GlobalKey<FormState>();
   final usuario = TextEditingController();
   final nombre = TextEditingController();
+  final apellidos = TextEditingController();
   final correo = TextEditingController();
   final contrasena = TextEditingController();
   final repeticion = TextEditingController();
@@ -31,19 +38,26 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
   String? error;
   String? aviso;
 
-  /// Cambiar la foto de otra persona depende de que el servidor lo ofrezca.
+  /// El servidor solo tiene ruta de foto para alumnos: para el resto de roles
+  /// la plantilla enseña el mismo bloque, pero explica que aún no se puede.
   bool get puedeCambiarLaFoto =>
       !esNueva && esAlumno && AppScope.of(context).repository.canSetAvatarOf;
 
   bool get esNueva => widget.user == null;
   bool get esAlumno => rol == UserRole.student;
 
+  /// Al crear una cuenta que no es de alumno el servidor exige un correo
+  /// válido; al modificarla, no.
+  bool get correoObligatorio => esNueva && !esAlumno;
+
   @override
   void initState() {
     super.initState();
     final cuenta = widget.user;
+    final (nom, ape) = _partirNombre(cuenta?.fullName ?? '');
     usuario.text = cuenta?.username ?? '';
-    nombre.text = cuenta?.fullName ?? '';
+    nombre.text = nom;
+    apellidos.text = ape;
     correo.text = cuenta?.email ?? '';
     rol = cuenta?.role ?? UserRole.student;
     ajustes = cuenta?.access.copy() ?? AccessSettings();
@@ -53,22 +67,42 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
   void dispose() {
     usuario.dispose();
     nombre.dispose();
+    apellidos.dispose();
     correo.dispose();
     contrasena.dispose();
     repeticion.dispose();
     super.dispose();
   }
 
+  /// El servidor guarda un único campo de nombre completo. Aquí se reparte en
+  /// dos para que quepan uno al lado del otro.
+  static (String, String) _partirNombre(String completo) {
+    final partes = completo.trim().split(RegExp(r'\s+'));
+    if (partes.isEmpty || partes.first.isEmpty) return ('', '');
+    return (partes.first, partes.skip(1).join(' '));
+  }
+
+  String get _nombreCompleto =>
+      '${nombre.text.trim()} ${apellidos.text.trim()}'.trim();
+
   Json _datosParaGuardar() => {
     'username': usuario.text.trim(),
-    'full_name': nombre.text.trim(),
+    'full_name': _nombreCompleto,
     if (esNueva) 'role': rol.name,
     if (contrasena.text.isNotEmpty) 'password': contrasena.text,
-    if (esAlumno) ...ajustes.toJson() else 'email': correo.text.trim(),
+    if (esAlumno)
+      ...ajustes.toJson()
+    else if (correo.text.trim().isNotEmpty)
+      'email': correo.text.trim(),
   };
 
   Future<void> guardar() async {
     if (!form.currentState!.validate()) return;
+    final problema = fullNameError(_nombreCompleto);
+    if (problema != null) {
+      setState(() => error = problema);
+      return;
+    }
     final state = AppScope.of(context);
     setState(() {
       guardando = true;
@@ -90,42 +124,9 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
   }
 
   /// SCRUM-329: administración cambia la foto de perfil de un alumno.
-  Future<void> cambiarFoto() async {
-    final state = AppScope.of(context);
-    try {
-      final archivo = await openFile(
-        acceptedTypeGroups: [
-          const XTypeGroup(
-            label: 'Imágenes PNG, JPEG o WebP',
-            extensions: ['png', 'jpg', 'jpeg', 'webp'],
-          ),
-        ],
-      );
-      if (archivo == null) return;
-      if (await archivo.length() > _maximoBytesDeFoto) {
-        throw StateError('La imagen no puede superar los 5 MB.');
-      }
-      if (!mounted) return;
-      setState(() {
-        guardando = true;
-        error = null;
-        aviso = null;
-      });
-      await state.repository.uploadAvatarOf(
-        widget.user!,
-        await archivo.readAsBytes(),
-        archivo.name,
-      );
-      state.photoChanged();
-      if (mounted) setState(() => aviso = 'La foto se ha actualizado.');
-    } on Object catch (e) {
-      if (mounted) setState(() => error = e.toString());
-    } finally {
-      if (mounted) setState(() => guardando = false);
-    }
-  }
-
-  static const _maximoBytesDeFoto = 5 * 1024 * 1024;
+  Future<void> subirFoto(Uint8List bytes, String nombre) => AppScope.of(
+    context,
+  ).repository.uploadAvatarOf(widget.user!, bytes, nombre);
 
   @override
   Widget build(BuildContext context) => PageShell(
@@ -136,28 +137,39 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (widget.user?.role == UserRole.student) _fotoDelAlumno(),
+          // Lo que se puede hacer con la cuenta va primero, no al final de un
+          // formulario largo.
+          _cabecera(),
           const SectionTitle('Datos de la cuenta'),
-          _campoUsuario(),
+          _fila([
+            (3, _campoUsuario()),
+            (3, _campoRol()),
+          ]),
           const SizedBox(height: 18),
-          _campoNombre(),
-          const SizedBox(height: 18),
-          _campoRol(),
-          if (!esAlumno) ...[const SizedBox(height: 18), _campoCorreo()],
+          _fila([
+            (1, _campoNombre()),
+            (1, _campoApellidos()),
+          ]),
+          if (!esAlumno) ...[
+            const SizedBox(height: 18),
+            _fila([
+              (1, _campoCorreo()),
+            ]),
+          ],
           const SectionTitle(
             'Contraseña',
             hint: 'Al modificar una cuenta, déjala vacía para no cambiarla.',
           ),
-          _campoContrasena(),
-          const SizedBox(height: 18),
-          _campoRepeticion(),
+          _fila([
+            (1, _campoContrasena()),
+            (1, _campoRepeticion()),
+          ]),
           if (esAlumno)
             AccessEditor(
               settings: ajustes,
               permissions: true,
               enabled: !guardando,
             ),
-          _asociaciones(),
           if (error != null) Notice(error!, error: true),
           if (aviso != null) Notice(aviso!),
           FormActions(
@@ -170,26 +182,107 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
     ),
   );
 
-  Widget _fotoDelAlumno() => Center(
-    child: Column(
-      children: [
-        UserAvatar(user: widget.user!, size: 140),
-        const SizedBox(height: 12),
-        if (puedeCambiarLaFoto)
+  /// Gestión a la izquierda y foto a la derecha; en pantalla estrecha, una
+  /// debajo de la otra.
+  Widget _cabecera() => LayoutBuilder(
+    builder: (context, restricciones) {
+      final enHorizontal = restricciones.maxWidth >= 720;
+      final gestion = _gestion();
+      final foto = _foto();
+      if (!enHorizontal) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [foto, const SizedBox(height: 20), gestion],
+        );
+      }
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(flex: 3, child: gestion),
+          const SizedBox(width: 28),
+          Expanded(flex: 2, child: foto),
+        ],
+      );
+    },
+  );
+
+  Widget _gestion() => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      const SectionTitle(
+        'Gestión de la cuenta',
+        hint: 'Su aula y sus asociaciones, sin bajar hasta el final.',
+      ),
+      if (esNueva)
+        const Notice(
+          'Guarda la cuenta y vuelve a abrirla para asignarle aula y asociaciones.',
+        )
+      else ...[
+        if (rol != UserRole.admin) _AulaDeLaCuenta(user: widget.user!),
+        const SizedBox(height: 14),
+        if (rol != UserRole.admin)
           OutlinedButton.icon(
-            onPressed: guardando ? null : cambiarFoto,
-            icon: const Icon(Icons.add_a_photo_outlined),
-            label: const Text('Cambiar la foto'),
-          )
-        else
-          const Notice(_servidorSinCambioDeFoto),
+            onPressed: guardando
+                ? null
+                : () => openPage(context, AssociationsScreen(user: widget.user!)),
+            icon: const Icon(Icons.link),
+            label: const Text('Gestionar asociaciones'),
+          ),
       ],
-    ),
+    ],
+  );
+
+  Widget _foto() {
+    if (esNueva) {
+      return const Column(
+        children: [
+          SectionTitle('Foto', centered: true),
+          Notice('La foto se puede poner al guardar la cuenta.'),
+        ],
+      );
+    }
+    return AvatarEditor(
+      user: widget.user!,
+      size: 160,
+      busy: guardando,
+      allowed: puedeCambiarLaFoto,
+      upload: subirFoto,
+      note: esAlumno ? _servidorSinCambioDeFoto : _servidorSinFotoDeAdultos,
+    );
+  }
+
+  /// Campos en una fila con los pesos indicados; apilados si no caben.
+  Widget _fila(List<(int, Widget)> campos) => LayoutBuilder(
+    builder: (context, restricciones) {
+      if (restricciones.maxWidth < 560 || campos.length == 1) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (var i = 0; i < campos.length; i++) ...[
+              if (i > 0) const SizedBox(height: 18),
+              campos[i].$2,
+            ],
+          ],
+        );
+      }
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (var i = 0; i < campos.length; i++) ...[
+            if (i > 0) const SizedBox(width: 20),
+            Expanded(flex: campos[i].$1, child: campos[i].$2),
+          ],
+        ],
+      );
+    },
   );
 
   static const _servidorSinCambioDeFoto =
-      'Este servidor todavía no permite cambiar la foto de otra persona. '
+      'Este servidor todavía no permite cambiar la foto desde administración. '
       'La cambia cada alumno desde sus ajustes.';
+  static const _servidorSinFotoDeAdultos =
+      'El servidor solo guarda foto de las cuentas de alumno. Para que el '
+      'alumnado reconozca a su profesorado hace falta ampliarlo.';
 
   Widget _campoUsuario() => TextFormField(
     controller: usuario,
@@ -203,9 +296,16 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
   Widget _campoNombre() => TextFormField(
     controller: nombre,
     enabled: !guardando,
-    validator: fullNameError,
-    maxLength: 150,
-    decoration: const InputDecoration(labelText: 'Nombre y apellidos *'),
+    validator: requiredText,
+    maxLength: 70,
+    decoration: const InputDecoration(labelText: 'Nombre *'),
+  );
+
+  Widget _campoApellidos() => TextFormField(
+    controller: apellidos,
+    enabled: !guardando,
+    maxLength: 80,
+    decoration: const InputDecoration(labelText: 'Apellidos'),
   );
 
   Widget _campoRol() => Column(
@@ -235,9 +335,21 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
   Widget _campoCorreo() => TextFormField(
     controller: correo,
     enabled: !guardando,
-    validator: emailError,
+    validator: (valor) {
+      if (!correoObligatorio && (valor == null || valor.trim().isEmpty)) {
+        return null;
+      }
+      return emailError(valor);
+    },
     keyboardType: TextInputType.emailAddress,
-    decoration: const InputDecoration(labelText: 'Correo electrónico *'),
+    decoration: InputDecoration(
+      labelText: correoObligatorio
+          ? 'Correo electrónico *'
+          : 'Correo electrónico (opcional)',
+      helperText: correoObligatorio
+          ? 'El servidor lo exige para crear cuentas que no son de alumno.'
+          : null,
+    ),
   );
 
   Widget _campoContrasena() => TextFormField(
@@ -245,18 +357,16 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
     enabled: !guardando,
     obscureText: true,
     keyboardType: esAlumno ? TextInputType.number : TextInputType.text,
+    maxLength: esAlumno ? dibujosDeLaContrasena : null,
     validator: (valor) {
       if (!esNueva && (valor == null || valor.isEmpty)) return null;
-      final error = passwordError(valor);
-      if (error != null) return error;
-      return esAlumno && !RegExp(r'^[0-9]+$').hasMatch(valor!)
-          ? 'Usa solo números del 0 al 9 para el acceso con dibujos.'
-          : null;
+      return esAlumno ? studentPasswordError(valor) : passwordError(valor);
     },
     decoration: InputDecoration(
       labelText: esNueva ? 'Contraseña *' : 'Nueva contraseña (opcional)',
       helperText: esAlumno
-          ? 'Solo números del 0 al 9: cada cifra corresponde a un dibujo.'
+          ? 'Exactamente $dibujosDeLaContrasena números del 0 al 9: cada '
+                'cifra es un dibujo de su teclado.'
           : null,
     ),
   );
@@ -269,22 +379,95 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
         valor == contrasena.text ? null : 'Las contraseñas no coinciden.',
     decoration: const InputDecoration(labelText: 'Confirmar contraseña'),
   );
+}
 
-  Widget _asociaciones() {
-    if (esNueva) {
-      return const Notice(
-        'Guarda la cuenta y vuelve a abrirla para gestionar sus asociaciones.',
-      );
+/// Aula de la cuenta, con el botón para cambiarla desde la propia ficha.
+class _AulaDeLaCuenta extends StatefulWidget {
+  const _AulaDeLaCuenta({required this.user});
+
+  final AppUser user;
+
+  @override
+  State<_AulaDeLaCuenta> createState() => _AulaDeLaCuentaState();
+}
+
+class _AulaDeLaCuentaState extends State<_AulaDeLaCuenta> {
+  int revision = 0;
+  bool ocupado = false;
+  String? error;
+
+  bool get esAlumno => widget.user.role == UserRole.student;
+
+  Future<String?> _aulaActual() =>
+      AppScope.of(context).repository.classOf(widget.user.username);
+
+  Future<void> cambiarAula(String? anterior) async {
+    final elegida = await openPage<String>(
+      context,
+      ClassPickerScreen(
+        title: esAlumno ? 'Matricular en un aula' : 'Asignar a un aula',
+        current: anterior,
+      ),
+    );
+    if (elegida == null || !mounted) return;
+    setState(() {
+      ocupado = true;
+      error = null;
+    });
+    try {
+      final repositorio = AppScope.of(context).repository;
+      if (esAlumno) {
+        if (anterior != null) {
+          await repositorio.enroll(
+            anterior,
+            widget.user.username,
+            remove: true,
+          );
+        }
+        await repositorio.enroll(elegida, widget.user.username);
+      } else {
+        await repositorio.addStaff(elegida, widget.user.username);
+      }
+      if (mounted) {
+        AppScope.of(context).classroomsChanged();
+        setState(() => revision++);
+      }
+    } on Object catch (e) {
+      if (mounted) setState(() => error = e.toString());
+    } finally {
+      if (mounted) setState(() => ocupado = false);
     }
-    if (rol == UserRole.admin) return const SizedBox.shrink();
-    return Padding(
-      padding: const EdgeInsets.only(top: 24),
-      child: OutlinedButton.icon(
-        onPressed: guardando
-            ? null
-            : () => openPage(context, AssociationsScreen(user: widget.user!)),
-        icon: const Icon(Icons.link),
-        label: const Text('Gestionar asociaciones'),
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.user.role == UserRole.parent) return const SizedBox.shrink();
+    return LoadPanel<String?>(
+      key: ValueKey('aula/$revision'),
+      load: _aulaActual,
+      builder: (aula) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.school_outlined),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  aula == null ? 'Todavía sin aula' : 'Aula: $aula',
+                  style: const TextStyle(fontWeight: FontWeight.w700),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          OutlinedButton.icon(
+            onPressed: ocupado ? null : () => cambiarAula(aula),
+            icon: const Icon(Icons.swap_horiz),
+            label: Text(aula == null ? 'Asignar aula' : 'Cambiar de aula'),
+          ),
+          if (error != null) Notice(error!, error: true),
+        ],
       ),
     );
   }

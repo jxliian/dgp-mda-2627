@@ -4,6 +4,7 @@ import '../models/validation.dart';
 import '../state/app_state.dart';
 import '../ui/ui.dart';
 import 'access_editor.dart';
+import 'color_settings_screen.dart';
 
 /// Accesibilidad del alumno y contraseña de las cuentas del centro y familia.
 class SettingsScreen extends StatefulWidget {
@@ -57,9 +58,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (ocupado || !puedeEditar) return;
     if (!form.currentState!.validate()) return;
     final state = AppScope.of(context);
+    if (!state.student) await state.saveAdultAccess();
     final cambios = _cambios(state.user!);
     if (cambios.isEmpty) {
-      setState(() => aviso = 'No hay cambios para guardar.');
+      setState(() => aviso = 'Tus ajustes se han guardado.');
       return;
     }
     setState(() {
@@ -98,11 +100,53 @@ class _SettingsScreenState extends State<SettingsScreen> {
       subtitle: usuario.displayName,
       child: Form(
         key: form,
-        child: Column(
+        child: LayoutBuilder(
+          builder: (context, restricciones) {
+            final ajustes = _ajustes(usuario);
+            final foto = _fotoPropia(usuario);
+            // La foto va al lado de los ajustes, no encima de ellos: en una
+            // tablet sobra ancho de sobra para las dos cosas.
+            if (restricciones.maxWidth < 720) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [foto, const SizedBox(height: 24), ajustes],
+              );
+            }
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(flex: 3, child: ajustes),
+                const SizedBox(width: 32),
+                SizedBox(width: 280, child: foto),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  /// La propia foto, para cualquier rol: el alumnado también reconoce a su
+  /// profesorado por ella.
+  Widget _fotoPropia(AppUser usuario) {
+    final repositorio = AppScope.of(context).repository;
+    return AvatarEditor(
+      user: usuario,
+      size: 140,
+      title: 'Mi foto',
+      busy: ocupado,
+      allowed: repositorio.canSetOwnAvatar,
+      upload: repositorio.uploadAvatar,
+      note: 'Este servidor todavía no permite cambiar la foto desde aquí.',
+    );
+  }
+
+  Widget _ajustes(AppUser usuario) => Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (usuario.role == UserRole.student) ..._seccionDeAlumno(usuario),
             if (usuario.role != UserRole.student) ...[
+              ..._seccionDeAdulto(),
               const SectionTitle(
                 'Cambiar contraseña',
                 hint: 'Déjala vacía si no quieres cambiarla.',
@@ -124,20 +168,77 @@ class _SettingsScreenState extends State<SettingsScreen> {
               label: 'Guardar mis ajustes',
             ),
           ],
-        ),
+        );
+
+  /// La aplicación también la usan profesorado, familias y administración, y
+  /// también necesitan letra grande o contraste. El servidor solo guarda los
+  /// ajustes del alumnado, así que estos se quedan en el dispositivo.
+  List<Widget> _seccionDeAdulto() {
+    final state = AppScope.of(context);
+    final ajustesDeAdulto = state.adultAccess;
+    return [
+      const SectionTitle(
+        'Cómo veo la aplicación',
+        hint: 'Se guarda en este dispositivo, no en tu cuenta.',
       ),
-    );
+      Wrap(
+        spacing: 20,
+        runSpacing: 20,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          SizedBox(
+            width: 260,
+            child: TextFormField(
+              initialValue: '${ajustesDeAdulto.number('fontsize')}',
+              enabled: !ocupado,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: 'Tamaño de letra',
+                helperText: '16 es el tamaño normal',
+              ),
+              validator: (valor) {
+                final numero = int.tryParse(valor ?? '');
+                return numero == null || numero <= 0
+                    ? 'Escribe un entero válido.'
+                    : null;
+              },
+              onChanged: (valor) {
+                final numero = int.tryParse(valor);
+                if (numero != null && numero > 0) {
+                  ajustesDeAdulto.values['stud_access_fontsize'] = numero;
+                }
+              },
+            ),
+          ),
+          OutlinedButton.icon(
+            onPressed: ocupado
+                ? null
+                : () async {
+                    await openPage<bool>(
+                      context,
+                      ColorSettingsScreen(settings: ajustesDeAdulto),
+                    );
+                    if (mounted) setState(() {});
+                  },
+            icon: const Icon(Icons.palette_outlined),
+            label: const Text('Configurar los colores'),
+          ),
+        ],
+      ),
+      SwitchListTile.adaptive(
+        contentPadding: EdgeInsets.zero,
+        title: const Text('Alto contraste'),
+        value: ajustesDeAdulto.flag('contrast'),
+        onChanged: ocupado
+            ? null
+            : (valor) => setState(
+                () => ajustesDeAdulto.values['stud_access_contrast'] = valor,
+              ),
+      ),
+    ];
   }
 
   List<Widget> _seccionDeAlumno(AppUser usuario) => [
-    Center(
-      child: Column(
-        children: [
-          UserAvatar(user: usuario, size: 130),
-          const SizedBox(height: 12),
-        ],
-      ),
-    ),
     if (!AppScope.of(context).repository.supportsProfileRead)
       const Notice(_servidorSinLecturaDePerfil),
     if (!puedeEditar) const Notice(_ajustesProtegidos),

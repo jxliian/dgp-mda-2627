@@ -123,8 +123,10 @@ class _Colores {
       principal.computeLuminance() > .179 ? Colors.black : Colors.white;
 }
 
-ThemeData appTheme(AccessSettings ajustes, {bool student = false}) {
-  final c = _Colores(ajustes, alumno: student);
+/// Tema de la sesión. Con [personalized] se aplican los ajustes de quien ha
+/// entrado; sin él, la identidad del centro tal cual.
+ThemeData appTheme(AccessSettings ajustes, {bool personalized = false}) {
+  final c = _Colores(ajustes, alumno: personalized);
   return ThemeData(
     useMaterial3: true,
     colorScheme: _esquema(c),

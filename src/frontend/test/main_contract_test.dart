@@ -234,8 +234,8 @@ void main() {
         hasLength(1),
       );
 
-      await _choose(tester, 'Añadir alumno', 'Pablo');
-      final enrol = find.text('Matricular alumno');
+      // Las matrículas son dos listas: se pasa al alumno de una a la otra.
+      final enrol = find.byTooltip('Matricular a Pablo');
       await tester.ensureVisible(enrol);
       await tester.tap(enrol);
       await tester.pumpAndSettle();
@@ -322,8 +322,10 @@ void main() {
     await tester.ensureVisible(find.text('Gestionar asociaciones'));
     await tester.tap(find.text('Gestionar asociaciones'));
     await tester.pumpAndSettle();
-    await _choose(tester, 'Aula para asignar', 'Aula 1');
+    // El aula se elige en su propia pantalla, no en un desplegable.
     await tester.tap(find.text('Asignar personal al aula'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Aula 1').first);
     await tester.pumpAndSettle();
     expect(server.staffAssigned, true);
     expect(find.text('Personal asignado al aula Aula 1.'), findsOneWidget);
@@ -374,7 +376,7 @@ void main() {
       if (permitted) {
         await tester.tap(find.text('Ajustes'));
         await tester.pumpAndSettle();
-        expect(find.text('Visualización y apoyos'), findsOneWidget);
+        expect(find.text('Permisos'), findsOneWidget);
         expect(find.text('Cambiar contraseña'), findsNothing);
         expect(find.textContaining('Nueva contraseña'), findsNothing);
         expect(find.text('Cambiar mi foto'), findsNothing);

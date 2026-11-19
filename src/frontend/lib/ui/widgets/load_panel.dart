@@ -39,7 +39,10 @@ class _LoadPanelState<T> extends State<LoadPanel<T>> {
           ),
         );
       }
-      if (!snapshot.hasData) {
+      // Se mira el estado y no `hasData`: hay cargas cuyo resultado válido es
+      // nulo ---por ejemplo, un alumno que todavía no tiene aula--- y con
+      // `hasData` se quedaban girando para siempre.
+      if (snapshot.connectionState != ConnectionState.done) {
         return const Padding(
           padding: EdgeInsets.all(48),
           child: Center(

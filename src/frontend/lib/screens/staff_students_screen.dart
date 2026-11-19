@@ -24,7 +24,6 @@ class _StaffStudentsScreenState extends State<StaffStudentsScreen> {
     return PageShell(
       title: 'Mis alumnos',
       subtitle: 'Alumnado de todas tus aulas',
-      footer: const AppFooter(),
       child: Column(
         children: [
           TextField(
@@ -72,7 +71,6 @@ class _FamilyStudentsScreenState extends State<FamilyStudentsScreen> {
     return PageShell(
       title: 'Mi familia',
       subtitle: state.user!.displayName,
-      footer: const AppFooter(),
       child: LoadPanel<List<AppUser>>(
         key: ValueKey(revision),
         load: () => state.repository.linkedStudents(state.user!),

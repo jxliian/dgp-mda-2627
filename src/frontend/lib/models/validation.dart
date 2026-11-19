@@ -21,6 +21,25 @@ String? fullNameError(String? value) {
   return null;
 }
 
+/// Dibujos que tiene la contraseña del alumnado: ni más ni menos.
+///
+/// El teclado de la pantalla de acceso no deja pulsar más, así que una clave
+/// de otra longitud dejaría al alumno sin poder entrar nunca.
+const dibujosDeLaContrasena = 4;
+
+/// Clave de dibujos: solo cifras y exactamente las que caben en el teclado.
+String? studentPasswordError(String? value) {
+  final error = passwordError(value);
+  if (error != null) return error;
+  if (!RegExp(r'^[0-9]+$').hasMatch(value!)) {
+    return 'Usa solo números del 0 al 9 para el acceso con dibujos.';
+  }
+  return value.length == dibujosDeLaContrasena
+      ? null
+      : 'La contraseña de dibujos son exactamente '
+            '$dibujosDeLaContrasena números.';
+}
+
 String? passwordError(String? value) {
   if (value == null || value.isEmpty) return 'Escribe la contraseña.';
   return utf8.encode(value).length > 72

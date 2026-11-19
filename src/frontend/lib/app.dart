@@ -32,6 +32,7 @@ class _AutovidaAppState extends State<AutovidaApp> {
     if (_estadoPropio && const bool.fromEnvironment('DEMO')) {
       state.setDemo(true);
     }
+    state.loadAdultAccess();
   }
 
   @override
@@ -40,13 +41,15 @@ class _AutovidaAppState extends State<AutovidaApp> {
     super.dispose();
   }
 
-  /// El alumno puede agrandar la letra desde sus ajustes; se multiplica por el
-  /// tamaño que ya tenga configurado el sistema operativo.
+  /// Cualquier sesión ---alumnado, profesorado o familia--- puede agrandar la
+  /// letra desde sus ajustes; se multiplica por el tamaño que ya tenga
+  /// configurado el sistema operativo.
   Widget _conTamanoDeLetra(BuildContext context, Widget? child) {
     final media = MediaQuery.of(context);
-    final factorDelPerfil = state.student
-        ? (state.access.number('fontsize') / 16).clamp(1.0, 2.5)
-        : 1.0;
+    final factorDelPerfil = (state.display.number('fontsize') / 16).clamp(
+      1.0,
+      2.5,
+    );
     return MediaQuery(
       data: media.copyWith(
         textScaler: TextScaler.linear(
@@ -79,7 +82,7 @@ class _AutovidaAppState extends State<AutovidaApp> {
         locale: const Locale('es', 'ES'),
         supportedLocales: const [Locale('es', 'ES')],
         localizationsDelegates: GlobalMaterialLocalizations.delegates,
-        theme: appTheme(state.access, student: state.student),
+        theme: appTheme(state.display, personalized: true),
         builder: _conTamanoDeLetra,
         home: _inicio,
       ),

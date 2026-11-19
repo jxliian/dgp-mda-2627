@@ -96,7 +96,14 @@ class _LoginScreenState extends State<LoginScreen> {
     } on Object catch (e) {
       if (mounted) {
         setState(() {
-          error = e.toString();
+          // Si falla, el alumno vuelve a empezar: dejar los dibujos puestos
+          // le obliga a borrarlos de uno en uno antes de reintentar.
+          if (esAlumno) {
+            password.clear();
+            error = '$e Vuelve a pulsar tus dibujos.';
+          } else {
+            error = e.toString();
+          }
           entrando = false;
         });
       }
@@ -369,14 +376,13 @@ class _TecladoDeDibujos extends StatelessWidget {
   ];
   static const _anchoMinimoTecla = 140.0;
   static const _separacion = 10.0;
-  static const _maximoCaracteres = 72;
-  static const _casillasMinimas = 4;
+
+  bool get _completa => password.text.length >= dibujosDeLaContrasena;
 
   void _escribir(int cifra) {
-    if (password.text.length < _maximoCaracteres) {
-      password.text += '$cifra';
-      onChange();
-    }
+    if (_completa) return;
+    password.text += '$cifra';
+    onChange();
   }
 
   void _borrar() {
@@ -390,7 +396,9 @@ class _TecladoDeDibujos extends StatelessWidget {
   Widget build(BuildContext context) => Column(
     children: [
       Text(
-        'Pulsa tus dibujos en orden.',
+        _completa
+            ? 'Ya están tus cuatro dibujos.'
+            : 'Pulsa tus cuatro dibujos en orden.',
         textAlign: TextAlign.center,
         style: Theme.of(context).textTheme.titleLarge,
       ),
@@ -445,14 +453,16 @@ class _TecladoDeDibujos extends StatelessWidget {
   /// Casillas que muestran cuántos dibujos se han pulsado, como en el boceto.
   Widget _marcador() => Semantics(
     liveRegion: true,
-    label: '${password.text.length} dibujos introducidos',
+    label:
+        '${password.text.length} de $dibujosDeLaContrasena dibujos '
+        'introducidos',
     excludeSemantics: true,
     child: Wrap(
       spacing: 10,
       runSpacing: 10,
       alignment: WrapAlignment.center,
       children: [
-        for (var i = 0; i < _casillasVisibles; i++)
+        for (var i = 0; i < dibujosDeLaContrasena; i++)
           Container(
             width: 68,
             height: 76,
@@ -475,10 +485,6 @@ class _TecladoDeDibujos extends StatelessWidget {
     ),
   );
 
-  int get _casillasVisibles => password.text.length < _casillasMinimas
-      ? _casillasMinimas
-      : password.text.length;
-
   Widget _tecla(int cifra) {
     final (icono, nombre) = _dibujos[cifra];
     return Semantics(
@@ -486,7 +492,7 @@ class _TecladoDeDibujos extends StatelessWidget {
       button: true,
       excludeSemantics: true,
       child: OutlinedButton(
-        onPressed: habilitado ? () => _escribir(cifra) : null,
+        onPressed: habilitado && !_completa ? () => _escribir(cifra) : null,
         style: OutlinedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
           minimumSize: const Size(0, 120),

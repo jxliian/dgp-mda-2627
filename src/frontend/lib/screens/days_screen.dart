@@ -36,7 +36,6 @@ class _DaysScreenState extends State<DaysScreen> {
   Widget build(BuildContext context) => PageShell(
     title: 'Elige un día',
     subtitle: 'Semana del ${DateFormat('d MMMM', 'es').format(lunes)}',
-    footer: const AppFooter(),
     child: Column(
       children: [
         const SizedBox(height: 16),
@@ -63,9 +62,6 @@ class _DaysScreenState extends State<DaysScreen> {
       icon: Icons.today_outlined,
       vertical: true,
       edge: esHoy ? Paleta.ambar : Paleta.bosque,
-      badges: esHoy
-          ? const [StatusBadge('Hoy', tone: BadgeTone.attention)]
-          : const [],
       onTap: () => Navigator.pop(context, dia),
     );
   }

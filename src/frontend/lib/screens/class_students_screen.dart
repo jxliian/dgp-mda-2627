@@ -61,7 +61,6 @@ class _ClassStudentsScreenState extends State<ClassStudentsScreen> {
   Widget build(BuildContext context) => PageShell(
     title: widget.className,
     subtitle: 'Alumnos del aula',
-    footer: const AppFooter(),
     child: LoadPanel<Classroom>(
       key: ValueKey(revision),
       load: () => AppScope.of(context).repository.classDetail(widget.className),

@@ -187,30 +187,23 @@ class _ClassEditorScreenState extends State<ClassEditorScreen> {
                 ? () => cambiarPersonal(miembro.username, retirar: true)
                 : null,
           ),
-        SectionTitle(
-          'Alumnos del aula',
-          hint: puedeMatricular
-              ? 'Matricula o retira alumnos de esta clase.'
-              : 'Las matrículas las gestiona el personal asignado al aula.',
-        ),
-        Text('Total: ${aula.studentCount} alumnos'),
-        for (final alumno in aula.students)
-          _filaDeMiembro(
-            alumno,
-            avatar: true,
-            onRemove: puedeMatricular ? () => retirarAlumno(alumno) : null,
-          ),
+        // Dos listas, la de quien puede entrar y la de quien ya está, y una
+        // flecha para pasar de una a otra.
         if (puedeMatricular)
-          _selector(
-            etiqueta: 'Añadir alumno',
-            rol: UserRole.student,
-            yaPresentes: aula.students,
-            elegido: alumnoElegido,
-            onChanged: (valor) => setState(() => alumnoElegido = valor),
-            onConfirm: () => matricular(alumnoElegido!),
-            textoBoton: 'Matricular alumno',
-            vacio: 'No hay más alumnos disponibles.',
+          EnrollmentTransfer(
+            className: nombreGuardado!,
+            enabled: !ocupado,
+            onChanged: () => setState(() => revision++),
+          )
+        else ...[
+          const SectionTitle(
+            'Alumnos del aula',
+            hint: 'Las matrículas las gestiona el personal asignado al aula.',
           ),
+          Text('Total: ${aula.studentCount} alumnos'),
+          for (final alumno in aula.students)
+            _filaDeMiembro(alumno, avatar: true, onRemove: null),
+        ],
       ],
     ),
   );
