@@ -376,7 +376,7 @@ void main() {
         expect(find.text('Visualización y apoyos'), findsOneWidget);
         expect(find.text('Cambiar contraseña'), findsNothing);
         expect(find.textContaining('Nueva contraseña'), findsNothing);
-        expect(find.text('Cambiar mi foto'), findsNothing);
+        expect(find.text('Cambiar mi foto'), findsOneWidget);
         await tester.ensureVisible(find.text('Alto contraste'));
         await tester.tap(find.text('Alto contraste'));
         await tester.pumpAndSettle();

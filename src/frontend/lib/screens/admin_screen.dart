@@ -50,7 +50,14 @@ class _AdminScreenState extends State<AdminScreen> {
     mensaje:
         '¿Quieres eliminar a «${usuario.displayName}»? '
         'Se eliminará su cuenta y sus asociaciones.',
-    accion: (repositorio) => repositorio.deleteUser(usuario),
+    accion: (repositorio) async {
+      final state = AppScope.of(context);
+      final namespace = state.photoNamespace;
+      final demo = state.demo;
+      await repositorio.deleteUser(usuario);
+      await state.profilePhotos.remove(namespace, usuario, demo: demo);
+      state.photoChanged();
+    },
   );
 
   Future<void> eliminarAula(Classroom aula) => _eliminar(
@@ -227,7 +234,7 @@ class _AdminScreenState extends State<AdminScreen> {
           icon: roleIcon(usuario.role),
         ),
       ],
-      leading: esAlumno ? UserAvatar(user: usuario) : null,
+      leading: UserAvatar(user: usuario),
       onTap: ocupado ? null : () => editarUsuario(usuario),
       trailing: IconAction(
         icon: Icons.delete_outline,

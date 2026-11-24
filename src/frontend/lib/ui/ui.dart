@@ -21,3 +21,4 @@ export 'widgets/status_badge.dart';
 export 'widgets/student_picker.dart';
 export 'widgets/task_badges.dart';
 export 'widgets/user_avatar.dart';
+export 'widgets/profile_photo_editor.dart';

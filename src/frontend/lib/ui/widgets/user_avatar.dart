@@ -10,10 +10,16 @@ import '../theme.dart';
 /// Solo pide la imagen al servidor cuando la sesión actual tiene permiso para
 /// verla; así una cuenta sin acceso no provoca errores en pantalla.
 class UserAvatar extends StatefulWidget {
-  const UserAvatar({super.key, required this.user, this.size = 72});
+  const UserAvatar({
+    super.key,
+    required this.user,
+    this.size = 72,
+    this.preview,
+  });
 
   final AppUser user;
   final double size;
+  final Uint8List? preview;
 
   @override
   State<UserAvatar> createState() => _UserAvatarState();
@@ -36,15 +42,15 @@ class _UserAvatarState extends State<UserAvatar> {
   @override
   void didUpdateWidget(UserAvatar oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.user.username != widget.user.username) {
+    if (oldWidget.user.username != widget.user.username ||
+        oldWidget.user.role != widget.user.role ||
+        oldWidget.user.avatarUrl != widget.user.avatarUrl) {
       _cargar(AppScope.of(context));
     }
   }
 
   void _cargar(AppState state) {
-    imagen = _puedeVerla(state)
-        ? state.repository.avatar(widget.user)
-        : Future.value(null);
+    imagen = state.profilePhoto(widget.user, loadRemote: _puedeVerla(state));
   }
 
   bool _puedeVerla(AppState state) {
@@ -80,7 +86,8 @@ class _UserAvatarState extends State<UserAvatar> {
           height: widget.size,
           child: FutureBuilder<Uint8List?>(
             future: imagen,
-            builder: (context, snapshot) => _dibujar(snapshot.data),
+            builder: (context, snapshot) =>
+                _dibujar(widget.preview ?? snapshot.data),
           ),
         ),
       ),

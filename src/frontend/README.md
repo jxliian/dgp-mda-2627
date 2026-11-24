@@ -128,11 +128,19 @@ La autenticación requiere conexión y el token no se persiste. Después de rein
 
 ## Accesibilidad y límites
 
-Interfaz en español, controles amplios, etiquetas de acciones, teclado, texto escalable, estados con texto e iconos, colores configurables, contraste alto y lectura en voz cuando esté habilitada. Administración gestiona las fotos. El alumno solo dispone de ajustes de accesibilidad cuando tiene permiso para modificar su perfil.
+Interfaz en español, controles amplios, etiquetas de acciones, teclado, texto escalable, estados con texto e iconos, colores configurables, contraste alto y lectura en voz cuando esté habilitada. El alumno dispone de ajustes de accesibilidad y foto cuando tiene permiso para modificar su perfil.
 
-### Perfiles de usuario
+### Perfiles y fotografías
 
 El frontend no solicita, muestra ni guarda direcciones de correo en sus modelos de usuario, formularios o datos de demostración. Los datos que ya existen en el servidor se conservan: estos cambios afectan únicamente a `src/frontend`.
+
+Administración puede elegir una foto al crear o editar cuentas de cualquiera de los cuatro roles. Cada persona también puede cambiar su foto desde **Ajustes**; para el alumno se respeta el permiso `stud_access_profile_mod`. En la edición de usuarios se previsualiza la foto y solo se conserva al pulsar **Guardar usuario**.
+
+Se admiten PNG, JPEG y WebP de hasta 5 MB. El frontend comprueba el contenido y genera una copia PNG de hasta 512 píxeles en su lado mayor, conservando las proporciones y descartando los metadatos originales.
+
+- Las fotos de alumnos asignadas por administración siguen utilizando la subida al servidor cuando está disponible.
+- Para familiares, personal, administradores y operaciones que no tienen subida disponible, las fotos se guardan **solo en el navegador o equipo actual**. Se distinguen por servidor, rol y usuario; sobreviven al cierre de sesión y a la recarga, pero no se comparten con otros dispositivos. Borrar los datos de la aplicación elimina estas copias.
+- Al renombrar una cuenta se traslada su foto local; al eliminarla desde administración se retira su copia local en ese equipo. Las fotos de demostración permanecen en memoria y se descartan al salir o reiniciar ese modo.
 
 **Límite del alta real:** el contrato actual de la API exige datos de contacto para crear personal, familiares y administradores. Como el formulario ya no los recoge y no se modifica el backend, esas altas muestran un aviso y no envían una petición que fallaría. La edición de cuentas existentes y el alta real de alumnos siguen disponibles. En demostración pueden crearse los cuatro roles.
 

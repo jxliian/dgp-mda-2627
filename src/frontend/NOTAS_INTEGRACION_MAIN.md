@@ -19,7 +19,8 @@ en backend. Las correcciones nuevas están dentro de `src/frontend`.
 - El acceso del alumno es más ancho, con dibujos y casillas mayores, un botón
   de borrado de ancho completo y sin opción de escribir la contraseña.
 - «Ajustes» solo aparece al alumno si `stud_access_profile_mod` está activado.
-  Su pantalla conserva la accesibilidad y no ofrece cambiar contraseña ni foto.
+  Su pantalla conserva la accesibilidad y no ofrece cambiar contraseña.
+  La edición de foto se incorporó posteriormente como se describe en el README.
   El guardado envía únicamente los ajustes que cambian, sin permisos.
 - En administración, las contraseñas nuevas o modificadas de un alumno deben
   contener solo cifras `0–9`, que corresponden a los dibujos del acceso.

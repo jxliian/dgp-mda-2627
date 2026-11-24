@@ -101,6 +101,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            ProfilePhotoEditor(
+              user: usuario,
+              label: 'Cambiar mi foto',
+              localOnly: state.profilePhotoIsLocal(usuario),
+              enabled: puedeEditar && !ocupado,
+              onBusyChanged: (value) => setState(() => ocupado = value),
+              onSelected: (bytes) async {
+                await state.saveProfilePhoto(usuario, bytes);
+                if (mounted) {
+                  setState(
+                    () => aviso = state.profilePhotoSavedMessage(usuario),
+                  );
+                }
+              },
+            ),
             if (usuario.role == UserRole.student) ..._seccionDeAlumno(usuario),
             if (usuario.role != UserRole.student) ...[
               const SectionTitle(
@@ -119,7 +134,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             if (error != null) Notice(error!, error: true),
             if (aviso != null) Notice(aviso!),
             FormActions(
-              busy: ocupado || !puedeEditar,
+              busy: ocupado,
+              canSave: puedeEditar,
               onSave: guardar,
               label: 'Guardar mis ajustes',
             ),
@@ -130,14 +146,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   List<Widget> _seccionDeAlumno(AppUser usuario) => [
-    Center(
-      child: Column(
-        children: [
-          UserAvatar(user: usuario, size: 130),
-          const SizedBox(height: 12),
-        ],
-      ),
-    ),
     if (!AppScope.of(context).repository.supportsProfileRead)
       const Notice(_servidorSinLecturaDePerfil),
     if (!puedeEditar) const Notice(_ajustesProtegidos),

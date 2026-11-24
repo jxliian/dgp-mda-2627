@@ -1,4 +1,4 @@
-import 'package:file_selector/file_selector.dart';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import '../models/domain.dart';
 import '../models/validation.dart';
@@ -31,9 +31,8 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
   String? error;
   String? aviso;
 
-  /// Cambiar la foto de otra persona depende de que el servidor lo ofrezca.
-  bool get puedeCambiarLaFoto =>
-      !esNueva && esAlumno && AppScope.of(context).repository.canSetAvatarOf;
+  Uint8List? nuevaFoto;
+  bool cuentaGuardada = false;
 
   bool get altaDisponible =>
       !esNueva || AppScope.of(context).repository.canCreateUser(rol);
@@ -71,62 +70,70 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
   Future<void> guardar() async {
     if (guardando || !altaDisponible || !form.currentState!.validate()) return;
     final state = AppScope.of(context);
+    final namespace = state.photoNamespace;
+    final demo = state.demo;
+    final cuenta = AppUser(
+      username: usuario.text.trim(),
+      fullName: nombre.text.trim(),
+      role: rol,
+    );
+    final fotoLocal = state.profilePhotoIsLocal(cuenta);
     setState(() {
       guardando = true;
       error = null;
     });
     try {
-      await state.repository.saveUser(
-        _datosParaGuardar(),
-        previous: widget.user,
-      );
+      if (!cuentaGuardada) {
+        await state.repository.saveUser(
+          _datosParaGuardar(),
+          previous: widget.user,
+        );
+        cuentaGuardada = true;
+      }
+      final anterior = widget.user;
+      final renombrada =
+          anterior != null && anterior.username != cuenta.username;
+      final foto =
+          nuevaFoto ??
+          (renombrada
+              ? await state.profilePhotos.read(namespace, anterior, demo: demo)
+              : null);
+      if (nuevaFoto != null) {
+        // El cambio del propio usuario puede cerrar la sesión. El alta o la
+        // edición ya se ha autorizado antes de guardar esta copia local.
+        if (fotoLocal) {
+          await state.profilePhotos.save(
+            namespace,
+            cuenta,
+            nuevaFoto!,
+            demo: demo,
+          );
+        } else {
+          await state.saveProfilePhoto(cuenta, nuevaFoto!);
+        }
+      } else if (foto != null) {
+        await state.profilePhotos.save(namespace, cuenta, foto, demo: demo);
+      }
+      if (renombrada) {
+        await state.profilePhotos.remove(namespace, anterior, demo: demo);
+      }
+      state.photoChanged();
       final esLaPropia = widget.user?.username == state.user?.username;
       if (state.user != null && esLaPropia) await state.refreshProfile();
       if (mounted) Navigator.pop(context, true);
     } on Object catch (e) {
-      if (mounted) setState(() => error = e.toString());
-    } finally {
-      if (mounted) setState(() => guardando = false);
-    }
-  }
-
-  /// SCRUM-329: administración cambia la foto de perfil de un alumno.
-  Future<void> cambiarFoto() async {
-    final state = AppScope.of(context);
-    try {
-      final archivo = await openFile(
-        acceptedTypeGroups: [
-          const XTypeGroup(
-            label: 'Imágenes PNG, JPEG o WebP',
-            extensions: ['png', 'jpg', 'jpeg', 'webp'],
-          ),
-        ],
-      );
-      if (archivo == null) return;
-      if (await archivo.length() > _maximoBytesDeFoto) {
-        throw StateError('La imagen no puede superar los 5 MB.');
+      if (mounted) {
+        setState(
+          () => error = cuentaGuardada
+              ? 'La cuenta se ha guardado. No se ha podido completar la foto '
+                    'o actualizar la pantalla. Pulsa Guardar usuario para reintentarlo.'
+              : e.toString(),
+        );
       }
-      if (!mounted) return;
-      setState(() {
-        guardando = true;
-        error = null;
-        aviso = null;
-      });
-      await state.repository.uploadAvatarOf(
-        widget.user!,
-        await archivo.readAsBytes(),
-        archivo.name,
-      );
-      state.photoChanged();
-      if (mounted) setState(() => aviso = 'La foto se ha actualizado.');
-    } on Object catch (e) {
-      if (mounted) setState(() => error = e.toString());
     } finally {
       if (mounted) setState(() => guardando = false);
     }
   }
-
-  static const _maximoBytesDeFoto = 5 * 1024 * 1024;
 
   @override
   Widget build(BuildContext context) => PageShell(
@@ -137,7 +144,29 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (widget.user?.role == UserRole.student) _fotoDelAlumno(),
+          ProfilePhotoEditor(
+            user:
+                widget.user ??
+                AppUser(username: '', fullName: 'nuevo usuario', role: rol),
+            photo: nuevaFoto,
+            localOnly: AppScope.of(context).profilePhotoIsLocal(
+              AppUser(
+                username: usuario.text.trim(),
+                fullName: nombre.text.trim(),
+                role: rol,
+              ),
+            ),
+            label: esNueva ? 'Elegir foto' : 'Cambiar la foto',
+            enabled: !guardando,
+            onBusyChanged: (value) => setState(() => guardando = value),
+            onSelected: (bytes) async {
+              setState(() {
+                nuevaFoto = bytes;
+                aviso =
+                    'Foto seleccionada. Pulsa Guardar usuario para conservarla.';
+              });
+            },
+          ),
           const SectionTitle('Datos de la cuenta'),
           _campoUsuario(),
           const SizedBox(height: 18),
@@ -172,30 +201,9 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
     ),
   );
 
-  Widget _fotoDelAlumno() => Center(
-    child: Column(
-      children: [
-        UserAvatar(user: widget.user!, size: 140),
-        const SizedBox(height: 12),
-        if (puedeCambiarLaFoto)
-          OutlinedButton.icon(
-            onPressed: guardando ? null : cambiarFoto,
-            icon: const Icon(Icons.add_a_photo_outlined),
-            label: const Text('Cambiar la foto'),
-          )
-        else
-          const Notice(_servidorSinCambioDeFoto),
-      ],
-    ),
-  );
-
-  static const _servidorSinCambioDeFoto =
-      'Este servidor todavía no permite cambiar la foto de otra persona. '
-      'La cambia cada alumno desde sus ajustes.';
-
   Widget _campoUsuario() => TextFormField(
     controller: usuario,
-    enabled: !guardando,
+    enabled: !guardando && !cuentaGuardada,
     validator: usernameError,
     autocorrect: false,
     maxLength: 50,
@@ -204,7 +212,7 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
 
   Widget _campoNombre() => TextFormField(
     controller: nombre,
-    enabled: !guardando,
+    enabled: !guardando && !cuentaGuardada,
     validator: fullNameError,
     maxLength: 150,
     decoration: const InputDecoration(labelText: 'Nombre y apellidos *'),
@@ -219,7 +227,7 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
         items: UserRole.values
             .map((r) => DropdownMenuItem(value: r, child: Text(r.label)))
             .toList(),
-        onChanged: esNueva && !guardando
+        onChanged: esNueva && !guardando && !cuentaGuardada
             ? (elegido) => setState(() => rol = elegido!)
             : null,
       ),
@@ -236,7 +244,7 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
 
   Widget _campoContrasena() => TextFormField(
     controller: contrasena,
-    enabled: !guardando,
+    enabled: !guardando && !cuentaGuardada,
     obscureText: true,
     keyboardType: esAlumno ? TextInputType.number : TextInputType.text,
     validator: (valor) {
@@ -257,7 +265,7 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
 
   Widget _campoRepeticion() => TextFormField(
     controller: repeticion,
-    enabled: !guardando,
+    enabled: !guardando && !cuentaGuardada,
     obscureText: true,
     validator: (valor) =>
         valor == contrasena.text ? null : 'Las contraseñas no coinciden.',

@@ -786,12 +786,14 @@ class LiveRepository implements AutovidaRepository {
   }
 
   @override
-  Future<Uint8List?> avatar(AppUser user) => api.image(
-    _user?.username == user.username
-        ? '/users/students/me/avatar'
-        : user.avatarUrl ??
-              '/users/students/${segment(user.username)}/avatar-image',
-  );
+  Future<Uint8List?> avatar(AppUser user) => user.role != UserRole.student
+      ? Future.value(null)
+      : api.image(
+          _user?.username == user.username
+              ? '/users/students/me/avatar'
+              : user.avatarUrl ??
+                    '/users/students/${segment(user.username)}/avatar-image',
+        );
   @override
   Future<void> uploadAvatar(Uint8List image, String filename) =>
       api.uploadAvatar(image, filename);
