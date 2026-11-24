@@ -4,9 +4,17 @@ import 'status_badge.dart';
 
 /// Insignias que resumen una tarea de un vistazo: cuándo es, de quién es y en
 /// qué estado está.
-List<Widget> taskBadges(AgendaTask task, {required bool own}) => [
+List<Widget> taskBadges(
+  AgendaTask task, {
+  required bool own,
+  bool showCreator = false,
+}) => [
   if (sameDay(task.date, DateTime.now()))
-    const StatusBadge('Hoy', tone: BadgeTone.attention, icon: Icons.today_outlined),
+    const StatusBadge(
+      'Hoy',
+      tone: BadgeTone.attention,
+      icon: Icons.today_outlined,
+    ),
   if (task.className != null)
     StatusBadge(
       'Aula · ${task.className}',
@@ -18,6 +26,16 @@ List<Widget> taskBadges(AgendaTask task, {required bool own}) => [
       'Mi tarea',
       tone: BadgeTone.warm,
       icon: Icons.push_pin_outlined,
+    ),
+  if (showCreator && task.creatorRole != null)
+    StatusBadge(
+      'Creada por · ${switch (task.creatorRole!) {
+        UserRole.staff => 'Personal',
+        UserRole.parent => 'Familia',
+        UserRole.student => 'Alumno',
+        UserRole.admin => 'Administración',
+      }}',
+      icon: Icons.person_outline,
     ),
   StatusBadge(
     task.finished ? 'Completada' : 'Pendiente',

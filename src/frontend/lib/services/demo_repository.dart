@@ -150,6 +150,7 @@ class DemoRepository implements AutovidaRepository {
     date: date,
     duration: duration,
     creator: creator,
+    creatorRole: _users[creator]?.role,
     startHour: startHour,
     index: index,
     steps: [
@@ -269,6 +270,9 @@ class DemoRepository implements AutovidaRepository {
     final oldName = previous?.username;
     if (oldName != null && oldName != user.username) {
       _users.remove(oldName);
+      if (_photos.containsKey(oldName)) {
+        _photos[user.username] = _photos.remove(oldName)!;
+      }
       _passwords[user.username] = _passwords.remove(oldName)!;
       if (_tasks.containsKey(oldName)) {
         _tasks[user.username] = _tasks.remove(oldName)!;
@@ -445,12 +449,17 @@ class DemoRepository implements AutovidaRepository {
   }
 
   @override
-  Future<List<AgendaTask>> agenda(String student, DateTime date) async {
+  Future<List<AgendaTask>> agenda(
+    String student,
+    DateTime date, {
+    AgendaFilters filters = const AgendaFilters(),
+  }) async {
     _canAccess(student);
-    return (_tasks[student] ?? []).where((t) => sameDay(t.date, date)).toList()
-      ..sort(
-        (a, b) => (a.startHour ?? '99:99').compareTo(b.startHour ?? '99:99'),
-      );
+    return filters.apply(
+      (_tasks[student] ?? []).where((t) => sameDay(t.date, date)).toList(),
+    )..sort(
+      (a, b) => (a.startHour ?? '99:99').compareTo(b.startHour ?? '99:99'),
+    );
   }
 
   @override
@@ -503,6 +512,7 @@ class DemoRepository implements AutovidaRepository {
       date: draft.date,
       duration: draft.duration,
       creator: previous?.creator ?? _current!.username,
+      creatorRole: previous?.creatorRole ?? _current!.role,
       startHour: draft.startHour,
       alternativeId: draft.alternativeId,
       className: classroom,
@@ -600,7 +610,8 @@ class DemoRepository implements AutovidaRepository {
   @override
   Future<void> uploadAvatar(Uint8List image, String filename) async {
     _signedIn();
-    if (!_current!.access.flag('profile_mod')) {
+    if (_current!.role == UserRole.student &&
+        !_current!.access.flag('profile_mod')) {
       throw const ApiException('No puedes cambiar tu foto.');
     }
     if (image.length > 5 * 1024 * 1024) {

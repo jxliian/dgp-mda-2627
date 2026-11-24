@@ -7,8 +7,8 @@ import '../theme.dart';
 
 /// Foto de perfil de una persona. Si no hay foto, dibuja una silueta.
 ///
-/// Solo pide la imagen al servidor cuando la sesión actual tiene permiso para
-/// verla; así una cuenta sin acceso no provoca errores en pantalla.
+/// La API comprueba los permisos de consulta. Si no permite ver la imagen,
+/// se muestra la silueta sin interrumpir la pantalla.
 class UserAvatar extends StatefulWidget {
   const UserAvatar({
     super.key,
@@ -54,15 +54,10 @@ class _UserAvatarState extends State<UserAvatar> {
   }
 
   bool _puedeVerla(AppState state) {
-    final esSuya = state.user?.username == widget.user.username;
-    // El servidor indica dónde está la foto cuando permite verla: así vale
-    // también para la elección de alumno previa al inicio de sesión.
-    final servidorIndicaRuta = widget.user.avatarUrl != null;
-    const rolesConAcceso = {UserRole.staff, UserRole.parent, UserRole.admin};
+    // La API comprueba los vínculos del usuario con la cuenta consultada.
     return state.demo ||
-        esSuya ||
-        servidorIndicaRuta ||
-        rolesConAcceso.contains(state.user?.role);
+        state.user != null ||
+        widget.user.role == UserRole.student && widget.user.avatarUrl != null;
   }
 
   @override
@@ -85,6 +80,7 @@ class _UserAvatarState extends State<UserAvatar> {
           width: widget.size,
           height: widget.size,
           child: FutureBuilder<Uint8List?>(
+            key: ObjectKey(imagen),
             future: imagen,
             builder: (context, snapshot) =>
                 _dibujar(widget.preview ?? snapshot.data),

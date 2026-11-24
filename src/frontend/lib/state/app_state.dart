@@ -5,7 +5,6 @@ import '../models/domain.dart';
 import '../services/api_client.dart';
 import '../services/demo_repository.dart';
 import '../services/repository.dart';
-import '../services/profile_photos.dart';
 
 class AppState extends ChangeNotifier {
   AppState({AutovidaRepository? repository}) {
@@ -22,10 +21,6 @@ class AppState extends ChangeNotifier {
     });
   }
   late AutovidaRepository repository;
-  final profilePhotos = ProfilePhotos();
-  String get photoNamespace => repository is LiveRepository
-      ? (repository as LiveRepository).api.baseUri.toString()
-      : serverUrl;
   AppUser? user;
   String serverUrl = const String.fromEnvironment(
     'API_BASE_URL',
@@ -57,7 +52,6 @@ class AppState extends ChangeNotifier {
     repository.close();
     user = null;
     repository = value ? DemoRepository() : _live();
-    profilePhotos.clearDemo();
     avatarVersion++;
     sessionVersion++;
     notifyListeners();
@@ -107,41 +101,35 @@ class AppState extends ChangeNotifier {
     AppUser account, {
     bool loadRemote = true,
   }) async {
-    final local = await profilePhotos.read(photoNamespace, account, demo: demo);
-    if (local != null) return local;
-    if (!loadRemote || account.role != UserRole.student) return null;
+    if (!loadRemote || account.username.isEmpty) return null;
     return repository.avatar(account);
   }
 
-  /// Solo el servidor de alumnos ofrece actualmente subida de fotos.
-  bool profilePhotoIsLocal(AppUser account) =>
-      demo ||
-      account.role != UserRole.student ||
-      !(user?.role == UserRole.admin && repository.canSetAvatarOf ||
-          user?.username == account.username && repository.canSetOwnAvatar);
+  bool canSetProfilePhoto(AppUser account) {
+    final own =
+        user?.username == account.username && user?.role == account.role;
+    return own && canEditOwnSettings && repository.canSetOwnAvatar ||
+        user?.role == UserRole.admin && repository.canSetAvatarOf;
+  }
 
-  String profilePhotoSavedMessage(AppUser account) =>
-      profilePhotoIsLocal(account)
-      ? 'Tu foto se ha guardado en este equipo.'
+  bool profilePhotoIsLocal(AppUser account) => demo;
+
+  String profilePhotoSavedMessage(AppUser account) => demo
+      ? 'Tu foto se ha guardado en la demostración.'
       : 'Tu foto se ha guardado en el servidor.';
 
   Future<void> saveProfilePhoto(AppUser account, Uint8List image) async {
+    if (!canSetProfilePhoto(account)) {
+      throw const ApiException(
+        'No tienes permiso para cambiar esta foto o el servidor no lo permite.',
+      );
+    }
     final own =
         user?.username == account.username && user?.role == account.role;
-    if (user?.role != UserRole.admin && !(own && canEditOwnSettings)) {
-      throw const ApiException('No tienes permiso para cambiar esta foto.');
-    }
-    final namespace = photoNamespace;
-    if (profilePhotoIsLocal(account)) {
-      await profilePhotos.save(namespace, account, image, demo: demo);
+    if (own && repository.canSetOwnAvatar) {
+      await repository.uploadAvatar(image, 'perfil.png');
     } else {
-      if (user?.role == UserRole.admin && repository.canSetAvatarOf) {
-        await repository.uploadAvatarOf(account, image, 'perfil.png');
-      } else {
-        await repository.uploadAvatar(image, 'perfil.png');
-      }
-      // Una copia local anterior no debe ocultar la foto recién subida.
-      await profilePhotos.remove(namespace, account);
+      await repository.uploadAvatarOf(account, image, 'perfil.png');
     }
     photoChanged();
   }

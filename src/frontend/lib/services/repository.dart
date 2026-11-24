@@ -4,10 +4,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/domain.dart';
 import 'api_client.dart';
 
-const userCreationUnavailable =
-    'El servidor actual requiere datos adicionales para crear este tipo de cuenta. '
-    'Puedes modificar las cuentas existentes.';
-
 abstract class AutovidaRepository {
   bool get isDemo;
 
@@ -66,7 +62,11 @@ abstract class AutovidaRepository {
   Future<List<AppUser>> linkedStudents(AppUser user);
   Future<List<AppUser>> parents(String student);
   Future<void> linkParent(String student, String parent, {bool remove = false});
-  Future<List<AgendaTask>> agenda(String student, DateTime date);
+  Future<List<AgendaTask>> agenda(
+    String student,
+    DateTime date, {
+    AgendaFilters filters = const AgendaFilters(),
+  });
   Future<List<AgendaTask>> classTasks(String name);
   Future<AgendaTask> saveTask(
     String student,
@@ -94,9 +94,6 @@ abstract class AutovidaRepository {
 }
 
 extension AutovidaRepositoryActions on AutovidaRepository {
-  /// El contrato actual solo admite el alta de alumnos con los datos del formulario.
-  bool canCreateUser(UserRole role) => isDemo || role == UserRole.student;
-
   /// Aula a la que pertenece un alumno, o `null` si no consta ninguna.
   ///
   /// Se obtiene del directorio del centro, que es la única vista de aulas
@@ -175,10 +172,9 @@ class LiveRepository implements AutovidaRepository {
   bool get canRemoveStaff =>
       supports('delete', '/classes/{class_name}/staff/{staff_username}');
   @override
-  bool get canSetAvatarOf =>
-      supports('put', '/users/students/{student_username}/avatar');
+  bool get canSetAvatarOf => supports('put', '/users/{role}/{username}/avatar');
   @override
-  bool get canSetOwnAvatar => supports('put', '/users/students/me/avatar');
+  bool get canSetOwnAvatar => supports('put', '/users/me/avatar');
 
   /// Administración y personal utilizan la misma ruta; el servidor comprueba
   /// que el personal esté asignado al aula.
@@ -385,10 +381,6 @@ class LiveRepository implements AutovidaRepository {
 
   @override
   Future<void> saveUser(Json payload, {AppUser? previous}) async {
-    if (previous == null &&
-        !canCreateUser(UserRole.parse(payload['role'] as String))) {
-      throw const ApiException(userCreationUnavailable);
-    }
     await api.request(
       previous == null ? 'POST' : 'PUT',
       previous == null
@@ -567,13 +559,19 @@ class LiveRepository implements AutovidaRepository {
   }
 
   @override
-  Future<List<AgendaTask>> agenda(String student, DateTime date) async {
+  Future<List<AgendaTask>> agenda(
+    String student,
+    DateTime date, {
+    AgendaFilters filters = const AgendaFilters(),
+  }) async {
     final own = _user?.role == UserRole.student;
     final template = own
         ? '/student-tasks/me'
         : '/student-tasks/students/{student_username}';
     requireFeature('get', template, 'La consulta de la agenda individual');
-    final key = '$student/${isoDate(date)}';
+    final query = {'task_date': isoDate(date), if (!own) ...filters.toQuery()};
+    final key =
+        '$student/${isoDate(date)}${!own && !filters.isEmpty ? '/${jsonEncode(filters.toQuery())}' : ''}';
     try {
       await synchronize();
       final data = await api.request(
@@ -581,20 +579,20 @@ class LiveRepository implements AutovidaRepository {
         own
             ? '/student-tasks/me'
             : '/student-tasks/students/${segment(student)}',
-        query: {'task_date': isoDate(date)},
+        query: query,
       );
       final tasks = _tasks(data);
       _agendaCache[key] = tasks;
       _offline = false;
       await _persist();
-      return tasks;
+      return own ? filters.apply(tasks) : tasks;
     } on ApiException catch (error) {
       // Cached data is never substituted for permission failures or expired sessions.
       if (error.code == null &&
           error.status == null &&
           _agendaCache.containsKey(key)) {
         _offline = true;
-        return _agendaCache[key]!;
+        return own ? filters.apply(_agendaCache[key]!) : _agendaCache[key]!;
       }
       rethrow;
     }
@@ -786,28 +784,28 @@ class LiveRepository implements AutovidaRepository {
   }
 
   @override
-  Future<Uint8List?> avatar(AppUser user) => user.role != UserRole.student
-      ? Future.value(null)
-      : api.image(
-          _user?.username == user.username
-              ? '/users/students/me/avatar'
-              : user.avatarUrl ??
-                    '/users/students/${segment(user.username)}/avatar-image',
-        );
+  Future<Uint8List?> avatar(AppUser user) => api.image(
+    _user?.username == user.username && _user?.role == user.role
+        ? '/users/me/avatar'
+        : '/users/${user.role.name}/${segment(user.username)}/avatar-image',
+  );
   @override
-  Future<void> uploadAvatar(Uint8List image, String filename) =>
-      api.uploadAvatar(image, filename);
+  Future<void> uploadAvatar(Uint8List image, String filename) {
+    requireFeature('put', '/users/me/avatar', 'El cambio de tu foto');
+    return api.uploadAvatar(image, filename);
+  }
+
   @override
   Future<void> uploadAvatarOf(AppUser user, Uint8List image, String filename) {
     requireFeature(
       'put',
-      '/users/students/{student_username}/avatar',
+      '/users/{role}/{username}/avatar',
       'El cambio de la foto de otra persona desde administración',
     );
     return api.uploadAvatar(
       image,
       filename,
-      path: '/users/students/${segment(user.username)}/avatar',
+      path: '/users/${user.role.name}/${segment(user.username)}/avatar',
     );
   }
 

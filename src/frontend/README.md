@@ -132,17 +132,26 @@ Interfaz en español, controles amplios, etiquetas de acciones, teclado, texto e
 
 ### Perfiles y fotografías
 
-El frontend no solicita, muestra ni guarda direcciones de correo en sus modelos de usuario, formularios o datos de demostración. Los datos que ya existen en el servidor se conservan: estos cambios afectan únicamente a `src/frontend`.
+El alta y la edición de los cuatro roles usan `POST /users` y `PUT /users/{role}/{username}` sin email, de acuerdo con la [guía del backend](../../docs/diseno_arquitectura/arquitectura/GuiaBackend.md). Administración puede adjuntar una foto al crear o editar cualquier cuenta; cada persona puede cambiar la propia desde **Ajustes**. Para alumnos se respeta `stud_access_profile_mod`.
 
-Administración puede elegir una foto al crear o editar cuentas de cualquiera de los cuatro roles. Cada persona también puede cambiar su foto desde **Ajustes**; para el alumno se respeta el permiso `stud_access_profile_mod`. En la edición de usuarios se previsualiza la foto y solo se conserva al pulsar **Guardar usuario**.
+Las fotos reales se guardan en el servidor mediante multipart `file`:
 
-Se admiten PNG, JPEG y WebP de hasta 5 MB. El frontend comprueba el contenido y genera una copia PNG de hasta 512 píxeles en su lado mayor, conservando las proporciones y descartando los metadatos originales.
+| Acción | Endpoint |
+| --- | --- |
+| Administración cambia cualquier foto | `PUT /users/{role}/{username}/avatar` |
+| Cambiar mi foto | `PUT /users/me/avatar` |
+| Consultar mi foto | `GET /users/me/avatar` |
+| Consultar otra foto autorizada | `GET /users/{role}/{username}/avatar-image` |
 
-- Las fotos de alumnos asignadas por administración siguen utilizando la subida al servidor cuando está disponible.
-- Para familiares, personal, administradores y operaciones que no tienen subida disponible, las fotos se guardan **solo en el navegador o equipo actual**. Se distinguen por servidor, rol y usuario; sobreviven al cierre de sesión y a la recarga, pero no se comparten con otros dispositivos. Borrar los datos de la aplicación elimina estas copias.
-- Al renombrar una cuenta se traslada su foto local; al eliminarla desde administración se retira su copia local en ese equipo. Las fotos de demostración permanecen en memoria y se descartan al salir o reiniciar ese modo.
+Se admiten PNG, JPEG y WebP de hasta 5 MB. El frontend comprueba el contenido y prepara una copia PNG de hasta 512 píxeles en su lado mayor. La selección se previsualiza antes de **Guardar usuario**; si falla solo la subida, reintentar no vuelve a crear la cuenta. El cambio de foto propia desde ajustes se guarda directamente. Las fotos reales ya no se guardan en el navegador; las antiguas copias locales no sustituyen las del servidor. En demostración las imágenes permanecen en memoria durante ese modo.
 
-**Límite del alta real:** el contrato actual de la API exige datos de contacto para crear personal, familiares y administradores. Como el formulario ya no los recoge y no se modifica el backend, esas altas muestran un aviso y no envían una petición que fallaría. La edición de cuentas existentes y el alta real de alumnos siguen disponibles. En demostración pueden crearse los cuatro roles.
+### Filtros de tareas de alumnos (SCRUM-692)
+
+Personal y familiares consultan la misma ruta `GET /student-tasks/students/{student_username}`, con la fecha `task_date` y los parámetros opcionales combinables `class_name`, `finished` y `creator_role`. La interfaz permite elegir todas las tareas o las de la única clase del alumno, pendientes o completadas y creadas por personal, familia o el propio alumno. Elegir una clase excluye las tareas individuales; no cambia el alumno consultado.
+
+Sin filtros adicionales se envía únicamente la fecha. Una respuesta vacía muestra «No hay tareas con estos filtros» cuando hay filtros activos. Los errores HTTP, incluido 422, se muestran con opción de reintentar y no se sustituyen por resultados sin filtrar. `creator_role` se conserva al leer, guardar en caché o actualizar el progreso y se muestra en las tarjetas de personal y familia.
+
+La agenda propia del alumno sigue usando `GET /student-tasks/me?task_date=...`: su filtro de estado es local, ya que esa ruta no admite los filtros de la consulta de acompañantes. La demostración aplica los mismos filtros a sus datos ficticios.
 
 Los apoyos predeterminados son iconos Material y fotos subidas, no pictogramas ARASAAC. Se pueden adjuntar los materiales específicos del centro a tareas y pasos con su atribución y permisos. La voz depende de las voces españolas del dispositivo; no sustituye una grabación familiar. Queda pendiente la validación con TalkBack, ayudas motrices y alumnado real.
 

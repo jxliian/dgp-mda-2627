@@ -185,6 +185,28 @@ class TaskStep {
   };
 }
 
+class AgendaFilters {
+  const AgendaFilters({this.className, this.finished, this.creatorRole});
+  final String? className;
+  final bool? finished;
+  final UserRole? creatorRole;
+  bool get isEmpty =>
+      className == null && finished == null && creatorRole == null;
+  Map<String, String> toQuery() => {
+    'class_name': ?className,
+    if (finished != null) 'finished': finished.toString(),
+    if (creatorRole != null) 'creator_role': creatorRole!.name,
+  };
+  List<AgendaTask> apply(List<AgendaTask> tasks) => tasks
+      .where(
+        (task) =>
+            (className == null || task.className == className) &&
+            (finished == null || task.finished == finished) &&
+            (creatorRole == null || task.creatorRole == creatorRole),
+      )
+      .toList();
+}
+
 class AgendaTask {
   AgendaTask({
     required this.id,
@@ -192,6 +214,7 @@ class AgendaTask {
     required this.date,
     required this.duration,
     required this.creator,
+    this.creatorRole,
     this.startHour,
     this.index = 0,
     this.finished = false,
@@ -206,6 +229,7 @@ class AgendaTask {
   final DateTime date;
   final int duration;
   final String creator;
+  final UserRole? creatorRole;
   final String? startHour;
   final int index;
   final bool finished;
@@ -228,6 +252,9 @@ class AgendaTask {
     date: DateTime.parse(json['task_date'] as String),
     duration: json['task_duration'] as int,
     creator: json['task_creator'] as String? ?? '',
+    creatorRole: UserRole.values
+        .where((role) => role.name == json['creator_role'])
+        .firstOrNull,
     startHour: json['task_start_hour'] as String?,
     index: json['task_index'] as int? ?? 0,
     finished: json['task_finished'] == true,
@@ -248,6 +275,7 @@ class AgendaTask {
     date: date,
     duration: duration,
     creator: creator,
+    creatorRole: creatorRole,
     startHour: startHour,
     index: index,
     finished: done ?? finished,
@@ -263,6 +291,7 @@ class AgendaTask {
     'task_date': dateKey,
     'task_duration': duration,
     'task_creator': creator,
+    if (creatorRole != null) 'creator_role': creatorRole!.name,
     'task_start_hour': startHour,
     'task_index': index,
     'task_finished': finished,

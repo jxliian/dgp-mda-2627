@@ -23,15 +23,35 @@ class _AgendaScreenState extends State<AgendaScreen> {
 
   DateTime dia = DateTime.now();
   String filtro = _filtros.first;
+  String? claseFiltrada;
+  UserRole? creadorFiltrado;
+  Future<String?>? claseDelAlumno;
   int revision = 0;
   String? aviso;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    claseDelAlumno ??= AppScope.of(
+      context,
+    ).repository.classOf(widget.student.username);
+  }
+
+  AgendaFilters get filtros => AgendaFilters(
+    finished: switch (filtro) {
+      'Pendientes' => false,
+      'Completadas' => true,
+      _ => null,
+    },
+    className: claseFiltrada,
+    creatorRole: creadorFiltrado,
+  );
 
   /// La sesión es la del propio alumno (y no la de quien le acompaña).
   bool get esSuPropiaAgenda => AppScope.of(context).student;
 
-  AccessSettings get ajustes => esSuPropiaAgenda
-      ? AppScope.of(context).access
-      : widget.student.access;
+  AccessSettings get ajustes =>
+      esSuPropiaAgenda ? AppScope.of(context).access : widget.student.access;
 
   void _recargar({String? mensaje}) => setState(() {
     revision++;
@@ -57,7 +77,10 @@ class _AgendaScreenState extends State<AgendaScreen> {
   }
 
   Future<void> elegirDia() async {
-    final elegido = await openPage<DateTime>(context, DaysScreen(selected: dia));
+    final elegido = await openPage<DateTime>(
+      context,
+      DaysScreen(selected: dia),
+    );
     if (elegido != null && mounted) {
       setState(() {
         dia = elegido;
@@ -84,10 +107,11 @@ class _AgendaScreenState extends State<AgendaScreen> {
       footer: const AppFooter(),
       child: Column(
         children: [
-          _ClaseDelAlumno(student: widget.student),
+          _ClaseDelAlumno(className: claseDelAlumno!),
           _barraDeDia(),
           const SizedBox(height: 14),
           if (!esSuPropiaAgenda || ajustes.flag('filters')) _filtrosDeEstado(),
+          if (!esSuPropiaAgenda) _filtrosDeOrigen(),
           if (aviso != null) Notice(aviso!),
           const SizedBox(height: 12),
           if (state.repository.canReadAgenda)
@@ -139,21 +163,74 @@ class _AgendaScreenState extends State<AgendaScreen> {
     ],
   );
 
+  Widget _filtrosDeOrigen() => Padding(
+    padding: const EdgeInsets.only(top: 16),
+    child: Column(
+      children: [
+        FutureBuilder<String?>(
+          future: claseDelAlumno,
+          builder: (context, snapshot) {
+            final clase = snapshot.data;
+            if (clase == null) return const SizedBox.shrink();
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: DropdownButtonFormField<String>(
+                initialValue: claseFiltrada ?? '',
+                isExpanded: true,
+                decoration: const InputDecoration(labelText: 'Tareas de clase'),
+                items: [
+                  const DropdownMenuItem(
+                    value: '',
+                    child: Text('Todas las tareas'),
+                  ),
+                  DropdownMenuItem(
+                    value: clase,
+                    child: Text('Solo la clase $clase'),
+                  ),
+                ],
+                onChanged: (value) =>
+                    setState(() => claseFiltrada = value == '' ? null : value),
+              ),
+            );
+          },
+        ),
+        DropdownButtonFormField<String>(
+          initialValue: creadorFiltrado?.name ?? '',
+          isExpanded: true,
+          decoration: const InputDecoration(labelText: 'Quién creó la tarea'),
+          items: const [
+            DropdownMenuItem(value: '', child: Text('Cualquier creador')),
+            DropdownMenuItem(
+              value: 'staff',
+              child: Text('Personal del centro'),
+            ),
+            DropdownMenuItem(value: 'parent', child: Text('Familia')),
+            DropdownMenuItem(value: 'student', child: Text('El propio alumno')),
+          ],
+          onChanged: (value) => setState(
+            () => creadorFiltrado = value == '' ? null : UserRole.parse(value!),
+          ),
+        ),
+      ],
+    ),
+  );
+
   static const _servidorSinAgenda =
       'Este servidor todavía no permite consultar la lista de tareas de un '
       'alumno. Puedes crear tareas nuevas y se guardarán en su agenda.';
 
   Widget _listaDeTareas(AppState state) => LoadPanel<List<AgendaTask>>(
-    key: ValueKey('$revision/${isoDate(dia)}'),
-    load: () => state.repository.agenda(widget.student.username, dia),
+    key: ValueKey('$revision/${isoDate(dia)}/${filtros.toQuery()}'),
+    load: () =>
+        state.repository.agenda(widget.student.username, dia, filters: filtros),
     builder: (tareas) {
       final visibles = _filtrar(tareas);
       return PagedItems<AgendaTask>(
         items: visibles,
         pageSize: _tareasPorPagina(visibles.length),
-        empty: tareas.isEmpty
-            ? 'No hay actividades para esta fecha.'
-            : 'No hay tareas con este filtro.',
+        empty: !filtros.isEmpty
+            ? 'No hay tareas con estos filtros.'
+            : 'No hay actividades para esta fecha.',
         builder: (tarea) => _ficha(tarea, state),
       );
     },
@@ -173,7 +250,7 @@ class _AgendaScreenState extends State<AgendaScreen> {
           '${tarea.startHour?.substring(0, 5) ?? 'Sin hora fija'} · ${tarea.duration} min',
       icon: taskIcon(tarea.title),
       edge: tarea.finished ? Paleta.bosque : Paleta.terracota,
-      badges: taskBadges(tarea, own: esSuya),
+      badges: taskBadges(tarea, own: esSuya, showCreator: !esSuPropiaAgenda),
       leading: ajustes.flag('pictograms')
           ? ContentPicture(
               bytes: tarea.image,
@@ -188,13 +265,13 @@ class _AgendaScreenState extends State<AgendaScreen> {
 
 /// Aula a la que pertenece el alumno (SCRUM-325). Si no consta, no ocupa sitio.
 class _ClaseDelAlumno extends StatelessWidget {
-  const _ClaseDelAlumno({required this.student});
+  const _ClaseDelAlumno({required this.className});
 
-  final AppUser student;
+  final Future<String?> className;
 
   @override
   Widget build(BuildContext context) => FutureBuilder<String?>(
-    future: AppScope.of(context).repository.classOf(student.username),
+    future: className,
     builder: (context, snapshot) {
       final aula = snapshot.data;
       if (aula == null) return const SizedBox.shrink();

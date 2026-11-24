@@ -55,7 +55,8 @@ class _Server {
             jsonEncode({
               'paths': {
                 '/users/me': {'get': {}},
-                '/users/students/{student_username}/avatar': {'put': {}},
+                '/users/{role}/{username}/avatar': {'put': {}},
+                '/users/me/avatar': {'put': {}, 'get': {}},
               },
             }),
             200,
@@ -63,6 +64,10 @@ class _Server {
         }
         if (path == '/users/me') {
           return http.Response(jsonEncode({'errorCode': 0, ...profile}), 200);
+        }
+        if (request.method == 'GET' &&
+            (path.endsWith('/avatar') || path.endsWith('/avatar-image'))) {
+          return http.Response.bytes(_photo, 200);
         }
         if (path.endsWith('/avatar') && request.method == 'PUT') {
           photoUploads.add(request);
@@ -169,7 +174,7 @@ void main() {
           find.byType(ProfilePhotoEditor),
         );
         expect(editor.enabled, true);
-        expect(editor.localOnly, role != UserRole.student);
+        expect(editor.localOnly, false);
         await editor.onSelected(_photo);
         await tester.pumpAndSettle();
         expect(
@@ -187,16 +192,16 @@ void main() {
         final body = jsonDecode(update.body) as Map;
         expect(body.containsKey('email'), false);
         expect(body['full_name'], 'Persona');
-        if (role == UserRole.student) {
-          expect(server.photoUploads, hasLength(1));
-        } else {
-          expect(server.photoUploads, isEmpty);
-          final reopened = AppState(
-            repository: server.repository(UserRole.admin),
-          );
-          expect(await reopened.profilePhoto(user, loadRemote: false), _photo);
-          reopened.dispose();
-        }
+        expect(server.photoUploads, hasLength(1));
+        expect(
+          server.photoUploads.single.url.path,
+          '/users/${role.name}/cuenta/avatar',
+        );
+        final reopened = AppState(
+          repository: server.repository(UserRole.admin),
+        );
+        expect(await reopened.profilePhoto(user), _photo);
+        reopened.dispose();
         expect(tester.takeException(), isNull);
         await _close(tester, state);
       },
@@ -204,34 +209,31 @@ void main() {
   }
 
   for (final role in UserRole.values) {
-    testWidgets(
-      '${role.name}: own settings save a local photo without a server upload',
-      (tester) async {
-        final server = _Server();
-        final repo = server.repository(role);
-        await repo.login(role.name, '1234', role);
-        final state = AppState(repository: repo);
-        await _mount(tester, state, const SettingsScreen());
-        _expectNoContactField(tester);
-        await tester
-            .widget<ProfilePhotoEditor>(find.byType(ProfilePhotoEditor))
-            .onSelected(_photo);
-        await tester.pumpAndSettle();
-        expect(
-          find.text('Tu foto se ha guardado en este equipo.'),
-          findsOneWidget,
-        );
-        expect(await state.profilePhoto(state.user!), _photo);
-        expect(server.requests.where((r) => r.method == 'PUT'), isEmpty);
-        expect(tester.takeException(), isNull);
-        await _close(tester, state);
-      },
-    );
+    testWidgets('${role.name}: own settings upload a photo to the server', (
+      tester,
+    ) async {
+      final server = _Server();
+      final repo = server.repository(role);
+      await repo.login(role.name, '1234', role);
+      final state = AppState(repository: repo);
+      await _mount(tester, state, const SettingsScreen());
+      _expectNoContactField(tester);
+      await tester
+          .widget<ProfilePhotoEditor>(find.byType(ProfilePhotoEditor))
+          .onSelected(_photo);
+      await tester.pumpAndSettle();
+      expect(
+        find.text('Tu foto se ha guardado en el servidor.'),
+        findsOneWidget,
+      );
+      expect(await state.profilePhoto(state.user!), _photo);
+      expect(server.photoUploads.single.url.path, '/users/me/avatar');
+      expect(tester.takeException(), isNull);
+      await _close(tester, state);
+    });
   }
 
-  testWidgets('renaming an account moves its local photo to the new name', (
-    tester,
-  ) async {
+  testWidgets('renaming an account preserves its demo photo', (tester) async {
     final repo = DemoRepository();
     await repo.login('admin', '1234', UserRole.admin);
     final state = AppState(repository: repo);
@@ -249,6 +251,35 @@ void main() {
     expect(await state.profilePhoto(user, loadRemote: false), isNull);
     await _close(tester, state);
   });
+
+  testWidgets(
+    'own photo is uploaded before a username change revokes the token',
+    (tester) async {
+      final server = _Server();
+      final repo = server.repository(UserRole.admin);
+      await repo.login('admin', '1234', UserRole.admin);
+      final state = AppState(repository: repo);
+      repo.api.onSessionExpired = state.expire;
+      await _mount(tester, state, UserEditorScreen(user: state.user));
+      await _enter(tester, 'Nombre de usuario *', 'otro_admin');
+      await tester
+          .widget<ProfilePhotoEditor>(find.byType(ProfilePhotoEditor))
+          .onSelected(_photo);
+      await tester.pumpAndSettle();
+      await _tap(tester, 'Guardar usuario');
+      final update = server.requests.singleWhere(
+        (r) => r.method == 'PUT' && r.url.path == '/users/admin/admin',
+      );
+      expect(server.photoUploads.single.url.path, '/users/me/avatar');
+      expect(
+        server.requests.indexOf(server.photoUploads.single),
+        lessThan(server.requests.indexOf(update)),
+      );
+      expect(state.user, isNull);
+      expect(repo.api.token, isNull);
+      await _close(tester, state);
+    },
+  );
 
   testWidgets(
     'cancelling the file picker restores the editor without changes',
@@ -281,7 +312,7 @@ void main() {
     },
   );
 
-  testWidgets('deleting an account also removes its local photo', (
+  testWidgets('deleting an account also removes its demo photo', (
     tester,
   ) async {
     final repo = DemoRepository();
@@ -344,42 +375,52 @@ void main() {
     },
   );
 
-  testWidgets(
-    'unavailable account creation keeps cancel enabled without a loading spinner',
-    (tester) async {
-      final server = _Server();
-      final repo = server.repository(UserRole.admin);
-      await repo.login('admin', '1234', UserRole.admin);
-      final state = AppState(repository: repo);
-      await _mount(tester, state, const UserEditorScreen());
-      final roles = find.byType(DropdownButtonFormField<UserRole>);
-      await tester.ensureVisible(roles);
-      await tester.tap(roles);
-      await tester.pumpAndSettle();
-      await tester.tap(find.text(UserRole.staff.label).last);
-      await tester.pumpAndSettle();
-      expect(find.text(userCreationUnavailable), findsOneWidget);
-      expect(find.byType(CircularProgressIndicator), findsNothing);
-      expect(
-        tester
-            .widget<FilledButton>(
-              find.widgetWithText(FilledButton, 'Guardar usuario'),
-            )
-            .onPressed,
-        isNull,
-      );
-      _expectNoContactField(tester);
-      await _tap(tester, 'Cancelar');
-      expect(find.text('Abrir'), findsOneWidget);
-      expect(
-        server.requests.where(
+  for (final role in UserRole.values) {
+    testWidgets(
+      '${role.name}: real account creation sends no email and can upload a photo',
+      (tester) async {
+        final server = _Server();
+        final repo = server.repository(UserRole.admin);
+        await repo.login('admin', '1234', UserRole.admin);
+        final state = AppState(repository: repo);
+        await _mount(tester, state, const UserEditorScreen());
+        if (role != UserRole.student) {
+          final roles = find.byType(DropdownButtonFormField<UserRole>);
+          await tester.ensureVisible(roles);
+          await tester.tap(roles);
+          await tester.pumpAndSettle();
+          await tester.tap(find.text(role.label).last);
+          await tester.pumpAndSettle();
+        }
+        _expectNoContactField(tester);
+        await _enter(tester, 'Nombre de usuario *', 'nueva');
+        await _enter(tester, 'Nombre y apellidos *', 'Persona nueva');
+        await _enter(tester, 'Contraseña *', '1234');
+        await _enter(tester, 'Confirmar contraseña', '1234');
+        await tester
+            .widget<ProfilePhotoEditor>(find.byType(ProfilePhotoEditor))
+            .onSelected(_photo);
+        await tester.pumpAndSettle();
+        await _tap(tester, 'Guardar usuario');
+        expect(find.text('Abrir'), findsOneWidget);
+        final creation = server.requests.singleWhere(
           (r) => r.method == 'POST' && r.url.path == '/users',
-        ),
-        isEmpty,
-      );
-      await _close(tester, state);
-    },
-  );
+        );
+        final payload = jsonDecode(creation.body) as Map;
+        expect(payload['role'], role.name);
+        expect(payload.containsKey('email'), false);
+        expect(
+          server.photoUploads.single.url.path,
+          '/users/${role.name}/nueva/avatar',
+        );
+        expect(
+          server.requests.indexOf(creation),
+          lessThan(server.requests.indexOf(server.photoUploads.single)),
+        );
+        await _close(tester, state);
+      },
+    );
+  }
 
   testWidgets(
     'retrying a failed photo upload does not repeat account creation',

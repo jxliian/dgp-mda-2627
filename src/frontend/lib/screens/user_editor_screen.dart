@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../models/domain.dart';
 import '../models/validation.dart';
 import '../state/app_state.dart';
-import '../services/repository.dart';
 import '../ui/ui.dart';
 import 'access_editor.dart';
 import 'associations_screen.dart';
@@ -33,9 +32,7 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
 
   Uint8List? nuevaFoto;
   bool cuentaGuardada = false;
-
-  bool get altaDisponible =>
-      !esNueva || AppScope.of(context).repository.canCreateUser(rol);
+  bool fotoGuardada = false;
 
   bool get esNueva => widget.user == null;
   bool get esAlumno => rol == UserRole.student;
@@ -68,21 +65,30 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
   };
 
   Future<void> guardar() async {
-    if (guardando || !altaDisponible || !form.currentState!.validate()) return;
+    if (guardando || !form.currentState!.validate()) return;
     final state = AppScope.of(context);
-    final namespace = state.photoNamespace;
-    final demo = state.demo;
     final cuenta = AppUser(
       username: usuario.text.trim(),
       fullName: nombre.text.trim(),
       role: rol,
     );
-    final fotoLocal = state.profilePhotoIsLocal(cuenta);
+    final own =
+        widget.user?.username == state.user?.username &&
+        widget.user?.role == state.user?.role;
+    final closesSession =
+        own &&
+        (contrasena.text.isNotEmpty ||
+            widget.user?.username != cuenta.username);
     setState(() {
       guardando = true;
       error = null;
     });
     try {
+      // El cambio de credenciales revoca el token: la foto propia debe subirse antes.
+      if (closesSession && nuevaFoto != null && !fotoGuardada) {
+        await state.saveProfilePhoto(widget.user!, nuevaFoto!);
+        fotoGuardada = true;
+      }
       if (!cuentaGuardada) {
         await state.repository.saveUser(
           _datosParaGuardar(),
@@ -90,32 +96,9 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
         );
         cuentaGuardada = true;
       }
-      final anterior = widget.user;
-      final renombrada =
-          anterior != null && anterior.username != cuenta.username;
-      final foto =
-          nuevaFoto ??
-          (renombrada
-              ? await state.profilePhotos.read(namespace, anterior, demo: demo)
-              : null);
-      if (nuevaFoto != null) {
-        // El cambio del propio usuario puede cerrar la sesión. El alta o la
-        // edición ya se ha autorizado antes de guardar esta copia local.
-        if (fotoLocal) {
-          await state.profilePhotos.save(
-            namespace,
-            cuenta,
-            nuevaFoto!,
-            demo: demo,
-          );
-        } else {
-          await state.saveProfilePhoto(cuenta, nuevaFoto!);
-        }
-      } else if (foto != null) {
-        await state.profilePhotos.save(namespace, cuenta, foto, demo: demo);
-      }
-      if (renombrada) {
-        await state.profilePhotos.remove(namespace, anterior, demo: demo);
+      if (nuevaFoto != null && !fotoGuardada) {
+        await state.saveProfilePhoto(cuenta, nuevaFoto!);
+        fotoGuardada = true;
       }
       state.photoChanged();
       final esLaPropia = widget.user?.username == state.user?.username;
@@ -157,11 +140,13 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
               ),
             ),
             label: esNueva ? 'Elegir foto' : 'Cambiar la foto',
-            enabled: !guardando,
+            enabled:
+                !guardando && (AppScope.of(context).repository.canSetAvatarOf),
             onBusyChanged: (value) => setState(() => guardando = value),
             onSelected: (bytes) async {
               setState(() {
                 nuevaFoto = bytes;
+                fotoGuardada = false;
                 aviso =
                     'Foto seleccionada. Pulsa Guardar usuario para conservarla.';
               });
@@ -173,7 +158,6 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
           _campoNombre(),
           const SizedBox(height: 18),
           _campoRol(),
-          if (!altaDisponible) const Notice(userCreationUnavailable),
           const SectionTitle(
             'Contraseña',
             hint: 'Al modificar una cuenta, déjala vacía para no cambiarla.',
@@ -192,7 +176,6 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
           if (aviso != null) Notice(aviso!),
           FormActions(
             busy: guardando,
-            canSave: altaDisponible,
             onSave: guardar,
             label: 'Guardar usuario',
           ),

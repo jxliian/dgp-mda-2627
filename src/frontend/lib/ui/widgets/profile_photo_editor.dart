@@ -90,10 +90,9 @@ class _ProfilePhotoEditorState extends State<ProfilePhotoEditor> {
           padding: const EdgeInsets.symmetric(vertical: 12),
           child: Text(
             widget.localOnly
-                ? 'La foto se guarda solo en este navegador o equipo. '
-                      'No se comparte con otros dispositivos.'
+                ? 'La foto de demostración dura solo esta sesión.'
                 : 'La foto se guarda en el servidor y se comparte con los '
-                      'usuarios que tienen acceso al alumno.',
+                      'usuarios que tienen acceso a este perfil.',
             textAlign: TextAlign.center,
           ),
         ),

@@ -127,7 +127,7 @@ class ApiClient {
   Future<void> uploadAvatar(
     Uint8List bytes,
     String filename, {
-    String path = '/users/students/me/avatar',
+    String path = '/users/me/avatar',
   }) async {
     final request = http.MultipartRequest('PUT', uri(path));
     if (token != null) request.headers['Authorization'] = 'Bearer $token';

@@ -105,7 +105,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               user: usuario,
               label: 'Cambiar mi foto',
               localOnly: state.profilePhotoIsLocal(usuario),
-              enabled: puedeEditar && !ocupado,
+              enabled:
+                  puedeEditar && !ocupado && state.canSetProfilePhoto(usuario),
               onBusyChanged: (value) => setState(() => ocupado = value),
               onSelected: (bytes) async {
                 await state.saveProfilePhoto(usuario, bytes);

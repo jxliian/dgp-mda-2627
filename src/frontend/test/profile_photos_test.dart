@@ -25,45 +25,6 @@ void main() {
 
   for (final role in UserRole.values) {
     test(
-      '${role.name}: local photo survives a new store and is isolated',
-      () async {
-        final user = account(role);
-        await ProfilePhotos().save('https://centro/', user, photo);
-        final reopened = ProfilePhotos();
-        expect(await reopened.read('https://centro/', user), photo);
-        expect(await reopened.read('https://otro-centro/', user), isNull);
-        expect(
-          await reopened.read('https://centro/', account(role, 'otra')),
-          isNull,
-        );
-        for (final otherRole in UserRole.values.where((r) => r != role)) {
-          expect(
-            await reopened.read('https://centro/', account(otherRole)),
-            isNull,
-          );
-        }
-        expect(
-          await reopened.read('https://centro/', user, demo: true),
-          isNull,
-        );
-        await reopened.save(
-          'https://centro/',
-          user,
-          Uint8List.fromList([1]),
-          demo: true,
-        );
-        reopened.clearDemo();
-        expect(
-          await reopened.read('https://centro/', user, demo: true),
-          isNull,
-        );
-        expect(await reopened.read('https://centro/', user), photo);
-        await reopened.remove('https://centro/', user);
-        expect(await ProfilePhotos().read('https://centro/', user), isNull);
-      },
-    );
-
-    test(
       '${role.name}: admin can set a photo and user can see it after login',
       () async {
         final repo = DemoRepository();
@@ -116,12 +77,12 @@ void main() {
             return http.Response(
               jsonEncode({
                 'paths': {
-                  '/users/students/{student_username}/avatar': {'put': {}},
+                  '/users/{role}/{username}/avatar': {'put': {}},
                 },
               }),
               200,
             );
-          case '/users/students/persona/avatar':
+          case '/users/student/persona/avatar':
             expect(request.method, 'PUT');
             expect(request.headers['authorization'], 'Bearer token');
             expect(
@@ -130,7 +91,7 @@ void main() {
             );
             uploaded = true;
             return http.Response('{"errorCode":0}', 200);
-          case '/users/students/persona/avatar-image':
+          case '/users/student/persona/avatar-image':
             expect(uploaded, true);
             return http.Response.bytes(photo, 200);
           default:
@@ -141,18 +102,9 @@ void main() {
     final state = AppState(repository: LiveRepository(api));
     addTearDown(state.dispose);
     await state.login('admin', '1234', UserRole.admin);
-    await state.profilePhotos.save(
-      state.photoNamespace,
-      student,
-      Uint8List.fromList([1]),
-    );
     expect(state.profilePhotoIsLocal(student), false);
     await state.saveProfilePhoto(student, photo);
     expect(uploaded, true);
-    expect(
-      await state.profilePhotos.read(state.photoNamespace, student),
-      isNull,
-    );
     expect(await state.profilePhoto(student), photo);
   });
 
