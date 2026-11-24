@@ -47,11 +47,11 @@ AJUSTES_DE_ALUMNO = {
 }
 
 CUENTAS = [
-    ('admin', 'admin', 'Administración de prueba', 'admin@example.com'),
-    ('lucia', 'staff', 'Lucía Martín', 'lucia@example.com'),
-    ('familia', 'parent', 'Elena García', 'familia@example.com'),
-    ('pablo', 'student', 'Pablo García', None),
-    ('ana', 'student', 'Ana García', None),
+    ('admin', 'admin', 'Administración de prueba'),
+    ('lucia', 'staff', 'Lucía Martín'),
+    ('familia', 'parent', 'Elena García'),
+    ('pablo', 'student', 'Pablo García'),
+    ('ana', 'student', 'Ana García'),
 ]
 
 AULAS = ['Aula de la autonomía', 'Taller de reprografía']
@@ -84,9 +84,9 @@ def borrar_datos() -> None:
 
 
 def crear_cuentas(db) -> None:
-    for username, rol, nombre, correo in CUENTAS:
+    for username, rol, nombre in CUENTAS:
         resultado = users_mng_db.createUser(
-            db, username, '1234', rol, nombre, correo,
+            db, username, '1234', rol, nombre,
             access_settings=AJUSTES_DE_ALUMNO if rol == 'student' else None,
         )
         if resultado['errorCode']:
