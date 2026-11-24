@@ -102,13 +102,7 @@ def test_filtrar_por_rol(client):
     r = client.get("/users?role=parent", headers=as_user("admin"))
     usuarios = r.json()["users"]
     assert [u["username"] for u in usuarios] == ["madre", "otra_madre"]
-    assert usuarios[0]["email"] == "madre@mail.es"
     assert usuarios[0]["role"] == "parent"
-
-
-def test_los_alumnos_no_tienen_correo(client):
-    for alumno in client.get("/users?role=student", headers=as_user("admin")).json()["users"]:
-        assert "email" not in alumno
 
 
 def test_consulta_sin_resultados(client, engine):

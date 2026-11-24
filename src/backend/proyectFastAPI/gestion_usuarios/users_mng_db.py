@@ -12,10 +12,10 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 # Identifiers are internal constants; never accept table or column names from a request.
 ROLE_CONFIG = {
 
-    "admin": {"table": "Admn", "username": "admn_usr", "email": "admn_email"},
-    "staff": {"table": "Staff", "username": "staff_usr", "email": "staff_email"},
+    "admin": {"table": "Admn", "username": "admn_usr"},
+    "staff": {"table": "Staff", "username": "staff_usr"},
     "student": {"table": "Student", "username": "stud_usr"},
-    "parent": {"table": "Parents", "username": "par_usr", "email": "par_email"},
+    "parent": {"table": "Parents", "username": "par_usr"},
 }
 
 STUDENT_ACCESS_FIELDS = (
@@ -76,8 +76,6 @@ def _integrity_error_code(exc: IntegrityError, fallback: ErrorCode, username: bo
     constraint = getattr(getattr(exc.orig, "diag", None), "constraint_name", "") or ""
     if username or constraint == "users_pkey" or "username" in constraint:
         return ErrorCode.USERNAME_TAKEN
-    if "email" in constraint:
-        return ErrorCode.EMAIL_TAKEN
     return fallback
 
 
@@ -89,8 +87,6 @@ class UsersManagementDB:
         try:
             cfg = _config(role)
             fields = [f"r.{cfg['username']} AS username", "u.full_name AS full_name"]
-            if "email" in cfg:
-                fields.append(f"r.{cfg['email']} AS email")
             if role.lower() == "student":
                 fields.extend(f"r.{field}" for field in STUDENT_ACCESS_FIELDS)
             row = db.execute(
@@ -108,28 +104,6 @@ class UsersManagementDB:
         except Exception:
             return _error(ErrorCode.USER_LOOKUP_FAILED)
 
-    def getUserByEmail(self, db: Session, email: str, role: str) -> dict:
-        """Busca por correo a los usuarios de roles que tienen ese campo."""
-        try:
-            cfg = _config(role)
-            if "email" not in cfg:
-                return _error(ErrorCode.EMAIL_UNAVAILABLE)
-            row = db.execute(
-                text(
-                    f"SELECT r.{cfg['username']} AS username, u.full_name AS full_name, "
-                    f"r.{cfg['email']} AS email "
-                    f"FROM {cfg['table']} AS r JOIN users AS u "
-                    f"ON u.username = r.{cfg['username']} "
-                    f"WHERE r.{cfg['email']} = :email"
-                ),
-                {"email": email},
-            ).mappings().first()
-            return _ok(**dict(row)) if row else _error(ErrorCode.EMAIL_USER_NOT_FOUND)
-        except ValueError as exc:
-            return _error(ErrorCode.INVALID_ROLE)
-        except Exception:
-            return _error(ErrorCode.USER_LOOKUP_FAILED)
-
     def getUsers(self, db: Session, role: Optional[str] = None) -> dict:
         """Lista todas las cuentas o las de un rol, con username, nombre y rol."""
         try:
@@ -142,8 +116,6 @@ class UsersManagementDB:
                     "u.full_name AS full_name",
                     ":role AS role",
                 ]
-                if "email" in cfg:
-                    fields.append(f"r.{cfg['email']} AS email")
                 if selected_role == "student":
                     fields.extend(f"r.{field}" for field in STUDENT_ACCESS_FIELDS)
                 rows = db.execute(
@@ -201,7 +173,7 @@ class UsersManagementDB:
             db.rollback()
             return _error(ErrorCode.PASSWORD_UPDATE_FAILED)
 
-    def createUser(self, db: Session, username: str, passwd_plain: str, role: str, full_name: str = "", email: Optional[str] = None, access_settings: Optional[dict] = None) -> dict:
+    def createUser(self, db: Session, username: str, passwd_plain: str, role: str, full_name: str = "", access_settings: Optional[dict] = None) -> dict:
         """Crea el registro común y su especialización de rol en una transacción."""
         try:
             cfg = _config(role)
@@ -210,9 +182,6 @@ class UsersManagementDB:
                                            for field in STUDENT_ACCESS_FIELDS)
             ):
                 return _error(ErrorCode.INVALID_REQUEST)
-            if "email" in cfg:
-                if not email:
-                    return _error(ErrorCode.EMAIL_REQUIRED)
             if _username_exists(db, username):
                 db.rollback()
                 return _error(ErrorCode.USERNAME_TAKEN)
@@ -231,10 +200,6 @@ class UsersManagementDB:
             fields = [cfg["username"]]
             params = {"username": username}
             values = [":username"]
-            if "email" in cfg:
-                fields.insert(2, cfg["email"])
-                values.insert(2, ":email")
-                params["email"] = email
             if role.lower() == "student":
                 avatar_id = db.execute(
                     text(
@@ -294,7 +259,7 @@ class UsersManagementDB:
             return _error(ErrorCode.USER_DELETE_FAILED)
 
     def updateUser(self, db: Session, username: str, role: str, full_name: Optional[str] = None,
-                   email: Optional[str] = None, passwd_plain: Optional[str] = None,
+                   passwd_plain: Optional[str] = None,
                    new_username: Optional[str] = None, new_role: Optional[str] = None,
                    access_settings: Optional[dict] = None, actor_username: Optional[str] = None,
                    actor_role: Optional[str] = None) -> dict:
@@ -305,7 +270,6 @@ class UsersManagementDB:
                 return _error(ErrorCode.ROLE_CHANGE_DENIED)
             target_role = source_role
             source_cfg = _config(source_role)
-            target_cfg = source_cfg
             target_username = new_username or username
             identity_changed = username != target_username
 
@@ -325,14 +289,12 @@ class UsersManagementDB:
                     set(access_settings) & STUDENT_ACCESS_PERMISSION_FIELDS
                 ):
                     return _error(ErrorCode.PROFILE_UPDATE_DENIED)
-            if all(value is None for value in (full_name, email, passwd_plain, new_username, new_role)) and not access_settings:
+            if all(value is None for value in (full_name, passwd_plain, new_username, new_role)) and not access_settings:
                 return _error(ErrorCode.NO_UPDATE_FIELDS)
             if any(value is None for value in access_settings.values()):
                 return _error(ErrorCode.INVALID_REQUEST)
 
             selected_fields = ["u.username"]
-            if "email" in source_cfg:
-                selected_fields.append(f"r.{source_cfg['email']} AS email")
             if source_role == "student":
                 selected_fields.append("r.stud_access_profile_mod AS stud_access_profile_mod")
             old_row = db.execute(
@@ -360,34 +322,6 @@ class UsersManagementDB:
             if target_username != username and _username_exists(db, target_username):
                 db.rollback()
                 return _error(ErrorCode.USERNAME_TAKEN)
-
-            if "email" in target_cfg:
-                if email is not None:
-                    target_email = email
-                elif "email" in source_cfg:
-                    target_email = old_row["email"]
-                else:
-                    db.rollback()
-                    return _error(ErrorCode.EMAIL_REQUIRED)
-                if not target_email:
-                    db.rollback()
-                    return _error(ErrorCode.EMAIL_REQUIRED)
-                excluded_username = username
-                email_exists = db.execute(
-                    text(
-                        f"SELECT 1 FROM {target_cfg['table']} WHERE {target_cfg['email']} = :email "
-                        f"AND {target_cfg['username']} <> :excluded_username"
-                    ),
-                    {"email": target_email, "excluded_username": excluded_username},
-                ).scalar_one_or_none()
-                if email_exists is not None:
-                    db.rollback()
-                    return _error(ErrorCode.EMAIL_TAKEN)
-            else:
-                if email is not None:
-                    db.rollback()
-                    return _error(ErrorCode.EMAIL_UNAVAILABLE)
-                target_email = None
 
             user_updates = []
             parameters = {"username": username}
@@ -417,14 +351,6 @@ class UsersManagementDB:
                         {"new_username": target_username, "username": username},
                     )
 
-            if email is not None:
-                db.execute(
-                    text(
-                        f"UPDATE {source_cfg['table']} SET {source_cfg['email']} = :email "
-                        f"WHERE {source_cfg['username']} = :username"
-                    ),
-                    {"email": email, "username": target_username},
-                )
             if access_settings:
                 assignments = ", ".join(f"{field} = :{field}" for field in access_settings)
                 db.execute(

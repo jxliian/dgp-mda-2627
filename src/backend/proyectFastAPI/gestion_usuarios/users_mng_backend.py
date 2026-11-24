@@ -1,7 +1,7 @@
 from typing import Annotated, Literal, Union
 
 from fastapi import APIRouter, Depends, File, Path, Response, UploadFile
-from pydantic import BaseModel, ConfigDict, EmailStr, Field, StrictBool, StrictInt, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictInt, field_validator
 from sqlalchemy.orm import Session
 
 from ..DB.database import get_db
@@ -120,15 +120,14 @@ class CreateStudentRequest(CreateUserBase):
     stud_access_task_mod: StrictBool
 
 
-class CreateEmailUserRequest(CreateUserBase):
-    """Campos de creación para roles que requieren un correo válido."""
+class CreateNonStudentUserRequest(CreateUserBase):
+    """Campos de creación para administrador, personal o tutor."""
 
     role: Literal["admin", "staff", "parent"]
-    email: EmailStr = Field(max_length=254)
 
 
 CreateUserRequest = Annotated[
-    Union[CreateStudentRequest, CreateEmailUserRequest],
+    Union[CreateStudentRequest, CreateNonStudentUserRequest],
     Field(discriminator="role"),
 ]
 
@@ -166,7 +165,6 @@ class UpdateUserRequest(BaseModel):
     role: Role | None = None
     full_name: str | None = Field(default=None, strict=True, min_length=1, max_length=150)
     password: str | None = Field(default=None, strict=True, min_length=1)
-    email: EmailStr | None = Field(default=None, max_length=254)
     stud_access_main_col: str | None = Field(default=None, strict=True, min_length=4, max_length=7, pattern=r"^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$")
     stud_access_sec_col: str | None = Field(default=None, strict=True, min_length=4, max_length=7, pattern=r"^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$")
     stud_access_ntasks_visible: StrictInt | None = Field(default=None, ge=0)
@@ -207,7 +205,7 @@ def create_user(payload: CreateUserRequest, db: Session = Depends(get_db)) -> di
     )
     result = users_mng_db.createUser(
         db, payload.username, payload.password, payload.role, payload.full_name,
-        getattr(payload, "email", None), access_settings=access_settings,
+        access_settings=access_settings,
     )
     if result["errorCode"] != 0:
         raise_api_error(result["errorCode"])
@@ -266,7 +264,6 @@ def edit_user(role: Role, username: UsernamePath, payload: UpdateUserRequest,
         username,
         role,
         full_name=payload.full_name,
-        email=payload.email,
         passwd_plain=payload.password,
         new_username=payload.username,
         new_role=payload.role,

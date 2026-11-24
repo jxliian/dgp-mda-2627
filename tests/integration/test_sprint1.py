@@ -73,31 +73,29 @@ def test_admin_crea_un_alumno_que_puede_entrar(client):
     assert client.post("/auth/login", json=datos).status_code == 200
 
 
-def test_admin_crea_cuentas_con_correo(client, count):
+def test_admin_crea_cuentas(client, count):
     for rol in ["admin", "staff", "parent"]:
-        body = {"username": f"n{rol}", "full_name": "Nombre", "password": "x", "role": rol, "email": f"n{rol}@mail.es"}
+        body = {"username": f"n{rol}", "full_name": "Nombre", "password": "x", "role": rol}
         assert client.post("/users", json=body, headers=as_user("admin")).status_code == 200
     assert count("users WHERE username LIKE 'n%'") == 3
 
 
-def test_no_se_repiten_usuario_ni_correo(client):
+def test_no_se_repiten_usuarios(client):
     base = {"full_name": "Nombre", "password": "x", "role": "parent"}
     cabecera = as_user("admin")
-    assert client.post("/users", json={**base, "username": "madre", "email": "z@mail.es"}, headers=cabecera).status_code == 409
-    assert client.post("/users", json={**base, "username": "nueva", "email": "madre@mail.es"}, headers=cabecera).status_code == 409
+    assert client.post("/users", json={**base, "username": "madre"}, headers=cabecera).status_code == 409
 
 
 def test_solo_el_admin_crea_usuarios(client):
-    body = {"username": "x1", "full_name": "Nombre", "password": "x", "role": "parent", "email": "x1@mail.es"}
+    body = {"username": "x1", "full_name": "Nombre", "password": "x", "role": "parent"}
     assert client.post("/users", json=body, headers=as_user("lucia")).status_code == 403
 
 
 # ------------------------------------------------------ modificar usuarios
 
-def test_admin_modifica_nombre_y_correo(client, count):
-    body = {"full_name": "Otra", "email": "nueva@mail.es"}
+def test_admin_modifica_nombre(client, count):
+    body = {"full_name": "Otra"}
     assert client.put("/users/parent/madre", json=body, headers=as_user("admin")).status_code == 200
-    assert count("Parents WHERE par_email = 'nueva@mail.es'") == 1
     assert count("users WHERE username = 'madre' AND full_name = 'Otra'") == 1
 
 

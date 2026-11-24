@@ -15,10 +15,7 @@ class ErrorCode(IntEnum):
     ASSOCIATION_ACCESS_DENIED = 1004
     INVALID_REQUEST = 1005
     USER_NOT_FOUND = 1006
-    EMAIL_UNAVAILABLE = 1007
-    EMAIL_USER_NOT_FOUND = 1008
     INVALID_ROLE = 1009
-    EMAIL_REQUIRED = 1010
     LAST_ADMIN = 1011
     NO_UPDATE_FIELDS = 1012
     ASSOCIATED_ENTITY_NOT_FOUND = 1013
@@ -36,7 +33,6 @@ class ErrorCode(IntEnum):
     PARENT_DELETE_DURING_SCHOOL_HOURS = 1025
     STAFF_DELETE_OUTSIDE_SCHOOL_HOURS = 1026
     USERNAME_TAKEN = 1027
-    EMAIL_TAKEN = 1028
     PROFILE_UPDATE_DENIED = 1029
     CLASS_NOT_FOUND = 1030
     CLASS_NAME_TAKEN = 1031
@@ -68,10 +64,7 @@ ERRORS: dict[ErrorCode, tuple[int, str]] = {
     ErrorCode.ASSOCIATION_ACCESS_DENIED: (403, "Solo puedes consultar los alumnos asociados a tu propia cuenta"),
     ErrorCode.INVALID_REQUEST: (422, "La solicitud contiene datos inválidos"),
     ErrorCode.USER_NOT_FOUND: (404, "Usuario no encontrado"),
-    ErrorCode.EMAIL_UNAVAILABLE: (400, "Los estudiantes no tienen correo electrónico"),
-    ErrorCode.EMAIL_USER_NOT_FOUND: (404, "Usuario no encontrado por correo"),
     ErrorCode.INVALID_ROLE: (400, "Rol no válido"),
-    ErrorCode.EMAIL_REQUIRED: (400, "El correo electrónico es obligatorio"),
     ErrorCode.LAST_ADMIN: (400, "No se puede eliminar el último administrador"),
     ErrorCode.NO_UPDATE_FIELDS: (400, "Debe indicarse al menos un campo para editar"),
     ErrorCode.ASSOCIATED_ENTITY_NOT_FOUND: (404, "No se encontró el usuario o la asociación"),
@@ -89,7 +82,6 @@ ERRORS: dict[ErrorCode, tuple[int, str]] = {
     ErrorCode.PARENT_DELETE_DURING_SCHOOL_HOURS: (400, "Los tutores no pueden eliminar tareas programadas durante el horario escolar"),
     ErrorCode.STAFF_DELETE_OUTSIDE_SCHOOL_HOURS: (400, "El personal no puede eliminar tareas programadas fuera del horario escolar"),
     ErrorCode.USERNAME_TAKEN: (409, "Ya existe un usuario con ese nombre de usuario"),
-    ErrorCode.EMAIL_TAKEN: (409, "Ya existe un usuario con ese correo electrónico en el rol indicado"),
     ErrorCode.PROFILE_UPDATE_DENIED: (403, "No tienes permiso para modificar este perfil"),
     ErrorCode.CLASS_NOT_FOUND: (404, "Clase no encontrada"),
     ErrorCode.CLASS_NAME_TAKEN: (409, "Ya existe una clase con ese nombre"),

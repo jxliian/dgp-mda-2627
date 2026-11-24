@@ -11,14 +11,12 @@ PARENT_CONFIG = {
     "user_fk": "par_usr_fk",
     "profile_table": "Parents",
     "user_username": "par_usr",
-    "user_email": "par_email",
 }
 ROLE_CONFIG = {
     "parent": PARENT_CONFIG,
     "staff": {
         "profile_table": "Staff",
         "user_username": "staff_usr",
-        "user_email": "staff_email",
     },
 }
 
@@ -104,7 +102,7 @@ def get_associated_users(db: Session, role: Literal["parent", "staff"], student_
     _ensure_user_exists(db, "student", student_username)
     if role == "parent":
         query = text(
-            "SELECT profile.par_usr AS username, account.full_name, profile.par_email AS email "
+            "SELECT profile.par_usr AS username, account.full_name "
             "FROM par_stud links "
             "JOIN Parents profile ON profile.par_usr = links.par_usr_fk "
             "JOIN users account ON account.username = profile.par_usr "
@@ -114,7 +112,7 @@ def get_associated_users(db: Session, role: Literal["parent", "staff"], student_
     else:
         query = text(
             "SELECT DISTINCT profile.staff_usr AS username, "
-            "account.full_name, profile.staff_email AS email "
+            "account.full_name "
             "FROM class_stud enrollment "
             "JOIN class_staff teaching ON teaching.class_name_fk = enrollment.class_name_fk "
             "JOIN Staff profile ON profile.staff_usr = teaching.staff_usr_fk "

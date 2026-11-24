@@ -9,13 +9,11 @@ CREATE TABLE users (
 -- Tablas de especialización: su PK es también FK a users.username.
 CREATE TABLE Admn (
     admn_usr VARCHAR(50) PRIMARY KEY,
-    admn_email VARCHAR(254) NOT NULL UNIQUE,
     CONSTRAINT fk_admn_user FOREIGN KEY (admn_usr) REFERENCES users(username) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE Staff (
     staff_usr VARCHAR(50) PRIMARY KEY,
-    staff_email VARCHAR(254) NOT NULL UNIQUE,
     CONSTRAINT fk_staff_user FOREIGN KEY (staff_usr) REFERENCES users(username) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
@@ -53,7 +51,6 @@ CREATE TABLE Student (
 
 CREATE TABLE Parents (
     par_usr VARCHAR(50) PRIMARY KEY,
-    par_email VARCHAR(254) NOT NULL UNIQUE,
     CONSTRAINT fk_parents_user FOREIGN KEY (par_usr) REFERENCES users(username) ON UPDATE CASCADE ON DELETE CASCADE
 );
 

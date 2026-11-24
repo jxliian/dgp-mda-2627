@@ -91,24 +91,24 @@ def _add_account(conn, username, full_name):
 def add_admin(conn, username):
     _add_account(conn, username, "Persona Admin")
     conn.execute(
-        text("INSERT INTO Admn VALUES (:u, :e)"),
-        {"u": username, "e": f"{username}@autovida.es"},
+        text("INSERT INTO Admn (admn_usr) VALUES (:u)"),
+        {"u": username},
     )
 
 
 def _add_staff(conn, username):
     _add_account(conn, username, "Persona Personal")
     conn.execute(
-        text("INSERT INTO Staff VALUES (:u, :e)"),
-        {"u": username, "e": f"{username}@autovida.es"},
+        text("INSERT INTO Staff (staff_usr) VALUES (:u)"),
+        {"u": username},
     )
 
 
 def _add_parent(conn, username):
     _add_account(conn, username, "Persona Familia")
     conn.execute(
-        text("INSERT INTO Parents VALUES (:u, :e)"),
-        {"u": username, "e": f"{username}@mail.es"},
+        text("INSERT INTO Parents (par_usr) VALUES (:u)"),
+        {"u": username},
     )
 
 
