@@ -49,14 +49,12 @@ class AppUser {
     required this.username,
     required this.fullName,
     required this.role,
-    this.email,
     this.avatarUrl,
     AccessSettings? access,
   }) : access = access ?? AccessSettings();
   final String username;
   final String fullName;
   final UserRole role;
-  final String? email;
   final String? avatarUrl;
   final AccessSettings access;
   String get displayName => fullName.isEmpty ? username : fullName;
@@ -64,7 +62,6 @@ class AppUser {
     username: json['username'] as String,
     fullName: json['full_name'] as String? ?? '',
     role: role ?? UserRole.parse(json['role'] as String? ?? 'student'),
-    email: json['email'] as String?,
     avatarUrl: json['avatar_url'] as String?,
     access: AccessSettings({
       for (final key in AccessSettings.defaults.keys)
@@ -75,7 +72,6 @@ class AppUser {
     'username': username,
     'full_name': fullName,
     'role': role.name,
-    if (email != null) 'email': email,
     if (avatarUrl != null) 'avatar_url': avatarUrl,
     if (role == UserRole.student) ...access.toJson(),
   };

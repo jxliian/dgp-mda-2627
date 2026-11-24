@@ -116,7 +116,6 @@ class _MainApi {
             {
               'username': 'lucia',
               'full_name': 'Lucía',
-              'email': 'lucia@example.com',
             },
         ],
       };

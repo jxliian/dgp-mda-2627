@@ -53,19 +53,16 @@ class DemoRepository implements AutovidaRepository {
         username: 'admin',
         fullName: 'Administración',
         role: UserRole.admin,
-        email: 'admin@example.com',
       ),
       AppUser(
         username: 'lucia',
         fullName: 'Lucía Martín',
         role: UserRole.staff,
-        email: 'lucia@example.com',
       ),
       AppUser(
         username: 'familia',
         fullName: 'Elena García',
         role: UserRole.parent,
-        email: 'familia@example.com',
       ),
       for (final name in [
         'Pablo',

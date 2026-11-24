@@ -7,11 +7,13 @@ class FormActions extends StatelessWidget {
     required this.busy,
     required this.onSave,
     this.label = 'Guardar',
+    this.canSave = true,
   });
 
   final bool busy;
   final VoidCallback onSave;
   final String label;
+  final bool canSave;
 
   @override
   Widget build(BuildContext context) => Padding(
@@ -27,7 +29,7 @@ class FormActions extends StatelessWidget {
           label: const Text('Cancelar'),
         ),
         FilledButton.icon(
-          onPressed: busy ? null : onSave,
+          onPressed: busy || !canSave ? null : onSave,
           icon: busy
               ? const SizedBox(
                   width: 20,

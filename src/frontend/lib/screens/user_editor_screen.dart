@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/domain.dart';
 import '../models/validation.dart';
 import '../state/app_state.dart';
+import '../services/repository.dart';
 import '../ui/ui.dart';
 import 'access_editor.dart';
 import 'associations_screen.dart';
@@ -22,7 +23,6 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
   final form = GlobalKey<FormState>();
   final usuario = TextEditingController();
   final nombre = TextEditingController();
-  final correo = TextEditingController();
   final contrasena = TextEditingController();
   final repeticion = TextEditingController();
   late UserRole rol;
@@ -35,6 +35,9 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
   bool get puedeCambiarLaFoto =>
       !esNueva && esAlumno && AppScope.of(context).repository.canSetAvatarOf;
 
+  bool get altaDisponible =>
+      !esNueva || AppScope.of(context).repository.canCreateUser(rol);
+
   bool get esNueva => widget.user == null;
   bool get esAlumno => rol == UserRole.student;
 
@@ -44,7 +47,6 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
     final cuenta = widget.user;
     usuario.text = cuenta?.username ?? '';
     nombre.text = cuenta?.fullName ?? '';
-    correo.text = cuenta?.email ?? '';
     rol = cuenta?.role ?? UserRole.student;
     ajustes = cuenta?.access.copy() ?? AccessSettings();
   }
@@ -53,7 +55,6 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
   void dispose() {
     usuario.dispose();
     nombre.dispose();
-    correo.dispose();
     contrasena.dispose();
     repeticion.dispose();
     super.dispose();
@@ -64,11 +65,11 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
     'full_name': nombre.text.trim(),
     if (esNueva) 'role': rol.name,
     if (contrasena.text.isNotEmpty) 'password': contrasena.text,
-    if (esAlumno) ...ajustes.toJson() else 'email': correo.text.trim(),
+    if (esAlumno) ...ajustes.toJson(),
   };
 
   Future<void> guardar() async {
-    if (!form.currentState!.validate()) return;
+    if (guardando || !altaDisponible || !form.currentState!.validate()) return;
     final state = AppScope.of(context);
     setState(() {
       guardando = true;
@@ -143,7 +144,7 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
           _campoNombre(),
           const SizedBox(height: 18),
           _campoRol(),
-          if (!esAlumno) ...[const SizedBox(height: 18), _campoCorreo()],
+          if (!altaDisponible) const Notice(userCreationUnavailable),
           const SectionTitle(
             'Contraseña',
             hint: 'Al modificar una cuenta, déjala vacía para no cambiarla.',
@@ -162,6 +163,7 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
           if (aviso != null) Notice(aviso!),
           FormActions(
             busy: guardando,
+            canSave: altaDisponible,
             onSave: guardar,
             label: 'Guardar usuario',
           ),
@@ -230,14 +232,6 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
           ),
         ),
     ],
-  );
-
-  Widget _campoCorreo() => TextFormField(
-    controller: correo,
-    enabled: !guardando,
-    validator: emailError,
-    keyboardType: TextInputType.emailAddress,
-    decoration: const InputDecoration(labelText: 'Correo electrónico *'),
   );
 
   Widget _campoContrasena() => TextFormField(

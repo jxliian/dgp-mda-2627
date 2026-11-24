@@ -28,12 +28,6 @@ String? passwordError(String? value) {
       : null;
 }
 
-String? emailError(String? value) =>
-    value != null &&
-        value.length <= 254 &&
-        RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$').hasMatch(value.trim())
-    ? null
-    : 'Escribe un correo electrónico válido.';
 String? positiveInteger(String? value) =>
     int.tryParse(value ?? '') == null || int.parse(value!) <= 0
     ? 'Escribe un número entero mayor que cero.'

@@ -4,6 +4,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/domain.dart';
 import 'api_client.dart';
 
+const userCreationUnavailable =
+    'El servidor actual requiere datos adicionales para crear este tipo de cuenta. '
+    'Puedes modificar las cuentas existentes.';
+
 abstract class AutovidaRepository {
   bool get isDemo;
 
@@ -90,6 +94,9 @@ abstract class AutovidaRepository {
 }
 
 extension AutovidaRepositoryActions on AutovidaRepository {
+  /// El contrato actual solo admite el alta de alumnos con los datos del formulario.
+  bool canCreateUser(UserRole role) => isDemo || role == UserRole.student;
+
   /// Aula a la que pertenece un alumno, o `null` si no consta ninguna.
   ///
   /// Se obtiene del directorio del centro, que es la única vista de aulas
@@ -378,6 +385,10 @@ class LiveRepository implements AutovidaRepository {
 
   @override
   Future<void> saveUser(Json payload, {AppUser? previous}) async {
+    if (previous == null &&
+        !canCreateUser(UserRole.parse(payload['role'] as String))) {
+      throw const ApiException(userCreationUnavailable);
+    }
     await api.request(
       previous == null ? 'POST' : 'PUT',
       previous == null

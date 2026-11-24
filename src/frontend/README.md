@@ -54,7 +54,7 @@ CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
 ENABLE_STUDENT_DIRECTORY=true
 ```
 
-El directorio anterior al login muestra aulas, nombres de pila, identificadores de acceso y fotos de alumnos matriculados. No expone tareas, preferencias, correos ni contraseñas. Puede desactivarse con `ENABLE_STUDENT_DIRECTORY=false`; permanece el acceso con usuario y contraseña.
+El directorio anterior al login muestra aulas, nombres de pila, identificadores de acceso y fotos de alumnos matriculados. No expone tareas, preferencias ni contraseñas. Puede desactivarse con `ENABLE_STUDENT_DIRECTORY=false`; permanece el acceso con usuario y contraseña.
 
 Para crear una **base separada de datos ficticios**, configura `DB_NAME=autovida_demo` y ejecuta desde `src/backend`:
 
@@ -129,6 +129,12 @@ La autenticación requiere conexión y el token no se persiste. Después de rein
 ## Accesibilidad y límites
 
 Interfaz en español, controles amplios, etiquetas de acciones, teclado, texto escalable, estados con texto e iconos, colores configurables, contraste alto y lectura en voz cuando esté habilitada. Administración gestiona las fotos. El alumno solo dispone de ajustes de accesibilidad cuando tiene permiso para modificar su perfil.
+
+### Perfiles de usuario
+
+El frontend no solicita, muestra ni guarda direcciones de correo en sus modelos de usuario, formularios o datos de demostración. Los datos que ya existen en el servidor se conservan: estos cambios afectan únicamente a `src/frontend`.
+
+**Límite del alta real:** el contrato actual de la API exige datos de contacto para crear personal, familiares y administradores. Como el formulario ya no los recoge y no se modifica el backend, esas altas muestran un aviso y no envían una petición que fallaría. La edición de cuentas existentes y el alta real de alumnos siguen disponibles. En demostración pueden crearse los cuatro roles.
 
 Los apoyos predeterminados son iconos Material y fotos subidas, no pictogramas ARASAAC. Se pueden adjuntar los materiales específicos del centro a tareas y pasos con su atribución y permisos. La voz depende de las voces españolas del dispositivo; no sustituye una grabación familiar. Queda pendiente la validación con TalkBack, ayudas motrices y alumnado real.
 
