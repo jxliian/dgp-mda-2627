@@ -1,12 +1,18 @@
 **Pruebas del backend de AUTOVIDA**  
-Revisado y verificado por el Gestor de Calidad ✅  
-Este documento describe las pruebas automáticas del backend: qué comprueban, cómo se ejecutan y qué resultado dan.  
-**Última ejecución:** 10/11/2026 · **Total:** 177 casos · **Resultado:** 177 correctos y 0 fallos.  
-**1. Alcance**  
-Son **pruebas de integración**. Cada prueba envía una petición HTTP a la API real y comprueba tanto la respuesta como lo que ha quedado guardado en PostgreSQL. Por tanto, se ejercitan juntas las rutas, la validación de datos, los permisos y las consultas SQL.  
+   
+ Revisado y verificado por el Gestor de Calidad ✅  
+   
+ Este documento describe las pruebas automáticas del backend: qué comprueban, cómo se ejecutan y qué resultado dan.  
+   
+ **Última ejecución:** 24/11/2026 · **Total:** 178 casos · **Resultado:** 178 correctos y 0 fallos.  
+   
+ **1. Alcance**  
+   
+ Son **pruebas de integración**. Cada prueba envía una petición HTTP a la API real y comprueba tanto la respuesta como lo que ha quedado guardado en PostgreSQL. Por tanto, se ejercitan juntas las rutas, la validación de datos, los permisos y las consultas SQL.  
   
 |  |  |  |  
 | - | - | - |  
+|   |    |    |  
 | **Historia de usuario** |  **Funcionalidad** |  **Fichero** |  
 | HU-05 |  Sesión autenticada y rol de cada usuario |  `test_auth.py` |  
 | HU-02 |  Eliminar cuentas |  `test_users.py` |  
@@ -19,25 +25,35 @@ Son **pruebas de integración**. Cada prueba envía una petición HTTP a la API 
 | Resto del sprint 1 |  Crear y modificar usuarios, tareas propias del alumno, clases, tareas de clase y foto de perfil |  `test_sprint1.py` |  
   
    
-**Fuera del alcance:** las tareas alternativas (`PUT /student-tasks/{task_id}/alternative`), que no forman parte del primer sprint.  
-**2. Cómo ejecutarlas**  
-**Requisitos**  
+   
+   
+ **Fuera del alcance:** las tareas alternativas (`PUT /student-tasks/{task_id}/alternative`), que no forman parte del primer sprint.  
+   
+ **2. Cómo ejecutarlas**  
+   
+ **Requisitos**  
 - Contenedor `autovida_postgres` en marcha.  
 - Fichero `src/backend/proyectFastAPI/.env` con la variable `DB_PASSWORD`.  
-- [uv instalado.](https://docs.astral.sh/uv/ "https://docs.astral.sh/uv/")  
-**Comando**, desde `src/backend/proyectFastAPI`:  
+- [uv instalado.  
+ **Comando**, desde `src/backend/proyectFastAPI`:](https://docs.astral.sh/uv/ "https://docs.astral.sh/uv/")  
 ```  
-uv run --with pytest python -m pytest ../../../tests/integration -v  
+uv run --with pytest python -m pytest ../../../tests/integration -v    
+      
    
 ```  
-**Resultado esperado:** `176 passed, 0 xfailed`.  
-Las pruebas no modifican la base de datos de desarrollo (`autovida_db`). Trabajan en otra base, `autovida_test`, que se elimina y se crea de nuevo en cada ejecución con el script oficial `docs/diseno_arquitectura/modelado_datos/CreacionTablas.sqlscript`. Se usa PostgreSQL porque el backend emplea instrucciones que no existen en otros motores más ligeros, como `FOR UPDATE` y `LOCK TABLE`.  
-**3. Datos de prueba**  
-Todos los datos son **ficticios**. No se usan datos de alumnado real, porque se trata de menores y de información protegida, y estas pruebas se publican en el repositorio.  
-Antes de **cada** prueba se vacían las tablas y se cargan estos datos, de modo que ninguna prueba depende de otra:  
+**Resultado esperado:** `178 passed, 0 xfailed`.  
+   
+ Las pruebas no modifican la base de datos de desarrollo (`autovida_db`). Trabajan en otra base, `autovida_test`, que se elimina y se crea de nuevo en cada ejecución con el script oficial `docs/diseno_arquitectura/modelado_datos/CreacionTablas.sqlscript`. Se usa PostgreSQL porque el backend emplea instrucciones que no existen en otros motores más ligeros, como `FOR UPDATE` y `LOCK TABLE`.  
+   
+ **3. Datos de prueba**  
+   
+ Todos los datos son **ficticios**. No se usan datos de alumnado real, porque se trata de menores y de información protegida, y estas pruebas se publican en el repositorio.  
+   
+ Antes de **cada** prueba se vacían las tablas y se cargan estos datos, de modo que ninguna prueba depende de otra:  
   
 |  |  |  |  
 | - | - | - |  
+|   |    |    |  
 | **Usuario** |  **Rol** |  **Situación** |  
 | `admin` |  Administrador |  Único administrador |  
 | `lucia` |  Personal |  Asignada a la clase 1A |  
@@ -48,11 +64,15 @@ Antes de **cada** prueba se vacían las tablas y se cargan estos datos, de modo 
 | `ana` |  Alumna |  Sin clase ni familia |  
   
    
-Las fechas utilizadas son el lunes 16/11/2026 y el sábado 14/11/2026. El horario escolar definido en el backend es de 09:00 a 15:00.  
-**4. Códigos de respuesta**  
+   
+   
+ Las fechas utilizadas son el lunes 16/11/2026 y el sábado 14/11/2026. El horario escolar definido en el backend es de 09:00 a 15:00.  
+   
+ **4. Códigos de respuesta**  
   
 |  |  |  |  |  |  
 | - | - | - | - | - |  
+|   |    |    |    |    |  
 | **Estado HTTP** |  **Significado** |    |  **Código API** |  **Significado** |  
 | 200 / 201 |  Correcto / creado |    |  1001 |  Usuario o contraseña incorrectos |  
 | 400 |  Lo impide una regla de negocio |    |  1002 |  Token ausente o inválido |  
@@ -63,14 +83,21 @@ Las fechas utilizadas son el lunes 16/11/2026 y el sábado 14/11/2026. El horari
 | 422 |  Datos con formato incorrecto |    |  1011 |  No se puede eliminar al último administrador |  
   
    
-El resto de códigos se indica en cada prueba y está definido en `src/backend/proyectFastAPI/errors.py`.  
-Cuando una prueba aparece con "× n", se ejecuta n veces con datos distintos.  
-**5. Descripción de los ficheros**  
-`conftest.py`**: preparación común**  
-No contiene pruebas. `pytest` lo carga automáticamente antes de ejecutarlas.  
+   
+   
+ El resto de códigos se indica en cada prueba y está definido en `src/backend/proyectFastAPI/errors.py`.  
+   
+ Cuando una prueba aparece con "× n", se ejecuta n veces con datos distintos.  
+   
+ **5. Descripción de los ficheros**  
+   
+ `conftest.py`**: preparación común**  
+   
+ No contiene pruebas. `pytest` lo carga automáticamente antes de ejecutarlas.  
   
 |  |  |  
 | - | - |  
+|   |    |  
 | **Elemento** |  **Función** |  
 | `engine` |  Crea `autovida_test` y sus tablas una vez por ejecución |  
 | `seed` |  Vacía las tablas y carga los datos de la sección 3 antes de cada prueba |  
@@ -80,10 +107,13 @@ No contiene pruebas. `pytest` lo carga automáticamente antes de ejecutarlas.
 | `error_code` |  Extrae el código de error de una respuesta |  
   
    
-`test_auth.py`**: inicio y cierre de sesión (HU-05, 20 casos)**  
+   
+   
+ `test_auth.py`**: inicio y cierre de sesión (HU-05, 20 casos)**  
   
 |  |  |  |  
 | - | - | - |  
+|   |    |    |  
 | **Prueba** |  **Qué comprueba** |  **Resultado esperado** |  
 | `test_login_correcto_devuelve_token_y_rol` × 4 |  Cada uno de los cuatro roles inicia sesión |  200, token y rol correctos |  
 | `test_el_token_no_se_guarda_tal_cual` |  El token no se almacena en claro |  No aparece en `users.token` |  
@@ -100,11 +130,15 @@ No contiene pruebas. `pytest` lo carga automáticamente antes de ejecutarlas.
 | `test_logout_solo_cierra_la_sesion_propia` |  No afecta a otros usuarios |  La otra sesión sigue activa |  
   
    
-`test_users.py`**: eliminar y consultar cuentas (HU-02 y HU-03, 23 casos)**  
-**Eliminar cuentas (HU-02)**  
+   
+   
+ `test_users.py`**: eliminar y consultar cuentas (HU-02 y HU-03, 23 casos)**  
+   
+ **Eliminar cuentas (HU-02)**  
   
 |  |  |  |  
 | - | - | - |  
+|   |    |    |  
 | **Prueba** |  **Qué comprueba** |  **Resultado esperado** |  
 | `test_admin_elimina_una_cuenta` |  El administrador elimina una cuenta |  200, sin filas en `users` ni `Student` |  
 | `test_eliminar_un_alumno_borra_sus_vinculos_y_nada_mas` |  Efecto del borrado en las relaciones |  Desaparecen sus vínculos, el resto de cuentas sigue |  
@@ -119,10 +153,13 @@ No contiene pruebas. `pytest` lo carga automáticamente antes de ejecutarlas.
 | `test_eliminar_sin_sesion` |  Petición sin sesión |  401 |  
   
    
-**Consultar cuentas (HU-03)**  
+   
+   
+ **Consultar cuentas (HU-03)**  
   
 |  |  |  |  
 | - | - | - |  
+|   |    |    |  
 | **Prueba** |  **Qué comprueba** |  **Resultado esperado** |  
 | `test_admin_ve_todas_las_cuentas` |  Listado completo |  200, las 7 cuentas en orden |  
 | `test_la_consulta_no_devuelve_contrasenas_ni_tokens` |  No se exponen datos sensibles |  Sin campos `password` ni `token` |  
@@ -134,12 +171,17 @@ No contiene pruebas. `pytest` lo carga automáticamente antes de ejecutarlas.
 | `test_admin_consulta_una_cuenta_concreta` |  Consulta de una sola cuenta |  200 y datos del usuario |  
   
    
-`test_associations.py`**: alumnos con familias y personal (HU-07 y HU-08, 36 casos)**  
-Las familias se asocian directamente con cada alumno. El personal se relaciona con los alumnos a través de las clases.  
-**Asociaciones con familias**  
+   
+   
+ `test_associations.py`**: alumnos con familias y personal (HU-07 y HU-08, 36 casos)**  
+   
+ Las familias se asocian directamente con cada alumno. El personal se relaciona con los alumnos a través de las clases.  
+   
+ **Asociaciones con familias**  
   
 |  |  |  |  
 | - | - | - |  
+|   |    |    |  
 | **Prueba** |  **Qué comprueba** |  **Resultado esperado** |  
 | `test_admin_asocia_familia_y_alumno` |  Crear una asociación |  200 y fila en `par_stud` |  
 | `test_asociar_dos_veces_no_duplica` |  Repetir una asociación |  200, sigue habiendo una fila |  
@@ -152,10 +194,13 @@ Las familias se asocian directamente con cada alumno. El personal se relaciona c
 | `test_solo_el_admin_puede_quitar_asociaciones` × 3 |  Personal, familia y alumno lo intentan |  403, sin cambios |  
   
    
-**Consultas**  
+   
+   
+ **Consultas**  
   
 |  |  |  |  
 | - | - | - |  
+|   |    |    |  
 | **Prueba** |  **Qué comprueba** |  **Resultado esperado** |  
 | `test_admin_ve_familia_y_personal_de_un_alumno` |  Vínculos de un alumno |  Devuelve familia y personal de su clase |  
 | `test_solo_el_admin_ve_los_vinculos_de_un_alumno` × 3 |  Personal, familia y alumno lo intentan |  403 |  
@@ -166,10 +211,13 @@ Las familias se asocian directamente con cada alumno. El personal se relaciona c
 | `test_el_admin_ve_los_alumnos_de_cualquiera` |  Acceso del administrador |  200 |  
   
    
-**Personal y clases**  
+   
+   
+ **Personal y clases**  
   
 |  |  |  |  
 | - | - | - |  
+|   |    |    |  
 | **Prueba** |  **Qué comprueba** |  **Resultado esperado** |  
 | `test_admin_asigna_personal_a_una_clase` |  Asignar personal |  200 y fila en `class_staff` |  
 | `test_solo_el_admin_asigna_personal` × 3 |  Personal, familia y alumno lo intentan |  403, sin cambios |  
@@ -182,21 +230,28 @@ Las familias se asocian directamente con cada alumno. El personal se relaciona c
 | `test_admin_quita_personal_de_una_clase` |  Quitar personal de una clase |  200 y deja de aparecer, se desvinculan los alumnos |  
   
    
-`test_tasks.py`**: crear, consultar y eliminar tareas (HU-12, HU-13 y HU-15, 58 casos)**  
-**Consultar tareas por alumno y fecha**  
+   
+   
+ `test_tasks.py`**: crear, consultar y eliminar tareas (HU-12, HU-13 y HU-15, 58 casos)**  
+   
+ **Consultar tareas por alumno y fecha**  
   
 |  |  |  |  
 | - | - | - |  
+|   |    |    |  
 | **Prueba** |  **Qué comprueba** |  **Resultado esperado** |  
 | `test_el_personal_consulta_tareas_del_alumno_por_fecha` |  Personal de la clase consulta la agenda del alumno |  Solo devuelve tareas de la fecha indicada |  
 | `test_el_tutor_consulta_tareas_del_alumno_por_fecha` |  Tutor asociado consulta la agenda del alumno |  Solo devuelve tareas de la fecha indicada |  
 | `test_el_alumno_consulta_su_agenda_por_fecha` |  Alumno consulta su propia agenda |  Solo devuelve tareas de la fecha indicada |  
   
    
-**Tareas creadas por la familia (HU-12)**  
+   
+   
+ **Tareas creadas por la familia (HU-12)**  
   
 |  |  |  |  
 | - | - | - |  
+|   |    |    |  
 | **Prueba** |  **Qué comprueba** |  **Resultado esperado** |  
 | `test_la_familia_crea_una_tarea_y_queda_en_la_agenda` |  Crear una tarea |  201, filas en `Generic_Task` y `stud_task` |  
 | `test_la_familia_puede_crear_una_tarea_solo_con_duracion` |  Tarea sin hora |  201 |  
@@ -211,10 +266,13 @@ Las familias se asocian directamente con cada alumno. El personal se relaciona c
 | `test_la_familia_no_crea_un_sabado_por_la_manana` |  No permitir tareas familiares a las 10:00 del sábado |  400, código 1024, sin cambios |  
   
    
-**Tareas creadas por el personal (HU-13)**  
+   
+   
+ **Tareas creadas por el personal (HU-13)**  
   
 |  |  |  |  
 | - | - | - |  
+|   |    |    |  
 | **Prueba** |  **Qué comprueba** |  **Resultado esperado** |  
 | `test_el_personal_crea_una_tarea_y_se_guarda` |  Datos guardados |  201, hora, duración y creador correctos |  
 | `test_el_personal_crea_dentro_del_horario` × 2 |  09:00 (360 min) y 14:30 (30 min) |  201 |  
@@ -224,11 +282,15 @@ Las familias se asocian directamente con cada alumno. El personal se relaciona c
 | `test_el_personal_no_crea_una_tarea_solo_con_duracion` |  Tarea sin hora de inicio |  400, código 1023, sin cambios |  
   
    
-**Eliminar tareas (HU-15)**  
-La regla se aplica sobre la hora programada de la tarea: el personal elimina las que están dentro del horario escolar y las familias, las que están fuera.  
+   
+   
+ **Eliminar tareas (HU-15)**  
+   
+ La regla se aplica sobre la hora programada de la tarea: el personal elimina las que están dentro del horario escolar y las familias, las que están fuera.  
   
 |  |  |  |  
 | - | - | - |  
+|   |    |    |  
 | **Prueba** |  **Qué comprueba** |  **Resultado esperado** |  
 | `test_el_personal_elimina_una_tarea_del_horario_escolar` |  Tarea a las 10:00 |  200, sale de la agenda |  
 | `test_el_personal_no_elimina_fuera_del_horario_escolar` |  Tarea a las 17:00 |  400, código 1026, sigue en la agenda |  
@@ -244,11 +306,15 @@ La regla se aplica sobre la hora programada de la tarea: el personal elimina las
 | `test_quitar_tarea_de_agenda_conserva_tarea_compartida_e_historico` |  Al quitarla de un alumno, sigue asignada a otro; luego se conserva el histórico |  200, las asignaciones se retiran individualmente y quedan `Tasks` y `Generic_Task` |  
   
    
-`test_sprint1.py`**: resto de historias del sprint 1 (39 casos)**  
-**Crear usuarios**  
+   
+   
+ `test_sprint1.py`**: resto de historias del sprint 1 (41 casos)**  
+   
+ **Crear usuarios**  
   
 |  |  |  |  
 | - | - | - |  
+|   |    |    |  
 | **Prueba** |  **Qué comprueba** |  **Resultado esperado** |  
 | `test_admin_crea_un_alumno_que_puede_entrar` |  Alta de un alumno con sus ajustes de accesibilidad |  200 y puede iniciar sesión |  
 | `test_admin_crea_cuentas` |  Alta de administrador, personal y familia |  200 y las 3 cuentas guardadas |  
@@ -256,10 +322,13 @@ La regla se aplica sobre la hora programada de la tarea: el personal elimina las
 | `test_solo_el_admin_crea_usuarios` |  El personal lo intenta |  403 |  
   
    
-**Modificar usuarios**  
+   
+   
+ **Modificar usuarios**  
   
 |  |  |  |  
 | - | - | - |  
+|   |    |    |  
 | **Prueba** |  **Qué comprueba** |  **Resultado esperado** |  
 | `test_admin_modifica_nombre` |  Cambio del nombre de una cuenta |  200 y nombre actualizado |  
 | `test_cambiar_la_contrasena_cierra_la_sesion` |  Cambio de contraseña |  200, la sesión anterior da 401 y la clave nueva permite entrar |  
@@ -269,10 +338,13 @@ La regla se aplica sobre la hora programada de la tarea: el personal elimina las
 | `test_no_se_puede_cambiar_el_rol` |  El administrador intenta cambiar un rol |  403 |  
   
    
-**Consulta de alumnos y tareas propias del alumno**  
+   
+   
+ **Consulta de alumnos y tareas propias del alumno**  
   
 |  |  |  |  
 | - | - | - |  
+|   |    |    |  
 | **Prueba** |  **Qué comprueba** |  **Resultado esperado** |  
 | `test_admin_consulta_los_alumnos_de_un_tutor` |  Alumnos asociados a una familia |  200, devuelve a `pablo` |  
 | `test_el_alumno_crea_y_elimina_su_tarea` |  Crear y borrar una tarea propia |  201, 200 y sin fila en `Tasks` |  
@@ -283,10 +355,13 @@ La regla se aplica sobre la hora programada de la tarea: el personal elimina las
 | `test_un_adulto_no_usa_las_rutas_del_alumno` |  Una familia usa `/student-tasks/me` |  403 |  
   
    
-**Clases**  
+   
+   
+ **Clases**  
   
 |  |  |  |  
 | - | - | - |  
+|   |    |    |  
 | **Prueba** |  **Qué comprueba** |  **Resultado esperado** |  
 | `test_admin_crea_edita_y_borra_una_clase` |  Ciclo completo y nombres repetidos |  201, 200, 200 y 409 si el nombre ya existe |  
 | `test_solo_el_admin_gestiona_las_clases` |  El personal crea, edita y borra |  403 en los tres casos |  
@@ -298,10 +373,13 @@ La regla se aplica sobre la hora programada de la tarea: el personal elimina las
 | `test_sacar_a_un_alumno_quita_solo_las_tareas_de_clase` |  Retirar a un alumno de la clase |  200, conserva sus tareas individuales |  
   
    
-**Tareas de clase**  
+   
+   
+ **Tareas de clase**  
   
 |  |  |  |  
 | - | - | - |  
+|   |    |    |  
 | **Prueba** |  **Qué comprueba** |  **Resultado esperado** |  
 | `test_el_personal_consulta_las_tareas_de_su_clase` |  Listado de tareas de la clase |  200, con la tarea y sus alumnos |  
 | `test_el_personal_modifica_una_tarea_de_clase` |  Cambio de título, fecha y hora |  200, una sola asignación con la fecha nueva |  
@@ -310,27 +388,36 @@ La regla se aplica sobre la hora programada de la tarea: el personal elimina las
 | `test_personal_de_otra_clase_no_gestiona_sus_tareas` |  Personal de otra clase crea, consulta y borra |  403 en los tres casos |  
   
    
-**Foto de perfil**  
+   
+   
+ **Foto de perfil**  
   
 |  |  |  |  
 | - | - | - |  
+|   |    |    |  
 | **Prueba** |  **Qué comprueba** |  **Resultado esperado** |  
-| `test_admin_establece_un_png_como_foto_de_perfil` |  El administrador establece un PNG válido como foto de perfil |  200 y se recupera la misma imagen |  
+| `test_admin_establece_un_png_en_el_perfil_comun` |  El administrador establece un PNG válido mediante la ruta común |  200 y se recupera la misma imagen |  
 | `test_admin_establece_un_jpeg_como_foto_de_perfil` |  El administrador establece un JPEG como foto de perfil |  200 y tipo `image/jpeg` |  
-| `test_admin_establece_un_webp_como_foto_de_perfil` |  El administrador establece un WebP como foto de perfil |  200 |  
-| `test_cambiar_la_foto_no_acumula_imagenes` |  Reemplazar la foto |  Queda una sola fila en `Avatar` |  
-| `test_alumno_tiene_foto_predeterminada_al_crearse` |  La foto predeterminada del alumno no es nula |  `avatar_id_fk` asignado e imagen SVG |  
+| `test_admin_establece_fotos_en_cualquier_rol` |  El administrador cambia la foto de cuentas de todos los roles |  200 y se leen con la ruta común |  
+| `test_cambiar_la_foto_no_acumula_imagenes` |  Reemplazar la foto |  No quedan imágenes sin referencia en `Avatar` |  
+| `test_alumno_tiene_foto_predeterminada_al_crearse` |  La cuenta nueva de alumno recibe foto predeterminada |  `users.avatar_id_fk` asignado e imagen SVG |  
+| `test_todas_las_especializaciones_heredan_foto_predeterminada` |  Cada rol lee su foto predeterminada por la ruta propia |  200, SVG y referencia común asignada |  
 | `test_se_rechazan_ficheros_invalidos_o_demasiado_grandes` |  Fichero que no es imagen y fichero de más de 5 MB |  422 y 413 |  
 | `test_solo_el_admin_cambia_la_foto_de_perfil` |  Solo el administrador puede cambiar la foto |  200 para admin; 403 para alumno, personal y familia |  
+| `test_un_usuario_puede_cambiar_su_foto_propia` |  Cada rol cambia su propia foto mediante `/users/me/avatar` |  200 y la nueva foto se recupera |  
 | `test_admin_y_personal_de_su_clase_ven_la_foto` |  Acceso a la foto de un alumno |  200 para administrador y personal de su clase; 403 para personal de otra |  
 | `test_la_familia_ve_la_foto_de_su_alumno` |  Acceso de la familia a la foto |  200 para su familia; 403 para otra familia |  
   
    
-**6. Decisiones tomadas y pendientes**  
-No quedan pruebas marcadas con `@pytest.mark.xfail`. Esta tabla recoge cómo se resolvió cada una de las que lo estuvieron. Solo sigue abierto el tratamiento de los festivos, que aún requiere un calendario del centro.  
+   
+   
+ **6. Decisiones tomadas y pendientes**  
+   
+ No quedan pruebas marcadas con `@pytest.mark.xfail`. Esta tabla recoge cómo se resolvió cada una de las que lo estuvieron. Solo sigue abierto el tratamiento de los festivos, que aún requiere un calendario del centro.  
   
 |  |  |  |  |  
 | - | - | - | - |  
+|   |    |    |    |  
 | **Ref.** |  **Prueba** |  **Situación actual** |  **Decisión** |  
 | F1 |  `test_admin_consulta_una_cuenta_concreta` |  Existe `GET /users/{role}/{username}`, solo para administradores |  Corregido ✅ |  
 | F2 |  `test_admin_quita_personal_de_una_clase` |  Existe `DELETE /classes/{class_name}/staff/{staff_username}`, solo para administradores |  Corregido ✅ |  
@@ -339,11 +426,15 @@ No quedan pruebas marcadas con `@pytest.mark.xfail`. Esta tabla recoge cómo se 
 | F5 |  `test_quitar_tarea_de_agenda_conserva_tarea_compartida_e_historico` |  La tarea sale de la agenda, pero su fila permanece en `Tasks` |  Decidido ✅ Se conserva para que otros alumnos que la compartan sigan teniéndola y a modo de histórico |  
   
    
-**7. Validación de las pruebas**  
-Para comprobar que las 135 pruebas iniciales detectan errores reales, se introdujeron de forma deliberada ocho fallos en una copia del código. Las pruebas detectaron los ocho:  
+   
+   
+ **7. Validación de las pruebas**  
+   
+ Para comprobar que las 135 pruebas iniciales detectan errores reales, se introdujeron de forma deliberada ocho fallos en una copia del código. Las pruebas detectaron los ocho:  
   
 |  |  |  
 | - | - |  
+|   |    |  
 | **Fallo introducido** |  **Casos que fallaron** |  
 | Eliminar cuentas sin exigir administrador |  4 |  
 | Fin del horario escolar a las 16:00 al crear tareas |  5 |  
@@ -355,12 +446,16 @@ Para comprobar que las 135 pruebas iniciales detectan errores reales, se introdu
 | Un alumno en dos clases a la vez |  1 |  
   
    
-Además, las pruebas de `test_sprint1.py` detectaron dos errores reales del backend, ya corregidos en `gestion_usuarios/users_mng_backend.py`:  
+   
+   
+ Además, las pruebas de `test_sprint1.py` detectaron dos errores reales del backend, ya corregidos en `gestion_usuarios/users_mng_backend.py`:  
   
 |  |  |  
 | - | - |  
+|   |    |  
 | **Error encontrado** |  **Casos que fallaron** |  
 | Referencia incorrecta a los campos de accesibilidad: no se podían crear alumnos ni modificar cuentas |  6 |  
 | Comprobación incorrecta del final del fichero: se rechazaban todas las imágenes PNG |  1 |  
   
+   
    

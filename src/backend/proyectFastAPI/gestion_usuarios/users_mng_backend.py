@@ -231,6 +231,29 @@ def get_my_user(db: Session = Depends(get_db), user: dict = Depends(get_current_
     return {**result, "role": role}
 
 
+@router.put("/me/avatar", status_code=200)
+async def update_my_avatar(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    user: dict = Depends(get_current_user),
+) -> dict:
+    """Permite cambiar la foto propia según los permisos del perfil."""
+    if user["role"] == "student":
+        profile = users_mng_db.getUserByUsername(db, user["username"], user["role"])
+        if profile.get("stud_access_profile_mod") is not True:
+            raise_api_error(ErrorCode.PROFILE_UPDATE_DENIED)
+    return await _store_avatar(user["username"], user["role"], file, db)
+
+
+@router.get("/me/avatar")
+def get_my_avatar(
+    db: Session = Depends(get_db),
+    user: dict = Depends(get_current_user),
+) -> Response:
+    """Devuelve la foto propia de cualquier tipo de cuenta."""
+    return _image_response(db, user["username"])
+
+
 @router.get("/{role}/{username}", dependencies=[Depends(require_admin)])
 def get_user(role: Role, username: UsernamePath, db: Session = Depends(get_db)) -> dict:
     """Consulta los datos de una cuenta concreta; requiere una sesión de administrador."""
@@ -334,20 +357,6 @@ async def update_student_avatar_legacy(
     return await _store_avatar(student_username, "student", file, db)
 
 
-@router.put("/me/avatar", status_code=200)
-async def update_my_avatar(
-    file: UploadFile = File(...),
-    db: Session = Depends(get_db),
-    user: dict = Depends(get_current_user),
-) -> dict:
-    """Permite cambiar la foto propia según los permisos del perfil."""
-    if user["role"] == "student":
-        profile = users_mng_db.getUserByUsername(db, user["username"], user["role"])
-        if profile.get("stud_access_profile_mod") is not True:
-            raise_api_error(ErrorCode.PROFILE_UPDATE_DENIED)
-    return await _store_avatar(user["username"], user["role"], file, db)
-
-
 @router.put("/{role}/{username}/avatar", status_code=200, dependencies=[Depends(require_admin)])
 async def update_user_avatar(
     role: Role,
@@ -393,15 +402,6 @@ def _can_view_user_avatar(
     if user["role"] == "parent":
         return users_mng_db.parentCanViewStudentAvatar(db, user["username"], username)
     return False
-
-
-@router.get("/me/avatar")
-def get_my_avatar(
-    db: Session = Depends(get_db),
-    user: dict = Depends(get_current_user),
-) -> Response:
-    """Devuelve la foto propia de cualquier tipo de cuenta."""
-    return _image_response(db, user["username"])
 
 
 @router.get("/students/me/avatar")
