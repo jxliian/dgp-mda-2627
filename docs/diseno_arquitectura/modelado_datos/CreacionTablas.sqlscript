@@ -1,9 +1,18 @@
+-- Foto común de perfil; cada cuenta referencia su imagen desde la entidad base.
+CREATE TABLE Avatar (
+    avatar_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    avatar_alt VARCHAR(255),
+    avatar_bin BYTEA
+);
+
 -- Tabla común de cuentas. Cada fila tendrá una sola especialización de rol.
 CREATE TABLE users (
     username VARCHAR(50) PRIMARY KEY,
     full_name VARCHAR(150) NOT NULL,
     password VARCHAR(255) NOT NULL,
-    token VARCHAR(64) NULL
+    token VARCHAR(64) NULL,
+    avatar_id_fk INT NOT NULL,
+    CONSTRAINT fk_users_avatar FOREIGN KEY (avatar_id_fk) REFERENCES Avatar(avatar_id) ON DELETE RESTRICT
 );
 
 -- Tablas de especialización: su PK es también FK a users.username.
@@ -19,12 +28,6 @@ CREATE TABLE Staff (
 
 CREATE TABLE Class (
     class_name VARCHAR(50) PRIMARY KEY
-);
-
-CREATE TABLE Avatar (
-    avatar_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    avatar_alt VARCHAR(255),
-    avatar_bin BYTEA
 );
 
 CREATE TABLE Student (
@@ -44,9 +47,7 @@ CREATE TABLE Student (
     stud_access_talkback BOOLEAN NOT NULL,
     stud_access_profile_mod BOOLEAN NOT NULL,
     stud_access_task_mod BOOLEAN NOT NULL,
-    avatar_id_fk INT NOT NULL,
-    CONSTRAINT fk_student_user FOREIGN KEY (stud_usr) REFERENCES users(username) ON UPDATE CASCADE ON DELETE CASCADE,
-    CONSTRAINT fk_student_avatar FOREIGN KEY (avatar_id_fk) REFERENCES Avatar(avatar_id) ON DELETE RESTRICT
+    CONSTRAINT fk_student_user FOREIGN KEY (stud_usr) REFERENCES users(username) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE Parents (

@@ -1,4 +1,5 @@
 from typing import Optional
+from urllib.parse import quote
 
 from passlib.context import CryptContext
 from sqlalchemy import text
@@ -36,7 +37,7 @@ STUDENT_ACCESS_FIELDS = (
 STUDENT_ACCESS_PERMISSION_FIELDS = frozenset(
     {"stud_access_prof_mod", "stud_access_profile_mod", "stud_access_task_mod"}
 )
-DEFAULT_STUDENT_AVATAR = b'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Foto de perfil predeterminada">
+DEFAULT_AVATAR = b'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Foto de perfil predeterminada">
 <rect width="128" height="128" rx="64" fill="#e5e7eb"/>
 <circle cx="64" cy="45" r="23" fill="#9ca3af"/>
 <path d="M22 113c4-25 19-38 42-38s38 13 42 38" fill="#9ca3af"/>
@@ -86,7 +87,10 @@ class UsersManagementDB:
         """Busca un usuario por nombre de usuario y devuelve sus datos públicos."""
         try:
             cfg = _config(role)
-            fields = [f"r.{cfg['username']} AS username", "u.full_name AS full_name"]
+            fields = [
+                f"r.{cfg['username']} AS username",
+                "u.full_name AS full_name",
+            ]
             if role.lower() == "student":
                 fields.extend(f"r.{field}" for field in STUDENT_ACCESS_FIELDS)
             row = db.execute(
@@ -98,7 +102,11 @@ class UsersManagementDB:
                 ),
                 {"username": username},
             ).mappings().first()
-            return _ok(**dict(row)) if row else _error(ErrorCode.USER_NOT_FOUND)
+            if row is None:
+                return _error(ErrorCode.USER_NOT_FOUND)
+            user = dict(row)
+            user["avatar_url"] = f"/users/{role.lower()}/{quote(username, safe='')}/avatar-image"
+            return _ok(**user)
         except ValueError as exc:
             return _error(ErrorCode.INVALID_ROLE)
         except Exception:
@@ -127,7 +135,12 @@ class UsersManagementDB:
                     ),
                     {"role": selected_role},
                 ).mappings().all()
-                users.extend(dict(row) for row in rows)
+                for row in rows:
+                    user = dict(row)
+                    user["avatar_url"] = (
+                        f"/users/{selected_role}/{quote(user['username'], safe='')}/avatar-image"
+                    )
+                    users.append(user)
             users.sort(key=lambda user: user["username"])
             return _ok(users=users)
         except ValueError as exc:
@@ -186,34 +199,32 @@ class UsersManagementDB:
                 db.rollback()
                 return _error(ErrorCode.USERNAME_TAKEN)
 
+            avatar_id = db.execute(
+                text(
+                    "INSERT INTO Avatar (avatar_alt, avatar_bin) "
+                    "VALUES (:avatar_alt, :avatar_bin) RETURNING avatar_id"
+                ),
+                {"avatar_alt": "Foto de perfil predeterminada", "avatar_bin": DEFAULT_AVATAR},
+            ).scalar_one()
             db.execute(
                 text(
-                    "INSERT INTO users (username, full_name, password) "
-                    "VALUES (:username, :full_name, :password)"
+                    "INSERT INTO users (username, full_name, password, avatar_id_fk) "
+                    "VALUES (:username, :full_name, :password, :avatar_id_fk)"
                 ),
                 {
                     "username": username,
                     "full_name": full_name,
                     "password": pwd_context.hash(passwd_plain),
+                    "avatar_id_fk": avatar_id,
                 },
             )
             fields = [cfg["username"]]
             params = {"username": username}
             values = [":username"]
             if role.lower() == "student":
-                avatar_id = db.execute(
-                    text(
-                        "INSERT INTO Avatar (avatar_alt, avatar_bin) "
-                        "VALUES (:avatar_alt, :avatar_bin) RETURNING avatar_id"
-                    ),
-                    {"avatar_alt": "Foto de perfil predeterminada", "avatar_bin": DEFAULT_STUDENT_AVATAR},
-                ).scalar_one()
                 fields.extend(STUDENT_ACCESS_FIELDS)
                 values.extend(f":{field}" for field in STUDENT_ACCESS_FIELDS)
                 params.update({field: access_settings[field] for field in STUDENT_ACCESS_FIELDS})
-                fields.append("avatar_id_fk")
-                values.append(":avatar_id_fk")
-                params["avatar_id_fk"] = avatar_id
             db.execute(text(f"INSERT INTO {cfg['table']} ({', '.join(fields)}) VALUES ({', '.join(values)})"), params)
             db.commit()
             return _ok()
@@ -231,6 +242,16 @@ class UsersManagementDB:
         """Elimina una cuenta y evita borrar al último administrador."""
         try:
             cfg = _config(role)
+            avatar_id = db.execute(
+                text(
+                    "SELECT u.avatar_id_fk FROM users AS u "
+                    f"JOIN {cfg['table']} AS r ON r.{cfg['username']} = u.username "
+                    "WHERE u.username = :username FOR UPDATE OF u"
+                ),
+                {"username": username},
+            ).scalar_one_or_none()
+            if avatar_id is None:
+                return _error(ErrorCode.USER_NOT_FOUND)
             if role.lower() == "admin":
                 db.execute(text("LOCK TABLE Admn IN EXCLUSIVE MODE"))
                 count = db.execute(text("SELECT COUNT(*) FROM Admn")).scalar_one()
@@ -249,6 +270,13 @@ class UsersManagementDB:
             if not result.rowcount:
                 db.rollback()
                 return _error(ErrorCode.USER_NOT_FOUND)
+            db.execute(
+                text(
+                    "DELETE FROM Avatar AS a WHERE a.avatar_id = :avatar_id "
+                    "AND NOT EXISTS (SELECT 1 FROM users u WHERE u.avatar_id_fk = a.avatar_id)"
+                ),
+                {"avatar_id": avatar_id},
+            )
             db.commit()
             return _ok()
         except ValueError:
@@ -371,16 +399,16 @@ class UsersManagementDB:
             return _error(ErrorCode.USER_UPDATE_FAILED)
 
     def updateAvatar(self, db: Session, username: str, image: bytes) -> dict:
-        """Guarda la imagen y la vincula al alumno indicado por el administrador."""
+        """Reemplaza la imagen de perfil vinculada a la cuenta común."""
         try:
-            student = db.execute(
+            user = db.execute(
                 text(
-                    "SELECT avatar_id_fk FROM Student "
-                    "WHERE stud_usr = :username FOR UPDATE"
+                    "SELECT avatar_id_fk FROM users "
+                    "WHERE username = :username FOR UPDATE"
                 ),
                 {"username": username},
             ).mappings().first()
-            if student is None:
+            if user is None:
                 db.rollback()
                 return _error(ErrorCode.USER_NOT_FOUND)
 
@@ -392,16 +420,16 @@ class UsersManagementDB:
                 {"avatar_alt": "Foto de perfil", "avatar_bin": image},
             ).scalar_one()
             db.execute(
-                text("UPDATE Student SET avatar_id_fk = :avatar_id WHERE stud_usr = :username"),
+                text("UPDATE users SET avatar_id_fk = :avatar_id WHERE username = :username"),
                 {"avatar_id": avatar_id, "username": username},
             )
-            old_avatar_id = student["avatar_id_fk"]
+            old_avatar_id = user["avatar_id_fk"]
             if old_avatar_id is not None:
                 db.execute(
                     text(
-                        "DELETE FROM Avatar avatar WHERE avatar.avatar_id = :avatar_id "
-                        "AND NOT EXISTS (SELECT 1 FROM Student s "
-                        "WHERE s.avatar_id_fk = avatar.avatar_id)"
+                        "DELETE FROM Avatar a WHERE a.avatar_id = :avatar_id "
+                        "AND NOT EXISTS (SELECT 1 FROM users u "
+                        "WHERE u.avatar_id_fk = a.avatar_id)"
                     ),
                     {"avatar_id": old_avatar_id},
                 )
@@ -412,13 +440,13 @@ class UsersManagementDB:
             return _error(ErrorCode.AVATAR_UPDATE_FAILED)
 
     def getAvatar(self, db: Session, username: str) -> dict:
-        """Obtiene la imagen de perfil del alumno sin exponer datos de otras cuentas."""
+        """Obtiene la imagen de perfil de una cuenta."""
         try:
             row = db.execute(
                 text(
-                    "SELECT s.avatar_id_fk AS avatar_id, a.avatar_bin "
-                    "FROM Student s LEFT JOIN Avatar a ON a.avatar_id = s.avatar_id_fk "
-                    "WHERE s.stud_usr = :username"
+                    "SELECT u.avatar_id_fk AS avatar_id, a.avatar_bin "
+                    "FROM users u LEFT JOIN Avatar a ON a.avatar_id = u.avatar_id_fk "
+                    "WHERE u.username = :username"
                 ),
                 {"username": username},
             ).mappings().first()

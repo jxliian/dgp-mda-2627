@@ -26,10 +26,8 @@ backend/
 
 > **Nota:** La tecnología definitiva será definida y documentada en la Propuesta Técnica y en la Planificación de la Iteración 1.
 
-## Foto de perfil del alumno
+## Fotos de perfil
 
-Con una sesión Bearer de alumno, `PUT /users/students/me/avatar` recibe un archivo
-multipart en el campo `file`. Admite imágenes PNG, JPEG y WebP de hasta 5 MB. La
-respuesta incluye `avatar_url`; `GET /users/students/me/avatar` devuelve la imagen
-actual o una silueta SVG predeterminada si todavía no hay foto. La subida requiere
-que `stud_access_profile_mod` permita editar el perfil.
+Cada cuenta, cualquiera que sea su rol, tiene una foto vinculada desde `users.avatar_id_fk` a `Avatar`. Las cuentas nuevas reciben una silueta SVG predeterminada. El administrador puede cambiar la foto de cualquier cuenta con `PUT /users/{role}/{username}/avatar`; cada usuario puede cambiar la propia con `PUT /users/me/avatar`, y el alumnado necesita `stud_access_profile_mod`. Los archivos se envían como multipart `file` en PNG, JPEG o WebP, con un máximo de 5 MB. `GET /users/me/avatar` devuelve la foto propia y `avatar_url` apunta a `GET /users/{role}/{username}/avatar-image`.
+
+Para una base existente, aplica una vez `../../docs/diseno_arquitectura/modelado_datos/MigracionAvatarComun.sqlscript` antes de desplegar esta versión. La migración conserva las imágenes actuales de los alumnos.

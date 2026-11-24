@@ -177,7 +177,7 @@ def _list_class_students(db: Session, class_name: str) -> list[dict]:
     return [
         {
             **dict(row),
-            "avatar_url": f"/users/students/{quote(row['username'], safe='')}/avatar-image",
+            "avatar_url": f"/users/student/{quote(row['username'], safe='')}/avatar-image",
         }
         for row in rows
     ]

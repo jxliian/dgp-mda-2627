@@ -285,13 +285,8 @@ def delete_user(role: Role, username: UsernamePath, db: Session = Depends(get_db
     return result
 
 
-@router.put("/students/{student_username}/avatar", status_code=200, dependencies=[Depends(require_admin)])
-async def update_student_avatar(
-    student_username: UsernamePath,
-    file: UploadFile = File(...),
-    db: Session = Depends(get_db),
-) -> dict:
-    """Guarda el avatar de un alumno; solo los administradores pueden hacerlo."""
+async def _store_avatar(username: str, role: str, file: UploadFile, db: Session) -> dict:
+    """Valida y guarda una foto para la cuenta del rol indicado."""
     try:
         image = await file.read(MAX_AVATAR_BYTES + 1)
         if len(image) > MAX_AVATAR_BYTES:
@@ -299,27 +294,73 @@ async def update_student_avatar(
         media_type = _image_media_type(image)
         if media_type is None:
             raise_api_error(ErrorCode.AVATAR_INVALID_IMAGE)
-        result = users_mng_db.updateAvatar(db, student_username, image)
+        account = users_mng_db.getUserByUsername(db, username, role)
+        if account["errorCode"] != 0:
+            raise_api_error(account["errorCode"])
+        result = users_mng_db.updateAvatar(db, username, image)
         if result["errorCode"] != 0:
             raise_api_error(result["errorCode"])
         return {
             **result,
             "media_type": media_type,
-            "avatar_url": f"/users/students/{student_username}/avatar-image",
+            "avatar_url": f"/users/{role}/{username}/avatar-image",
         }
     finally:
         await file.close()
 
 
-@router.get("/students/me/avatar")
-def get_my_avatar(
+@router.put("/students/me/avatar", status_code=200)
+async def update_my_student_avatar_legacy(
+    file: UploadFile = File(...),
     db: Session = Depends(get_db),
     user: dict = Depends(get_current_user),
-) -> Response:
-    """Devuelve la foto del alumno o un avatar SVG predeterminado."""
+) -> dict:
+    """Mantiene la ruta anterior de actualización propia para alumnos."""
     if user["role"] != "student":
         raise_api_error(ErrorCode.PROFILE_UPDATE_DENIED)
-    result = users_mng_db.getAvatar(db, user["username"])
+    profile = users_mng_db.getUserByUsername(db, user["username"], user["role"])
+    if profile.get("stud_access_profile_mod") is not True:
+        raise_api_error(ErrorCode.PROFILE_UPDATE_DENIED)
+    return await _store_avatar(user["username"], user["role"], file, db)
+
+
+@router.put("/students/{student_username}/avatar", status_code=200, dependencies=[Depends(require_admin)])
+async def update_student_avatar_legacy(
+    student_username: UsernamePath,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+) -> dict:
+    """Mantiene la ruta anterior de actualización para cuentas de alumno."""
+    return await _store_avatar(student_username, "student", file, db)
+
+
+@router.put("/me/avatar", status_code=200)
+async def update_my_avatar(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    user: dict = Depends(get_current_user),
+) -> dict:
+    """Permite cambiar la foto propia según los permisos del perfil."""
+    if user["role"] == "student":
+        profile = users_mng_db.getUserByUsername(db, user["username"], user["role"])
+        if profile.get("stud_access_profile_mod") is not True:
+            raise_api_error(ErrorCode.PROFILE_UPDATE_DENIED)
+    return await _store_avatar(user["username"], user["role"], file, db)
+
+
+@router.put("/{role}/{username}/avatar", status_code=200, dependencies=[Depends(require_admin)])
+async def update_user_avatar(
+    role: Role,
+    username: UsernamePath,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+) -> dict:
+    """Permite al administrador cambiar la foto de cualquier cuenta."""
+    return await _store_avatar(username, role, file, db)
+
+
+def _image_response(db: Session, username: str) -> Response:
+    result = users_mng_db.getAvatar(db, username)
     if result["errorCode"] != 0:
         raise_api_error(result["errorCode"])
     image = result.get("avatar_bin")
@@ -335,6 +376,43 @@ def get_my_avatar(
         media_type=media_type,
         headers={"Cache-Control": "no-store"},
     )
+
+
+def _can_view_user_avatar(
+    db: Session, user: dict | None, role: str, username: str
+) -> bool:
+    """Aplica los permisos comunes y conserva el acceso contextual a fotos de alumnos."""
+    if user is None:
+        return role == "student" and users_mng_db.studentIsInAnyClass(db, username)
+    if user["role"] == "admin" or (user["role"] == role and user["username"] == username):
+        return True
+    if role != "student":
+        return False
+    if user["role"] == "staff":
+        return users_mng_db.staffCanViewStudentAvatar(db, user["username"], username)
+    if user["role"] == "parent":
+        return users_mng_db.parentCanViewStudentAvatar(db, user["username"], username)
+    return False
+
+
+@router.get("/me/avatar")
+def get_my_avatar(
+    db: Session = Depends(get_db),
+    user: dict = Depends(get_current_user),
+) -> Response:
+    """Devuelve la foto propia de cualquier tipo de cuenta."""
+    return _image_response(db, user["username"])
+
+
+@router.get("/students/me/avatar")
+def get_my_student_avatar_legacy(
+    db: Session = Depends(get_db),
+    user: dict = Depends(get_current_user),
+) -> Response:
+    """Mantiene la ruta anterior de lectura para cuentas de alumno."""
+    if user["role"] != "student":
+        raise_api_error(ErrorCode.PROFILE_UPDATE_DENIED)
+    return _image_response(db, user["username"])
 
 
 @router.get("/students/{student_username}/avatar-image")
@@ -343,33 +421,26 @@ def get_class_student_avatar(
     db: Session = Depends(get_db),
     user: dict | None = Depends(get_optional_current_user),
 ) -> Response:
-    """Sirve el avatar a admin, a personal que comparte clase y a la familia del alumno."""
-    if user is None:
-        authorized = users_mng_db.studentIsInAnyClass(db, student_username)
-    elif user["role"] == "admin":
-        authorized = True
-    elif user["role"] == "staff":
-        authorized = users_mng_db.staffCanViewStudentAvatar(db, user["username"], student_username)
-    elif user["role"] == "parent":
-        authorized = users_mng_db.parentCanViewStudentAvatar(db, user["username"], student_username)
-    else:
-        authorized = False
-    if not authorized:
+    """Mantiene la ruta de foto de alumno usada por el directorio escolar."""
+    if not _can_view_user_avatar(db, user, "student", student_username):
         raise_api_error(ErrorCode.ASSOCIATION_ACCESS_DENIED)
+    account = users_mng_db.getUserByUsername(db, student_username, "student")
+    if account["errorCode"] != 0:
+        raise_api_error(account["errorCode"])
+    return _image_response(db, student_username)
 
-    result = users_mng_db.getAvatar(db, student_username)
-    if result["errorCode"] != 0:
-        raise_api_error(result["errorCode"])
-    image = result.get("avatar_bin")
-    media_type = _image_media_type(image) if image else None
-    if media_type is None:
-        return Response(
-            content=DEFAULT_AVATAR_SVG,
-            media_type="image/svg+xml",
-            headers={"Cache-Control": "no-store"},
-        )
-    return Response(
-        content=image,
-        media_type=media_type,
-        headers={"Cache-Control": "no-store"},
-    )
+
+@router.get("/{role}/{username}/avatar-image")
+def get_user_avatar(
+    role: Role,
+    username: UsernamePath,
+    db: Session = Depends(get_db),
+    user: dict | None = Depends(get_optional_current_user),
+) -> Response:
+    """Sirve la foto de cualquier cuenta a quien tenga autorización."""
+    if not _can_view_user_avatar(db, user, role, username):
+        raise_api_error(ErrorCode.ASSOCIATION_ACCESS_DENIED)
+    account = users_mng_db.getUserByUsername(db, username, role)
+    if account["errorCode"] != 0:
+        raise_api_error(account["errorCode"])
+    return _image_response(db, username)

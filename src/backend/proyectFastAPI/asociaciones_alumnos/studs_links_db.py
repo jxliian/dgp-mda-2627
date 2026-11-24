@@ -1,4 +1,5 @@
 from typing import Literal
+from urllib.parse import quote
 
 from sqlalchemy import text
 from sqlalchemy.orm import Session
@@ -121,7 +122,13 @@ def get_associated_users(db: Session, role: Literal["parent", "staff"], student_
             "ORDER BY profile.staff_usr"
         )
     rows = db.execute(query, {"student_username": student_username}).mappings().all()
-    return [dict(row) for row in rows]
+    return [
+        {
+            **dict(row),
+            "avatar_url": f"/users/{role}/{quote(row['username'], safe='')}/avatar-image",
+        }
+        for row in rows
+    ]
 
 
 def get_students(db: Session, role: Literal["parent", "staff"], username: str) -> list[dict]:
@@ -152,4 +159,10 @@ def get_students(db: Session, role: Literal["parent", "staff"], username: str) -
             "ORDER BY student_profile.stud_usr"
         )
     rows = db.execute(query, {"username": username}).mappings().all()
-    return [dict(row) for row in rows]
+    return [
+        {
+            **dict(row),
+            "avatar_url": f"/users/student/{quote(row['username'], safe='')}/avatar-image",
+        }
+        for row in rows
+    ]

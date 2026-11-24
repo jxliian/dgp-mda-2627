@@ -300,15 +300,16 @@ def test_admin_establece_un_webp_como_foto_de_perfil(client):
 
 
 def test_cambiar_la_foto_no_acumula_imagenes(client, count):
+    imagenes_iniciales = count("Avatar")
     subir_foto(client, "admin", JPEG)
     subir_foto(client, "admin", WEBP)
-    assert count("Avatar") == 2
+    assert count("Avatar") == imagenes_iniciales
 
 
 def test_alumno_tiene_foto_predeterminada_al_crearse(client, count):
     r = client.get("/users/students/me/avatar", headers=as_user("pablo"))
     assert r.headers["content-type"].startswith("image/svg+xml")
-    assert count("Student WHERE stud_usr = 'pablo' AND avatar_id_fk IS NOT NULL") == 1
+    assert count("users WHERE username = 'pablo' AND avatar_id_fk IS NOT NULL") == 1
 
 
 def test_se_rechazan_ficheros_invalidos_o_demasiado_grandes(client):

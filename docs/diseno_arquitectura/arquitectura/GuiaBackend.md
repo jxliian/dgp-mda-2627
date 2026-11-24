@@ -71,7 +71,7 @@ Requiere un Bearer válido. La dependencia primero verifica que el token corresp
 
 Todas las rutas de este grupo tienen prefijo `/users`.
 
-En este módulo, “avatar” significa la foto de perfil del alumno. Aunque la tabla `Student` la referencia como `avatar_id_fk`, cada alumno debe tener siempre una foto asignada.
+En este módulo, cada cuenta tiene una foto de perfil. La tabla común `users` referencia `Avatar` mediante `avatar_id_fk`; las especializaciones `Admn`, `Staff`, `Student` y `Parents` heredan esa foto a través de su relación con `users`. La referencia es obligatoria y las cuentas nuevas reciben una silueta SVG predeterminada.
 
 ### `POST /users` — Crear usuario
 
@@ -81,9 +81,7 @@ Campos comunes obligatorios: `username`, `full_name` y `password`. El username s
 
 Para `role: "student"` también son obligatorios todos los campos de accesibilidad: `stud_access_main_col`, `stud_access_sec_col`, `stud_access_ntasks_visible`, `stud_access_pictograms`, `stud_access_contrast`, `stud_access_fontsize`, `stud_access_filters`, `stud_access_ndays_visible`, `stud_access_prof_mod`, `stud_access_timebar`, `stud_access_talkback`, `stud_access_profile_mod` y `stud_access_task_mod`. Los colores deben ser hexadecimales de 3 o 6 dígitos (por ejemplo, `#abc` o `#aabbcc`). Las cantidades visibles deben ser enteros JSON no negativos y el tamaño de fuente un entero JSON positivo. Los campos booleanos requieren `true` o `false` de JSON.
 
-Para `admin`, `staff` y `parent`, también es obligatorio `email`, que debe tener formato válido y no exceder 254 caracteres.
-
-La operación inserta la fila común en `users` (incluido el hash bcrypt de la contraseña y `full_name`) y después la especialización del rol en `Admn`, `Staff`, `Student` o `Parents`, con los datos de email o accesibilidad que correspondan. Al crear un alumno, también crea y asigna una foto de perfil SVG predeterminada en `Avatar`; el alumno nunca se crea con `avatar_id_fk` nulo. Todas las inserciones se confirman conjuntamente. El username es único en la tabla común, por lo que no puede repetirse entre roles. Según el conflicto, se devuelve `USERNAME_TAKEN` o `EMAIL_TAKEN` (HTTP 409); otros errores de creación usan `USER_CREATE_FAILED` (HTTP 500).
+La operación crea una imagen SVG predeterminada en `Avatar` y la asigna a `users.avatar_id_fk`; después inserta la especialización correspondiente en `Admn`, `Staff`, `Student` o `Parents`. La cuenta común nunca queda sin foto. Todas las inserciones se confirman conjuntamente. El username es único en la tabla común, por lo que no puede repetirse entre roles. Si ya existe, se devuelve `USERNAME_TAKEN` (HTTP 409); otros errores de creación usan `USER_CREATE_FAILED` (HTTP 500).
 
 El rol se fija al crear la cuenta y es inmutable. Ni el propio usuario ni un administrador pueden cambiarlo después; para cambiar el rol hay que crear una cuenta nueva con el rol correcto.
 
@@ -94,7 +92,11 @@ El rol se fija al crear la cuenta y es inmutable. Ni el propio usuario ni un adm
 
 **JSON de entrada para admin, staff o parent:**
 ```json
-{"username":"ana","full_name":"Ana López","password":"clave","role":"parent","email":"ana@example.com"}
+{"username":"ana","full_name":"Ana López","password":"clave","role":"parent"}
+```
+
+```json
+{"username":"ana","full_name":"Ana López","password":"clave","role":"parent"}
 ```
 
 **Respuesta correcta:**
@@ -104,7 +106,7 @@ El rol se fija al crear la cuenta y es inmutable. Ni el propio usuario ni un adm
 
 ### `GET /users` y `GET /users?role=<rol>` — Listar usuarios
 
-Solo administrador. Sin `role`, reúne usuarios de las cuatro tablas hijas; con `role`, filtra a un solo rol. Cada resultado contiene username, full name, rol y email cuando el rol tiene correo. Para estudiantes también incluye sus atributos de accesibilidad. La lista se ordena por username. No devuelve contraseñas ni tokens.
+Solo administrador. Sin `role`, reúne usuarios de las cuatro tablas hijas; con `role`, filtra a un solo rol. Cada resultado contiene username, full name, rol y `avatar_url`. Para estudiantes también incluye sus atributos de accesibilidad. La lista se ordena por username. No devuelve contraseñas ni tokens.
 
 El parámetro `role` se valida contra los cuatro roles admitidos; un valor distinto devuelve `INVALID_REQUEST` (HTTP 422). Los fallos de consulta devuelven `USER_LIST_FAILED` (HTTP 500).
 
@@ -112,18 +114,18 @@ El parámetro `role` se valida contra los cuatro roles admitidos; un valor disti
 
 **Respuesta JSON (ejemplo abreviado):**
 ```json
-{"errorCode":0,"details":"successful","users":[{"username":"ana","full_name":"Ana López","role":"parent","email":"ana@example.com"},{"username":"luis","full_name":"Luis Pérez","role":"student","stud_access_main_col":"#ffffff","stud_access_sec_col":"#000000","stud_access_ntasks_visible":5,"stud_access_pictograms":true,"stud_access_contrast":false,"stud_access_fontsize":18,"stud_access_filters":true,"stud_access_ndays_visible":7,"stud_access_prof_mod":false,"stud_access_timebar":true,"stud_access_talkback":false,"stud_access_profile_mod":true,"stud_access_task_mod":true}]}
+{"errorCode":0,"details":"successful","users":[{"username":"ana","full_name":"Ana López","role":"parent","avatar_url":"/users/parent/ana/avatar-image"},{"username":"luis","full_name":"Luis Pérez","role":"student","avatar_url":"/users/student/luis/avatar-image","stud_access_main_col":"#ffffff","stud_access_sec_col":"#000000","stud_access_ntasks_visible":5,"stud_access_pictograms":true,"stud_access_contrast":false,"stud_access_fontsize":18,"stud_access_filters":true,"stud_access_ndays_visible":7,"stud_access_prof_mod":false,"stud_access_timebar":true,"stud_access_talkback":false,"stud_access_profile_mod":true,"stud_access_task_mod":true}]}
 ```
 
 ### `GET /users/{role}/{username}` — Consultar una cuenta concreta
 
-Solo administrador. Busca una cuenta por username dentro del rol indicado y devuelve sus datos de perfil: `username`, `full_name`, `role`, email cuando corresponda y preferencias de accesibilidad para estudiantes. No devuelve contraseña ni token. Si la cuenta no existe en ese rol, responde `USER_NOT_FOUND` (HTTP 404); si falla la consulta, `USER_LOOKUP_FAILED` (HTTP 500).
+Solo administrador. Busca una cuenta por username dentro del rol indicado y devuelve sus datos de perfil: `username`, `full_name`, `role`, `avatar_url` y preferencias de accesibilidad para estudiantes. No devuelve contraseña ni token. Si la cuenta no existe en ese rol, responde `USER_NOT_FOUND` (HTTP 404); si falla la consulta, `USER_LOOKUP_FAILED` (HTTP 500).
 
 **Entrada:** sin cuerpo. Ejemplo: `GET /users/parent/ana` con Bearer de administrador.
 
 **Respuesta JSON:**
 ```json
-{"errorCode":0,"details":"successful","username":"ana","full_name":"Ana López","email":"ana@example.com","role":"parent"}
+{"errorCode":0,"details":"successful","username":"ana","full_name":"Ana López","avatar_url":"/users/parent/ana/avatar-image","role":"parent"}
 ```
 
 ### `GET /users/me` — Consultar mi propia ficha
@@ -134,24 +136,24 @@ Requiere autenticación y devuelve únicamente la ficha del usuario asociado al 
 
 **Respuesta JSON (ejemplo de alumno):**
 ```json
-{"errorCode":0,"details":"successful","username":"luis","full_name":"Luis Pérez","stud_access_main_col":"#ffffff","stud_access_sec_col":"#000000","stud_access_ntasks_visible":5,"stud_access_pictograms":true,"stud_access_contrast":false,"stud_access_fontsize":18,"stud_access_filters":true,"stud_access_ndays_visible":7,"stud_access_prof_mod":false,"stud_access_timebar":true,"stud_access_talkback":false,"stud_access_profile_mod":true,"stud_access_task_mod":true,"role":"student"}
+{"errorCode":0,"details":"successful","username":"luis","full_name":"Luis Pérez","avatar_url":"/users/student/luis/avatar-image","stud_access_main_col":"#ffffff","stud_access_sec_col":"#000000","stud_access_ntasks_visible":5,"stud_access_pictograms":true,"stud_access_contrast":false,"stud_access_fontsize":18,"stud_access_filters":true,"stud_access_ndays_visible":7,"stud_access_prof_mod":false,"stud_access_timebar":true,"stud_access_talkback":false,"stud_access_profile_mod":true,"stud_access_task_mod":true,"role":"student"}
 ```
 
 ### `PUT /users/{role}/{username}` — Editar perfil o datos de usuario
 
-Requiere autenticación. Un administrador puede editar cualquier cuenta. Un `parent` o `staff` solo puede editar su email o contraseña y no puede enviar `username`, `full_name` ni `role`. Un `student` solo puede editar sus propios ajustes de accesibilidad, y únicamente si `stud_access_profile_mod` está activado; si está desactivado, se rechaza la edición con `PROFILE_UPDATE_DENIED` (HTTP 403). El alumno no puede cambiar `username`, `full_name`, contraseña ni `role`, ni modificar los indicadores de permisos `stud_access_prof_mod`, `stud_access_profile_mod` y `stud_access_task_mod`; estos campos quedan reservados al administrador. Los estudiantes no admiten email. Ningún usuario puede cambiar el rol de una cuenta: un administrador que envíe un `role` distinto del actual recibe `ROLE_CHANGE_DENIED` (HTTP 403); un usuario no administrador que envíe `role` recibe `PROFILE_UPDATE_DENIED` (HTTP 403).
+Requiere autenticación. Un administrador puede editar cualquier cuenta. Un `parent` o `staff` solo puede editar su contraseña y no puede enviar `username`, `full_name` ni `role`. Un `student` solo puede editar sus propios ajustes de accesibilidad, y únicamente si `stud_access_profile_mod` está activado; si está desactivado, se rechaza la edición con `PROFILE_UPDATE_DENIED` (HTTP 403). El alumno no puede cambiar `username`, `full_name`, contraseña ni `role`, ni modificar los indicadores de permisos `stud_access_prof_mod`, `stud_access_profile_mod` y `stud_access_task_mod`; estos campos quedan reservados al administrador. Ningún usuario puede cambiar el rol de una cuenta: un administrador que envíe un `role` distinto del actual recibe `ROLE_CHANGE_DENIED` (HTTP 403); un usuario no administrador que envíe `role` recibe `PROFILE_UPDATE_DENIED` (HTTP 403).
 
-El JSON acepta campos opcionales: `username`, `role`, `full_name`, `password`, `email` y campos `stud_access_*`. No se aceptan propiedades extra. Debe haber al menos un campo que modificar. El username y el nombre completo aplican validaciones iguales a las de creación; la contraseña está limitada a 72 bytes. Los valores numéricos y booleanos de accesibilidad deben usar sus tipos JSON correspondientes, y los colores deben seguir el formato hexadecimal indicado en creación.
+El JSON acepta campos opcionales: `username`, `role`, `full_name`, `password` y campos `stud_access_*`. No se aceptan propiedades extra. Debe haber al menos un campo que modificar. El username y el nombre completo aplican validaciones iguales a las de creación; la contraseña está limitada a 72 bytes. Los valores numéricos y booleanos de accesibilidad deben usar sus tipos JSON correspondientes, y los colores deben seguir el formato hexadecimal indicado en creación.
 
-Cambiar username actualiza la clave común y las referencias en cascada; también actualiza `Tasks.task_creator` y `Alt_Tasks.alt_task_creator`. Cambiar username o contraseña invalida el token activo. Cambiar solo `full_name`, email o accesibilidad no invalida el token. El rol y su fila de especialización no se modifican mediante esta ruta.
+Cambiar username actualiza la clave común y las referencias en cascada; también actualiza `Tasks.task_creator` y `Alt_Tasks.alt_task_creator`. Cambiar username o contraseña invalida el token activo. Cambiar solo `full_name` o accesibilidad no invalida el token. El rol y su fila de especialización no se modifican mediante esta ruta.
 
-Los roles con email deben conservar o recibir un email válido; estudiantes no admiten email. La respuesta de éxito devuelve el `username` y el rol resultante.
+La respuesta de éxito devuelve el `username` y el rol resultante.
 
-Errores relevantes: `PROFILE_UPDATE_DENIED` (403), `ROLE_CHANGE_DENIED` (403), `USER_NOT_FOUND` (404), `USERNAME_TAKEN`/`EMAIL_TAKEN` (409), `NO_UPDATE_FIELDS`, `INVALID_REQUEST`, `EMAIL_REQUIRED`, `EMAIL_UNAVAILABLE` y `LAST_ADMIN` (400 según catálogo).
+Errores relevantes: `PROFILE_UPDATE_DENIED` (403), `ROLE_CHANGE_DENIED` (403), `USER_NOT_FOUND` (404), `USERNAME_TAKEN` (409), `NO_UPDATE_FIELDS`, `INVALID_REQUEST` y `LAST_ADMIN` (400 según catálogo).
 
 **JSON de entrada (ejemplo de cambios parciales; solo se envían los campos que se desean modificar):**
 ```json
-{"full_name":"Nombre actualizado","email":"nuevo@example.com","password":"nueva-clave"}
+{"full_name":"Nombre actualizado","password":"nueva-clave"}
 ```
 
 **Respuesta correcta:**
@@ -170,36 +172,27 @@ Solo administrador. Borra la cuenta de `users` únicamente si existe la especial
 {"errorCode":0,"details":"successful"}
 ```
 
-### `PUT /users/students/{student_username}/avatar` — Actualizar foto de perfil de alumno
+### `PUT /users/{role}/{username}/avatar` — Actualizar la foto de cualquier cuenta
 
-Solo administrador. Recibe `multipart/form-data` con el archivo en el campo `file` y el username del alumno en la ruta. Admite PNG, JPEG y WebP de hasta 5 MB; el backend comprueba la firma y estructura básica del formato, y rechaza formatos no admitidos o archivos demasiado grandes con `AVATAR_INVALID_IMAGE` (HTTP 422) o `AVATAR_TOO_LARGE` (HTTP 413). Si el alumno no existe, devuelve `USER_NOT_FOUND`. El permiso `stud_access_profile_mod` no limita al administrador. El archivo es obligatorio, así que esta operación siempre reemplaza la foto por otra válida y nunca la deja nula.
+Solo administrador. Recibe `multipart/form-data` con el archivo en `file`, en PNG, JPEG o WebP y hasta 5 MB. El backend valida firma y estructura básica; devuelve `AVATAR_INVALID_IMAGE` (HTTP 422) o `AVATAR_TOO_LARGE` (HTTP 413) si no cumple los límites, y `USER_NOT_FOUND` si no existe el usuario en ese rol.
 
-La imagen se guarda en `Avatar.avatar_bin` y su clave se vincula a `Student.avatar_id_fk` en una transacción. Al reemplazar una foto anterior, el backend la elimina si ya no está vinculada a ningún alumno. La columna `avatar_id_fk` es obligatoria y la clave foránea impide borrar una imagen mientras un alumno la use. La respuesta JSON incluye `avatar_id`, `media_type` y `avatar_url`.
+La imagen se guarda en `Avatar.avatar_bin` y `users.avatar_id_fk` se actualiza en la misma transacción. La foto anterior se elimina cuando ya no está referenciada. La cuenta conserva siempre una imagen asignada. La respuesta incluye `avatar_id`, `media_type` y un `avatar_url` con la forma `/users/{role}/{username}/avatar-image`.
 
-La ruta devuelta en `avatar_url` permite recargar la imagen; evita caché con `Cache-Control: no-store`.
+**Entrada:** `PUT /users/parent/ana/avatar`, token Bearer de administrador y `multipart/form-data`; no es JSON.
 
-**Entrada:** `PUT /users/students/luis/avatar`, cabecera `Authorization: Bearer <token>` de administrador y `multipart/form-data`, campo `file` con los bytes de la imagen; no es JSON.
+### `PUT /users/me/avatar` — Actualizar mi propia foto
 
-**Respuesta JSON:**
-```json
-{"errorCode":0,"details":"successful","avatar_id":12,"media_type":"image/png","avatar_url":"/users/students/luis/avatar-image"}
-```
+Requiere token. `admin`, `staff` y `parent` pueden cambiar su propia imagen. `student` puede hacerlo solo si `stud_access_profile_mod` está activado. Recibe el mismo archivo y aplica las mismas validaciones que la ruta de administración.
 
-### `GET /users/students/me/avatar` — Obtener mi avatar
+### `GET /users/me/avatar` — Obtener mi foto
 
-Requiere token de alumno y devuelve directamente la imagen con su tipo MIME. Si el alumno todavía no tiene una foto válida, devuelve una silueta SVG predeterminada para que el perfil siempre pueda mostrar una imagen. La respuesta usa `Cache-Control: no-store` para que una foto recién actualizada no se quede en caché.
+Requiere token de cualquier rol y devuelve directamente la imagen con su tipo MIME. Si el archivo guardado no es un PNG, JPEG o WebP reconocido, devuelve la silueta SVG predeterminada. La respuesta usa `Cache-Control: no-store`.
 
-**Entrada:** sin cuerpo. Cabecera: `Authorization: Bearer <token>`.
+### `GET /users/{role}/{username}/avatar-image` — Obtener la foto de una cuenta
 
-**Respuesta:** contenido binario de imagen (PNG, JPEG o WebP), o SVG predeterminado; no devuelve JSON. El encabezado `Content-Type` indica el formato y `Cache-Control: no-store` evita caché.
+El administrador puede consultar cualquier cuenta y cada usuario puede consultar su propia foto. Para fotos de alumnos se mantiene el acceso contextual: puede consultarlas sin token quien elige alumno en el directorio si está matriculado; el personal solo si comparte una clase, y su familia si está asociada. Los demás perfiles no se sirven públicamente. Si no hay autorización, devuelve `ASSOCIATION_ACCESS_DENIED` (HTTP 403). La respuesta usa `Cache-Control: no-store`.
 
-### `GET /users/students/{student_username}/avatar-image` — Obtener avatar de alumno de una clase
-
-Puede consultarse sin token para mostrar la selección de alumno antes del login, siempre que el alumno esté matriculado en alguna clase. El personal solo puede consultar el avatar de alumnos que estén matriculados en alguna de sus clases; el administrador puede consultar el de cualquier alumno. Devuelve la imagen almacenada o el SVG predeterminado si el alumno no tiene avatar. La respuesta usa `Cache-Control: no-store`. Sin autorización para consultar al alumno, devuelve `ASSOCIATION_ACCESS_DENIED` (HTTP 403).
-
-**Entrada:** sin cuerpo; username en la ruta. La cabecera Bearer es opcional para alumnos matriculados.
-
-**Respuesta:** contenido binario de imagen (PNG, JPEG o WebP), o SVG predeterminado; no devuelve JSON.
+Las rutas anteriores `/users/students/me/avatar`, `/users/students/{student_username}/avatar` y `/users/students/{student_username}/avatar-image` se conservan como compatibilidad para clientes existentes.
 
 ## Asociaciones alumno–tutor/personal
 
@@ -229,13 +222,13 @@ Solo administrador. Elimina únicamente esa relación de `par_stud`. Si no exist
 
 ### `GET /student-links/students/{student_username}` — Consultar tutores y personal de un alumno
 
-Solo administrador. Devuelve dos listas actuales: `parents` y `staff`. Cada entrada incluye username, full name y email. Los padres salen de `par_stud`; el personal se obtiene de la clase a la que pertenece el alumno y sus filas en `class_staff`. Si el alumno aún no tiene clase, `staff` será una lista vacía. Si no existe el alumno, devuelve `ASSOCIATED_ENTITY_NOT_FOUND` (HTTP 404).
+Solo administrador. Devuelve dos listas actuales: `parents` y `staff`. Cada entrada incluye username, full name y `avatar_url`. Los padres salen de `par_stud`; el personal se obtiene de la clase a la que pertenece el alumno y sus filas en `class_staff`. Si el alumno aún no tiene clase, `staff` será una lista vacía. Si no existe el alumno, devuelve `ASSOCIATED_ENTITY_NOT_FOUND` (HTTP 404).
 
 **Entrada:** sin cuerpo; username en la ruta.
 
 **Respuesta JSON:**
 ```json
-{"errorCode":0,"details":"successful","student_username":"luis","parents":[{"username":"ana","full_name":"Ana López","email":"ana@example.com"}],"staff":[{"username":"marta","full_name":"Marta Ruiz","email":"marta@example.com"}]}
+{"errorCode":0,"details":"successful","student_username":"luis","parents":[{"username":"ana","full_name":"Ana López","avatar_url":"/users/parent/ana/avatar-image"}],"staff":[{"username":"marta","full_name":"Marta Ruiz","avatar_url":"/users/staff/marta/avatar-image"}]}
 ```
 
 ### `GET /student-links/parents/{parent_username}/students` — Consultar alumnos de un tutor
@@ -381,7 +374,7 @@ Solo administrador. JSON `{ "class_name": "..." }`. El nombre se recorta, debe q
 
 ### `GET /classes` — Listar clases
 
-La consulta es pública para permitir la selección de clase antes del login. Sin token, devuelve únicamente el campo `class_name` para cada clase, sin otros datos. Con token, el administrador recibe todas las clases y el personal únicamente las clases que tiene asignadas; otros roles reciben `CLASS_ACCESS_DENIED` (HTTP 403). Cada clase autenticada incluye `class_name`, `student_count` y `students`; cada alumno incluye `username`, `full_name` y `avatar_url`. El endpoint de avatar permite acceso anónimo solo a alumnos matriculados en alguna clase. Si el usuario autenticado no tiene clases visibles, `classes` es una lista vacía; si una clase no tiene alumnos, `students` es una lista vacía y `student_count` vale 0.
+La consulta es pública para permitir la selección de clase antes del login. Sin token, devuelve únicamente el campo `class_name` para cada clase, sin otros datos. Con token, el administrador recibe todas las clases y el personal únicamente las clases que tiene asignadas; otros roles reciben `CLASS_ACCESS_DENIED` (HTTP 403). Cada clase autenticada incluye `class_name`, `student_count` y `students`; cada alumno incluye `username`, `full_name` y `avatar_url` con la ruta común de perfiles. El endpoint permite acceso anónimo solo a fotos de alumnos matriculados en alguna clase. Si el usuario autenticado no tiene clases visibles, `classes` es una lista vacía; si una clase no tiene alumnos, `students` es una lista vacía y `student_count` vale 0.
 
 **Entrada:** sin cuerpo; cabecera Bearer opcional.
 
@@ -398,7 +391,7 @@ Puede consultarse sin token para mostrar los alumnos de la clase elegida antes d
 
 **Respuesta JSON:**
 ```json
-{"errorCode":0,"details":"successful","class_name":"Primero A","students":[{"username":"luis","full_name":"Luis Pérez","avatar_url":"/users/students/luis/avatar-image"}]}
+{"errorCode":0,"details":"successful","class_name":"Primero A","students":[{"username":"luis","full_name":"Luis Pérez","avatar_url":"/users/student/luis/avatar-image"}]}
 ```
 
 ### `PUT /classes/{current_class_name}` — Renombrar clase
