@@ -11,6 +11,17 @@ from ..task_schedule import validate_task_schedule
 SCHOOL_START = time(9, 0)
 SCHOOL_END = time(15, 0)
 
+# Rol de quien creó la tarea, deducido de la tabla de especialización en la que está.
+# Si la cuenta ya no existe, el rol queda vacío (NULL).
+CREATOR_ROLE_SQL = (
+    "CASE "
+    "WHEN EXISTS (SELECT 1 FROM Staff WHERE staff_usr = task.task_creator) THEN 'staff' "
+    "WHEN EXISTS (SELECT 1 FROM Parents WHERE par_usr = task.task_creator) THEN 'parent' "
+    "WHEN EXISTS (SELECT 1 FROM Student WHERE stud_usr = task.task_creator) THEN 'student' "
+    "WHEN EXISTS (SELECT 1 FROM Admn WHERE admn_usr = task.task_creator) THEN 'admin' "
+    "END"
+)
+
 
 def _has_student_relationship(
     db: Session, creator_role: str, creator_username: str, student_username: str
@@ -62,8 +73,12 @@ def list_student_tasks(
     requester_username: str,
     student_username: str,
     task_date: date,
+    class_name: str | None = None,
+    finished: bool | None = None,
+    creator_role: str | None = None,
 ) -> dict:
-    """Lista por fecha las tareas del alumno para un requester autorizado."""
+    """Lista por fecha las tareas del alumno, con filtros opcionales por clase,
+    estado y rol del creador."""
     if requester_role == "student":
         if requester_username != student_username:
             raise CatalogError(ErrorCode.TASK_CREATOR_REQUIRED)
@@ -91,19 +106,37 @@ def list_student_tasks(
     else:
         raise CatalogError(ErrorCode.TASK_CREATOR_REQUIRED)
 
+    # Filtros opcionales (SCRUM-692). Solo se añaden a la consulta los que se piden.
+    conditions = []
+    parameters = {"student_username": student_username, "task_date": task_date}
+    if class_name is not None:
+        conditions.append("listed.class_name_fk = :class_name")
+        parameters["class_name"] = class_name
+    if finished is not None:
+        conditions.append("COALESCE(listed.task_finished, FALSE) = :finished")
+        parameters["finished"] = finished
+    if creator_role is not None:
+        conditions.append("listed.creator_role = :creator_role")
+        parameters["creator_role"] = creator_role
+    filters = "".join(f" AND {condition}" for condition in conditions)
+
     rows = db.execute(
         text(
+            "SELECT * FROM ("
             "SELECT task.task_id, task.task_title, task.task_start_hour, "
             "task.task_duration, task.task_creator, task.task_finished, "
             "task.alt_task_id_fk, assigned.task_date, assigned.task_index, "
-            "assigned.class_name_fk "
+            "assigned.class_name_fk, "
+            f"{CREATOR_ROLE_SQL} AS creator_role "
             "FROM stud_task assigned JOIN Tasks task "
             "ON task.task_id = assigned.task_id_fk "
             "WHERE assigned.stud_usr_fk = :student_username "
-            "AND assigned.task_date = :task_date "
-            "ORDER BY assigned.task_index, task.task_id"
+            "AND assigned.task_date = :task_date"
+            ") AS listed "
+            f"WHERE TRUE{filters} "
+            "ORDER BY listed.task_index, listed.task_id"
         ),
-        {"student_username": student_username, "task_date": task_date},
+        parameters,
     ).mappings().all()
     return success_response(
         stud_usr_fk=student_username,

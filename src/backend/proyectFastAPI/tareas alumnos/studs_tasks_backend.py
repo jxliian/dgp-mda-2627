@@ -1,8 +1,8 @@
 from datetime import date, time
 from importlib import import_module
-from typing import Annotated
+from typing import Annotated, Literal
 
-from fastapi import APIRouter, Depends, Path
+from fastapi import APIRouter, Depends, Path, Query
 from pydantic import BaseModel, ConfigDict, Field, StrictInt, field_validator
 from sqlalchemy.orm import Session
 
@@ -84,10 +84,19 @@ def create_student_task(
 def get_student_tasks(
     student_username: UsernamePath,
     task_date: date,
+    class_name: Annotated[str | None, Query(min_length=1, max_length=50)] = None,
+    finished: bool | None = None,
+    creator_role: Literal["staff", "parent", "student"] | None = None,
     db: Session = Depends(get_db),
     user: dict = Depends(get_current_user),
 ) -> dict:
-    """Consulta las tareas de un alumno asociado al personal o tutor autenticado."""
+    """Consulta las tareas de un alumno asociado al personal o tutor autenticado.
+
+    Filtros opcionales (SCRUM-692), combinables entre sí:
+    - class_name: solo las tareas asignadas a toda esa clase.
+    - finished: true para completadas, false para pendientes.
+    - creator_role: solo las creadas por personal, familia o el propio alumno.
+    """
     if user["role"] not in {"staff", "parent"}:
         raise_api_error(ErrorCode.TASK_CREATOR_REQUIRED)
 
@@ -98,6 +107,9 @@ def get_student_tasks(
         user["username"],
         student_username,
         task_date,
+        class_name,
+        finished,
+        creator_role,
     )
 
 
