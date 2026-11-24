@@ -473,6 +473,42 @@ class UsersManagementDB:
             {"staff_username": staff_username, "student_username": student_username},
         ).scalar_one_or_none() is not None
 
+    def studentCanViewStudentAvatar(self, db: Session, student_username: str, target_username: str) -> bool:
+        """Permite al alumno ver a otros alumnos que comparten alguna de sus clases."""
+        return db.execute(
+            text(
+                "SELECT 1 FROM class_stud AS viewer "
+                "JOIN class_stud AS target "
+                "ON target.class_name_fk = viewer.class_name_fk "
+                "WHERE viewer.stud_usr_fk = :student_username "
+                "AND target.stud_usr_fk = :target_username"
+            ),
+            {"student_username": student_username, "target_username": target_username},
+        ).scalar_one_or_none() is not None
+
+    def studentCanViewParentAvatar(self, db: Session, student_username: str, parent_username: str) -> bool:
+        """Comprueba si el tutor está asociado al alumno que consulta la foto."""
+        return db.execute(
+            text(
+                "SELECT 1 FROM par_stud "
+                "WHERE stud_usr_fk = :student_username AND par_usr_fk = :parent_username"
+            ),
+            {"student_username": student_username, "parent_username": parent_username},
+        ).scalar_one_or_none() is not None
+
+    def studentCanViewStaffAvatar(self, db: Session, student_username: str, staff_username: str) -> bool:
+        """Comprueba si el miembro del personal enseña en una clase del alumno."""
+        return db.execute(
+            text(
+                "SELECT 1 FROM class_stud AS enrollment "
+                "JOIN class_staff AS teaching "
+                "ON teaching.class_name_fk = enrollment.class_name_fk "
+                "WHERE enrollment.stud_usr_fk = :student_username "
+                "AND teaching.staff_usr_fk = :staff_username"
+            ),
+            {"student_username": student_username, "staff_username": staff_username},
+        ).scalar_one_or_none() is not None
+
     def parentCanViewStudentAvatar(self, db: Session, parent_username: str, student_username: str) -> bool:
         """Comprueba que el tutor o familiar está asociado al alumno."""
         return db.execute(
@@ -483,12 +519,26 @@ class UsersManagementDB:
             {"parent_username": parent_username, "student_username": student_username},
         ).scalar_one_or_none() is not None
 
+    def parentCanViewStaffAvatar(self, db: Session, parent_username: str, staff_username: str) -> bool:
+        """Comprueba si el miembro del personal enseña a un alumno asociado al tutor."""
+        return db.execute(
+            text(
+                "SELECT 1 FROM par_stud AS family "
+                "JOIN class_stud AS enrollment "
+                "ON enrollment.stud_usr_fk = family.stud_usr_fk "
+                "JOIN class_staff AS teaching "
+                "ON teaching.class_name_fk = enrollment.class_name_fk "
+                "WHERE family.par_usr_fk = :parent_username "
+                "AND teaching.staff_usr_fk = :staff_username"
+            ),
+            {"parent_username": parent_username, "staff_username": staff_username},
+        ).scalar_one_or_none() is not None
+
     def studentIsInAnyClass(self, db: Session, student_username: str) -> bool:
-        """Comprueba que el alumno esté matriculado, para servir su avatar en selección pública."""
+        """Comprueba si el alumno forma parte del directorio visual previo al login."""
         return db.execute(
             text("SELECT 1 FROM class_stud WHERE stud_usr_fk = :student_username"),
             {"student_username": student_username},
         ).scalar_one_or_none() is not None
-
 
 users_mng_db = UsersManagementDB()

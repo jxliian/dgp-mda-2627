@@ -30,4 +30,19 @@ backend/
 
 Cada cuenta, cualquiera que sea su rol, tiene una foto vinculada desde `users.avatar_id_fk` a `Avatar`. Las cuentas nuevas reciben una silueta SVG predeterminada. El administrador puede cambiar la foto de cualquier cuenta con `PUT /users/{role}/{username}/avatar`; cada usuario puede cambiar la propia con `PUT /users/me/avatar`, y el alumnado necesita `stud_access_profile_mod`. Los archivos se envían como multipart `file` en PNG, JPEG o WebP, con un máximo de 5 MB. `GET /users/me/avatar` devuelve la foto propia y `avatar_url` apunta a `GET /users/{role}/{username}/avatar-image`.
 
-Para una base existente, aplica una vez `../../docs/diseno_arquitectura/modelado_datos/MigracionAvatarComun.sqlscript` antes de desplegar esta versión. La migración conserva las imágenes actuales de los alumnos.
+### Quién puede consultar cada foto
+
+El acceso depende de las relaciones guardadas en las tablas de matrícula, docencia y familia. Antes del inicio de sesión, la pantalla de identificación visual puede consultar únicamente las fotos del alumnado matriculado; las demás fotos requieren sesión:
+
+| Quién consulta | Fotos que puede ver |
+| --- | --- |
+| Alumno | Alumnado que comparte alguna de sus clases, sus tutores asociados y el personal que enseña en sus clases |
+| Tutor | Sus alumnos asociados y el personal que enseña en alguna clase de esos alumnos |
+| Personal docente | Alumnado de las clases que imparte |
+| Administrador | Cualquier cuenta |
+| Cualquier rol | Su propia foto |
+| Sin sesión | Fotos del alumnado matriculado, para elegir su perfil en el acceso visual |
+
+Los tutores pueden ver la foto del profesor a cargo de su hijo para poder identificarlo. La consulta sin sesión no da acceso a fotos de personal, familias o administradores ni a fotos de alumnos que no estén matriculados en una clase.
+
+El esquema se crea desde cero con `../../docs/diseno_arquitectura/modelado_datos/CreacionTablas.sqlscript`; no se requiere una migración incremental.

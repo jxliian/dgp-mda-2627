@@ -24,7 +24,7 @@ Las respuestas correctas usan `errorCode: 0` y `details: "successful"`. Los cód
 | 1001 |  Usuario o contraseña incorrectos |  401 |  El nombre de usuario, la contraseña o el rol no identifican una cuenta válida durante el inicio de sesión. |  
 | 1002 |  Token ausente o inválido |  401 |  Falta el token Bearer o no coincide con una sesión activa. |  
 | 1003 |  Se requiere una sesión de administrador |  403 |  La operación requiere permisos de administrador. |  
-| 1004 |  Solo puedes consultar los alumnos asociados a tu propia cuenta |  403 |  Un tutor o miembro del staff intentó consultar asociaciones de otra cuenta. |  
+| 1004 |  No tienes permiso para consultar este recurso |  403 |  El rol o las relaciones de la cuenta no autorizan la consulta solicitada. |  
 | 1005 |  La solicitud contiene datos inválidos |  422 |  El cuerpo, los parámetros o la ruta no cumplen la validación del endpoint. El detalle no incluye los valores enviados. |  
 | 1006 |  Usuario no encontrado |  404 |  No existe la cuenta solicitada por nombre de usuario, o la cuenta que se iba a editar o eliminar. |  
 | 1009 |  Rol no válido |  400 |  El rol no es uno de `admin`, `staff`, `student` o `parent`. |  
@@ -45,7 +45,6 @@ Las respuestas correctas usan `errorCode: 0` y `details: "successful"`. Los cód
 | 1025 |  Los tutores no pueden eliminar tareas programadas durante el horario escolar |  400 |  Un tutor intentó eliminar una tarea dentro del horario escolar. |  
 | 1026 |  El personal no puede eliminar tareas programadas fuera del horario escolar |  400 |  Un miembro del staff intentó eliminar una tarea fuera del horario permitido. |  
 | 1027 |  Ya existe un usuario con ese nombre de usuario |  409 |  El nombre de usuario ya está ocupado en `users`, por lo que no puede repetirse en ninguna especialización de rol. |  
-| 1028 |  Ya existe un usuario con ese correo electrónico en el rol indicado |  409 |  El correo ya está ocupado por otra cuenta del rol de destino. |  
 | 1029 |  No tienes permiso para modificar este perfil |  403 |  La cuenta intentó editar un perfil ajeno o un estudiante cuyo `stud_access_profile_mod` está desactivado intentó modificar sus datos. |  
 | 1030 |  Clase no encontrada |  404 |  No existe la clase solicitada. |  
 | 1031 |  Ya existe una clase con ese nombre |  409 |  Se intentó crear o renombrar una clase con un nombre ya registrado. |  
@@ -53,7 +52,7 @@ Las respuestas correctas usan `errorCode: 0` y `details: "successful"`. Los cód
 | 1033 |  El alumno ya pertenece a otra clase |  409 |  Se intentó inscribir a un alumno que ya está inscrito en otra clase. |  
 | 1034 |  No se encontró el miembro del personal |  404 |  El usuario indicado no tiene perfil de personal. |  
 | 1035 |  No se pueden asignar tareas a una clase sin alumnos |  400 |  Se intentó asignar una tarea grupal sin alumnos inscritos. |  
-| 1036 |  El archivo debe ser una imagen PNG, JPEG o WebP válida |  422 |  El alumno intentó actualizar su foto con un archivo que no se reconoce como imagen compatible. |  
+| 1036 |  El archivo debe ser una imagen PNG, JPEG o WebP válida |  422 |  La foto se intentó actualizar con un archivo que no se reconoce como imagen compatible. |  
 | 1037 |  La imagen no puede superar los 5 MB |  413 |  El archivo de foto supera el tamaño máximo permitido. |  
 | 1038 |  No se permite cambiar el rol de un usuario |  403 |  Un administrador intentó cambiar el rol de una cuenta. Los usuarios no administradores reciben `PROFILE_UPDATE_DENIED` si intentan enviar un rol. |  
 | 1039 |  El alumno no tiene permiso para modificar sus tareas |  403 |  `stud_access_task_mod` está desactivado para el alumno que intenta crear o eliminar una tarea propia. |  
@@ -69,7 +68,7 @@ Estos códigos indican un fallo del servidor. El frontend puede mostrar un mensa
 | - | - | - | - |  
 | **errorCode** |  **details** |  **HTTP** |  **Significado** |  
 | 1500 |  Error interno del servidor |  500 |  Fallo inesperado no clasificado. |  
-| 1501 |  No se pudo consultar el usuario |  500 |  Falló una consulta de usuario por nombre o correo. |  
+| 1501 |  No se pudo consultar el usuario |  500 |  Falló una consulta de usuario por nombre de usuario. |  
 | 1502 |  No se pudo consultar la lista de usuarios |  500 |  Falló la consulta que lista cuentas. |  
 | 1503 |  No se pudo actualizar la contraseña |  500 |  Falló la actualización de contraseña. |  
 | 1504 |  No se pudo crear el usuario |  500 |  Falló la creación de la cuenta. |  

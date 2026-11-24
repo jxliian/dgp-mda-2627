@@ -61,7 +61,7 @@ ERRORS: dict[ErrorCode, tuple[int, str]] = {
     ErrorCode.INVALID_CREDENTIALS: (401, "Usuario o contraseña incorrectos"),
     ErrorCode.INVALID_TOKEN: (401, "Token ausente o inválido"),
     ErrorCode.ADMIN_REQUIRED: (403, "Se requiere una sesión de administrador"),
-    ErrorCode.ASSOCIATION_ACCESS_DENIED: (403, "Solo puedes consultar los alumnos asociados a tu propia cuenta"),
+    ErrorCode.ASSOCIATION_ACCESS_DENIED: (403, "No tienes permiso para consultar este recurso"),
     ErrorCode.INVALID_REQUEST: (422, "La solicitud contiene datos inválidos"),
     ErrorCode.USER_NOT_FOUND: (404, "Usuario no encontrado"),
     ErrorCode.INVALID_ROLE: (400, "Rol no válido"),

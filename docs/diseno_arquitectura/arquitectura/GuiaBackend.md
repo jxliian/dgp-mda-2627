@@ -190,7 +190,7 @@ Requiere token de cualquier rol y devuelve directamente la imagen con su tipo MI
 
 ### `GET /users/{role}/{username}/avatar-image` — Obtener la foto de una cuenta
 
-El administrador puede consultar cualquier cuenta y cada usuario puede consultar su propia foto. Para fotos de alumnos se mantiene el acceso contextual: puede consultarlas sin token quien elige alumno en el directorio si está matriculado; el personal solo si comparte una clase, y su familia si está asociada. Los demás perfiles no se sirven públicamente. Si no hay autorización, devuelve `ASSOCIATION_ACCESS_DENIED` (HTTP 403). La respuesta usa `Cache-Control: no-store`.
+El administrador puede consultar cualquier cuenta y cada usuario autenticado puede consultar su propia foto. Un alumno puede consultar fotos de compañeros de sus clases, de sus tutores asociados y del personal asignado a esas clases. Un tutor puede consultar las fotos de sus alumnos asociados y del personal que enseña en las clases de esos alumnos. El personal puede consultar fotos del alumnado de las clases que imparte. Sin token, solo se sirven fotos del alumnado matriculado, para el acceso visual previo al login; no se exponen fotos de otros roles ni de alumnos sin clase. Las denegaciones autenticadas devuelven `ASSOCIATION_ACCESS_DENIED` (HTTP 403); las solicitudes anónimas tampoco reciben fotos fuera del directorio permitido. La respuesta usa `Cache-Control: no-store`.
 
 Las rutas anteriores `/users/students/me/avatar`, `/users/students/{student_username}/avatar` y `/users/students/{student_username}/avatar-image` se conservan como compatibilidad para clientes existentes.
 

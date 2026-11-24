@@ -4,7 +4,7 @@
    
  Este documento describe las pruebas automáticas del backend: qué comprueban, cómo se ejecutan y qué resultado dan.  
    
- **Última ejecución:** 24/11/2026 · **Total:** 178 casos · **Resultado:** 178 correctos y 0 fallos.  
+ **Última ejecución:** 24/11/2026 · **Total:** 180 casos · **Resultado:** 180 correctos y 0 fallos.  
    
  **1. Alcance**  
    
@@ -41,7 +41,7 @@ uv run --with pytest python -m pytest ../../../tests/integration -v 
       
    
 ```  
-**Resultado esperado:** `178 passed, 0 xfailed`.  
+**Resultado esperado:** `180 passed, 0 xfailed`.  
    
  Las pruebas no modifican la base de datos de desarrollo (`autovida_db`). Trabajan en otra base, `autovida_test`, que se elimina y se crea de nuevo en cada ejecución con el script oficial `docs/diseno_arquitectura/modelado_datos/CreacionTablas.sqlscript`. Se usa PostgreSQL porque el backend emplea instrucciones que no existen en otros motores más ligeros, como `FOR UPDATE` y `LOCK TABLE`.  
    
@@ -308,7 +308,7 @@ uv run --with pytest python -m pytest ../../../tests/integration -v 
    
    
    
- `test_sprint1.py`**: resto de historias del sprint 1 (41 casos)**  
+ `test_sprint1.py`**: resto de historias del sprint 1 (43 casos)**  
    
  **Crear usuarios**  
   
@@ -405,8 +405,10 @@ uv run --with pytest python -m pytest ../../../tests/integration -v 
 | `test_se_rechazan_ficheros_invalidos_o_demasiado_grandes` |  Fichero que no es imagen y fichero de más de 5 MB |  422 y 413 |  
 | `test_solo_el_admin_cambia_la_foto_de_perfil` |  Solo el administrador puede cambiar la foto |  200 para admin; 403 para alumno, personal y familia |  
 | `test_un_usuario_puede_cambiar_su_foto_propia` |  Cada rol cambia su propia foto mediante `/users/me/avatar` |  200 y la nueva foto se recupera |  
-| `test_admin_y_personal_de_su_clase_ven_la_foto` |  Acceso a la foto de un alumno |  200 para administrador y personal de su clase; 403 para personal de otra |  
-| `test_la_familia_ve_la_foto_de_su_alumno` |  Acceso de la familia a la foto |  200 para su familia; 403 para otra familia |  
+| `test_alumno_ve_companeros_tutor_y_profesor_de_su_clase` | El alumno consulta compañeros, tutores y personal de sus clases; se deniegan relaciones ajenas | 200 en relaciones vinculadas; 403 en las demás |
+| `test_tutor_ve_su_alumno_y_al_profesor_a_cargo` | La familia consulta a sus alumnos y al profesorado de sus clases | 200 para su familia y docentes; 403 para cuentas ajenas |
+| `test_profesor_ve_solo_alumnado_de_sus_clases` | Acceso del personal docente a fotos del alumnado | 200 para su alumnado; 403 para otras clases |
+| `test_admin_ve_todos_y_el_login_visual_solo_expone_alumnado_matriculado` | El administrador consulta todos los roles; sin sesión solo se ven alumnos matriculados | 200 para admin y alumno matriculado; 403 para alumno sin clase y otros roles |
   
    
    

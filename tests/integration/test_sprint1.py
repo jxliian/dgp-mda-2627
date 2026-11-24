@@ -364,14 +364,43 @@ def test_un_usuario_puede_cambiar_su_foto_propia(client):
         assert foto.headers["content-type"] == "image/jpeg"
 
 
-def test_admin_y_personal_de_su_clase_ven_la_foto(client):
-    subir_foto(client, "admin", JPEG)
+def test_alumno_ve_companeros_tutor_y_profesor_de_su_clase(client, engine):
+    client.post(
+        "/users",
+        json={"username": "compa", "full_name": "Compañera", "password": "Clave", "role": "student", **AJUSTES_ALUMNO},
+        headers=as_user("admin"),
+    )
+    with engine.begin() as conn:
+        conn.execute(text("INSERT INTO class_stud VALUES ('1A', 'compa')"))
+
+    for rol, username in [("student", "compa"), ("parent", "madre"), ("staff", "lucia")]:
+        assert client.get(
+            f"/users/{rol}/{username}/avatar-image", headers=as_user("pablo")
+        ).status_code == 200
+    for rol, username in [("student", "ana"), ("parent", "otra_madre"), ("staff", "pedro")]:
+        assert client.get(
+            f"/users/{rol}/{username}/avatar-image", headers=as_user("pablo")
+        ).status_code == 403
+
+
+def test_tutor_ve_su_alumno_y_al_profesor_a_cargo(client):
+    assert client.get("/users/student/pablo/avatar-image", headers=as_user("madre")).status_code == 200
+    assert client.get("/users/staff/lucia/avatar-image", headers=as_user("madre")).status_code == 200
+    assert client.get("/users/staff/pedro/avatar-image", headers=as_user("madre")).status_code == 403
+    assert client.get("/users/student/ana/avatar-image", headers=as_user("madre")).status_code == 403
+    assert client.get("/users/student/pablo/avatar-image", headers=as_user("otra_madre")).status_code == 403
+
+
+def test_profesor_ve_solo_alumnado_de_sus_clases(client):
     assert client.get("/users/student/pablo/avatar-image", headers=as_user("lucia")).status_code == 200
-    assert client.get("/users/student/pablo/avatar-image", headers=as_user("admin")).status_code == 200
+    assert client.get("/users/student/ana/avatar-image", headers=as_user("lucia")).status_code == 403
     assert client.get("/users/student/pablo/avatar-image", headers=as_user("pedro")).status_code == 403
 
 
-def test_la_familia_ve_la_foto_de_su_alumno(client):
-    subir_foto(client, "admin", JPEG)
-    assert client.get("/users/student/pablo/avatar-image", headers=as_user("madre")).status_code == 200
-    assert client.get("/users/student/pablo/avatar-image", headers=as_user("otra_madre")).status_code == 403
+def test_admin_ve_todos_y_el_login_visual_solo_expone_alumnado_matriculado(client):
+    for rol, username in [("admin", "admin"), ("staff", "lucia"), ("parent", "madre"), ("student", "pablo")]:
+        assert client.get(f"/users/{rol}/{username}/avatar-image", headers=as_user("admin")).status_code == 200
+    assert client.get("/users/student/pablo/avatar-image").status_code == 200
+    assert client.get("/users/student/ana/avatar-image").status_code == 403
+    assert client.get("/users/staff/lucia/avatar-image").status_code == 403
+    assert client.get("/users/admin/admin/avatar-image").status_code == 403

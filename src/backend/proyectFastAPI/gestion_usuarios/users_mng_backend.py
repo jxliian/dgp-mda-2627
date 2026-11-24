@@ -390,17 +390,30 @@ def _image_response(db: Session, username: str) -> Response:
 def _can_view_user_avatar(
     db: Session, user: dict | None, role: str, username: str
 ) -> bool:
-    """Aplica los permisos comunes y conserva el acceso contextual a fotos de alumnos."""
+    """Autoriza las fotos según la clase y los vínculos familiares del usuario."""
     if user is None:
+        # La pantalla de identificación visual necesita mostrar al alumnado antes del login.
         return role == "student" and users_mng_db.studentIsInAnyClass(db, username)
     if user["role"] == "admin" or (user["role"] == role and user["username"] == username):
         return True
-    if role != "student":
-        return False
-    if user["role"] == "staff":
-        return users_mng_db.staffCanViewStudentAvatar(db, user["username"], username)
-    if user["role"] == "parent":
-        return users_mng_db.parentCanViewStudentAvatar(db, user["username"], username)
+
+    viewer_role = user["role"]
+    viewer = user["username"]
+    if viewer_role == "student":
+        if role == "student":
+            return users_mng_db.studentCanViewStudentAvatar(db, viewer, username)
+        if role == "parent":
+            return users_mng_db.studentCanViewParentAvatar(db, viewer, username)
+        if role == "staff":
+            return users_mng_db.studentCanViewStaffAvatar(db, viewer, username)
+    elif viewer_role == "parent":
+        if role == "student":
+            return users_mng_db.parentCanViewStudentAvatar(db, viewer, username)
+        if role == "staff":
+            # El tutor puede identificar al profesor que atiende a su hijo.
+            return users_mng_db.parentCanViewStaffAvatar(db, viewer, username)
+    elif viewer_role == "staff" and role == "student":
+        return users_mng_db.staffCanViewStudentAvatar(db, viewer, username)
     return False
 
 

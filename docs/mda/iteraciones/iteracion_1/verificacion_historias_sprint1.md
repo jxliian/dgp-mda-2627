@@ -136,6 +136,10 @@ se recupera                 -> HTTP 200, image/png
 un alumno intenta subirla   -> HTTP 403
 ```
 
+**Estado actual (24/11/2026):** el administrador puede cambiar la foto de
+cualquier cuenta y cada usuario puede cambiar la propia; el alumno necesita
+`stud_access_profile_mod`. Toda cuenta nueva recibe una imagen predeterminada.
+
 ## Lo que el backend resolvió el 10/11/2026
 
 Comprobado contra la API: un alumno ya lee su ficha en `GET /users/me` (llegan
@@ -174,10 +178,11 @@ matrículas del personal solo ve a sus alumnos vinculados.
    el nombre de pila. Expone apellidos de menores sin autenticación. Merece
    quedar anotado como riesgo aceptado, o pedir que se recorte al nombre de
    pila.
-2. **Un tutor autenticado no puede ver la foto de su alumno.** El permiso del
-   avatar contempla anónimo, administración y personal, pero no a las familias:
-   con su token recibe 403. La aplicación lo tolera y dibuja la silueta, pero
-   es un descuido que merece la pena señalarles.
+2. **Resuelto: la familia puede consultar la foto de su alumno.** La observación
+   inicial detectó que un tutor autenticado recibía 403. El backend actual permite
+   a cada tutor consultar las fotos de sus alumnos asociados y del personal que
+   enseña en las clases de esos alumnos. La matriz de permisos está cubierta por
+   `tests/integration/test_sprint1.py`.
 
 ## Cómo se comporta la interfaz mientras tanto
 
