@@ -403,8 +403,8 @@ void main() {
         await tester.ensureVisible(find.text('Alto contraste'));
         await tester.tap(find.text('Alto contraste'));
         await tester.pumpAndSettle();
-        await tester.ensureVisible(find.text('Guardar accesibilidad'));
-        await tester.tap(find.text('Guardar accesibilidad'));
+        await tester.ensureVisible(find.text('Guardar'));
+        await tester.tap(find.text('Guardar'));
         await tester.pumpAndSettle();
         expect(server.settings, {'stud_access_contrast': true});
         expect(state.access.flag('contrast'), true);

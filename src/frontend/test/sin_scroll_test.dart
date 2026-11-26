@@ -26,7 +26,7 @@ const tabletas = {
 
 Future<void> medir(WidgetTester t, String nombre,
     {UserRole? rol, Future<void> Function(WidgetTester)? luego,
-    void Function(DemoRepository)? conCuenta,
+    void Function(DemoRepository)? conCuenta, int? letra,
     Size tamano = const Size(1280, 800)}) async {
   t.view.physicalSize = tamano;
   t.view.devicePixelRatio = 1;
@@ -38,6 +38,9 @@ Future<void> medir(WidgetTester t, String nombre,
       UserRole.student => 'pablo', UserRole.parent => 'familia',
       UserRole.staff => 'lucia', UserRole.admin => 'admin',
     }, '1234', rol);
+  }
+  if (letra != null) {
+    repo.currentUser!.access.values['stud_access_fontsize'] = letra;
   }
   conCuenta?.call(repo);
   final estado = AppState(repository: repo);
@@ -71,6 +74,33 @@ Future<void> medir(WidgetTester t, String nombre,
 }
 
 void main() {
+  // El alumno puede subir la letra hasta «Enorme». Tampoco entonces debería
+  // tener que desplazar: si no cupiera, la aplicación deja de servirle justo
+  // a quien más la necesita.
+  group('letra enorme', () {
+    const tamano = Size(1280, 800);
+    testWidgets('agenda', (t) => medir(t, 'Agenda con letra enorme',
+        rol: UserRole.student, tamano: tamano, letra: 32));
+    testWidgets('detalle', (t) => medir(t, 'Tarea con letra enorme',
+        rol: UserRole.student, tamano: tamano, letra: 32, luego: (x) async {
+      await x.tap(find.text('Preparar la mochila').first);
+      await x.pumpAndSettle();
+    }));
+    testWidgets('elegir dia', (t) => medir(t, 'Elegir día con letra enorme',
+        rol: UserRole.student, tamano: tamano, letra: 32, luego: (x) async {
+      await x.tap(find.text('Elegir día')); await x.pumpAndSettle();
+    }));
+    testWidgets('accesibilidad', (t) => medir(t, 'Accesibilidad con letra enorme',
+        rol: UserRole.student, tamano: tamano, letra: 32,
+        conCuenta: (r) =>
+            r.currentUser!.access.values['stud_access_profile_mod'] = true,
+        luego: (x) async {
+      await x.tap(find.byTooltip('Ajustes')); await x.pumpAndSettle();
+      await x.tap(find.text('Abrir mis opciones de accesibilidad'));
+      await x.pumpAndSettle();
+    }));
+  });
+
   tabletas.forEach((orientacion, tamano) {
     group('tablet $orientacion', () {
       testWidgets('portada', (t) => medir(t, 'Portada', tamano: tamano));
@@ -126,7 +156,7 @@ void main() {
         await x.tap(find.byTooltip('Ajustes')); await x.pumpAndSettle();
         await x.tap(find.text('Abrir mis opciones de accesibilidad'));
         await x.pumpAndSettle();
-        await x.tap(find.text('Elegir los colores')); await x.pumpAndSettle();
+        await x.tap(find.text('Colores')); await x.pumpAndSettle();
       }));
       testWidgets('anadir tarea', (t) => medir(t, 'Añadir mi tarea',
           rol: UserRole.student, tamano: tamano,

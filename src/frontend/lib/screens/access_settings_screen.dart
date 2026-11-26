@@ -111,7 +111,7 @@ class _AccessSettingsScreenState extends State<AccessSettingsScreen> {
           FormActions(
             busy: guardando || !widget.enabled,
             onSave: guardar,
-            label: 'Guardar accesibilidad',
+            label: 'Guardar',
             topPadding: 18,
           ),
         ],

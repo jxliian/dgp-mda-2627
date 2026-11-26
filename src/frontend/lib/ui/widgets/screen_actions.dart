@@ -36,8 +36,15 @@ class ScreenActions extends StatelessWidget {
 
   final double topPadding;
 
+  /// Los botones ya son grandes por sí mismos: dejar que su rótulo crezca al
+  /// doble los parte en dos líneas y roba alto al contenido, que es lo que de
+  /// verdad hay que poder leer.
+  static const _maximoDelRotulo = 1.4;
+
   @override
-  Widget build(BuildContext context) => Padding(
+  Widget build(BuildContext context) => MediaQuery.withClampedTextScaling(
+    maxScaleFactor: _maximoDelRotulo,
+    child: Padding(
     padding: EdgeInsets.only(top: topPadding),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -55,6 +62,7 @@ class ScreenActions extends StatelessWidget {
           Align(alignment: Alignment.centerLeft, child: destructive),
         ],
       ],
+    ),
     ),
   );
 }

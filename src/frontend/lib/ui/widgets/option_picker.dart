@@ -167,8 +167,9 @@ class _Tarjeta<T> extends StatelessWidget {
     // sistema: así las cuatro tarjetas de un grupo miden exactamente igual.
     const tamano = 14.0;
     const interlineado = 1.2;
+    final lineas = Pantalla.letraGrande(context) ? 1 : 2;
     final altoDelNombre =
-        MediaQuery.textScalerOf(context).scale(tamano) * interlineado * 2;
+        MediaQuery.textScalerOf(context).scale(tamano) * interlineado * lineas;
     return Column(
     mainAxisSize: MainAxisSize.min,
     children: [
@@ -179,7 +180,7 @@ class _Tarjeta<T> extends StatelessWidget {
         child: Text(
           opcion.label,
           textAlign: TextAlign.center,
-          maxLines: 2,
+          maxLines: lineas,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
             fontSize: tamano,

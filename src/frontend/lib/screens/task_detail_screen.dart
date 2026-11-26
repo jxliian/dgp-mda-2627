@@ -179,20 +179,23 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (error != null) Notice(error!, error: true),
-          Wrap(
-            spacing: 10,
-            runSpacing: 10,
-            children: taskBadges(
-              task,
-              own: laCreoElAlumno,
-              viewerIsStudent: esSuPropiaAgenda,
+          MediaQuery.withClampedTextScaling(
+            maxScaleFactor: 1.4,
+            child: Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              children: taskBadges(
+                task,
+                own: laCreoElAlumno,
+                viewerIsStudent: esSuPropiaAgenda,
+              ),
             ),
           ),
-          const SizedBox(height: 22),
+          SizedBox(height: Pantalla.letraGrande(context) ? 12 : 22),
           _contenido(state),
           if (!esSuPropiaAgenda) const Notice(_loMarcaElAlumno),
           if (esDeAula) Notice(_seGestionaEnElAula(task.className!)),
-          const SizedBox(height: 24),
+          SizedBox(height: Pantalla.letraGrande(context) ? 12 : 24),
           _acciones(),
         ],
       ),
@@ -320,34 +323,45 @@ class _TarjetaDeInstrucciones extends StatelessWidget {
   final String? escuchar;
 
   @override
-  Widget build(BuildContext context) => Card(
+  Widget build(BuildContext context) {
+    final escala = Pantalla.escalaDeTexto(context);
+    final apretado = Pantalla.letraGrande(context);
+    return Card(
     child: Padding(
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(apretado ? 16 : 24),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (conPictograma) ...[
-            ContentPicture(bytes: imagen, icon: icono, size: 150),
-            const SizedBox(width: 22),
+            ContentPicture(bytes: imagen, icon: icono, size: apretado ? 96 : 150),
+            SizedBox(width: apretado ? 14 : 22),
           ],
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // El encabezado no crece tanto como el texto: lo que hay que
+                // poder leer es la explicación, no el rótulo.
                 Semantics(
                   header: true,
-                  child: Text(
-                    titulo,
-                    style: Theme.of(context).textTheme.titleLarge,
+                  child: MediaQuery.withClampedTextScaling(
+                    maxScaleFactor: 1.3,
+                    child: Text(
+                      titulo,
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
                   ),
                 ),
-                const SizedBox(height: 10),
+                SizedBox(height: apretado ? 6 : 10),
                 // El texto que lee el alumno no se estira a lo ancho de una
                 // tablet apaisada: una línea de cien caracteres se pierde al
                 // volver al renglón siguiente.
+                // El ancho cómodo de lectura se mide en caracteres, no en
+                // píxeles: si la letra es el doble de grande, la línea puede
+                // ser el doble de larga sin dejar de ser la misma frase.
                 ConstrainedBox(
-                  constraints: const BoxConstraints(
-                    maxWidth: Pantalla.anchoDeLectura,
+                  constraints: BoxConstraints(
+                    maxWidth: Pantalla.anchoDeLectura * escala,
                   ),
                   child: Text(
                     texto,
@@ -355,7 +369,7 @@ class _TarjetaDeInstrucciones extends StatelessWidget {
                   ),
                 ),
                 if (escuchar != null) ...[
-                  const SizedBox(height: 18),
+                  SizedBox(height: apretado ? 10 : 18),
                   SpeechButton(text: escuchar!),
                 ],
               ],
@@ -364,5 +378,6 @@ class _TarjetaDeInstrucciones extends StatelessWidget {
         ],
       ),
     ),
-  );
+    );
+  }
 }

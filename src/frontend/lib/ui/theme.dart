@@ -88,6 +88,16 @@ class Pantalla {
   /// espacio entre esto, no de una lista de anchos fijos.
   static const anchoDeTarjeta = 230.0;
 
+  /// Cuánto se ha agrandado la letra respecto del tamaño de base. Un alumno
+  /// con «Enorme» en sus ajustes llega a 2,0.
+  static double escalaDeTexto(BuildContext context) =>
+      MediaQuery.textScalerOf(context).scale(16) / 16;
+
+  /// Con la letra muy grande todo ocupa el doble y hay que recortar lo que no
+  /// es información: iconos decorativos, márgenes y elementos por página.
+  static bool letraGrande(BuildContext context) =>
+      escalaDeTexto(context) >= 1.45;
+
   /// Ancho máximo cómodo para leer un párrafo seguido. Por encima de esto la
   /// línea se hace larga y cuesta volver al principio del renglón.
   static const anchoDeLectura = 680.0;

@@ -48,17 +48,14 @@ class _AccessEditorState extends State<AccessEditor> {
     Opcion(7, 'Semana'),
   ];
   static const _apoyos = {
-    'pictograms': ('Mostrar apoyos visuales', Icons.image_outlined),
+    'pictograms': ('Apoyos visuales', Icons.image_outlined),
     'contrast': ('Alto contraste', Icons.contrast),
-    'talkback': ('Mostrar botones para escuchar', Icons.volume_up_outlined),
+    'talkback': ('Botones para escuchar', Icons.volume_up_outlined),
   };
   static const _permisos = {
-    'prof_mod': ('Permiso de personalización avanzada', Icons.tune),
-    'profile_mod': (
-      'Puede modificar su perfil',
-      Icons.manage_accounts_outlined,
-    ),
-    'task_mod': ('Puede crear y eliminar sus tareas', Icons.add_task),
+    'prof_mod': ('Personalización avanzada', Icons.tune),
+    'profile_mod': ('Puede cambiar sus ajustes', Icons.manage_accounts_outlined),
+    'task_mod': ('Puede crear y borrar tareas', Icons.add_task),
   };
 
   void _guardar(String clave, Object valor) =>
@@ -89,13 +86,13 @@ class _AccessEditorState extends State<AccessEditor> {
             ),
             _opciones(
               clave: 'ntasks_visible',
-              etiqueta: 'Cuántas tareas ve a la vez',
+              etiqueta: 'Tareas a la vez',
               opciones: _tareasPorPagina,
               simbolo: SimboloDeTareas.new,
             ),
             _opciones(
               clave: 'ndays_visible',
-              etiqueta: 'Qué días puede elegir',
+              etiqueta: 'Días que puede ver',
               opciones: _diasVisibles,
               simbolo: SimboloDeDias.new,
             ),
@@ -180,7 +177,7 @@ class _AccessEditorState extends State<AccessEditor> {
       OutlinedButton.icon(
         onPressed: widget.enabled ? _abrirColores : null,
         icon: const Icon(Icons.palette_outlined),
-        label: const Text('Elegir los colores'),
+        label: const Text('Colores'),
       ),
       const SizedBox(width: 12),
       MuestraDeColor(widget.settings.color('main_col')),

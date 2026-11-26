@@ -174,6 +174,30 @@ pantallas bajas, donde el teclado de dibujos y la rejilla de fotos se aprietan
 para no obligar a desplazar. `test/sin_scroll_test.dart` comprueba las dos
 orientaciones.
 
+### 4. El contenido crece; lo que lo rodea, menos
+
+Un alumno puede poner la letra en «Enorme», que es el doble del tamaño base.
+Tampoco entonces debe tener que desplazar la pantalla: si no cupiera, la
+aplicación dejaría de servir justo a quien más la necesita.
+
+Para que quepa, lo que crece al doble es **lo que hay que leer** —el nombre de
+la tarea, su explicación, los nombres de los días— y no lo que lo rodea:
+
+| Qué | Hasta cuánto crece |
+|---|---|
+| Contenido | sin límite, lo que diga el perfil |
+| Título de la pantalla | 1,3 × |
+| Rótulos de los botones de acción | 1,4 × |
+| Insignias de estado | 1,4 × |
+
+Además, con `Pantalla.letraGrande` (1,45 × o más) los iconos decorativos
+encogen o desaparecen, las barras pasan a iconos, las listas reparten menos
+elementos por página y el ancho cómodo de lectura crece con la letra, porque
+se mide en caracteres por línea y no en píxeles.
+
+El grupo `letra enorme` de `test/sin_scroll_test.dart` comprueba la agenda, la
+tarea, el selector de día y la accesibilidad con la letra al máximo.
+
 ## Accesibilidad y límites
 
 Interfaz en español, controles amplios, etiquetas de acciones, teclado, texto escalable, estados con texto e iconos, colores configurables, contraste alto y lectura en voz cuando esté habilitada. Administración gestiona las fotos. El alumno solo dispone de ajustes de accesibilidad cuando tiene permiso para modificar su perfil.

@@ -47,10 +47,14 @@ class _DaysScreenState extends State<DaysScreen> {
         // ver el viernes.
         LayoutBuilder(
           builder: (context, restricciones) {
+            // El mínimo no crece con la letra: siete fichas estrechas con el
+            // nombre en dos líneas ocupan menos alto que cuatro anchas en dos
+            // filas, que es lo que salía al escalarlo.
+            const minimo = _anchoMinimoFicha;
             var columnas = diasVisibles;
             double anchoDe(int n) =>
                 (restricciones.maxWidth - _separacion * (n - 1)) / n;
-            while (columnas > 1 && anchoDe(columnas) < _anchoMinimoFicha) {
+            while (columnas > 1 && anchoDe(columnas) < minimo) {
               columnas = (columnas / 2).ceil();
             }
             final ancho = anchoDe(columnas);
@@ -86,7 +90,27 @@ class _DaysScreenState extends State<DaysScreen> {
     );
   }
 
-  Widget _navegacionDeSemana() => Wrap(
+  Widget _navegacionDeSemana() => Pantalla.letraGrande(context)
+      ? Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            IconAction(
+              icon: Icons.chevron_left,
+              label: 'Semana anterior',
+              onPressed: () => cambiarSemana(-7),
+            ),
+            OutlinedButton(
+              onPressed: () => Navigator.pop(context, DateTime.now()),
+              child: const Text('Hoy'),
+            ),
+            IconAction(
+              icon: Icons.chevron_right,
+              label: 'Semana siguiente',
+              onPressed: () => cambiarSemana(7),
+            ),
+          ],
+        )
+      : Wrap(
     spacing: 24,
     runSpacing: 14,
     alignment: WrapAlignment.center,

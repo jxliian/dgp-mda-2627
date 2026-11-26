@@ -117,7 +117,12 @@ class _Barra extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
       child: LayoutBuilder(
         builder: (context, restricciones) {
-          final estrecha = restricciones.maxWidth < Pantalla.media;
+          // Con la letra muy grande los botones de la barra con texto
+          // ocupan tres filas y dejan sin sitio al contenido: pasan a iconos,
+          // que conservan su nombre accesible.
+          final estrecha =
+              restricciones.maxWidth < Pantalla.media ||
+              Pantalla.letraGrande(context);
           return Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -185,24 +190,37 @@ class _Barra extends StatelessWidget {
           onPressed: () => Navigator.maybePop(context),
         );
 
-  Widget _titulo(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      Semantics(
-        header: true,
-        child: Text(title, style: Theme.of(context).textTheme.headlineMedium),
-      ),
-      if (subtitle != null)
-        Padding(
-          padding: const EdgeInsets.only(top: 3),
-          child: Text(
-            subtitle!,
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
+  /// El título crece menos que el contenido. Quien agranda la letra lo hace
+  /// para leer sus tareas, no el rótulo de la pantalla: dejarlo crecer igual
+  /// se comía media pantalla antes de empezar.
+  static const _maximoDelTitulo = 1.3;
+
+  Widget _titulo(BuildContext context) {
+    final escala = Pantalla.escalaDeTexto(context);
+    final contenido = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Semantics(
+          header: true,
+          child: Text(title, style: Theme.of(context).textTheme.headlineMedium),
         ),
-    ],
-  );
+        if (subtitle != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 3),
+            child: Text(
+              subtitle!,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          ),
+      ],
+    );
+    if (escala <= _maximoDelTitulo) return contenido;
+    return MediaQuery.withClampedTextScaling(
+      maxScaleFactor: _maximoDelTitulo,
+      child: contenido,
+    );
+  }
 }
 
 class _Contenido extends StatelessWidget {

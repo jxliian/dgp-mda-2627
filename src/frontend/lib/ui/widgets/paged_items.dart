@@ -40,7 +40,16 @@ class _PagedItemsState<T> extends State<PagedItems<T>> {
   /// Ancho reservado a cada flecha, ocupada o no.
   static const _columnaDeFlecha = 72.0;
 
-  int get _porPagina => widget.pageSize < 1 ? 1 : widget.pageSize;
+  /// Con la letra agrandada cada elemento ocupa proporcionalmente más, así
+  /// que caben menos por página. Se reparte en más páginas en vez de obligar
+  /// a desplazar: las flechas ya están donde el alumno las conoce.
+  int get _porPagina {
+    final base = widget.pageSize < 1 ? 1 : widget.pageSize;
+    final escala = Pantalla.escalaDeTexto(context);
+    if (escala <= 1.2) return base;
+    return (base / escala).ceil().clamp(1, base);
+  }
+
   int get _paginas => (widget.items.length / _porPagina).ceil();
   bool get _hayVariasPaginas => _paginas > 1;
 
