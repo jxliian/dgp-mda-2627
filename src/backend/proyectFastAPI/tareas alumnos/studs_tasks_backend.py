@@ -82,6 +82,23 @@ class ReorderTaskStepsRequest(BaseModel):
         return value
 
 
+class UpdateTaskStepRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    step_description: str | None = Field(default=None, strict=True, min_length=1)
+    step_index: StrictInt | None = Field(default=None, ge=0)
+
+    @field_validator("step_description")
+    @classmethod
+    def validate_step_description(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        value = value.strip()
+        if not value:
+            raise ValueError("La descripción del paso no puede estar vacía")
+        return value
+
+
 @router.post("/{task_id}/steps", status_code=201)
 def create_task_step(
     task_id: Annotated[int, Path(gt=0)],
@@ -120,6 +137,29 @@ def reorder_individual_task_steps(
         user["username"],
         task_id,
         payload.step_ids,
+    )
+
+
+@router.put("/{task_id}/steps/{step_id}")
+def update_individual_task_step(
+    task_id: Annotated[int, Path(gt=0)],
+    step_id: Annotated[int, Path(gt=0)],
+    payload: UpdateTaskStepRequest,
+    db: Session = Depends(get_db),
+    user: dict = Depends(get_current_user),
+) -> dict:
+    """Edita un paso de una tarea individual propia y autorizada."""
+    if user["role"] not in {"staff", "parent", "student"}:
+        raise_api_error(ErrorCode.TASK_CREATOR_REQUIRED)
+    return _run_db_operation(
+        tasks_db.update_task_step,
+        db,
+        user["role"],
+        user["username"],
+        task_id,
+        step_id,
+        payload.step_description,
+        payload.step_index,
     )
 
 

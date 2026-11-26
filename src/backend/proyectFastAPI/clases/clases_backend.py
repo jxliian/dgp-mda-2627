@@ -94,6 +94,23 @@ class ReorderClassTaskStepsRequest(BaseModel):
         return value
 
 
+class UpdateClassTaskStepRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    step_description: str | None = Field(default=None, strict=True, min_length=1)
+    step_index: StrictInt | None = Field(default=None, ge=0)
+
+    @field_validator("step_description")
+    @classmethod
+    def validate_step_description(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        value = value.strip()
+        if not value:
+            raise ValueError("La descripción del paso no puede estar vacía")
+        return value
+
+
 @router.post("", status_code=201, dependencies=[Depends(require_admin)])
 def create_class(payload: ClassRequest, db: Session = Depends(get_db)) -> dict:
     """Crea una clase; solo los administradores pueden hacerlo."""
@@ -273,6 +290,31 @@ def reorder_class_task_steps(
         user["username"],
         task_id,
         payload.step_ids,
+        class_name,
+    )
+
+
+@router.put("/{class_name}/tasks/{task_id}/steps/{step_id}")
+def update_class_task_step(
+    class_name: ClassNamePath,
+    task_id: Annotated[int, Path(gt=0)],
+    step_id: Annotated[int, Path(gt=0)],
+    payload: UpdateClassTaskStepRequest,
+    db: Session = Depends(get_db),
+    user: dict = Depends(get_current_user),
+) -> dict:
+    """Edita un paso solo si el personal creó la tarea y está asignado a la clase."""
+    if user["role"] != "staff":
+        raise_api_error(ErrorCode.CLASS_ACCESS_DENIED)
+    return _run_db_operation(
+        tasks_db.update_task_step,
+        db,
+        "staff",
+        user["username"],
+        task_id,
+        step_id,
+        payload.step_description,
+        payload.step_index,
         class_name,
     )
 

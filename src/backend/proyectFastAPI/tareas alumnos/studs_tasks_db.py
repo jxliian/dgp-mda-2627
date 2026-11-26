@@ -561,6 +561,114 @@ def reorder_task_steps(
         raise
 
 
+def update_task_step(
+    db: Session,
+    creator_role: str,
+    creator_username: str,
+    task_id: int,
+    step_id: int,
+    step_description: str | None,
+    step_index: int | None = None,
+    class_name: str | None = None,
+) -> dict:
+    """Actualiza el contenido o índice de un paso y conserva su secuencia."""
+    if step_description is None and step_index is None:
+        raise CatalogError(ErrorCode.NO_UPDATE_FIELDS)
+
+    try:
+        task = _lock_task_for_step_operation(
+            db, creator_role, creator_username, task_id, class_name
+        )
+        if creator_role == "staff" and task["task_creator"] != creator_username:
+            raise CatalogError(ErrorCode.TASK_NOT_FOUND)
+        _validate_step_schedule(task, creator_role)
+
+        if step_index is not None:
+            _reindex_task_steps(db, task_id)
+        step = db.execute(
+            text(
+                "SELECT step_id, step_index FROM Steps "
+                "WHERE step_id = :step_id AND generic_task_id_fk = :task_id"
+            ),
+            {"step_id": step_id, "task_id": task_id},
+        ).mappings().first()
+        if step is None:
+            raise CatalogError(ErrorCode.TASK_NOT_FOUND)
+
+        if step_index is not None:
+            ordered_ids = db.execute(
+                text(
+                    "SELECT step_id FROM Steps WHERE generic_task_id_fk = :task_id "
+                    "ORDER BY step_index, step_id"
+                ),
+                {"task_id": task_id},
+            ).scalars().all()
+            old_index = ordered_ids.index(step_id)
+            maximum_index = len(ordered_ids) - 1
+            new_index = min(step_index, maximum_index)
+            ordered_ids.pop(old_index)
+            ordered_ids.insert(new_index, step_id)
+
+            # A temporary range prevents index collisions while the positions shift.
+            temporary_base = len(ordered_ids) + maximum_index + 1
+            for offset, ordered_step_id in enumerate(ordered_ids):
+                db.execute(
+                    text(
+                        "UPDATE Steps SET step_index = :step_index "
+                        "WHERE step_id = :step_id AND generic_task_id_fk = :task_id"
+                    ),
+                    {
+                        "step_index": temporary_base + offset,
+                        "step_id": ordered_step_id,
+                        "task_id": task_id,
+                    },
+                )
+            for index, ordered_step_id in enumerate(ordered_ids):
+                db.execute(
+                    text(
+                        "UPDATE Steps SET step_index = :step_index "
+                        "WHERE step_id = :step_id AND generic_task_id_fk = :task_id"
+                    ),
+                    {
+                        "step_index": index,
+                        "step_id": ordered_step_id,
+                        "task_id": task_id,
+                    },
+                )
+
+        if step_description is not None:
+            db.execute(
+                text(
+                    "UPDATE Steps SET step_description = :description "
+                    "WHERE step_id = :step_id AND generic_task_id_fk = :task_id"
+                ),
+                {
+                    "description": step_description,
+                    "step_id": step_id,
+                    "task_id": task_id,
+                },
+            )
+        updated_step = db.execute(
+            text(
+                "SELECT step_id, step_description, step_finished, "
+                "step_index, generic_task_id_fk FROM Steps "
+                "WHERE step_id = :step_id AND generic_task_id_fk = :task_id"
+            ),
+            {"step_id": step_id, "task_id": task_id},
+        ).mappings().one()
+
+        db.commit()
+        return success_response(
+            **dict(updated_step), **({"class_name": class_name} if class_name else {})
+        )
+    except CatalogError:
+        db.rollback()
+        raise
+    except Exception:
+        db.rollback()
+        raise
+
+
 def create_task_step(
     db: Session,
     creator_role: str,

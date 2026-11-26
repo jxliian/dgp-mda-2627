@@ -259,6 +259,8 @@ Las relaciones vigentes también controlan las tareas individuales. El tutor deb
 
 Prefijo `/student-tasks`. El personal (`staff`) puede crear tareas para alumnos inscritos en alguna clase que imparte; los tutores (`parent`) pueden hacerlo para alumnos enlazados mediante `par_stud`. El alumno puede crear y eliminar solo sus propias tareas mediante las rutas `/me`, si `stud_access_task_mod` está activado. El administrador no está autorizado por este router. Las rutas de edición de tareas alternativas siguen reservadas a `staff` y `parent`; también validan la relación actual con al menos un alumno asignado a la tarea.
 
+El estado de finalización se llama `task_finished` en la base de datos y en las respuestas (no `task_completed`). Se almacena por alumno en `stud_task`. Aunque la aplicación cliente declara usar `PATCH /student-tasks/me/{task_id}/progress` para registrar el progreso, esa ruta no está implementada en este backend: aquí no hay una operación HTTP para actualizar `stud_task.task_finished` ni `Steps.step_finished`. Por tanto, el esquema y las consultas ya representan progreso individual, pero el flujo de completar desde el cliente no puede persistir en este backend hasta añadir esa operación.
+
 ### `GET /student-tasks/students/{student_username}?task_date=AAAA-MM-DD` — Consultar tareas y pasos de un alumno por día
 
 Requiere personal asignado a una clase compartida con el alumno o tutor asociado mediante `par_stud`. Devuelve las tareas de la agenda de ese alumno para la fecha indicada, ordenadas según `task_index`; incluye también `class_name_fk` para identificar las asignaciones que proceden de una clase. Cada tarea incluye `steps`, ordenados por `step_index` y `step_id`, con descripción, estado e índice. Una tarea sin pasos devuelve `steps: []`. Si el alumno no existe, devuelve `TASK_STUDENT_NOT_FOUND`; si el usuario autenticado no está asociado a él, devuelve `TASK_STUDENT_NOT_ASSOCIATED`.
@@ -284,7 +286,7 @@ Responde HTTP 201. El JSON requiere `task_title`, `task_date` y `task_duration`.
 
 El alumno debe existir y el usuario autenticado debe estar asociado a él según su rol. El personal debe indicar `task_start_hour`; el intervalo completo `[hora de inicio, hora de inicio + duración)` debe quedar entre las 09:00 y las 15:00. `parent` puede indicar una hora, pero su intervalo completo no puede solaparse con `[09:00, 15:00)`. La franja escolar se aplica todos los días; por ahora tampoco se admiten tareas de tutor entre las 09:00 y las 15:00 en fin de semana. Los festivos no se distinguen hasta disponer de un calendario del centro. Las tareas de `parent` sin hora se permiten y se colocan después de todas las tareas con hora de esa fecha. En los límites, terminar exactamente a las 09:00 o empezar exactamente a las 15:00 no se considera solapamiento para tutores; el personal sí puede terminar exactamente a las 15:00. Si se indica alternativa, esta debe existir y no estar ya enlazada a otra tarea.
 
-La operación inserta en `Tasks` con `task_creator` igual al username del creador, `task_duration` positiva y `task_finished = false`, añade el subtipo `Generic_Task` y crea la asignación `stud_task` con alumno, tarea, índice calculado y fecha. Las tareas con hora se insertan según su hora respecto a las tareas de esa fecha; las tareas sin hora de `parent` se colocan al final, por lo que su índice queda después de la última tarea de `staff`. Las tareas de `parent` con hora anterior a las 09:00 quedan antes de las de `staff`, y las posteriores a las 15:00 quedan después. Si se inserta una tarea antes de otras, sus índices se desplazan para abrirle sitio. La agenda del alumno se bloquea durante el cálculo para serializar inserciones concurrentes. Todo se confirma en una transacción. La respuesta incluye el índice asignado. El esquema también impone `NOT NULL` y `CHECK (> 0)` en `Tasks.task_duration` y `Alt_Tasks.alt_task_duration`; las alternativas ya almacenadas deben cumplirlo aunque esta API solo las asocie.
+La operación inserta los datos comunes en `Tasks` (sin estado de finalización), añade el subtipo `Generic_Task` y crea la asignación `stud_task` con alumno, tarea, índice calculado y fecha. `stud_task.task_finished` es el estado individual de esa asignación y nace en `false`. Completar una tarea en la agenda de un alumno no altera el estado de sus compañeros. Las tareas con hora se insertan según su hora respecto a las tareas de esa fecha; las tareas sin hora de `parent` se colocan al final, por lo que su índice queda después de la última tarea de `staff`. Las tareas de `parent` con hora anterior a las 09:00 quedan antes de las de `staff`, y las posteriores a las 15:00 quedan después. Si se inserta una tarea antes de otras, sus índices se desplazan para abrirle sitio. La agenda del alumno se bloquea durante el cálculo para serializar inserciones concurrentes. Todo se confirma en una transacción. La respuesta incluye el índice asignado. El esquema también impone `NOT NULL` y `CHECK (> 0)` en `Tasks.task_duration` y `Alt_Tasks.alt_task_duration`; las alternativas ya almacenadas deben cumplirlo aunque esta API solo las asocie.
 
 `CreacionTablas.sqlscript` recrea el esquema completo: elimina primero las tablas existentes y después vuelve a crearlas. Es destructivo y borra todos los datos de esas tablas; se debe ejecutar solo cuando se quiera reiniciar la base de datos.
 
@@ -342,6 +344,32 @@ Solo personal (`staff`) puede cambiar el orden. La tarea debe ser individual, ha
 **Respuesta JSON:**
 ```json
 {"errorCode":0,"details":"successful","task_id":42,"steps":[{"step_id":9,"step_description":"Preparar el material","step_finished":false,"step_index":0},{"step_id":7,"step_description":"Leer el enunciado","step_finished":false,"step_index":1},{"step_id":8,"step_description":"Resolverlo","step_finished":false,"step_index":2}]}
+```
+
+### `PUT /student-tasks/{task_id}/steps/{step_id}` — Modificar un paso individual
+
+Admite `step_description` (texto no vacío) y/o `step_index` (entero desde cero); no acepta campos extra y debe indicarse al menos uno. Si se omiten ambos campos o se envían como `null`, devuelve `NO_UPDATE_FIELDS` (HTTP 400); una descripción vacía o un índice negativo se rechazan con `INVALID_REQUEST` (HTTP 422). El tutor puede editar pasos de una tarea propia solo mientras siga asociado al alumno destinatario y si la actividad queda fuera del horario escolar. El personal puede editar una tarea individual propia, asignada a un alumno con quien comparte clase, si queda dentro del horario escolar. El alumno puede editar pasos de tareas propias si `stud_access_task_mod = true`. Estos permisos siguen las reglas de propiedad, asociación y horario aplicadas a las tareas individuales. No permite cambiar `step_finished`. Si la tarea o el paso no existen o no son accesibles, devuelve `TASK_NOT_FOUND`; los rechazos por horario usan `PARENT_TASK_DURING_SCHOOL_HOURS` o `STAFF_TASK_OUTSIDE_SCHOOL_HOURS`.
+
+La actualización se realiza dentro de una transacción y conserva el estado del paso. Al indicar `step_index`, los índices son desde cero y se mantienen consecutivos: si el destino está ocupado, los pasos intermedios se desplazan para hacerle sitio; si el valor solicitado supera el índice máximo actual, el paso se coloca en ese índice máximo. Por ejemplo, con índices `0, 1, 2`, solicitar `7` coloca el paso en `2`; no deja huecos. El paso se mueve dentro del mismo listado y los demás conservan su orden relativo. El backend bloquea la tarea mientras actualiza, de modo que la descripción y el orden se guardan juntos sin colisiones con otras operaciones de pasos. Los cambios aparecen en la siguiente consulta de agenda del alumno. Responde con el paso actualizado.
+
+**JSON de entrada:**
+```json
+{"step_description":"Leer el enunciado y subrayar las ideas clave"}
+```
+
+Para mover el paso `7` al índice `2`:
+```json
+{"step_index":2}
+```
+
+Se pueden cambiar contenido e índice en la misma petición:
+```json
+{"step_description":"Resolver y revisar el ejercicio","step_index":1}
+```
+
+**Respuesta JSON:**
+```json
+{"errorCode":0,"details":"successful","step_id":7,"step_description":"Leer el enunciado y subrayar las ideas clave","step_finished":false,"step_index":1,"generic_task_id_fk":42}
 ```
 
 ### `DELETE /student-tasks/{task_id}/steps/{step_id}` — Eliminar un paso de una tarea individual
@@ -510,7 +538,7 @@ Requiere token de administrador o de personal. El administrador puede retirar al
 
 Requiere staff asignado a la clase. Recibe título, fecha, hora de inicio y duración positiva en minutos; la alternativa es opcional. La fecha es obligatoria y puede ser futura. Si falta la duración o la hora, o la tarea no queda íntegramente entre las 09:00 y las 15:00, se rechaza; también valida el título y que la alternativa exista y no esté ya asignada. `task_index` no se envía: se calcula por separado para cada alumno según sus tareas de esa fecha. La respuesta incluye `task_indexes`, un mapa de username a índice asignado.
 
-La clase debe tener al menos un alumno inscrito; de lo contrario devuelve `CLASS_HAS_NO_STUDENTS`. Crea una tarea con `task_creator` igual al username del miembro del personal, un registro `Generic_Task`, una fila `class_task` que la vincula a la clase y una fila `stud_task` por cada alumno inscrito. Cada fila `stud_task` guarda también el origen en `class_name_fk`. Calcula un índice individual para cada agenda y fecha. La operación es transaccional y responde HTTP 201 con la lista de alumnos incluidos y sus índices. La tarea existe como tarea de clase aunque más adelante se retire a todos los alumnos.
+La clase debe tener al menos un alumno inscrito; de lo contrario devuelve `CLASS_HAS_NO_STUDENTS`. Crea los datos comunes de la tarea, un registro `Generic_Task`, una fila `class_task` que la vincula a la clase y una fila `stud_task` por cada alumno inscrito. Cada fila `stud_task` guarda también el origen en `class_name_fk` y su `task_finished` individual, inicialmente `false`. Calcula un índice individual para cada agenda y fecha. La operación es transaccional y responde HTTP 201 con la lista de alumnos incluidos y sus índices. La tarea existe como tarea de clase aunque más adelante se retire a todos los alumnos.
 
 **JSON de entrada:**
 ```json
@@ -524,13 +552,13 @@ La clase debe tener al menos un alumno inscrito; de lo contrario devuelve `CLASS
 
 ### `GET /classes/{class_name}/tasks` — Consultar tareas y pasos de una clase
 
-Requiere staff autenticado y asignado a la clase. Devuelve las tareas enlazadas mediante `class_task`, su fecha, los alumnos que aún tienen una asignación de esa tarea originada en la clase y la lista `steps`, ordenada por `step_index` y `step_id`. No incluye tareas individuales creadas por el personal para alumnos concretos.
+Requiere staff autenticado y asignado a la clase. Devuelve las tareas enlazadas mediante `class_task`, su fecha, los alumnos que aún tienen una asignación de esa tarea originada en la clase y la lista `steps`, ordenada por `step_index` y `step_id`. `task_finished` vale `true` solo cuando todas las asignaciones vigentes de alumnos de esa clase tienen `stud_task.task_finished = true`; si queda al menos una pendiente, vale `false`. `students_finished` enumera a los alumnos que ya han completado la tarea (si ninguno lo ha hecho, es una lista vacía). `students` contiene todos los alumnos con asignación vigente. No incluye tareas individuales creadas por el personal para alumnos concretos.
 
 **Entrada:** sin cuerpo; nombre de clase en la ruta.
 
 **Respuesta JSON:**
 ```json
-{"errorCode":0,"details":"successful","class_name":"Primero A","tasks":[{"task_id":41,"task_title":"Lectura","task_start_hour":"10:00:00","task_duration":20,"task_creator":"marta","task_finished":false,"alt_task_id_fk":3,"task_date":"2026-11-10","students":["luis","sofia"],"steps":[{"step_id":8,"step_description":"Leer el enunciado","step_finished":false,"step_index":0}]}]}
+{"errorCode":0,"details":"successful","class_name":"Primero A","tasks":[{"task_id":41,"task_title":"Lectura","task_start_hour":"10:00:00","task_duration":20,"task_creator":"marta","task_finished":false,"alt_task_id_fk":3,"task_date":"2026-11-10","students":["luis","sofia"],"students_finished":["luis"],"steps":[{"step_id":8,"step_description":"Leer el enunciado","step_finished":false,"step_index":0}]}]}
 ```
 
 ### `POST /classes/{class_name}/tasks/{task_id}/steps` — Añadir un paso a una tarea de clase
@@ -559,6 +587,22 @@ Solo puede reordenar el miembro del personal asignado a la clase que también cr
 **Respuesta JSON:**
 ```json
 {"errorCode":0,"details":"successful","task_id":41,"steps":[{"step_id":8,"step_description":"Leer el enunciado","step_finished":false,"step_index":0},{"step_id":7,"step_description":"Preparar el material","step_finished":false,"step_index":1}],"class_name":"Primero A"}
+```
+
+### `PUT /classes/{class_name}/tasks/{task_id}/steps/{step_id}` — Modificar un paso de una tarea de clase
+
+Solo el miembro del personal que creó la tarea y que sigue asignado a `{class_name}` puede modificar el paso. La tarea debe pertenecer a esa clase y estar dentro del horario escolar. Admite `step_description` no vacía y/o `step_index` entero desde cero; debe enviarse al menos uno. No permite editar el estado del paso. Al cambiar el índice, desplaza los pasos ocupantes conservando su orden relativo y limita cualquier valor superior al índice máximo actual a ese máximo, sin dejar huecos. Si el personal no creó la tarea, no está asignado a la clase, el paso no pertenece a la tarea o la tarea queda fuera del horario, se devuelve el error catalogado correspondiente (`TASK_NOT_FOUND`, `CLASS_ACCESS_DENIED` o `STAFF_TASK_OUTSIDE_SCHOOL_HOURS`). La descripción y el nuevo orden se guardan en una transacción y quedan disponibles para el alumno en la siguiente consulta de agenda.
+
+**JSON de entrada:**
+```json
+{"step_description":"Leer el enunciado y subrayar las ideas clave"}
+```
+
+Para colocar el paso en el último índice existente, se puede enviar un índice superior al máximo, por ejemplo `{"step_index": 999}`; el servidor lo limita al índice máximo actual.
+
+**Respuesta JSON:**
+```json
+{"errorCode":0,"details":"successful","step_id":8,"step_description":"Leer el enunciado y subrayar las ideas clave","step_finished":false,"step_index":0,"generic_task_id_fk":41,"class_name":"Primero A"}
 ```
 
 ### `DELETE /classes/{class_name}/tasks/{task_id}/steps/{step_id}` — Eliminar un paso de una tarea de clase
