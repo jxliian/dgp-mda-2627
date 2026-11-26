@@ -354,9 +354,12 @@ def list_class_tasks(db: Session, class_name: str, staff_username: str) -> dict:
     rows = db.execute(
         text(
             "SELECT task.task_id, task.task_title, task.task_start_hour, task.task_duration, "
-            "task.task_creator, task.task_finished, task.alt_task_id_fk, linked.task_date, "
+            "task.task_creator, COALESCE(bool_and(assigned.task_finished), FALSE) AS task_finished, "
+            "task.alt_task_id_fk, linked.task_date, "
             "COALESCE(array_agg(assigned.stud_usr_fk ORDER BY assigned.stud_usr_fk) "
-            "FILTER (WHERE assigned.stud_usr_fk IS NOT NULL), ARRAY[]::varchar[]) AS students "
+            "FILTER (WHERE assigned.stud_usr_fk IS NOT NULL), ARRAY[]::varchar[]) AS students, "
+            "COALESCE(array_agg(assigned.stud_usr_fk ORDER BY assigned.stud_usr_fk) "
+            "FILTER (WHERE assigned.task_finished), ARRAY[]::varchar[]) AS students_finished "
             "FROM class_task linked JOIN Tasks task ON task.task_id = linked.task_id_fk "
             "LEFT JOIN stud_task assigned ON assigned.task_id_fk = linked.task_id_fk "
             "AND assigned.class_name_fk = linked.class_name_fk "
@@ -440,19 +443,27 @@ def update_class_task(
     ).scalars().all()
     try:
         lock_student_agendas(db, students)
-        db.execute(
+        removed = db.execute(
             text(
                 "DELETE FROM stud_task WHERE task_id_fk = :task_id "
-                "AND class_name_fk = :class_name"
+                "AND class_name_fk = :class_name "
+                "RETURNING stud_usr_fk, task_date, task_finished"
             ),
             {"task_id": task_id, "class_name": class_name},
-        )
+        ).mappings().all()
+        # Al editar se conserva lo que cada alumno ya había completado, salvo que la
+        # tarea cambie de día: entonces es una tarea nueva para ese día y empieza pendiente.
+        finished_before = {
+            row["stud_usr_fk"]: row["task_finished"]
+            for row in removed
+            if row["task_date"] == task_date
+        }
         task = db.execute(
             text(
                 "UPDATE Tasks SET task_title = :task_title, task_start_hour = :task_start_hour, "
                 "task_duration = :task_duration, alt_task_id_fk = :alt_task_id_fk "
                 "WHERE task_id = :task_id RETURNING task_id, task_title, task_start_hour, "
-                "task_duration, task_creator, task_finished, alt_task_id_fk"
+                "task_duration, task_creator, alt_task_id_fk"
             ),
             {
                 "task_id": task_id,
@@ -472,8 +483,9 @@ def update_class_task(
             db.execute(
                 text(
                     "INSERT INTO stud_task "
-                    "(stud_usr_fk, task_id_fk, task_index, task_date, class_name_fk) "
-                    "VALUES (:student_username, :task_id, :task_index, :task_date, :class_name)"
+                    "(stud_usr_fk, task_id_fk, task_index, task_date, class_name_fk, task_finished) "
+                    "VALUES (:student_username, :task_id, :task_index, :task_date, :class_name, "
+                    ":task_finished)"
                 ),
                 {
                     "student_username": username,
@@ -481,12 +493,16 @@ def update_class_task(
                     "task_index": index,
                     "task_date": task_date,
                     "class_name": class_name,
+                    "task_finished": finished_before.get(username, False),
                 },
             )
             task_indexes[username] = index
         db.commit()
         return success_response(
             **dict(task),
+            task_finished=bool(students) and all(
+                finished_before.get(username, False) for username in students
+            ),
             class_name=class_name,
             task_date=task_date,
             task_indexes=task_indexes,
@@ -590,10 +606,10 @@ def assign_task(
         task = db.execute(
             text(
                 "INSERT INTO Tasks "
-                "(task_title, task_start_hour, task_duration, task_creator, task_finished, alt_task_id_fk) "
-                "VALUES (:title, :start_hour, :duration, :creator, FALSE, :alt_task_id) "
+                "(task_title, task_start_hour, task_duration, task_creator, alt_task_id_fk) "
+                "VALUES (:title, :start_hour, :duration, :creator, :alt_task_id) "
                 "RETURNING task_id, task_title, task_start_hour, task_duration, task_creator, "
-                "task_finished, alt_task_id_fk"
+                "FALSE AS task_finished, alt_task_id_fk"
             ),
             {
                 "title": task_title,
