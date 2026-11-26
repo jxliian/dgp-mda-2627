@@ -329,6 +329,109 @@ def set_alternative_task(
         raise
 
 
+def create_task_step(
+    db: Session,
+    creator_role: str,
+    creator_username: str,
+    task_id: int,
+    step_description: str,
+    class_name: str | None = None,
+) -> dict:
+    """Añade un paso a una tarea propia o a una tarea de una clase del staff."""
+    if creator_role not in {"staff", "parent", "student"}:
+        raise CatalogError(ErrorCode.TASK_CREATOR_REQUIRED)
+
+    try:
+        if creator_role == "staff":
+            if class_name is not None:
+                assigned = db.execute(
+                    text(
+                        "SELECT 1 FROM class_staff WHERE class_name_fk = :class_name "
+                        "AND staff_usr_fk = :creator_username"
+                    ),
+                    {"class_name": class_name, "creator_username": creator_username},
+                ).scalar_one_or_none()
+                if assigned is None:
+                    raise CatalogError(ErrorCode.CLASS_ACCESS_DENIED)
+                task = db.execute(
+                    text(
+                        "SELECT task.task_id FROM Tasks task "
+                        "JOIN Generic_Task generic ON generic.task_id_fk = task.task_id "
+                        "JOIN class_task linked ON linked.task_id_fk = task.task_id "
+                        "WHERE task.task_id = :task_id "
+                        "AND linked.class_name_fk = :class_name "
+                        "FOR UPDATE OF task"
+                    ),
+                    {"task_id": task_id, "class_name": class_name},
+                ).scalar_one_or_none()
+            else:
+                task = db.execute(
+                    text(
+                        "SELECT task.task_id FROM Tasks task "
+                        "JOIN Generic_Task generic ON generic.task_id_fk = task.task_id "
+                        "WHERE task.task_id = :task_id "
+                        "AND task.task_creator = :creator_username "
+                        "AND EXISTS ("
+                        "SELECT 1 FROM stud_task assigned "
+                        "WHERE assigned.task_id_fk = task.task_id "
+                        "AND assigned.class_name_fk IS NULL "
+                        "AND EXISTS ("
+                        "SELECT 1 FROM class_stud enrollment "
+                        "JOIN class_staff teaching "
+                        "ON teaching.class_name_fk = enrollment.class_name_fk "
+                        "WHERE enrollment.stud_usr_fk = assigned.stud_usr_fk "
+                        "AND teaching.staff_usr_fk = :creator_username)) "
+                        "FOR UPDATE OF task"
+                    ),
+                    {"task_id": task_id, "creator_username": creator_username},
+                ).scalar_one_or_none()
+        else:
+            if class_name is not None:
+                raise CatalogError(ErrorCode.TASK_NOT_FOUND)
+            task = db.execute(
+                text(
+                    "SELECT task.task_id FROM Tasks task "
+                    "JOIN Generic_Task generic ON generic.task_id_fk = task.task_id "
+                    "WHERE task.task_id = :task_id "
+                    "AND task.task_creator = :creator_username "
+                    "FOR UPDATE OF task"
+                ),
+                {"task_id": task_id, "creator_username": creator_username},
+            ).scalar_one_or_none()
+        if task is None:
+            raise CatalogError(ErrorCode.TASK_NOT_FOUND)
+
+        next_index = db.execute(
+            text(
+                "SELECT COALESCE(MAX(step_index), -1) + 1 "
+                "FROM Steps WHERE generic_task_id_fk = :task_id"
+            ),
+            {"task_id": task_id},
+        ).scalar_one()
+        step = db.execute(
+            text(
+                "INSERT INTO Steps "
+                "(step_description, step_finished, step_index, generic_task_id_fk) "
+                "VALUES (:description, FALSE, :step_index, :task_id) "
+                "RETURNING step_id, step_description, step_finished, "
+                "step_index, generic_task_id_fk"
+            ),
+            {
+                "description": step_description,
+                "step_index": next_index,
+                "task_id": task_id,
+            },
+        ).mappings().one()
+        db.commit()
+        return success_response(**dict(step), **({"class_name": class_name} if class_name else {}))
+    except CatalogError:
+        db.rollback()
+        raise
+    except Exception:
+        db.rollback()
+        raise
+
+
 def delete_student_task(
     db: Session,
     creator_role: str,

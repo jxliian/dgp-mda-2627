@@ -1,4 +1,5 @@
 from datetime import date, time
+from importlib import import_module
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Path
@@ -11,6 +12,7 @@ from ..errors import CatalogError, ErrorCode, raise_api_error, success_response
 from . import clases_db
 
 router = APIRouter(prefix="/classes", tags=["classes"])
+tasks_db = import_module("..tareas alumnos.studs_tasks_db", package=__package__)
 ClassNamePath = Annotated[str, Path(min_length=1, max_length=50, pattern=r"^\S(?:.*\S)?$")]
 UsernamePath = Annotated[str, Path(min_length=1, max_length=50, pattern=r"^\S+$")]
 
@@ -62,6 +64,20 @@ class CreateClassTaskRequest(BaseModel):
         """Exige que la hora de la tarea no incluya zona horaria."""
         if value is not None and value.utcoffset() is not None:
             raise ValueError("La hora debe expresarse sin zona horaria")
+        return value
+
+
+class CreateClassTaskStepRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    step_description: str = Field(strict=True, min_length=1)
+
+    @field_validator("step_description")
+    @classmethod
+    def validate_step_description(cls, value: str) -> str:
+        value = value.strip()
+        if not value:
+            raise ValueError("La descripción del paso no puede estar vacía")
         return value
 
 
@@ -202,6 +218,28 @@ def get_class_tasks(
     if user["role"] != "staff":
         raise_api_error(ErrorCode.CLASS_ACCESS_DENIED)
     return _run_db_operation(clases_db.list_class_tasks, db, class_name, user["username"])
+
+
+@router.post("/{class_name}/tasks/{task_id}/steps", status_code=201)
+def create_class_task_step(
+    class_name: ClassNamePath,
+    task_id: Annotated[int, Path(gt=0)],
+    payload: CreateClassTaskStepRequest,
+    db: Session = Depends(get_db),
+    user: dict = Depends(get_current_user),
+) -> dict:
+    """Añade un paso a una tarea de clase para personal asignado a esa clase."""
+    if user["role"] != "staff":
+        raise_api_error(ErrorCode.CLASS_ACCESS_DENIED)
+    return _run_db_operation(
+        tasks_db.create_task_step,
+        db,
+        "staff",
+        user["username"],
+        task_id,
+        payload.step_description,
+        class_name,
+    )
 
 
 @router.put("/{class_name}/tasks/{task_id}")

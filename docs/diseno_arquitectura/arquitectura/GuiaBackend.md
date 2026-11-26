@@ -314,6 +314,20 @@ Requiere token de alumno. El JSON acepta título, fecha, duración positiva en m
 {"errorCode":0,"details":"successful","task_id":42,"task_title":"Dibujar","task_start_hour":"16:30:00","task_duration":20,"task_creator":"luis","task_finished":false,"alt_task_id_fk":null,"stud_usr_fk":"luis","task_index":0,"task_date":"2026-11-10"}
 ```
 
+### `POST /student-tasks/{task_id}/steps` — Añadir un paso a una tarea individual
+
+Requiere sesión de `parent`, `staff` o `student`. Recibe `step_description` como texto no vacío. El tutor o alumno solo puede añadir pasos a una tarea que haya creado. El personal puede añadir pasos a una tarea individual que haya creado y que siga asignada a un alumno con quien comparte clase. Las tareas de clase usan la ruta de pasos de clase. La tarea debe ser de tipo `Generic_Task`; las tareas inexistentes o sin autorización devuelven `TASK_NOT_FOUND` (HTTP 404). El paso se crea pendiente (`step_finished: false`) y se añade al final de la secuencia existente, con índices empezando en cero. Responde HTTP 201.
+
+**JSON de entrada:**
+```json
+{"step_description":"Leer el enunciado"}
+```
+
+**Respuesta JSON:**
+```json
+{"errorCode":0,"details":"successful","step_id":7,"step_description":"Leer el enunciado","step_finished":false,"step_index":0,"generic_task_id_fk":42}
+```
+
 ### `PUT /student-tasks/{task_id}/alternative` — Cambiar tarea alternativa
 
 Requiere JSON con `alt_task_id_fk`: un entero positivo para asociar una alternativa o `null` para quitarla. Solo permite modificar una tarea que haya creado el usuario autenticado y que esté asignada al menos a un alumno que siga asociado a él. La alternativa debe existir y no estar asignada a otra tarea. Devuelve los datos actualizados de la tarea. Si la alternativa está ocupada, devuelve `ALTERNATIVE_TASK_ALREADY_ASSIGNED` (HTTP 409); si la tarea principal no es accesible o no existe, devuelve `TASK_NOT_FOUND`.
@@ -488,6 +502,20 @@ Requiere staff autenticado y asignado a la clase. Devuelve las tareas enlazadas 
 **Respuesta JSON:**
 ```json
 {"errorCode":0,"details":"successful","class_name":"Primero A","tasks":[{"task_id":41,"task_title":"Lectura","task_start_hour":"10:00:00","task_duration":20,"task_creator":"marta","task_finished":false,"alt_task_id_fk":3,"task_date":"2026-11-10","students":["luis","sofia"]}]}
+```
+
+### `POST /classes/{class_name}/tasks/{task_id}/steps` — Añadir un paso a una tarea de clase
+
+Requiere token de personal asignado a `{class_name}`. La tarea debe estar vinculada a esa clase y ser de tipo `Generic_Task`. No exige que el miembro del personal que añade el paso sea quien creó la tarea: cualquier miembro asignado a la clase puede añadir pasos. Si no está asignado a la clase, devuelve `CLASS_ACCESS_DENIED` (HTTP 403); si la tarea no pertenece a la clase, devuelve `TASK_NOT_FOUND` (HTTP 404). Recibe una descripción no vacía, crea el paso pendiente y lo coloca al final de la secuencia. Responde HTTP 201.
+
+**JSON de entrada:**
+```json
+{"step_description":"Leer el enunciado"}
+```
+
+**Respuesta JSON:**
+```json
+{"errorCode":0,"details":"successful","step_id":8,"step_description":"Leer el enunciado","step_finished":false,"step_index":1,"generic_task_id_fk":41,"class_name":"Primero A"}
 ```
 
 ### `PUT /classes/{class_name}/tasks/{task_id}` — Editar tarea de clase

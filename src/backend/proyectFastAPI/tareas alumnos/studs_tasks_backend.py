@@ -55,6 +55,41 @@ class SetAlternativeTaskRequest(BaseModel):
     alt_task_id_fk: StrictInt | None = Field(gt=0)
 
 
+class CreateTaskStepRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    step_description: str = Field(strict=True, min_length=1)
+
+    @field_validator("step_description")
+    @classmethod
+    def validate_step_description(cls, value: str) -> str:
+        value = value.strip()
+        if not value:
+            raise ValueError("La descripción del paso no puede estar vacía")
+        return value
+
+
+@router.post("/{task_id}/steps", status_code=201)
+def create_task_step(
+    task_id: Annotated[int, Path(gt=0)],
+    payload: CreateTaskStepRequest,
+    db: Session = Depends(get_db),
+    user: dict = Depends(get_current_user),
+) -> dict:
+    """Añade un paso a una tarea individual propia o a una tarea propia del alumno."""
+    if user["role"] not in {"staff", "parent", "student"}:
+        raise_api_error(ErrorCode.TASK_CREATOR_REQUIRED)
+
+    return _run_db_operation(
+        tasks_db.create_task_step,
+        db,
+        user["role"],
+        user["username"],
+        task_id,
+        payload.step_description,
+    )
+
+
 @router.post("/students/{student_username}", status_code=201)
 def create_student_task(
     student_username: UsernamePath,
