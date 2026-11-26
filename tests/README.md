@@ -10,7 +10,7 @@
    
     
    
-  **Última ejecución:** 26/11/2026 · **Total:** 225 casos · **Resultado:** 225 correctos y 0 fallos.  
+  **Última ejecución:** 26/11/2026 · **Total:** 244 casos · **Resultado:** 244 correctos y 0 fallos.  
    
     
    
@@ -33,7 +33,7 @@
 | HU-13 |  Guardar la tarea creada por el personal |  `test_tasks.py` |  
 | Consulta de agenda |  Consultar tareas por alumno y fecha como personal, tutor y alumno |  `test_tasks.py` |  
 | HU-15 |  Eliminar tareas según el horario escolar |  `test_tasks.py` |
-| Pasos de tareas |  Crear y eliminar pasos según rol, permisos y horario |  `test_tasks.py` |  
+| Pasos de tareas |  Crear, consultar y eliminar pasos según rol, permisos y horario |  `test_tasks.py` |  
 | Resto del sprint 1 |  Crear y modificar usuarios, tareas propias del alumno, clases, tareas de clase y foto de perfil |  `test_sprint1.py` |  
   
    
@@ -63,7 +63,7 @@ uv run --with pytest python -m pytest ../../../tests/integration -v   
       
    
 ```  
-**Resultado esperado:** `225 passed, 0 xfailed`.  
+**Resultado esperado:** `244 passed, 0 xfailed`.  
    
     
    
@@ -323,7 +323,7 @@ uv run --with pytest python -m pytest ../../../tests/integration -v   
    
     
    
-  `test_tasks.py`**: crear, consultar y eliminar tareas, y crear/eliminar pasos (HU-12, HU-13, HU-15 y pasos; 87 casos)**  
+  `test_tasks.py`**: crear, consultar y eliminar tareas, y crear/eliminar pasos (HU-12, HU-13, HU-15 y pasos; 97 casos)**  
    
     
    
@@ -423,9 +423,9 @@ uv run --with pytest python -m pytest ../../../tests/integration -v   
    
     
    
-  **Pasos de tareas (29 casos nuevos)**
+  **Pasos de tareas (39 casos nuevos)**
 
-Los escenarios crean cada tarea y sus pasos mediante la API, así que comprueban la creación, el borrado y los permisos en una base limpia. La eliminación deja el resto de pasos con índices consecutivos y conserva su orden. Las pruebas cubren:
+Los escenarios crean cada tarea y sus pasos mediante la API, así que comprueban creación, consulta, borrado y permisos en una base limpia. Las respuestas de agenda incluyen los pasos ordenados por `step_index` y `step_id`; las tareas sin pasos devuelven `steps: []`. También se comprueba que la consulta del alumno se limita a su agenda y que personal y tutores solo ven alumnos asociados. La eliminación conserva el orden y deja índices consecutivos. Las pruebas cubren:
 
 | **Escenario** | **Qué comprueba** | **Resultado esperado** |
 | - | - | - |
@@ -433,6 +433,11 @@ Los escenarios crean cada tarea y sus pasos mediante la API, así que comprueban
 | Personal añade pasos a una tarea individual propia | Persistencia del paso | 201; datos e índice guardados |
 | Alumno añade pasos a su propia tarea | Creación permitida para su tarea | 201 |
 | Personal añade pasos a una tarea de clase | Personal asignado, incluido otro docente de esa clase | 201 |
+| Tutor consulta sus pasos | Orden de pasos y lista vacía en una tarea sin pasos | 200; pasos ordenados o `steps: []` |
+| Personal consulta pasos individuales | Refleja el orden guardado tras reordenar | 200; índices consecutivos |
+| Alumno consulta su agenda | Ve los pasos de sus tareas en orden | 200; pasos ordenados |
+| Personal consulta tareas de clase | Incluye pasos ordenados y lista vacía en tareas sin pasos | 200; pasos ordenados o `steps: []` |
+| Permisos de consulta | Tutor/personal sin relación intentan consultar pasos ajenos; roles no autorizados consultan la clase | 403; no se revelan tareas ni pasos |
 | Permisos de creación | Clase ajena, tarea ajena, cuerpo inválido y sesión ausente | 403, 404, 422 o 401 según el caso |
 | Personal elimina un paso individual | Se borra solo el paso elegido y se reindexan los restantes | 200; índices consecutivos |
 | Personal elimina pasos según horario | Tarea fuera del horario escolar | 400, código 1026; el paso permanece |
