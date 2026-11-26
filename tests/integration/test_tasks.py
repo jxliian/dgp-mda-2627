@@ -763,3 +763,143 @@ def test_el_alumno_no_elimina_pasos_si_no_puede_modificar_tareas(client, engine,
     assert r.status_code == 403
     assert error_code(r) == 1039
     assert count("Steps WHERE step_id = :s", s=paso) == 1
+
+
+# -------------------------------------------------------- Consultar pasos
+
+def test_el_tutor_consulta_pasos_ordenados_y_tareas_sin_pasos(client):
+    con_pasos = create_task(client, "madre", titulo="Rutina con pasos").json()["task_id"]
+    sin_pasos = create_task(client, "madre", titulo="Rutina sencilla").json()["task_id"]
+    primero = crear_paso(client, "madre", con_pasos, "Preparar").json()
+    segundo = crear_paso(client, "madre", con_pasos, "Salir").json()
+
+    r = client.get(
+        "/student-tasks/students/pablo",
+        params={"task_date": LUNES},
+        headers=as_user("madre"),
+    )
+
+    assert r.status_code == 200
+    tareas = {tarea["task_id"]: tarea for tarea in r.json()["tasks"]}
+    assert [paso["step_id"] for paso in tareas[con_pasos]["steps"]] == [
+        primero["step_id"], segundo["step_id"]
+    ]
+    assert [paso["step_index"] for paso in tareas[con_pasos]["steps"]] == [0, 1]
+    assert tareas[sin_pasos]["steps"] == []
+
+
+def test_el_personal_consulta_el_orden_actualizado_de_pasos_individuales(client):
+    tarea = create_task(client, "lucia", hora="10:00", titulo="Lectura").json()["task_id"]
+    pasos = [
+        crear_paso(client, "lucia", tarea, descripcion).json()
+        for descripcion in ("Leer", "Responder", "Revisar")
+    ]
+    orden_nuevo = [pasos[2]["step_id"], pasos[0]["step_id"], pasos[1]["step_id"]]
+    actualizado = client.put(
+        f"/student-tasks/{tarea}/steps/order",
+        json={"step_ids": orden_nuevo},
+        headers=as_user("lucia"),
+    )
+    assert actualizado.status_code == 200
+
+    r = client.get(
+        "/student-tasks/students/pablo",
+        params={"task_date": LUNES},
+        headers=as_user("lucia"),
+    )
+
+    assert r.status_code == 200
+    tarea_consultada = next(item for item in r.json()["tasks"] if item["task_id"] == tarea)
+    assert [paso["step_id"] for paso in tarea_consultada["steps"]] == orden_nuevo
+    assert [paso["step_index"] for paso in tarea_consultada["steps"]] == [0, 1, 2]
+
+
+def test_el_alumno_consulta_los_pasos_de_su_agenda(client):
+    creada = client.post(
+        "/student-tasks/me",
+        json={
+            "task_title": "Tarea propia",
+            "task_date": LUNES,
+            "task_start_hour": "17:00",
+            "task_duration": 30,
+        },
+        headers=as_user("pablo"),
+    )
+    tarea = creada.json()["task_id"]
+    primero = crear_paso(client, "pablo", tarea, "Empezar").json()
+    segundo = crear_paso(client, "pablo", tarea, "Terminar").json()
+
+    r = client.get(
+        "/student-tasks/me", params={"task_date": LUNES}, headers=as_user("pablo")
+    )
+
+    assert r.status_code == 200
+    tarea_consultada = next(item for item in r.json()["tasks"] if item["task_id"] == tarea)
+    assert [paso["step_id"] for paso in tarea_consultada["steps"]] == [
+        primero["step_id"], segundo["step_id"]
+    ]
+    assert [paso["step_description"] for paso in tarea_consultada["steps"]] == [
+        "Empezar", "Terminar"
+    ]
+
+
+def test_el_personal_consulta_pasos_de_tareas_de_clase_y_lista_vacia(client):
+    con_pasos = crear_tarea_de_clase(client).json()["task_id"]
+    sin_pasos = crear_tarea_de_clase(client).json()["task_id"]
+    primero = client.post(
+        f"/classes/1A/tasks/{con_pasos}/steps",
+        json={"step_description": "Abrir el libro"},
+        headers=as_user("lucia"),
+    ).json()
+    segundo = client.post(
+        f"/classes/1A/tasks/{con_pasos}/steps",
+        json={"step_description": "Leer la página"},
+        headers=as_user("lucia"),
+    ).json()
+
+    r = client.get("/classes/1A/tasks", headers=as_user("lucia"))
+
+    assert r.status_code == 200
+    tareas = {tarea["task_id"]: tarea for tarea in r.json()["tasks"]}
+    assert [paso["step_id"] for paso in tareas[con_pasos]["steps"]] == [
+        primero["step_id"], segundo["step_id"]
+    ]
+    assert tareas[sin_pasos]["steps"] == []
+
+
+def test_el_tutor_no_consulta_pasos_de_un_alumno_no_asociado(client):
+    tarea = create_task(client, "madre").json()["task_id"]
+    crear_paso(client, "madre", tarea)
+
+    r = client.get(
+        "/student-tasks/students/ana",
+        params={"task_date": LUNES},
+        headers=as_user("madre"),
+    )
+
+    assert r.status_code == 403
+    assert error_code(r) == 1019
+
+
+def test_el_personal_no_consulta_pasos_de_un_alumno_de_otra_clase(client):
+    tarea = create_task(client, "madre").json()["task_id"]
+    crear_paso(client, "madre", tarea)
+
+    r = client.get(
+        "/student-tasks/students/pablo",
+        params={"task_date": LUNES},
+        headers=as_user("pedro"),
+    )
+
+    assert r.status_code == 403
+    assert error_code(r) == 1019
+
+
+@pytest.mark.parametrize("usuario", ["pedro", "madre", "pablo", "admin"])
+def test_solo_personal_asignado_consulta_pasos_de_tareas_de_clase(client, usuario):
+    crear_tarea_de_clase(client)
+
+    r = client.get("/classes/1A/tasks", headers=as_user(usuario))
+
+    assert r.status_code == 403
+    assert error_code(r) == 1032
