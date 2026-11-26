@@ -131,6 +131,25 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Confirmación de que algo se ha guardado.
+  ///
+  /// En vez de un aviso que se queda en la pantalla y empuja el contenido
+  /// hacia abajo, se enciende un momento junto a la foto de la barra y se
+  /// apaga solo. Lo que ha fallado sí se queda: un error hay que leerlo.
+  String? _confirmacion;
+  Timer? _relojDeConfirmacion;
+  String? get confirmation => _confirmacion;
+
+  void confirm([String mensaje = 'Guardado']) {
+    _confirmacion = mensaje;
+    notifyListeners();
+    _relojDeConfirmacion?.cancel();
+    _relojDeConfirmacion = Timer(const Duration(milliseconds: 2600), () {
+      _confirmacion = null;
+      notifyListeners();
+    });
+  }
+
   void photoChanged() {
     avatarVersion++;
     notifyListeners();
@@ -148,6 +167,7 @@ class AppState extends ChangeNotifier {
 
   @override
   void dispose() {
+    _relojDeConfirmacion?.cancel();
     _syncTimer?.cancel();
     repository.close();
     super.dispose();

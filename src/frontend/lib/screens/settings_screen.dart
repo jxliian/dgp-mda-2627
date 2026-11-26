@@ -61,7 +61,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (!state.student) await state.saveAdultAccess();
     final cambios = _cambios(state.user!);
     if (cambios.isEmpty) {
-      setState(() => aviso = 'Tus ajustes se han guardado.');
+      state.confirm('Ajustes guardados');
       return;
     }
     setState(() {
@@ -78,10 +78,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       }
       await state.refreshProfile();
       if (mounted) {
-        setState(() {
-          ajustesOriginales = ajustes.copy();
-          aviso = 'Tus ajustes se han guardado.';
-        });
+        setState(() => ajustesOriginales = ajustes.copy());
+        state.confirm('Ajustes guardados');
       }
     } on Object catch (e) {
       if (mounted) setState(() => error = e.toString());
@@ -161,7 +159,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ],
             if (error != null) Notice(error!, error: true),
-            if (aviso != null) Notice(aviso!),
             if (usuario.role != UserRole.student)
               FormActions(
                 busy: ocupado || !puedeEditar,

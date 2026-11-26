@@ -44,7 +44,6 @@ class AvatarEditor extends StatefulWidget {
 class _AvatarEditorState extends State<AvatarEditor> {
   bool subiendo = false;
   String? error;
-  String? aviso;
 
   static const _maximoBytes = 5 * 1024 * 1024;
 
@@ -66,12 +65,12 @@ class _AvatarEditorState extends State<AvatarEditor> {
       setState(() {
         subiendo = true;
         error = null;
-        aviso = null;
       });
       await widget.upload(await archivo.readAsBytes(), archivo.name);
       if (!mounted) return;
-      AppScope.of(context).photoChanged();
-      setState(() => aviso = 'La foto se ha actualizado.');
+      AppScope.of(context)
+        ..photoChanged()
+        ..confirm('Foto actualizada');
     } on Object catch (e) {
       if (mounted) setState(() => error = e.toString());
     } finally {
@@ -103,7 +102,6 @@ class _AvatarEditorState extends State<AvatarEditor> {
           ),
         ),
       if (error != null) Notice(error!, error: true),
-      if (aviso != null) Notice(aviso!),
     ],
   );
 }

@@ -41,7 +41,6 @@ class _AccessSettingsScreenState extends State<AccessSettingsScreen> {
   late AccessSettings ajustes;
   late AccessSettings originales;
   bool guardando = false;
-  String? aviso;
   String? error;
 
   @override
@@ -62,16 +61,15 @@ class _AccessSettingsScreenState extends State<AccessSettingsScreen> {
   Future<void> guardar() async {
     if (guardando || !widget.enabled) return;
     if (!form.currentState!.validate()) return;
+    final state = AppScope.of(context);
     final cambios = _cambios;
     if (cambios.isEmpty) {
-      setState(() => aviso = 'No hay cambios para guardar.');
+      state.confirm('No había cambios');
       return;
     }
-    final state = AppScope.of(context);
     setState(() {
       guardando = true;
       error = null;
-      aviso = null;
     });
     try {
       await state.repository.saveUser(cambios, previous: widget.user);
@@ -79,10 +77,8 @@ class _AccessSettingsScreenState extends State<AccessSettingsScreen> {
         await state.refreshProfile();
       }
       if (mounted) {
-        setState(() {
-          originales = ajustes.copy();
-          aviso = 'Los ajustes se han guardado.';
-        });
+        setState(() => originales = ajustes.copy());
+        state.confirm('Ajustes guardados');
       }
     } on Object catch (e) {
       if (mounted) setState(() => error = e.toString());
@@ -107,7 +103,6 @@ class _AccessSettingsScreenState extends State<AccessSettingsScreen> {
             enabled: widget.enabled && !guardando,
           ),
           if (error != null) Notice(error!, error: true),
-          if (aviso != null) Notice(aviso!),
           FormActions(
             busy: guardando || !widget.enabled,
             onSave: guardar,

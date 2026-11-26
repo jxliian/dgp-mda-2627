@@ -408,7 +408,9 @@ void main() {
         await tester.pumpAndSettle();
         expect(server.settings, {'stud_access_contrast': true});
         expect(state.access.flag('contrast'), true);
-        expect(find.text('Los ajustes se han guardado.'), findsOneWidget);
+        // El guardado se confirma con un tick junto a la foto de la barra,
+        // no con un aviso que se queda ocupando sitio.
+        expect(state.confirmation, 'Ajustes guardados');
       }
       expect(tester.takeException(), isNull);
       await _close(tester, state);

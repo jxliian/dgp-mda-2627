@@ -85,12 +85,51 @@ class SessionAvatar extends StatelessWidget {
 
   static const _tamano = Medidas.alturaBotonMenor - Medidas.trazoGrueso * 2;
 
+  /// La marca de guardado: aparece pegada a la foto y se va sola.
+  Widget _conTick(BuildContext context, Widget avatar, String? mensaje) {
+    if (mensaje == null) return avatar;
+    final scheme = Theme.of(context).colorScheme;
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        avatar,
+        Positioned(
+          right: -6,
+          bottom: -6,
+          child: Semantics(
+            liveRegion: true,
+            label: mensaje,
+            child: Container(
+              padding: const EdgeInsets.all(3),
+              decoration: BoxDecoration(
+                color: scheme.surface,
+                shape: BoxShape.circle,
+              ),
+              child: Container(
+                padding: const EdgeInsets.all(2),
+                decoration: const BoxDecoration(
+                  color: Paleta.bosque,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.check, size: 16, color: Colors.white),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = AppScope.of(context);
     final user = state.user;
     if (user == null) return const SizedBox.shrink();
-    final avatar = UserAvatar(user: user, size: _tamano);
+    final avatar = _conTick(
+      context,
+      UserAvatar(user: user, size: _tamano),
+      state.confirmation,
+    );
     if (!state.canEditOwnSettings) return avatar;
     final radio = BorderRadius.circular(Medidas.radioTarjeta);
     return Tooltip(
