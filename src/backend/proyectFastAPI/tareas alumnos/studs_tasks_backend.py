@@ -69,6 +69,19 @@ class CreateTaskStepRequest(BaseModel):
         return value
 
 
+class ReorderTaskStepsRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    step_ids: list[StrictInt]
+
+    @field_validator("step_ids")
+    @classmethod
+    def validate_step_ids(cls, value: list[int]) -> list[int]:
+        if any(step_id <= 0 for step_id in value) or len(value) != len(set(value)):
+            raise ValueError("Los identificadores deben ser positivos y no repetirse")
+        return value
+
+
 @router.post("/{task_id}/steps", status_code=201)
 def create_task_step(
     task_id: Annotated[int, Path(gt=0)],
@@ -87,6 +100,26 @@ def create_task_step(
         user["username"],
         task_id,
         payload.step_description,
+    )
+
+
+@router.put("/{task_id}/steps/order")
+def reorder_individual_task_steps(
+    task_id: Annotated[int, Path(gt=0)],
+    payload: ReorderTaskStepsRequest,
+    db: Session = Depends(get_db),
+    user: dict = Depends(get_current_user),
+) -> dict:
+    """Cambia el orden de pasos de una tarea individual creada por el personal."""
+    if user["role"] != "staff":
+        raise_api_error(ErrorCode.TASK_CREATOR_REQUIRED)
+    return _run_db_operation(
+        tasks_db.reorder_task_steps,
+        db,
+        "staff",
+        user["username"],
+        task_id,
+        payload.step_ids,
     )
 
 
