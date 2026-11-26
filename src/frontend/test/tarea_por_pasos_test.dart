@@ -38,8 +38,26 @@ void main() {
     ],
   );
 
-  Future<AppState> abrir(WidgetTester tester, AgendaTask tarea) async {
-    tester.view.physicalSize = const Size(1280, 960);
+  /// Cuánto habría que desplazar la pantalla para verla entera.
+  double desplazamiento(WidgetTester tester) {
+    var sobra = 0.0;
+    for (final st in tester.stateList<ScrollableState>(
+      find.byType(Scrollable),
+    )) {
+      if (st.position.hasContentDimensions &&
+          st.position.maxScrollExtent > sobra) {
+        sobra = st.position.maxScrollExtent;
+      }
+    }
+    return sobra;
+  }
+
+  Future<AppState> abrir(
+    WidgetTester tester,
+    AgendaTask tarea, {
+    Size tamano = const Size(1280, 960),
+  }) async {
+    tester.view.physicalSize = tamano;
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
@@ -88,6 +106,31 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
     state.dispose();
   });
+
+  // La tarea por pasos y su lista son las dos únicas pantallas del alumno a
+  // las que no se llega con los datos de demostración, que traen tareas de un
+  // solo paso: por eso se miden aquí y no en sin_scroll_test.
+  for (final tamano in [const Size(1280, 800), const Size(800, 1280)]) {
+    final nombre = '${tamano.width.toInt()}x${tamano.height.toInt()}';
+    testWidgets('los pasos caben en una tablet de $nombre', (tester) async {
+      final state = await abrir(tester, tareaConPasos('lucia'), tamano: tamano);
+      expect(tester.takeException(), isNull);
+      expect(desplazamiento(tester), 0, reason: 'El paso 1 no cabe en $nombre');
+
+      await tester.tap(find.text('Ver los pasos'));
+      await tester.pumpAndSettle();
+      expect(find.text('Pasos de la tarea'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      expect(
+        desplazamiento(tester),
+        0,
+        reason: 'La lista de pasos no cabe en $nombre',
+      );
+
+      await tester.pumpWidget(const SizedBox.shrink());
+      state.dispose();
+    });
+  }
 
   testWidgets('la insignia dice quién ha puesto la tarea', (tester) async {
     var state = await abrir(tester, tareaConPasos('lucia'));

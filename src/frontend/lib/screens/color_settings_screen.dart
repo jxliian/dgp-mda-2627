@@ -25,17 +25,17 @@ class _ColorSettingsScreenState extends State<ColorSettingsScreen> {
   static const _principales = [
     ('#fbf9f5', 'Lino'),
     ('#ffffff', 'Blanco'),
-    ('#eef5f0', 'Verde muy claro'),
+    ('#eef5f0', 'Verde claro'),
     ('#fdf1dc', 'Crema'),
-    ('#e8eef7', 'Azul muy claro'),
+    ('#e8eef7', 'Azul claro'),
     ('#1f2a24', 'Oscuro'),
   ];
   static const _secundarios = [
-    ('#1b4332', 'Verde bosque'),
-    ('#1d3557', 'Azul noche'),
+    ('#1b4332', 'Verde'),
+    ('#1d3557', 'Azul'),
     ('#8a3a22', 'Terracota'),
     ('#5b2a86', 'Morado'),
-    ('#7a4b06', 'Ámbar oscuro'),
+    ('#7a4b06', 'Ámbar'),
     ('#111111', 'Negro'),
   ];
 
@@ -52,23 +52,42 @@ class _ColorSettingsScreenState extends State<ColorSettingsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _vistaPrevia(),
-        _bloque(
-          clave: 'main_col',
-          titulo: 'Color principal',
-          ayuda: 'Es el fondo de todas las pantallas de la agenda.',
-          paleta: _principales,
+        LayoutBuilder(
+          builder: (context, restricciones) {
+            final principal = _bloque(
+              clave: 'main_col',
+              titulo: 'Color principal',
+              ayuda: 'Es el fondo de la agenda.',
+              paleta: _principales,
+            );
+            final secundario = _bloque(
+              clave: 'sec_col',
+              titulo: 'Color secundario',
+              ayuda: 'Es el de los botones.',
+              paleta: _secundarios,
+            );
+            if (restricciones.maxWidth < Pantalla.media) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [principal, secundario],
+              );
+            }
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(child: principal),
+                const SizedBox(width: 32),
+                Expanded(child: secundario),
+              ],
+            );
+          },
         ),
-        _bloque(
-          clave: 'sec_col',
-          titulo: 'Color secundario',
-          ayuda: 'Es el de los botones y los detalles destacados.',
-          paleta: _secundarios,
-        ),
-        const SizedBox(height: 28),
-        FilledButton.icon(
-          onPressed: () => Navigator.pop(context, true),
-          icon: const Icon(Icons.check),
-          label: const Text('Usar estos colores'),
+        ScreenActions(
+          primary: FilledButton.icon(
+            onPressed: () => Navigator.pop(context, true),
+            icon: const Icon(Icons.check),
+            label: const Text('Usar estos colores'),
+          ),
         ),
       ],
     ),
@@ -80,7 +99,7 @@ class _ColorSettingsScreenState extends State<ColorSettingsScreen> {
     final claro = fondo.computeLuminance() > .45;
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(22),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: fondo,
         borderRadius: BorderRadius.circular(Medidas.radioTarjeta),
@@ -97,9 +116,9 @@ class _ColorSettingsScreenState extends State<ColorSettingsScreen> {
               color: claro ? Paleta.tinta : Colors.white,
             ),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 10),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             decoration: BoxDecoration(
               color: acento,
               borderRadius: BorderRadius.circular(Medidas.radioControl),
@@ -137,9 +156,9 @@ class _ColorSettingsScreenState extends State<ColorSettingsScreen> {
               _muestra(clave, valor, nombre, elegido: valor == actual),
           ],
         ),
-        const SizedBox(height: 18),
+        const SizedBox(height: 14),
         SizedBox(
-          width: 320,
+          width: 300,
           child: TextFormField(
             key: ValueKey('$clave/$actual'),
             initialValue: widget.settings.color(clave),
@@ -172,8 +191,8 @@ class _ColorSettingsScreenState extends State<ColorSettingsScreen> {
       onTap: widget.enabled ? () => _guardar(clave, valor) : null,
       borderRadius: BorderRadius.circular(Medidas.radioControl),
       child: Container(
-        width: 150,
-        padding: const EdgeInsets.all(10),
+        width: 148,
+        padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(Medidas.radioControl),
           border: Border.all(
@@ -184,8 +203,8 @@ class _ColorSettingsScreenState extends State<ColorSettingsScreen> {
         child: Row(
           children: [
             Container(
-              width: 40,
-              height: 40,
+              width: 34,
+              height: 34,
               decoration: BoxDecoration(
                 color: colorDesdeHex(valor),
                 borderRadius: BorderRadius.circular(8),
@@ -194,7 +213,12 @@ class _ColorSettingsScreenState extends State<ColorSettingsScreen> {
             ),
             const SizedBox(width: 10),
             Expanded(
-              child: Text(nombre, style: const TextStyle(fontSize: 15)),
+              child: Text(
+                nombre,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontSize: 15),
+              ),
             ),
             if (elegido) const Icon(Icons.check, size: 20),
           ],

@@ -107,6 +107,34 @@ void main() {
         await x.tap(find.text('Abrir mis opciones de accesibilidad'));
         await x.pumpAndSettle();
       }));
+      testWidgets('elegir dia', (t) => medir(t, 'Elegir día',
+          rol: UserRole.student, tamano: tamano, luego: (x) async {
+        await x.tap(find.text('Elegir día')); await x.pumpAndSettle();
+      }));
+      testWidgets('mis ajustes', (t) => medir(t, 'Mis ajustes',
+          rol: UserRole.student, tamano: tamano,
+          conCuenta: (r) =>
+              r.currentUser!.access.values['stud_access_profile_mod'] = true,
+          luego: (x) async {
+        await x.tap(find.byTooltip('Ajustes')); await x.pumpAndSettle();
+      }));
+      testWidgets('colores', (t) => medir(t, 'Colores de la agenda',
+          rol: UserRole.student, tamano: tamano,
+          conCuenta: (r) =>
+              r.currentUser!.access.values['stud_access_profile_mod'] = true,
+          luego: (x) async {
+        await x.tap(find.byTooltip('Ajustes')); await x.pumpAndSettle();
+        await x.tap(find.text('Abrir mis opciones de accesibilidad'));
+        await x.pumpAndSettle();
+        await x.tap(find.text('Colores')); await x.pumpAndSettle();
+      }));
+      testWidgets('anadir tarea', (t) => medir(t, 'Añadir mi tarea',
+          rol: UserRole.student, tamano: tamano,
+          conCuenta: (r) =>
+              r.currentUser!.access.values['stud_access_task_mod'] = true,
+          luego: (x) async {
+        await x.tap(find.text('Añadir mi tarea')); await x.pumpAndSettle();
+      }));
       testWidgets('aulas personal', (t) => medir(t, 'Aulas personal',
           rol: UserRole.staff, tamano: tamano));
       testWidgets('alumnos aula', (t) => medir(t, 'Alumnos del aula',

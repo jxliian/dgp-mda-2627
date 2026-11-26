@@ -15,6 +15,7 @@ class FormActions extends StatelessWidget {
     this.label = 'Guardar',
     this.onDelete,
     this.deleteLabel = 'Eliminar',
+    this.topPadding = 30,
   });
 
   final bool busy;
@@ -25,8 +26,13 @@ class FormActions extends StatelessWidget {
   final VoidCallback? onDelete;
   final String deleteLabel;
 
+  /// Separación con el contenido de arriba. Se reduce en los formularios que
+  /// van justos de alto en la tablet.
+  final double topPadding;
+
   @override
   Widget build(BuildContext context) => ScreenActions(
+    topPadding: topPadding,
     secondary: [
       OutlinedButton.icon(
         onPressed: busy ? null : () => Navigator.pop(context),

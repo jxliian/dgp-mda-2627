@@ -32,6 +32,9 @@ class _DaysScreenState extends State<DaysScreen> {
     return state.student ? state.access.number('ndays_visible').clamp(1, 7) : 7;
   }
 
+  static const _separacion = 14.0;
+  static const _anchoMinimoFicha = 140.0;
+
   @override
   Widget build(BuildContext context) => PageShell(
     title: 'Elige un día',
@@ -39,16 +42,33 @@ class _DaysScreenState extends State<DaysScreen> {
     child: Column(
       children: [
         const SizedBox(height: 16),
-        Wrap(
-          spacing: 18,
-          runSpacing: 18,
-          alignment: WrapAlignment.center,
-          children: [
-            for (var i = 0; i < diasVisibles; i++)
-              SizedBox(width: 210, child: _ficha(lunes.add(Duration(days: i)))),
-          ],
+        // La semana entera cabe en una fila cuando hay sitio. Con fichas de
+        // ancho fijo se partía en dos o tres filas y había que desplazar para
+        // ver el viernes.
+        LayoutBuilder(
+          builder: (context, restricciones) {
+            var columnas = diasVisibles;
+            double anchoDe(int n) =>
+                (restricciones.maxWidth - _separacion * (n - 1)) / n;
+            while (columnas > 1 && anchoDe(columnas) < _anchoMinimoFicha) {
+              columnas = (columnas / 2).ceil();
+            }
+            final ancho = anchoDe(columnas);
+            return Wrap(
+              spacing: _separacion,
+              runSpacing: _separacion,
+              alignment: WrapAlignment.center,
+              children: [
+                for (var i = 0; i < diasVisibles; i++)
+                  SizedBox(
+                    width: ancho,
+                    child: _ficha(lunes.add(Duration(days: i))),
+                  ),
+              ],
+            );
+          },
         ),
-        const SizedBox(height: 30),
+        const SizedBox(height: 22),
         _navegacionDeSemana(),
       ],
     ),

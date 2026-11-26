@@ -175,27 +175,56 @@ class _TaskEditorScreenState extends State<TaskEditorScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _insignias(),
-          const SectionTitle(
-            'Datos de la tarea',
-            hint: 'Usa frases cortas y claras para el alumno.',
-          ),
-          _campoTitulo(),
-          if (guardaDescripcion) ...[
-            const SizedBox(height: 10),
-            _campoDescripcion(),
-          ],
-          const SectionTitle('Cuándo se hace'),
-          _camposDeHorario(),
-          const SizedBox(height: 14),
-          Text(
-            esPersonalDelCentro ? _horarioDelCentro : _fueraDelHorario,
-            style: Theme.of(context).textTheme.bodyMedium,
+          LayoutBuilder(
+            builder: (context, restricciones) {
+              final queEs = Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SectionTitle(
+                    'Datos de la tarea',
+                    hint: 'Usa frases cortas y claras para el alumno.',
+                  ),
+                  _campoTitulo(),
+                  if (guardaDescripcion) ...[
+                    const SizedBox(height: 10),
+                    _campoDescripcion(),
+                  ],
+                ],
+              );
+              final cuando = Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SectionTitle('Cuándo se hace'),
+                  _camposDeHorario(),
+                  const SizedBox(height: 10),
+                  Text(
+                    esPersonalDelCentro ? _horarioDelCentro : _fueraDelHorario,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ],
+              );
+              if (restricciones.maxWidth < Pantalla.compacta) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [queEs, cuando],
+                );
+              }
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(flex: 3, child: queEs),
+                  const SizedBox(width: 32),
+                  Expanded(flex: 2, child: cuando),
+                ],
+              );
+            },
           ),
           if (error != null) Notice(error!, error: true),
           FormActions(
             busy: guardando,
             onSave: guardar,
             label: 'Guardar tarea',
+            topPadding: 14,
             onDelete: esNueva ? null : eliminar,
             deleteLabel: 'Eliminar tarea',
           ),
@@ -206,7 +235,7 @@ class _TaskEditorScreenState extends State<TaskEditorScreen> {
 
   Widget _insignias() => Wrap(
     spacing: 10,
-    runSpacing: 10,
+    runSpacing: 8,
     children: [
       if (esDeAula)
         const StatusBadge('Aula', tone: BadgeTone.main, icon: Icons.groups_outlined)
@@ -227,7 +256,7 @@ class _TaskEditorScreenState extends State<TaskEditorScreen> {
   Widget _campoTitulo() => Row(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      ContentPicture(icon: taskIcon(titulo.text), size: 86),
+      ContentPicture(icon: taskIcon(titulo.text), size: 78),
       const SizedBox(width: 20),
       Expanded(
         child: TextFormField(
@@ -245,7 +274,8 @@ class _TaskEditorScreenState extends State<TaskEditorScreen> {
   Widget _campoDescripcion() => TextFormField(
     controller: descripcion,
     enabled: !guardando,
-    minLines: 4,
+    minLines:
+        MediaQuery.of(context).size.height < Pantalla.altoHolgado ? 3 : 4,
     maxLines: 8,
     maxLength: 5000,
     decoration: const InputDecoration(
