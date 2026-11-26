@@ -1,7 +1,7 @@
 from datetime import date, time
 from urllib.parse import quote
 
-from sqlalchemy import text
+from sqlalchemy import bindparam, text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -365,7 +365,31 @@ def list_class_tasks(db: Session, class_name: str, staff_username: str) -> dict:
         ),
         {"class_name": class_name},
     ).mappings().all()
-    return success_response(class_name=class_name, tasks=[dict(row) for row in rows])
+    tasks = [dict(row) for row in rows]
+    task_ids = [task["task_id"] for task in tasks]
+    if task_ids:
+        step_rows = db.execute(
+            text(
+                "SELECT step_id, step_description, step_finished, step_index, "
+                "generic_task_id_fk FROM Steps "
+                "WHERE generic_task_id_fk IN :task_ids "
+                "ORDER BY generic_task_id_fk, step_index NULLS LAST, step_id"
+            ).bindparams(bindparam("task_ids", expanding=True)),
+            {"task_ids": task_ids},
+        ).mappings().all()
+        steps_by_task: dict[int, list[dict]] = {task_id: [] for task_id in task_ids}
+        for step in step_rows:
+            steps_by_task[step["generic_task_id_fk"]].append(
+                {
+                    "step_id": step["step_id"],
+                    "step_description": step["step_description"],
+                    "step_finished": step["step_finished"],
+                    "step_index": step["step_index"],
+                }
+            )
+        for task in tasks:
+            task["steps"] = steps_by_task[task["task_id"]]
+    return success_response(class_name=class_name, tasks=tasks)
 
 
 def update_class_task(

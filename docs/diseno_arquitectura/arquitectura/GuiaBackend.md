@@ -261,13 +261,13 @@ Prefijo `/student-tasks`. El personal (`staff`) puede crear tareas para alumnos 
 
 ### `GET /student-tasks/students/{student_username}?task_date=AAAA-MM-DD` — Consultar tareas de un alumno por día
 
-Requiere personal asignado a una clase compartida con el alumno o tutor asociado mediante `par_stud`. Devuelve las tareas de la agenda de ese alumno para la fecha indicada, ordenadas según `task_index`; incluye también `class_name_fk` para identificar las asignaciones que proceden de una clase. Si el alumno no existe, devuelve `TASK_STUDENT_NOT_FOUND`; si el usuario autenticado no está asociado a él, devuelve `TASK_STUDENT_NOT_ASSOCIATED`.
+Requiere personal asignado a una clase compartida con el alumno o tutor asociado mediante `par_stud`. Devuelve las tareas de la agenda de ese alumno para la fecha indicada, ordenadas según `task_index`; incluye también `class_name_fk` para identificar las asignaciones que proceden de una clase. Cada tarea incluye `steps`, ordenados por `step_index` y `step_id`, con descripción, estado e índice. Una tarea sin pasos devuelve `steps: []`. Si el alumno no existe, devuelve `TASK_STUDENT_NOT_FOUND`; si el usuario autenticado no está asociado a él, devuelve `TASK_STUDENT_NOT_ASSOCIATED`.
 
 **Entrada:** sin cuerpo. Ejemplo: `GET /student-tasks/students/luis?task_date=2026-11-10`.
 
 **Respuesta JSON:**
 ```json
-{"errorCode":0,"details":"successful","stud_usr_fk":"luis","task_date":"2026-11-10","tasks":[{"task_id":41,"task_title":"Leer un cuento","task_start_hour":"10:00:00","task_duration":20,"task_creator":"marta","task_finished":false,"alt_task_id_fk":null,"task_date":"2026-11-10","task_index":0,"class_name_fk":"Primero A"}]}
+{"errorCode":0,"details":"successful","stud_usr_fk":"luis","task_date":"2026-11-10","tasks":[{"task_id":41,"task_title":"Leer un cuento","task_start_hour":"10:00:00","task_duration":20,"task_creator":"marta","task_finished":false,"alt_task_id_fk":null,"task_date":"2026-11-10","task_index":0,"class_name_fk":"Primero A","steps":[{"step_id":7,"step_description":"Leer el enunciado","step_finished":false,"step_index":0}] }]}
 ```
 
 ### `GET /student-tasks/me?task_date=AAAA-MM-DD` — Consultar tareas propias por día
@@ -316,7 +316,9 @@ Requiere token de alumno. El JSON acepta título, fecha, duración positiva en m
 
 ### `POST /student-tasks/{task_id}/steps` — Añadir un paso a una tarea individual
 
-Requiere sesión de `parent`, `staff` o `student`. Recibe `step_description` como texto no vacío. El tutor o alumno solo puede añadir pasos a una tarea que haya creado. El personal puede añadir pasos a una tarea individual que haya creado y que siga asignada a un alumno con quien comparte clase. Las tareas de clase usan la ruta de pasos de clase. La tarea debe ser de tipo `Generic_Task`; las tareas inexistentes o sin autorización devuelven `TASK_NOT_FOUND` (HTTP 404). El paso se crea pendiente (`step_finished: false`) y se añade al final de la secuencia existente, con índices empezando en cero. Responde HTTP 201.
+Requiere sesión de `parent`, `staff` o `student`. Recibe `step_description` como texto no vacío; `""` y texto compuesto solo de espacios se rechazan con `INVALID_REQUEST` (HTTP 422). El tutor solo puede añadir pasos a una tarea propia que siga asignada a un alumno enlazado a su cuenta y la tarea debe estar completamente fuera del horario escolar (09:00–15:00). El personal puede añadir pasos a una tarea individual propia que siga asignada directamente a un alumno con quien comparte clase; debe estar completamente dentro del horario escolar. Las tareas de clase usan la ruta de pasos de clase. El alumno solo puede añadir pasos a tareas propias y necesita `stud_access_task_mod = true`. La tarea debe ser de tipo `Generic_Task`; las tareas inexistentes o no accesibles devuelven `TASK_NOT_FOUND` (HTTP 404). El paso se crea pendiente (`step_finished: false`) y se añade al final de la secuencia.
+
+Antes de añadirlo, el backend bloquea la fila de la tarea y normaliza los índices existentes en orden ascendente de `step_index` (los índices nulos van al final; los empates se resuelven por `step_id`), dejándolos consecutivos desde cero. El nuevo paso recibe el siguiente índice. El bloqueo serializa creaciones y eliminaciones concurrentes para esa tarea. Responde HTTP 201.
 
 **JSON de entrada:**
 ```json
@@ -326,6 +328,19 @@ Requiere sesión de `parent`, `staff` o `student`. Recibe `step_description` com
 **Respuesta JSON:**
 ```json
 {"errorCode":0,"details":"successful","step_id":7,"step_description":"Leer el enunciado","step_finished":false,"step_index":0,"generic_task_id_fk":42}
+```
+
+### `DELETE /student-tasks/{task_id}/steps/{step_id}` — Eliminar un paso de una tarea individual
+
+Requiere sesión de `parent`, `staff` o `student` y aplica los mismos permisos de tarea individual que la creación del paso: el tutor debe ser autor y mantener enlazado al alumno destinatario; el alumno debe ser autor y tener `stud_access_task_mod = true`; el personal debe ser autor y seguir compartiendo clase con algún alumno al que la tarea esté asignada directamente. El tutor solo puede borrar pasos de tareas fuera del horario escolar y el personal solo de tareas dentro del horario escolar. El `step_id` debe pertenecer al `task_id` indicado. Una tarea o paso inexistente, ajeno o no accesible devuelve `TASK_NOT_FOUND` (HTTP 404); los rechazos por horario devuelven `PARENT_DELETE_DURING_SCHOOL_HOURS` o `STAFF_DELETE_OUTSIDE_SCHOOL_HOURS` (HTTP 400). No requiere cuerpo. La interfaz cliente debe pedir confirmación antes de enviar esta operación DELETE.
+
+La operación bloquea la tarea, elimina solo el paso indicado y reindexa los pasos restantes por el orden previo (`step_index`, con `step_id` como desempate) a `0..N-1`. Así no quedan huecos ni índices duplicados. La eliminación y la reordenación se confirman en la misma transacción. Devuelve `task_id`, `deleted_step_id`, el índice que tenía el paso eliminado y el total de pasos restantes.
+
+**Ejemplo:** `DELETE /student-tasks/42/steps/7`.
+
+**Respuesta JSON:**
+```json
+{"errorCode":0,"details":"successful","task_id":42,"deleted_step_id":7,"deleted_step_index":0,"remaining_steps":2}
 ```
 
 ### `PUT /student-tasks/{task_id}/alternative` — Cambiar tarea alternativa
@@ -359,7 +374,7 @@ Si se conoce la hora de inicio, un tutor no puede quitar una tarea dentro del ho
 
 ### `DELETE /student-tasks/me/{task_id}?task_date=AAAA-MM-DD` — Eliminar una tarea propia
 
-Requiere token de alumno y `stud_access_task_mod = true`. Comprueba que la asignación corresponda al alumno autenticado y que `Tasks.task_creator` también sea su username, para impedir que borre tareas de personal o tutores. Si la tarea tiene hora, su intervalo completo debe quedar fuera de `[09:00, 15:00)`; una tarea solo de duración sin hora también se puede eliminar. Si el intervalo se solapa con el horario escolar, responde `STUDENT_TASK_OUTSIDE_SCHOOL_HOURS` (HTTP 400). Sin permiso de modificación responde `STUDENT_TASK_MODIFICATION_DENIED` (HTTP 403). Elimina la asignación indicada y, si la tarea propia ya no tiene ninguna otra asignación, elimina también su fila de `Tasks` y el `Generic_Task` asociado. Devuelve los identificadores de la asignación eliminada.
+Requiere token de alumno y `stud_access_task_mod = true`. Comprueba que la asignación corresponda al alumno autenticado y que `Tasks.task_creator` también sea su username, para impedir que borre tareas de personal o tutores. Si la tarea tiene hora, su intervalo completo debe quedar fuera de `[09:00, 15:00)`; una tarea solo de duración sin hora también se puede eliminar. Si el intervalo se solapa con el horario escolar, responde `STUDENT_TASK_OUTSIDE_SCHOOL_HOURS` (HTTP 400). Sin permiso de modificación responde `STUDENT_TASK_MODIFICATION_DENIED` (HTTP 403). Elimina la asignación indicada y, si la tarea propia ya no tiene ninguna otra asignación, elimina también su fila de `Tasks` y el `Generic_Task` asociado; la cascada elimina sus pasos. Devuelve los identificadores de la asignación eliminada.
 
 **Entrada:** sin cuerpo. Ejemplo: `DELETE /student-tasks/me/42?task_date=2026-11-10`.
 
@@ -495,18 +510,18 @@ La clase debe tener al menos un alumno inscrito; de lo contrario devuelve `CLASS
 
 ### `GET /classes/{class_name}/tasks` — Consultar tareas de una clase
 
-Requiere staff autenticado y asignado a la clase. Devuelve las tareas enlazadas mediante `class_task`, su fecha y los alumnos que aún tienen una asignación de esa tarea originada en la clase. No incluye tareas individuales creadas por el personal para alumnos concretos.
+Requiere staff autenticado y asignado a la clase. Devuelve las tareas enlazadas mediante `class_task`, su fecha, los alumnos que aún tienen una asignación de esa tarea originada en la clase y la lista `steps`, ordenada por `step_index` y `step_id`. No incluye tareas individuales creadas por el personal para alumnos concretos.
 
 **Entrada:** sin cuerpo; nombre de clase en la ruta.
 
 **Respuesta JSON:**
 ```json
-{"errorCode":0,"details":"successful","class_name":"Primero A","tasks":[{"task_id":41,"task_title":"Lectura","task_start_hour":"10:00:00","task_duration":20,"task_creator":"marta","task_finished":false,"alt_task_id_fk":3,"task_date":"2026-11-10","students":["luis","sofia"]}]}
+{"errorCode":0,"details":"successful","class_name":"Primero A","tasks":[{"task_id":41,"task_title":"Lectura","task_start_hour":"10:00:00","task_duration":20,"task_creator":"marta","task_finished":false,"alt_task_id_fk":3,"task_date":"2026-11-10","students":["luis","sofia"],"steps":[{"step_id":8,"step_description":"Leer el enunciado","step_finished":false,"step_index":0}]}]}
 ```
 
 ### `POST /classes/{class_name}/tasks/{task_id}/steps` — Añadir un paso a una tarea de clase
 
-Requiere token de personal asignado a `{class_name}`. La tarea debe estar vinculada a esa clase y ser de tipo `Generic_Task`. No exige que el miembro del personal que añade el paso sea quien creó la tarea: cualquier miembro asignado a la clase puede añadir pasos. Si no está asignado a la clase, devuelve `CLASS_ACCESS_DENIED` (HTTP 403); si la tarea no pertenece a la clase, devuelve `TASK_NOT_FOUND` (HTTP 404). Recibe una descripción no vacía, crea el paso pendiente y lo coloca al final de la secuencia. Responde HTTP 201.
+Requiere token de personal asignado a `{class_name}`. La tarea debe estar vinculada a esa clase, ser de tipo `Generic_Task` y tener un intervalo completamente incluido entre las 09:00 y las 15:00. No exige que el miembro del personal que añade el paso sea quien creó la tarea: cualquier miembro asignado a la clase puede añadir pasos. Si no está asignado a la clase, devuelve `CLASS_ACCESS_DENIED` (HTTP 403); si la tarea no pertenece a la clase, devuelve `TASK_NOT_FOUND` (HTTP 404); si queda fuera del horario, devuelve `STAFF_TASK_OUTSIDE_SCHOOL_HOURS` (HTTP 400). Recibe una descripción no vacía, crea el paso pendiente y lo coloca al final de la secuencia. Antes de insertar, bloquea la tarea y normaliza los índices existentes a una secuencia consecutiva desde cero; el nuevo paso recibe el siguiente índice. Las operaciones concurrentes de pasos para la misma tarea se serializan con el mismo bloqueo. Responde HTTP 201.
 
 **JSON de entrada:**
 ```json
@@ -516,6 +531,19 @@ Requiere token de personal asignado a `{class_name}`. La tarea debe estar vincul
 **Respuesta JSON:**
 ```json
 {"errorCode":0,"details":"successful","step_id":8,"step_description":"Leer el enunciado","step_finished":false,"step_index":1,"generic_task_id_fk":41,"class_name":"Primero A"}
+```
+
+### `DELETE /classes/{class_name}/tasks/{task_id}/steps/{step_id}` — Eliminar un paso de una tarea de clase
+
+Requiere personal asignado a `{class_name}`; no necesita que ese miembro haya creado la tarea ni el paso. La tarea debe estar vinculada a la clase indicada, el paso al `task_id` y el intervalo de la tarea debe quedar dentro de 09:00–15:00. Si no está asignado a la clase, devuelve `CLASS_ACCESS_DENIED` (HTTP 403); si la tarea o el paso no corresponden a esa clase y tarea, devuelve `TASK_NOT_FOUND` (HTTP 404); si la tarea está fuera del horario, devuelve `STAFF_DELETE_OUTSIDE_SCHOOL_HOURS` (HTTP 400). No requiere cuerpo. La interfaz cliente debe pedir confirmación antes de enviar esta operación DELETE.
+
+Elimina únicamente el paso indicado. En la misma transacción reordena los pasos restantes según su orden previo y los renumera consecutivamente desde cero. El bloqueo de la tarea evita que una creación o eliminación concurrente deje huecos o índices repetidos.
+
+**Ejemplo:** `DELETE /classes/Primero%20A/tasks/41/steps/8`.
+
+**Respuesta JSON:**
+```json
+{"errorCode":0,"details":"successful","task_id":41,"deleted_step_id":8,"deleted_step_index":1,"remaining_steps":1,"class_name":"Primero A"}
 ```
 
 ### `PUT /classes/{class_name}/tasks/{task_id}` — Editar tarea de clase
@@ -534,7 +562,7 @@ Requiere staff asignado a la clase y que la tarea esté vinculada a ella. Recibe
 
 ### `DELETE /classes/{class_name}/tasks/{task_id}` — Desasignar tarea de una clase
 
-Requiere staff asignado a la clase. Elimina la relación `class_task` y las asignaciones `stud_task` cuyo origen sea esa clase. Si la tarea no tiene ya asignaciones directas ni otros vínculos de clase, también elimina la tarea común y su subtipo. Una asignación directa del mismo `task_id` a un alumno se conserva. Si la relación clase-tarea no existe, devuelve `TASK_NOT_FOUND`.
+Requiere staff asignado a la clase. Elimina la relación `class_task` y las asignaciones `stud_task` cuyo origen sea esa clase. Si la tarea no tiene ya asignaciones directas ni otros vínculos de clase, también elimina la tarea común y su subtipo; la cascada elimina entonces sus pasos. Una asignación directa del mismo `task_id` a un alumno se conserva junto con la tarea y sus pasos. Si la relación clase-tarea no existe, devuelve `TASK_NOT_FOUND`.
 
 **Entrada:** sin cuerpo; clase y `task_id` en la ruta.
 

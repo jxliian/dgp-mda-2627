@@ -242,6 +242,28 @@ def create_class_task_step(
     )
 
 
+@router.delete("/{class_name}/tasks/{task_id}/steps/{step_id}")
+def delete_class_task_step(
+    class_name: ClassNamePath,
+    task_id: Annotated[int, Path(gt=0)],
+    step_id: Annotated[int, Path(gt=0)],
+    db: Session = Depends(get_db),
+    user: dict = Depends(get_current_user),
+) -> dict:
+    """Elimina un paso si el personal está asignado a la clase de la tarea."""
+    if user["role"] != "staff":
+        raise_api_error(ErrorCode.CLASS_ACCESS_DENIED)
+    return _run_db_operation(
+        tasks_db.delete_task_step,
+        db,
+        "staff",
+        user["username"],
+        task_id,
+        step_id,
+        class_name,
+    )
+
+
 @router.put("/{class_name}/tasks/{task_id}")
 def edit_class_task(
     class_name: ClassNamePath,

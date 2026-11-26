@@ -90,6 +90,27 @@ def create_task_step(
     )
 
 
+@router.delete("/{task_id}/steps/{step_id}")
+def delete_task_step(
+    task_id: Annotated[int, Path(gt=0)],
+    step_id: Annotated[int, Path(gt=0)],
+    db: Session = Depends(get_db),
+    user: dict = Depends(get_current_user),
+) -> dict:
+    """Elimina un paso de una tarea individual autorizada."""
+    if user["role"] not in {"staff", "parent", "student"}:
+        raise_api_error(ErrorCode.TASK_CREATOR_REQUIRED)
+
+    return _run_db_operation(
+        tasks_db.delete_task_step,
+        db,
+        user["role"],
+        user["username"],
+        task_id,
+        step_id,
+    )
+
+
 @router.post("/students/{student_username}", status_code=201)
 def create_student_task(
     student_username: UsernamePath,

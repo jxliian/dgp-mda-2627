@@ -1,6 +1,6 @@
 from datetime import date, time
 
-from sqlalchemy import text
+from sqlalchemy import bindparam, text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -138,10 +138,34 @@ def list_student_tasks(
         ),
         parameters,
     ).mappings().all()
+    tasks = [dict(row) for row in rows]
+    task_ids = [task["task_id"] for task in tasks]
+    if task_ids:
+        step_rows = db.execute(
+            text(
+                "SELECT step_id, step_description, step_finished, step_index, "
+                "generic_task_id_fk FROM Steps "
+                "WHERE generic_task_id_fk IN :task_ids "
+                "ORDER BY generic_task_id_fk, step_index NULLS LAST, step_id"
+            ).bindparams(bindparam("task_ids", expanding=True)),
+            {"task_ids": task_ids},
+        ).mappings().all()
+        steps_by_task: dict[int, list[dict]] = {task_id: [] for task_id in task_ids}
+        for step in step_rows:
+            steps_by_task[step["generic_task_id_fk"]].append(
+                {
+                    "step_id": step["step_id"],
+                    "step_description": step["step_description"],
+                    "step_finished": step["step_finished"],
+                    "step_index": step["step_index"],
+                }
+            )
+        for task in tasks:
+            task["steps"] = steps_by_task[task["task_id"]]
     return success_response(
         stud_usr_fk=student_username,
         task_date=task_date,
-        tasks=[dict(row) for row in rows],
+        tasks=tasks,
     )
 
 
@@ -329,6 +353,143 @@ def set_alternative_task(
         raise
 
 
+def _lock_task_for_step_operation(
+    db: Session,
+    creator_role: str,
+    creator_username: str,
+    task_id: int,
+    class_name: str | None,
+) -> dict:
+    """Autoriza al usuario y bloquea la tarea para serializar sus cambios de pasos."""
+    if creator_role not in {"staff", "parent", "student"}:
+        raise CatalogError(ErrorCode.TASK_CREATOR_REQUIRED)
+
+    if creator_role == "student":
+        task_permission = db.execute(
+            text(
+                "SELECT stud_access_task_mod FROM Student "
+                "WHERE stud_usr = :creator_username"
+            ),
+            {"creator_username": creator_username},
+        ).scalar_one_or_none()
+        if task_permission is None:
+            raise CatalogError(ErrorCode.TASK_STUDENT_NOT_FOUND)
+        if task_permission is not True:
+            raise CatalogError(ErrorCode.STUDENT_TASK_MODIFICATION_DENIED)
+
+    if creator_role == "staff" and class_name is not None:
+        assigned = db.execute(
+            text(
+                "SELECT 1 FROM class_staff WHERE class_name_fk = :class_name "
+                "AND staff_usr_fk = :creator_username"
+            ),
+            {"class_name": class_name, "creator_username": creator_username},
+        ).scalar_one_or_none()
+        if assigned is None:
+            raise CatalogError(ErrorCode.CLASS_ACCESS_DENIED)
+        task = db.execute(
+            text(
+                "SELECT task.task_id, task.task_start_hour, task.task_duration FROM Tasks task "
+                "JOIN Generic_Task generic ON generic.task_id_fk = task.task_id "
+                "JOIN class_task linked ON linked.task_id_fk = task.task_id "
+                "WHERE task.task_id = :task_id "
+                "AND linked.class_name_fk = :class_name "
+                "FOR UPDATE OF task"
+            ),
+            {"task_id": task_id, "class_name": class_name},
+        ).mappings().first()
+    elif creator_role == "staff":
+        task = db.execute(
+            text(
+                "SELECT task.task_id, task.task_start_hour, task.task_duration FROM Tasks task "
+                "JOIN Generic_Task generic ON generic.task_id_fk = task.task_id "
+                "WHERE task.task_id = :task_id "
+                "AND task.task_creator = :creator_username "
+                "AND EXISTS ("
+                "SELECT 1 FROM stud_task assigned "
+                "WHERE assigned.task_id_fk = task.task_id "
+                "AND assigned.class_name_fk IS NULL "
+                "AND EXISTS ("
+                "SELECT 1 FROM class_stud enrollment "
+                "JOIN class_staff teaching "
+                "ON teaching.class_name_fk = enrollment.class_name_fk "
+                "WHERE enrollment.stud_usr_fk = assigned.stud_usr_fk "
+                "AND teaching.staff_usr_fk = :creator_username)) "
+                "FOR UPDATE OF task"
+            ),
+            {"task_id": task_id, "creator_username": creator_username},
+        ).mappings().first()
+    elif class_name is not None:
+        raise CatalogError(ErrorCode.TASK_NOT_FOUND)
+    elif creator_role == "parent":
+        task = db.execute(
+            text(
+                "SELECT task.task_id, task.task_start_hour, task.task_duration FROM Tasks task "
+                "JOIN Generic_Task generic ON generic.task_id_fk = task.task_id "
+                "WHERE task.task_id = :task_id "
+                "AND task.task_creator = :creator_username "
+                "AND EXISTS (SELECT 1 FROM stud_task assigned "
+                "JOIN par_stud linked ON linked.stud_usr_fk = assigned.stud_usr_fk "
+                "WHERE assigned.task_id_fk = task.task_id "
+                "AND assigned.class_name_fk IS NULL "
+                "AND linked.par_usr_fk = :creator_username) "
+                "FOR UPDATE OF task"
+            ),
+            {"task_id": task_id, "creator_username": creator_username},
+        ).mappings().first()
+    else:
+        task = db.execute(
+            text(
+                "SELECT task.task_id, task.task_start_hour, task.task_duration FROM Tasks task "
+                "JOIN Generic_Task generic ON generic.task_id_fk = task.task_id "
+                "WHERE task.task_id = :task_id "
+                "AND task.task_creator = :creator_username "
+                "FOR UPDATE OF task"
+            ),
+            {"task_id": task_id, "creator_username": creator_username},
+        ).mappings().first()
+    if task is None:
+        raise CatalogError(ErrorCode.TASK_NOT_FOUND)
+    return dict(task)
+
+
+def _validate_step_schedule(
+    task: dict, creator_role: str, deleting: bool = False
+) -> None:
+    """Aplica las restricciones escolares de los pasos de tutores y personal."""
+    if creator_role not in {"staff", "parent"}:
+        return
+    try:
+        validate_task_schedule(
+            creator_role, task["task_start_hour"], task["task_duration"]
+        )
+    except CatalogError as exc:
+        if not deleting:
+            raise
+        delete_error = (
+            ErrorCode.STAFF_DELETE_OUTSIDE_SCHOOL_HOURS
+            if creator_role == "staff"
+            else ErrorCode.PARENT_DELETE_DURING_SCHOOL_HOURS
+        )
+        raise CatalogError(delete_error) from exc
+
+
+def _reindex_task_steps(db: Session, task_id: int) -> None:
+    """Renombra índices existentes a una secuencia continua desde cero."""
+    db.execute(
+        text(
+            "WITH ordered_steps AS ("
+            "SELECT step_id, (ROW_NUMBER() OVER ("
+            "ORDER BY step_index NULLS LAST, step_id) - 1)::INTEGER AS new_index "
+            "FROM Steps WHERE generic_task_id_fk = :task_id) "
+            "UPDATE Steps current_step SET step_index = ordered_steps.new_index "
+            "FROM ordered_steps WHERE current_step.step_id = ordered_steps.step_id "
+            "AND current_step.step_index IS DISTINCT FROM ordered_steps.new_index"
+        ),
+        {"task_id": task_id},
+    )
+
+
 def create_task_step(
     db: Session,
     creator_role: str,
@@ -337,70 +498,13 @@ def create_task_step(
     step_description: str,
     class_name: str | None = None,
 ) -> dict:
-    """Añade un paso a una tarea propia o a una tarea de una clase del staff."""
-    if creator_role not in {"staff", "parent", "student"}:
-        raise CatalogError(ErrorCode.TASK_CREATOR_REQUIRED)
-
+    """Añade un paso a una tarea autorizada y lo coloca al final de su orden."""
     try:
-        if creator_role == "staff":
-            if class_name is not None:
-                assigned = db.execute(
-                    text(
-                        "SELECT 1 FROM class_staff WHERE class_name_fk = :class_name "
-                        "AND staff_usr_fk = :creator_username"
-                    ),
-                    {"class_name": class_name, "creator_username": creator_username},
-                ).scalar_one_or_none()
-                if assigned is None:
-                    raise CatalogError(ErrorCode.CLASS_ACCESS_DENIED)
-                task = db.execute(
-                    text(
-                        "SELECT task.task_id FROM Tasks task "
-                        "JOIN Generic_Task generic ON generic.task_id_fk = task.task_id "
-                        "JOIN class_task linked ON linked.task_id_fk = task.task_id "
-                        "WHERE task.task_id = :task_id "
-                        "AND linked.class_name_fk = :class_name "
-                        "FOR UPDATE OF task"
-                    ),
-                    {"task_id": task_id, "class_name": class_name},
-                ).scalar_one_or_none()
-            else:
-                task = db.execute(
-                    text(
-                        "SELECT task.task_id FROM Tasks task "
-                        "JOIN Generic_Task generic ON generic.task_id_fk = task.task_id "
-                        "WHERE task.task_id = :task_id "
-                        "AND task.task_creator = :creator_username "
-                        "AND EXISTS ("
-                        "SELECT 1 FROM stud_task assigned "
-                        "WHERE assigned.task_id_fk = task.task_id "
-                        "AND assigned.class_name_fk IS NULL "
-                        "AND EXISTS ("
-                        "SELECT 1 FROM class_stud enrollment "
-                        "JOIN class_staff teaching "
-                        "ON teaching.class_name_fk = enrollment.class_name_fk "
-                        "WHERE enrollment.stud_usr_fk = assigned.stud_usr_fk "
-                        "AND teaching.staff_usr_fk = :creator_username)) "
-                        "FOR UPDATE OF task"
-                    ),
-                    {"task_id": task_id, "creator_username": creator_username},
-                ).scalar_one_or_none()
-        else:
-            if class_name is not None:
-                raise CatalogError(ErrorCode.TASK_NOT_FOUND)
-            task = db.execute(
-                text(
-                    "SELECT task.task_id FROM Tasks task "
-                    "JOIN Generic_Task generic ON generic.task_id_fk = task.task_id "
-                    "WHERE task.task_id = :task_id "
-                    "AND task.task_creator = :creator_username "
-                    "FOR UPDATE OF task"
-                ),
-                {"task_id": task_id, "creator_username": creator_username},
-            ).scalar_one_or_none()
-        if task is None:
-            raise CatalogError(ErrorCode.TASK_NOT_FOUND)
-
+        task = _lock_task_for_step_operation(
+            db, creator_role, creator_username, task_id, class_name
+        )
+        _validate_step_schedule(task, creator_role)
+        _reindex_task_steps(db, task_id)
         next_index = db.execute(
             text(
                 "SELECT COALESCE(MAX(step_index), -1) + 1 "
@@ -424,6 +528,52 @@ def create_task_step(
         ).mappings().one()
         db.commit()
         return success_response(**dict(step), **({"class_name": class_name} if class_name else {}))
+    except CatalogError:
+        db.rollback()
+        raise
+    except Exception:
+        db.rollback()
+        raise
+
+
+def delete_task_step(
+    db: Session,
+    creator_role: str,
+    creator_username: str,
+    task_id: int,
+    step_id: int,
+    class_name: str | None = None,
+) -> dict:
+    """Elimina un paso autorizado y compacta el orden de los pasos restantes."""
+    try:
+        task = _lock_task_for_step_operation(
+            db, creator_role, creator_username, task_id, class_name
+        )
+        _validate_step_schedule(task, creator_role, deleting=True)
+        step = db.execute(
+            text(
+                "DELETE FROM Steps WHERE step_id = :step_id "
+                "AND generic_task_id_fk = :task_id "
+                "RETURNING step_id, step_index"
+            ),
+            {"step_id": step_id, "task_id": task_id},
+        ).mappings().first()
+        if step is None:
+            raise CatalogError(ErrorCode.TASK_NOT_FOUND)
+
+        _reindex_task_steps(db, task_id)
+        remaining = db.execute(
+            text("SELECT COUNT(*) FROM Steps WHERE generic_task_id_fk = :task_id"),
+            {"task_id": task_id},
+        ).scalar_one()
+        db.commit()
+        return success_response(
+            task_id=task_id,
+            deleted_step_id=step_id,
+            deleted_step_index=step["step_index"],
+            remaining_steps=remaining,
+            **({"class_name": class_name} if class_name else {}),
+        )
     except CatalogError:
         db.rollback()
         raise
