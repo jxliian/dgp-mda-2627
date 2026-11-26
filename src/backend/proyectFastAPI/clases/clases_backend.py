@@ -81,6 +81,19 @@ class CreateClassTaskStepRequest(BaseModel):
         return value
 
 
+class ReorderClassTaskStepsRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    step_ids: list[StrictInt]
+
+    @field_validator("step_ids")
+    @classmethod
+    def validate_step_ids(cls, value: list[int]) -> list[int]:
+        if any(step_id <= 0 for step_id in value) or len(value) != len(set(value)):
+            raise ValueError("Los identificadores deben ser positivos y no repetirse")
+        return value
+
+
 @router.post("", status_code=201, dependencies=[Depends(require_admin)])
 def create_class(payload: ClassRequest, db: Session = Depends(get_db)) -> dict:
     """Crea una clase; solo los administradores pueden hacerlo."""
@@ -238,6 +251,28 @@ def create_class_task_step(
         user["username"],
         task_id,
         payload.step_description,
+        class_name,
+    )
+
+
+@router.put("/{class_name}/tasks/{task_id}/steps/order")
+def reorder_class_task_steps(
+    class_name: ClassNamePath,
+    task_id: Annotated[int, Path(gt=0)],
+    payload: ReorderClassTaskStepsRequest,
+    db: Session = Depends(get_db),
+    user: dict = Depends(get_current_user),
+) -> dict:
+    """Guarda un orden de pasos solo si el personal creó la tarea de clase."""
+    if user["role"] != "staff":
+        raise_api_error(ErrorCode.CLASS_ACCESS_DENIED)
+    return _run_db_operation(
+        tasks_db.reorder_task_steps,
+        db,
+        "staff",
+        user["username"],
+        task_id,
+        payload.step_ids,
         class_name,
     )
 

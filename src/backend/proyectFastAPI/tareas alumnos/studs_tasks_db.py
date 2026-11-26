@@ -396,7 +396,8 @@ def _lock_task_for_step_operation(
             raise CatalogError(ErrorCode.CLASS_ACCESS_DENIED)
         task = db.execute(
             text(
-                "SELECT task.task_id, task.task_start_hour, task.task_duration FROM Tasks task "
+                "SELECT task.task_id, task.task_start_hour, task.task_duration, "
+                "task.task_creator FROM Tasks task "
                 "JOIN Generic_Task generic ON generic.task_id_fk = task.task_id "
                 "JOIN class_task linked ON linked.task_id_fk = task.task_id "
                 "WHERE task.task_id = :task_id "
@@ -408,7 +409,8 @@ def _lock_task_for_step_operation(
     elif creator_role == "staff":
         task = db.execute(
             text(
-                "SELECT task.task_id, task.task_start_hour, task.task_duration FROM Tasks task "
+                "SELECT task.task_id, task.task_start_hour, task.task_duration, "
+                "task.task_creator FROM Tasks task "
                 "JOIN Generic_Task generic ON generic.task_id_fk = task.task_id "
                 "WHERE task.task_id = :task_id "
                 "AND task.task_creator = :creator_username "
@@ -431,7 +433,8 @@ def _lock_task_for_step_operation(
     elif creator_role == "parent":
         task = db.execute(
             text(
-                "SELECT task.task_id, task.task_start_hour, task.task_duration FROM Tasks task "
+                "SELECT task.task_id, task.task_start_hour, task.task_duration, "
+                "task.task_creator FROM Tasks task "
                 "JOIN Generic_Task generic ON generic.task_id_fk = task.task_id "
                 "WHERE task.task_id = :task_id "
                 "AND task.task_creator = :creator_username "
@@ -447,7 +450,8 @@ def _lock_task_for_step_operation(
     else:
         task = db.execute(
             text(
-                "SELECT task.task_id, task.task_start_hour, task.task_duration FROM Tasks task "
+                "SELECT task.task_id, task.task_start_hour, task.task_duration, "
+                "task.task_creator FROM Tasks task "
                 "JOIN Generic_Task generic ON generic.task_id_fk = task.task_id "
                 "WHERE task.task_id = :task_id "
                 "AND task.task_creator = :creator_username "
@@ -495,6 +499,66 @@ def _reindex_task_steps(db: Session, task_id: int) -> None:
         ),
         {"task_id": task_id},
     )
+
+
+def reorder_task_steps(
+    db: Session,
+    creator_role: str,
+    creator_username: str,
+    task_id: int,
+    step_ids: list[int],
+    class_name: str | None = None,
+) -> dict:
+    """Guarda el nuevo orden si el personal creó la tarea y puede acceder a ella."""
+    if creator_role != "staff":
+        raise CatalogError(ErrorCode.TASK_CREATOR_REQUIRED)
+
+    try:
+        task = _lock_task_for_step_operation(
+            db, creator_role, creator_username, task_id, class_name
+        )
+        if task["task_creator"] != creator_username:
+            raise CatalogError(ErrorCode.TASK_NOT_FOUND)
+        _validate_step_schedule(task, creator_role)
+
+        current_step_ids = db.execute(
+            text(
+                "SELECT step_id FROM Steps WHERE generic_task_id_fk = :task_id "
+                "ORDER BY step_index NULLS LAST, step_id"
+            ),
+            {"task_id": task_id},
+        ).scalars().all()
+        if len(step_ids) != len(set(step_ids)) or set(step_ids) != set(current_step_ids):
+            raise CatalogError(ErrorCode.INVALID_REQUEST)
+
+        for index, step_id in enumerate(step_ids):
+            db.execute(
+                text(
+                    "UPDATE Steps SET step_index = :step_index "
+                    "WHERE step_id = :step_id AND generic_task_id_fk = :task_id"
+                ),
+                {"step_index": index, "step_id": step_id, "task_id": task_id},
+            )
+        ordered_steps = db.execute(
+            text(
+                "SELECT step_id, step_description, step_finished, step_index "
+                "FROM Steps WHERE generic_task_id_fk = :task_id "
+                "ORDER BY step_index, step_id"
+            ),
+            {"task_id": task_id},
+        ).mappings().all()
+        db.commit()
+        return success_response(
+            task_id=task_id,
+            steps=[dict(step) for step in ordered_steps],
+            **({"class_name": class_name} if class_name else {}),
+        )
+    except CatalogError:
+        db.rollback()
+        raise
+    except Exception:
+        db.rollback()
+        raise
 
 
 def create_task_step(
