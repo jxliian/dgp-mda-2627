@@ -29,7 +29,10 @@ def agenda(client, engine):
     _post(client, "/student-tasks/me", "pablo", "Leer un cuento", "19:00")
     with engine.begin() as conn:
         conn.execute(
-            text("UPDATE Tasks SET task_finished = TRUE WHERE task_title IN ('Plástica', 'Hacer la cama')")
+            text(
+                "UPDATE stud_task SET task_finished = TRUE WHERE task_id_fk IN "
+                "(SELECT task_id FROM Tasks WHERE task_title IN ('Plástica', 'Hacer la cama'))"
+            )
         )
 
 

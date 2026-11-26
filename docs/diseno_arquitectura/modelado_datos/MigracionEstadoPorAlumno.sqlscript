@@ -1,0 +1,22 @@
+-- Migración: el estado «terminada» pasa de la tarea (Tasks) a cada alumno y día (stud_task).
+-- Motivo: una tarea de clase es una sola fila en Tasks compartida por todos sus alumnos;
+-- si el estado estuviera ahí, al completarla un alumno saldría completada para toda la clase.
+-- Se aplica UNA sola vez sobre una base existente. Conserva el estado que ya hubiera.
+-- Si algo falla, no se cambia nada (todo va en una transacción).
+
+BEGIN;
+
+-- 1. Cada asignación de alumno tiene su propio estado, pendiente por defecto.
+ALTER TABLE stud_task ADD COLUMN task_finished BOOLEAN NOT NULL DEFAULT FALSE;
+
+-- 2. Se copia el estado que tuviera la tarea a todas sus asignaciones.
+UPDATE stud_task AS assigned
+SET task_finished = TRUE
+FROM Tasks AS task
+WHERE task.task_id = assigned.task_id_fk
+  AND task.task_finished IS TRUE;
+
+-- 3. Se quita la columna antigua para que no haya dos sitios con el mismo dato.
+ALTER TABLE Tasks DROP COLUMN task_finished;
+
+COMMIT;

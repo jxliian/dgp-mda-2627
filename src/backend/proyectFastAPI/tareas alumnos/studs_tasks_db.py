@@ -11,6 +11,13 @@ from ..task_schedule import validate_task_schedule
 SCHOOL_START = time(9, 0)
 SCHOOL_END = time(15, 0)
 
+# Una tarea cuenta como terminada cuando la han completado todos los alumnos que la tienen.
+# El estado de cada alumno está en stud_task.task_finished.
+TASK_FINISHED_SQL = (
+    "COALESCE((SELECT bool_and(progress.task_finished) FROM stud_task progress "
+    "WHERE progress.task_id_fk = Tasks.task_id), FALSE)"
+)
+
 # Rol de quien creó la tarea, deducido de la tabla de especialización en la que está.
 # Si la cuenta ya no existe, el rol queda vacío (NULL).
 CREATOR_ROLE_SQL = (
@@ -113,7 +120,7 @@ def list_student_tasks(
         conditions.append("listed.class_name_fk = :class_name")
         parameters["class_name"] = class_name
     if finished is not None:
-        conditions.append("COALESCE(listed.task_finished, FALSE) = :finished")
+        conditions.append("listed.task_finished = :finished")
         parameters["finished"] = finished
     if creator_role is not None:
         conditions.append("listed.creator_role = :creator_role")
@@ -124,7 +131,7 @@ def list_student_tasks(
         text(
             "SELECT * FROM ("
             "SELECT task.task_id, task.task_title, task.task_start_hour, "
-            "task.task_duration, task.task_creator, task.task_finished, "
+            "task.task_duration, task.task_creator, assigned.task_finished, "
             "task.alt_task_id_fk, assigned.task_date, assigned.task_index, "
             "assigned.class_name_fk, "
             f"{CREATOR_ROLE_SQL} AS creator_role "
@@ -236,10 +243,10 @@ def create_task(
         task = db.execute(
             text(
                 "INSERT INTO Tasks "
-                "(task_title, task_start_hour, task_duration, task_creator, task_finished, alt_task_id_fk) "
-                "VALUES (:task_title, :task_start_hour, :task_duration, :creator_username, FALSE, :alt_task_id_fk) "
+                "(task_title, task_start_hour, task_duration, task_creator, alt_task_id_fk) "
+                "VALUES (:task_title, :task_start_hour, :task_duration, :creator_username, :alt_task_id_fk) "
                 "RETURNING task_id, task_title, task_start_hour, task_duration, task_creator, "
-                "task_finished, alt_task_id_fk"
+                "FALSE AS task_finished, alt_task_id_fk"
             ),
             {
                 "task_title": task_title,
@@ -335,7 +342,7 @@ def set_alternative_task(
                 "UPDATE Tasks SET alt_task_id_fk = :alt_task_id_fk "
                 "WHERE task_id = :task_id AND task_creator = :creator_username "
                 "RETURNING task_id, task_title, task_start_hour, task_duration, task_creator, "
-                "task_finished, alt_task_id_fk"
+                f"{TASK_FINISHED_SQL} AS task_finished, alt_task_id_fk"
             ),
             {
                 "alt_task_id_fk": alt_task_id_fk,
