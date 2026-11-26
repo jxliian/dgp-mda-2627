@@ -192,16 +192,13 @@ class _TaskEditorScreenState extends State<TaskEditorScreen> {
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           if (error != null) Notice(error!, error: true),
-          FormActions(busy: guardando, onSave: guardar, label: 'Guardar tarea'),
-          if (!esNueva)
-            Padding(
-              padding: const EdgeInsets.only(top: 22),
-              child: OutlinedButton.icon(
-                onPressed: guardando ? null : eliminar,
-                icon: const Icon(Icons.delete_outline),
-                label: const Text('Eliminar tarea'),
-              ),
-            ),
+          FormActions(
+            busy: guardando,
+            onSave: guardar,
+            label: 'Guardar tarea',
+            onDelete: esNueva ? null : eliminar,
+            deleteLabel: 'Eliminar tarea',
+          ),
         ],
       ),
     ),

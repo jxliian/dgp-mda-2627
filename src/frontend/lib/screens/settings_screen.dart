@@ -3,7 +3,7 @@ import '../models/domain.dart';
 import '../models/validation.dart';
 import '../state/app_state.dart';
 import '../ui/ui.dart';
-import 'access_editor.dart';
+import 'access_settings_screen.dart';
 import 'color_settings_screen.dart';
 
 /// Accesibilidad del alumno y contraseña de las cuentas del centro y familia.
@@ -106,7 +106,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             final foto = _fotoPropia(usuario);
             // La foto va al lado de los ajustes, no encima de ellos: en una
             // tablet sobra ancho de sobra para las dos cosas.
-            if (restricciones.maxWidth < 720) {
+            if (restricciones.maxWidth < Pantalla.media) {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [foto, const SizedBox(height: 24), ajustes],
@@ -162,11 +162,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ],
             if (error != null) Notice(error!, error: true),
             if (aviso != null) Notice(aviso!),
-            FormActions(
-              busy: ocupado || !puedeEditar,
-              onSave: guardar,
-              label: 'Guardar mis ajustes',
-            ),
+            if (usuario.role != UserRole.student)
+              FormActions(
+                busy: ocupado || !puedeEditar,
+                onSave: guardar,
+                label: 'Guardar mis ajustes',
+              ),
           ],
         );
 
@@ -239,10 +240,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   List<Widget> _seccionDeAlumno(AppUser usuario) => [
+    const SectionTitle(
+      'Cómo veo mi agenda',
+      hint: 'El tamaño de la letra, los colores y los apoyos.',
+    ),
     if (!AppScope.of(context).repository.supportsProfileRead)
       const Notice(_servidorSinLecturaDePerfil),
     if (!puedeEditar) const Notice(_ajustesProtegidos),
-    AccessEditor(settings: ajustes, enabled: puedeEditar && !ocupado),
+    OutlinedButton.icon(
+      onPressed: ocupado
+          ? null
+          : () async {
+              await openPage(
+                context,
+                AccessSettingsScreen(user: usuario, enabled: puedeEditar),
+              );
+              if (mounted) setState(() {});
+            },
+      icon: const Icon(Icons.accessibility_new),
+      label: const Text('Abrir mis opciones de accesibilidad'),
+    ),
   ];
 
   Widget _campoContrasena() => TextFormField(

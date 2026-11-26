@@ -121,7 +121,7 @@ class _EnrollmentTransferState extends State<EnrollmentTransfer> {
               vacio: 'Todavía no hay alumnos en esta aula.',
               retirar: true,
             );
-            if (restricciones.maxWidth < 760) {
+            if (restricciones.maxWidth < Pantalla.amplia) {
               return Column(children: [izquierda, derecha]);
             }
             return Row(

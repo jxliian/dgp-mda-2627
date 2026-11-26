@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme.dart';
 import 'icon_action.dart';
 import 'notice.dart';
 
@@ -57,8 +58,7 @@ class _PagedItemsState<T> extends State<PagedItems<T>> {
         // En tablet las flechas van siempre a los lados. En un móvil no caben
         // sin estrangular la lista, así que van siempre debajo: dentro de un
         // mismo dispositivo nunca cambian de sitio.
-        final aLosLados =
-            restricciones.maxWidth >= _anchoParaFlechasLaterales;
+        final aLosLados = restricciones.maxWidth >= Pantalla.media;
         return Column(
           children: [
             if (aLosLados)
@@ -98,8 +98,6 @@ class _PagedItemsState<T> extends State<PagedItems<T>> {
     );
   }
 
-  static const _anchoParaFlechasLaterales = 620.0;
-
   /// El hueco existe siempre; la flecha solo cuando hay más de una página.
   Widget _hueco({required bool anterior}) => SizedBox(
     width: _columnaDeFlecha,
@@ -127,11 +125,9 @@ class _PagedItemsState<T> extends State<PagedItems<T>> {
 
   Widget _rejilla(List<T> visibles) => LayoutBuilder(
     builder: (context, restricciones) {
-      final cabenPorAncho = switch (restricciones.maxWidth) {
-        < 460 => 1,
-        < 760 => 2,
-        _ => 4,
-      };
+      final cabenPorAncho =
+          ((restricciones.maxWidth + 18) / (Pantalla.anchoDeTarjeta + 18))
+              .floor();
       final columnas = cabenPorAncho.clamp(1, widget.maxColumns);
       final ancho = (restricciones.maxWidth - (columnas - 1) * 18) / columnas;
       return Wrap(

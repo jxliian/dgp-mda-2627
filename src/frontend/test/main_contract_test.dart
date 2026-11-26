@@ -4,6 +4,7 @@ import 'package:autovida/models/domain.dart';
 import 'package:autovida/services/api_client.dart';
 import 'package:autovida/services/repository.dart';
 import 'package:autovida/state/app_state.dart';
+import 'package:autovida/ui/ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -372,23 +373,42 @@ void main() {
       final server = _MainApi(UserRole.student, profileMod: permitted);
       final state = await _open(tester, server);
       expect(state.access.number('ntasks_visible'), 3);
-      expect(find.text('Ajustes'), permitted ? findsOneWidget : findsNothing);
-      if (permitted) {
-        await tester.tap(find.text('Ajustes'));
+      expect(find.byType(UserAvatar), findsOneWidget);
+      expect(
+        tester.getTopLeft(find.byType(UserAvatar)).dx,
+        lessThan(tester.getTopLeft(find.text('Inicio')).dx),
+      );
+      expect(find.text('Ajustes'), findsNothing);
+      expect(
+        find.byTooltip('Ajustes'),
+        permitted ? findsOneWidget : findsNothing,
+      );
+      if (!permitted) {
+        await tester.tap(find.byType(UserAvatar));
         await tester.pumpAndSettle();
-        expect(find.text('Permisos'), findsOneWidget);
+        expect(find.text('Mis ajustes'), findsNothing);
+      }
+      if (permitted) {
+        await tester.tap(find.byTooltip('Ajustes'));
+        await tester.pumpAndSettle();
         expect(find.text('Cambiar contraseña'), findsNothing);
         expect(find.textContaining('Nueva contraseña'), findsNothing);
-        expect(find.text('Cambiar mi foto'), findsNothing);
+
+        // La accesibilidad vive en su propia pantalla, no dentro de los
+        // ajustes: desde aquí solo se entra.
+        expect(find.text('Alto contraste'), findsNothing);
+        await tester.tap(find.text('Abrir mis opciones de accesibilidad'));
+        await tester.pumpAndSettle();
+        expect(find.text('Permisos'), findsOneWidget);
         await tester.ensureVisible(find.text('Alto contraste'));
         await tester.tap(find.text('Alto contraste'));
         await tester.pumpAndSettle();
-        await tester.ensureVisible(find.text('Guardar mis ajustes'));
-        await tester.tap(find.text('Guardar mis ajustes'));
+        await tester.ensureVisible(find.text('Guardar accesibilidad'));
+        await tester.tap(find.text('Guardar accesibilidad'));
         await tester.pumpAndSettle();
         expect(server.settings, {'stud_access_contrast': true});
         expect(state.access.flag('contrast'), true);
-        expect(find.text('Tus ajustes se han guardado.'), findsOneWidget);
+        expect(find.text('Los ajustes se han guardado.'), findsOneWidget);
       }
       expect(tester.takeException(), isNull);
       await _close(tester, state);

@@ -62,36 +62,58 @@ class _AccessEditorState extends State<AccessEditor> {
         'Permisos',
         hint: 'Qué puede hacer el alumno y con qué apoyos ve su agenda.',
       ),
-      _botonDeColores(),
-      const SizedBox(height: 18),
       Wrap(
         spacing: 20,
         runSpacing: 20,
+        crossAxisAlignment: WrapCrossAlignment.center,
         children: [
           for (final entrada in _numeros.entries)
             SizedBox(
               width: 260,
               child: _campoNumerico(entrada.key, entrada.value),
             ),
+          SizedBox(width: 260, child: _botonDeColores()),
         ],
       ),
       const SizedBox(height: 12),
-      for (final entrada in _apoyos.entries)
-        _interruptor(entrada.key, entrada.value),
-      if (widget.permissions)
-        for (final entrada in _permisos.entries)
-          _interruptor(entrada.key, entrada.value),
+      // En una tablet los interruptores van a dos columnas: en una sola fila
+      // por interruptor sobraba la mitad del ancho y la pantalla no cabía.
+      LayoutBuilder(
+        builder: (context, restricciones) {
+          final enDos = restricciones.maxWidth >= Pantalla.media;
+          final ancho = enDos
+              ? (restricciones.maxWidth - 24) / 2
+              : restricciones.maxWidth;
+          return Wrap(
+            spacing: 24,
+            runSpacing: 0,
+            children: [
+              for (final entrada in {
+                ..._apoyos,
+                if (widget.permissions) ..._permisos,
+              }.entries)
+                SizedBox(
+                  width: ancho,
+                  child: _interruptor(entrada.key, entrada.value),
+                ),
+            ],
+          );
+        },
+      ),
     ],
   );
 
   Widget _botonDeColores() => Row(
+    mainAxisSize: MainAxisSize.min,
     children: [
-      OutlinedButton.icon(
-        onPressed: widget.enabled ? _abrirColores : null,
-        icon: const Icon(Icons.palette_outlined),
-        label: const Text('Configurar los colores'),
+      Flexible(
+        child: OutlinedButton.icon(
+          onPressed: widget.enabled ? _abrirColores : null,
+          icon: const Icon(Icons.palette_outlined),
+          label: const Text('Colores'),
+        ),
       ),
-      const SizedBox(width: 16),
+      const SizedBox(width: 12),
       _muestraDeColor(widget.settings.color('main_col')),
       const SizedBox(width: 8),
       _muestraDeColor(widget.settings.color('sec_col')),

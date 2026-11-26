@@ -172,7 +172,9 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     return PageShell(
       title: task.title,
       subtitle: _cuando,
-      actions: [UserAvatar(user: widget.student, size: 56)],
+      headerAvatar: esSuPropiaAgenda
+          ? null
+          : UserAvatar(user: widget.student, size: 56),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -259,16 +261,9 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     return '$titulo. $_textoDelContenido';
   }
 
-  Widget _acciones() => Wrap(
-    spacing: 20,
-    runSpacing: 14,
-    children: [
-      if (esSuPropiaAgenda && !task.finished && puedeCompletar)
-        FilledButton.icon(
-          onPressed: ocupado ? null : darPorTerminada,
-          icon: const Icon(Icons.check),
-          label: const Text('He terminado la tarea'),
-        ),
+  Widget _acciones() => ScreenActions(
+    topPadding: 0,
+    secondary: [
       if (porPasos)
         OutlinedButton.icon(
           onPressed: ocupado ? null : verLosPasos,
@@ -282,13 +277,21 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
           icon: const Icon(Icons.swap_horiz),
           label: const Text('Hacer la tarea alternativa'),
         ),
-      if (puedeEliminar)
-        OutlinedButton.icon(
-          onPressed: ocupado ? null : eliminar,
-          icon: const Icon(Icons.delete_outline),
-          label: const Text('Eliminar tarea'),
-        ),
     ],
+    primary: esSuPropiaAgenda && !task.finished && puedeCompletar
+        ? FilledButton.icon(
+            onPressed: ocupado ? null : darPorTerminada,
+            icon: const Icon(Icons.check),
+            label: const Text('He terminado la tarea'),
+          )
+        : null,
+    destructive: puedeEliminar
+        ? OutlinedButton.icon(
+            onPressed: ocupado ? null : eliminar,
+            icon: const Icon(Icons.delete_outline),
+            label: const Text('Eliminar tarea'),
+          )
+        : null,
   );
 
   static const _loMarcaElAlumno =
@@ -339,7 +342,18 @@ class _TarjetaDeInstrucciones extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 10),
-                Text(texto, style: const TextStyle(fontSize: 19, height: 1.6)),
+                // El texto que lee el alumno no se estira a lo ancho de una
+                // tablet apaisada: una línea de cien caracteres se pierde al
+                // volver al renglón siguiente.
+                ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    maxWidth: Pantalla.anchoDeLectura,
+                  ),
+                  child: Text(
+                    texto,
+                    style: const TextStyle(fontSize: 19, height: 1.6),
+                  ),
+                ),
                 if (escuchar != null) ...[
                   const SizedBox(height: 18),
                   SpeechButton(text: escuchar!),

@@ -134,19 +134,23 @@ class _ClassEditorScreenState extends State<ClassEditorScreen> {
           if (existe) _miembros(),
           if (error != null) Notice(error!, error: true),
           if (aviso != null) Notice(aviso!),
-          FormActions(
-            busy: ocupado,
-            onSave: guardarNombre,
-            label: 'Guardar aula',
-          ),
-          if (existe)
-            Padding(
-              padding: const EdgeInsets.only(top: 20),
-              child: TextButton(
-                onPressed: () => Navigator.pop(context, true),
-                child: const Text('Terminar y volver a la gestión'),
-              ),
+          ScreenActions(
+            secondary: [
+              if (existe)
+                OutlinedButton.icon(
+                  onPressed: ocupado
+                      ? null
+                      : () => Navigator.pop(context, true),
+                  icon: const Icon(Icons.done_all),
+                  label: const Text('Terminar y volver'),
+                ),
+            ],
+            primary: FilledButton.icon(
+              onPressed: ocupado ? null : guardarNombre,
+              icon: const Icon(Icons.check),
+              label: Text(ocupado ? 'Guardando…' : 'Guardar aula'),
             ),
+          ),
         ],
       ),
     ),

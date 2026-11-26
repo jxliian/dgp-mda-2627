@@ -186,7 +186,13 @@ class _LoginScreenState extends State<LoginScreen> {
               icon: const Icon(Icons.login),
               style: esAlumno
                   ? FilledButton.styleFrom(
-                      minimumSize: const Size(0, 88),
+                      minimumSize: Size(
+                        0,
+                        MediaQuery.of(context).size.height <
+                                Pantalla.altoHolgado
+                            ? 72
+                            : 88,
+                      ),
                       textStyle: const TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.w600,
@@ -393,56 +399,59 @@ class _TecladoDeDibujos extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) => Column(
-    children: [
-      Text(
-        _completa
-            ? 'Ya están tus cuatro dibujos.'
-            : 'Pulsa tus cuatro dibujos en orden.',
-        textAlign: TextAlign.center,
-        style: Theme.of(context).textTheme.titleLarge,
-      ),
-      const SizedBox(height: 10),
-      _marcador(),
-      const SizedBox(height: 10),
-      LayoutBuilder(
-        builder: (context, restricciones) {
-          final columnas = _columnasQueCaben(restricciones.maxWidth);
-          final ancho =
-              (restricciones.maxWidth - _separacion * (columnas - 1)) /
-              columnas;
-          return Wrap(
-            spacing: _separacion,
-            runSpacing: _separacion,
-            alignment: WrapAlignment.center,
-            children: [
-              for (var cifra = 0; cifra < _dibujos.length; cifra++)
-                SizedBox(width: ancho, child: _tecla(cifra)),
-            ],
-          );
-        },
-      ),
-      const SizedBox(height: 16),
-      SizedBox(
-        width: double.infinity,
-        child: OutlinedButton.icon(
-          onPressed: habilitado && password.text.isNotEmpty ? _borrar : null,
-          style: OutlinedButton.styleFrom(
-            minimumSize: const Size(0, 88),
-            textStyle: const TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.w600,
+  Widget build(BuildContext context) {
+    final bajo = MediaQuery.of(context).size.height < Pantalla.altoHolgado;
+    return Column(
+      children: [
+        Text(
+          _completa
+              ? 'Ya están tus cuatro dibujos.'
+              : 'Pulsa tus cuatro dibujos en orden.',
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
+        const SizedBox(height: 10),
+        _marcador(bajo),
+        SizedBox(height: bajo ? 6 : 10),
+        LayoutBuilder(
+          builder: (context, restricciones) {
+            final columnas = _columnasQueCaben(restricciones.maxWidth);
+            final ancho =
+                (restricciones.maxWidth - _separacion * (columnas - 1)) /
+                columnas;
+            return Wrap(
+              spacing: _separacion,
+              runSpacing: _separacion,
+              alignment: WrapAlignment.center,
+              children: [
+                for (var cifra = 0; cifra < _dibujos.length; cifra++)
+                  SizedBox(width: ancho, child: _tecla(cifra, bajo)),
+              ],
+            );
+          },
+        ),
+        SizedBox(height: bajo ? 10 : 16),
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            onPressed: habilitado && password.text.isNotEmpty ? _borrar : null,
+            style: OutlinedButton.styleFrom(
+              minimumSize: Size(0, bajo ? 72 : 88),
+              textStyle: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            icon: Icon(Icons.backspace_outlined, size: bajo ? 30 : 36),
+            label: const Text(
+              'Borrar el último dibujo',
+              textAlign: TextAlign.center,
             ),
           ),
-          icon: const Icon(Icons.backspace_outlined, size: 36),
-          label: const Text(
-            'Borrar el último dibujo',
-            textAlign: TextAlign.center,
-          ),
         ),
-      ),
-    ],
-  );
+      ],
+    );
+  }
 
   int _columnasQueCaben(double ancho) {
     final caben = ((ancho + _separacion) / (_anchoMinimoTecla + _separacion))
@@ -451,7 +460,7 @@ class _TecladoDeDibujos extends StatelessWidget {
   }
 
   /// Casillas que muestran cuántos dibujos se han pulsado, como en el boceto.
-  Widget _marcador() => Semantics(
+  Widget _marcador(bool bajo) => Semantics(
     liveRegion: true,
     label:
         '${password.text.length} de $dibujosDeLaContrasena dibujos '
@@ -464,8 +473,8 @@ class _TecladoDeDibujos extends StatelessWidget {
       children: [
         for (var i = 0; i < dibujosDeLaContrasena; i++)
           Container(
-            width: 68,
-            height: 76,
+            width: bajo ? 62 : 68,
+            height: bajo ? 64 : 76,
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: i < password.text.length
@@ -485,7 +494,7 @@ class _TecladoDeDibujos extends StatelessWidget {
     ),
   );
 
-  Widget _tecla(int cifra) {
+  Widget _tecla(int cifra, bool bajo) {
     final (icono, nombre) = _dibujos[cifra];
     return Semantics(
       label: '$nombre, número $cifra',
@@ -494,13 +503,13 @@ class _TecladoDeDibujos extends StatelessWidget {
       child: OutlinedButton(
         onPressed: habilitado && !_completa ? () => _escribir(cifra) : null,
         style: OutlinedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
-          minimumSize: const Size(0, 120),
+          padding: EdgeInsets.symmetric(vertical: bajo ? 8 : 14, horizontal: 4),
+          minimumSize: Size(0, bajo ? 100 : 120),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icono, size: 56),
+            Icon(icono, size: bajo ? 44 : 56),
             const SizedBox(height: 4),
             Text(
               '$nombre · $cifra',

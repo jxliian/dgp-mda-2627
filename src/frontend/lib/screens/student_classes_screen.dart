@@ -57,13 +57,19 @@ class StudentSelectionScreen extends StatelessWidget {
   final Classroom classroom;
 
   @override
-  Widget build(BuildContext context) => PageShell(
+  Widget build(BuildContext context) {
+    // Las fotos son grandes a propósito: el alumno se reconoce en ellas. En
+    // una tablet apaisada no caben dos filas, así que en pantalla baja se
+    // enseña una fila por página y se pasa con las flechas, en vez de dejar
+    // media foto cortada abajo.
+    final alto = MediaQuery.of(context).size.height;
+    return PageShell(
     title: classroom.name,
     subtitle: 'Busca tu foto',
     child: PagedItems<AppUser>(
       items: classroom.students,
       grid: true,
-      pageSize: 6,
+      pageSize: alto < Pantalla.altoHolgado ? 3 : 6,
       maxColumns: 3,
       empty: 'No hay alumnos en esta aula.',
       builder: (alumno) => ActionTile(
@@ -76,6 +82,7 @@ class StudentSelectionScreen extends StatelessWidget {
       ),
     ),
   );
+  }
 }
 
 /// Alternativa cuando no hay directorio de fotos.

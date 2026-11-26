@@ -126,6 +126,54 @@ La planificación nueva requiere conexión. Los errores de permisos no se sustit
 
 La autenticación requiere conexión y el token no se persiste. Después de reiniciar hay que autenticarse otra vez para recuperar la cola del mismo usuario. La caché se elimina al cerrar sesión correctamente; permite recuperar confirmaciones tras un cierre inesperado una vez autenticado de nuevo.
 
+## Reglas de interfaz
+
+Tres reglas que valen para todas las pantallas. Están escritas aquí y
+aplicadas en un único sitio del código, para que una pantalla nueva nazca
+coherente en lugar de arreglarse después.
+
+### 1. Una sola barra, siempre arriba
+
+`PageShell` dibuja la única barra de la aplicación, y siempre en el mismo
+orden: volver a la izquierda, título, y a la derecha las acciones de la
+pantalla, la foto de la sesión y las de sesión. Todos sus botones son
+`BarAction`, de modo que comparten contorno, altura y tipografía: no hay
+botones de texto mezclados con botones de contorno. En pantalla estrecha pasan
+a iconos con nombre accesible.
+
+No hay barra inferior. Una pantalla no añade navegación por su cuenta.
+
+### 2. Dónde van las acciones del contenido
+
+Lo decide `ScreenActions`, y `FormActions` es su caso para formularios:
+
+| Acción | Dónde |
+|---|---|
+| Principal (guardar, terminar, crear) | abajo del todo, a la derecha, rellena |
+| Secundarias (cancelar, ver, alternativa) | a su izquierda, con contorno |
+| Destructiva (eliminar, retirar) | fila propia debajo, a la izquierda y separada |
+| Navegación (abrir otra pantalla) | arriba, junto al contenido con el que tiene que ver |
+
+Nada va después de la acción principal. La destructiva nunca comparte fila con
+ella: son dos decisiones distintas y una no se puede deshacer.
+
+### 3. Puntos de corte
+
+Los define `Pantalla` en `lib/ui/theme.dart` y se miden sobre el ancho
+disponible para el contenido, no sobre el de la pantalla:
+
+| Nombre | Ancho | Qué cambia |
+|---|---|---|
+| `compacta` | 600 | por debajo, una sola columna y controles compactos |
+| `media` | 760 | barra fija con texto, flechas a los lados, dos campos por fila |
+| `amplia` | 1024 | dos columnas de contenido enteras |
+
+El dispositivo objetivo es la tablet de 10 pulgadas del centro: **1280×800
+apaisada y 800×1280 vertical**. `Pantalla.altoHolgado` (860) distingue las
+pantallas bajas, donde el teclado de dibujos y la rejilla de fotos se aprietan
+para no obligar a desplazar. `test/sin_scroll_test.dart` comprueba las dos
+orientaciones.
+
 ## Accesibilidad y límites
 
 Interfaz en español, controles amplios, etiquetas de acciones, teclado, texto escalable, estados con texto e iconos, colores configurables, contraste alto y lectura en voz cuando esté habilitada. Administración gestiona las fotos. El alumno solo dispone de ajustes de accesibilidad cuando tiene permiso para modificar su perfil.

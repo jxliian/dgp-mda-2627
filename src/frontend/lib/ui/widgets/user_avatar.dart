@@ -48,6 +48,11 @@ class _UserAvatarState extends State<UserAvatar> {
   }
 
   bool _puedeVerla(AppState state) {
+    if (!state.demo &&
+        widget.user.role != UserRole.student &&
+        widget.user.avatarUrl == null) {
+      return false;
+    }
     final esSuya = state.user?.username == widget.user.username;
     // El servidor indica dónde está la foto cuando permite verla: así vale
     // también para la elección de alumno previa al inicio de sesión.

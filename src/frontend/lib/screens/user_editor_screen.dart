@@ -5,7 +5,7 @@ import '../models/validation.dart';
 import '../services/repository.dart';
 import '../state/app_state.dart';
 import '../ui/ui.dart';
-import 'access_editor.dart';
+import 'access_settings_screen.dart';
 import 'associations_screen.dart';
 import 'class_picker_screen.dart';
 
@@ -90,9 +90,9 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
     'full_name': _nombreCompleto,
     if (esNueva) 'role': rol.name,
     if (contrasena.text.isNotEmpty) 'password': contrasena.text,
-    if (esAlumno)
+    if (esAlumno && esNueva)
       ...ajustes.toJson()
-    else if (correo.text.trim().isNotEmpty)
+    else if (!esAlumno && correo.text.trim().isNotEmpty)
       'email': correo.text.trim(),
   };
 
@@ -164,12 +164,6 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
             (1, _campoContrasena()),
             (1, _campoRepeticion()),
           ]),
-          if (esAlumno)
-            AccessEditor(
-              settings: ajustes,
-              permissions: true,
-              enabled: !guardando,
-            ),
           if (error != null) Notice(error!, error: true),
           if (aviso != null) Notice(aviso!),
           FormActions(
@@ -186,7 +180,7 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
   /// debajo de la otra.
   Widget _cabecera() => LayoutBuilder(
     builder: (context, restricciones) {
-      final enHorizontal = restricciones.maxWidth >= 720;
+      final enHorizontal = restricciones.maxWidth >= Pantalla.media;
       final gestion = _gestion();
       final foto = _foto();
       if (!enHorizontal) {
@@ -211,7 +205,7 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
     children: [
       const SectionTitle(
         'Gestión de la cuenta',
-        hint: 'Su aula y sus asociaciones, sin bajar hasta el final.',
+        hint: 'Su aula, su accesibilidad y sus asociaciones.',
       ),
       if (esNueva)
         const Notice(
@@ -220,6 +214,23 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
       else ...[
         if (rol != UserRole.admin) _AulaDeLaCuenta(user: widget.user!),
         const SizedBox(height: 14),
+        if (esAlumno)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 14),
+            child: OutlinedButton.icon(
+              onPressed: guardando
+                  ? null
+                  : () => openPage(
+                      context,
+                      AccessSettingsScreen(
+                        user: widget.user!,
+                        permissions: true,
+                      ),
+                    ),
+              icon: const Icon(Icons.accessibility_new),
+              label: const Text('Permisos y accesibilidad'),
+            ),
+          ),
         if (rol != UserRole.admin)
           OutlinedButton.icon(
             onPressed: guardando
@@ -254,7 +265,7 @@ class _UserEditorScreenState extends State<UserEditorScreen> {
   /// Campos en una fila con los pesos indicados; apilados si no caben.
   Widget _fila(List<(int, Widget)> campos) => LayoutBuilder(
     builder: (context, restricciones) {
-      if (restricciones.maxWidth < 560 || campos.length == 1) {
+      if (restricciones.maxWidth < Pantalla.compacta || campos.length == 1) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

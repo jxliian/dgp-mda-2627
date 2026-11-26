@@ -127,13 +127,15 @@ class _AdminScreenState extends State<AdminScreen> {
           if (error != null) Notice(error!, error: true),
           if (aviso != null) Notice(aviso!),
           if (mostrandoAulas) _listaDeAulas(state) else _listaDeUsuarios(state),
-          const SizedBox(height: 24),
-          FilledButton.icon(
-            onPressed: ocupado
-                ? null
-                : () => mostrandoAulas ? editarAula() : editarUsuario(),
-            icon: const Icon(Icons.add),
-            label: Text(mostrandoAulas ? 'Crear aula' : 'Crear usuario'),
+          ScreenActions(
+            topPadding: 24,
+            primary: FilledButton.icon(
+              onPressed: ocupado
+                  ? null
+                  : () => mostrandoAulas ? editarAula() : editarUsuario(),
+              icon: const Icon(Icons.add),
+              label: Text(mostrandoAulas ? 'Crear aula' : 'Crear usuario'),
+            ),
           ),
         ],
       ),

@@ -106,10 +106,10 @@ class _AgendaScreenState extends State<AgendaScreen> {
           ? 'Mis tareas'
           : 'Tareas de ${widget.student.displayName}',
       subtitle: _subtitulo,
-      // La foto va delante, pegada al título: así los botones de la barra
-      // quedan todos seguidos y no hay nada entre medias que parezca uno.
+      headerAvatar: esSuPropiaAgenda
+          ? null
+          : UserAvatar(user: widget.student, size: 60),
       actions: [
-        UserAvatar(user: widget.student, size: 64),
         if (_puedeElegirDia)
           BarAction(
             icon: Icons.calendar_month_outlined,
@@ -128,13 +128,18 @@ class _AgendaScreenState extends State<AgendaScreen> {
             _listaDeTareas(state)
           else
             const Notice(_servidorSinAgenda),
-          const SizedBox(height: 16),
-          if (!esSuPropiaAgenda || ajustes.flag('task_mod'))
-            FilledButton.icon(
-              onPressed: crearTarea,
-              icon: const Icon(Icons.add),
-              label: Text(esSuPropiaAgenda ? 'Añadir mi tarea' : 'Crear tarea'),
-            ),
+          ScreenActions(
+            topPadding: 16,
+            primary: !esSuPropiaAgenda || ajustes.flag('task_mod')
+                ? FilledButton.icon(
+                    onPressed: crearTarea,
+                    icon: const Icon(Icons.add),
+                    label: Text(
+                      esSuPropiaAgenda ? 'Añadir mi tarea' : 'Crear tarea',
+                    ),
+                  )
+                : null,
+          ),
         ],
       ),
     );

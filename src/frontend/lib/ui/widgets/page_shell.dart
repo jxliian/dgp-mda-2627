@@ -21,6 +21,7 @@ class PageShell extends StatelessWidget {
     required this.title,
     required this.child,
     this.subtitle,
+    this.headerAvatar,
     this.actions = const [],
     this.session = true,
   });
@@ -29,17 +30,20 @@ class PageShell extends StatelessWidget {
   final Widget child;
   final String? subtitle;
 
+  /// Imagen opcional junto al título (por ejemplo, la foto del alumno cuando
+  /// otra persona consulta su agenda).
+  final Widget? headerAvatar;
+
   /// Acciones propias de la pantalla. Van en la barra, antes de las de sesión.
   final List<Widget> actions;
 
-  /// Si la barra incluye inicio, ajustes y salir. Se apaga en las pantallas
-  /// que todavía no tienen sesión iniciada.
+  /// Si la barra incluye foto/ajustes, inicio y salir. Se apaga en las
+  /// pantallas que todavía no tienen sesión iniciada.
   final bool session;
 
-  /// Ancho a partir del cual la barra se queda fija arriba. Por debajo viaja
-  /// con el contenido: en un móvil con la letra muy ampliada, una barra fija
-  /// con título y acciones se comería la pantalla entera.
-  static const _anchoParaBarraFija = 760.0;
+  /// Por debajo de [Pantalla.media] la barra viaja con el contenido: en un
+  /// móvil con la letra muy ampliada, una barra fija con título y acciones se
+  /// comería la pantalla entera.
 
   @override
   Widget build(BuildContext context) {
@@ -47,6 +51,7 @@ class PageShell extends StatelessWidget {
     final barra = _Barra(
       title: title,
       subtitle: subtitle,
+      headerAvatar: headerAvatar,
       actions: actions,
       session: session && state.user != null,
     );
@@ -54,7 +59,7 @@ class PageShell extends StatelessWidget {
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, restricciones) {
-            final fija = restricciones.maxWidth >= _anchoParaBarraFija;
+            final fija = restricciones.maxWidth >= Pantalla.media;
             return Column(
               children: [
                 if (state.demo) const AvisoBanda(_textoDemostracion),
@@ -88,16 +93,15 @@ class _Barra extends StatelessWidget {
     required this.title,
     required this.session,
     this.subtitle,
+    this.headerAvatar,
     this.actions = const [],
   });
 
   final String title;
   final String? subtitle;
+  final Widget? headerAvatar;
   final List<Widget> actions;
   final bool session;
-
-  /// Ancho a partir del cual caben los botones con su texto.
-  static const _anchoParaTexto = 760.0;
 
   @override
   Widget build(BuildContext context) {
@@ -113,7 +117,7 @@ class _Barra extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
       child: LayoutBuilder(
         builder: (context, restricciones) {
-          final estrecha = restricciones.maxWidth < _anchoParaTexto;
+          final estrecha = restricciones.maxWidth < Pantalla.media;
           return Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -121,7 +125,7 @@ class _Barra extends StatelessWidget {
                 _volver(context, estrecha),
                 const SizedBox(width: 14),
               ],
-              Expanded(flex: 4, child: _titulo(context)),
+              Expanded(flex: 4, child: _cabecera(context, estrecha)),
               // Las acciones se reparten en varias líneas antes que
               // estrecharse: con la letra muy ampliada no caben todas en una
               // sola fila.
@@ -135,6 +139,7 @@ class _Barra extends StatelessWidget {
                     alignment: WrapAlignment.end,
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
+                      if (session) const SessionAvatar(),
                       ...actions,
                       if (session) SessionActions(compact: estrecha),
                     ],
@@ -145,6 +150,26 @@ class _Barra extends StatelessWidget {
           );
         },
       ),
+    );
+  }
+
+  Widget _cabecera(BuildContext context, bool estrecha) {
+    final texto = _titulo(context);
+    if (headerAvatar == null) return texto;
+    if (estrecha) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [headerAvatar!, const SizedBox(height: 8), texto],
+      );
+    }
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        headerAvatar!,
+        const SizedBox(width: 14),
+        Expanded(child: texto),
+      ],
     );
   }
 
@@ -194,7 +219,7 @@ class _Contenido extends StatelessWidget {
   Widget build(BuildContext context) => LayoutBuilder(
     builder: (context, restricciones) {
       final relleno = EdgeInsets.symmetric(
-        horizontal: restricciones.maxWidth < 600 ? 18 : 48,
+        horizontal: restricciones.maxWidth < Pantalla.compacta ? 18 : 48,
         vertical: _margenVertical,
       );
       // Reservando la altura del hueco, el contenido queda centrado cuando

@@ -6,8 +6,10 @@ import 'package:autovida/services/demo_repository.dart';
 import 'package:autovida/state/app_state.dart';
 
 /// Las pantallas de alumno y de personal deben caber en una tablet sin tener
-/// que desplazarlas. El desplazamiento sigue disponible como red de seguridad
-/// (letra ampliada, móviles), pero en el tamaño objetivo no debe hacer falta.
+/// que desplazarlas, **en las dos orientaciones**: el centro trabaja con
+/// tabletas de 10 pulgadas, 1280x800 apaisadas y 800x1280 verticales. El
+/// desplazamiento sigue disponible como red de seguridad (letra ampliada,
+/// móviles), pero en el tamaño objetivo no debe hacer falta.
 ///
 /// Datos de demostración sin la banda de «modo demostración», para medir el
 /// mismo espacio que habrá en la demostración contra el servidor real.
@@ -16,9 +18,17 @@ class _ComoEnProduccion extends DemoRepository {
   bool get isDemo => false;
 }
 
+/// Las dos orientaciones de la tablet del centro.
+const tabletas = {
+  'apaisada': Size(1280, 800),
+  'vertical': Size(800, 1280),
+};
+
 Future<void> medir(WidgetTester t, String nombre,
-    {UserRole? rol, Future<void> Function(WidgetTester)? luego}) async {
-  t.view.physicalSize = const Size(1280, 900);
+    {UserRole? rol, Future<void> Function(WidgetTester)? luego,
+    void Function(DemoRepository)? conCuenta,
+    Size tamano = const Size(1280, 800)}) async {
+  t.view.physicalSize = tamano;
   t.view.devicePixelRatio = 1;
   addTearDown(t.view.resetPhysicalSize);
   addTearDown(t.view.resetDevicePixelRatio);
@@ -29,6 +39,7 @@ Future<void> medir(WidgetTester t, String nombre,
       UserRole.staff => 'lucia', UserRole.admin => 'admin',
     }, '1234', rol);
   }
+  conCuenta?.call(repo);
   final estado = AppState(repository: repo);
   await t.pumpWidget(AutovidaApp(state: estado));
   await t.pumpAndSettle();
@@ -49,36 +60,61 @@ Future<void> medir(WidgetTester t, String nombre,
       sobra = st.position.maxScrollExtent;
     }
   }
+  expect(t.takeException(), isNull,
+      reason: '$nombre desborda en ${tamano.width.toInt()}x'
+          '${tamano.height.toInt()}');
   expect(sobra, 0,
       reason: '$nombre necesita desplazarse ${sobra.toStringAsFixed(0)} px '
-          'en una tablet de 1280x900');
+          'en una tablet de ${tamano.width.toInt()}x${tamano.height.toInt()}');
   await t.pumpWidget(const SizedBox.shrink());
   estado.dispose();
 }
 
 void main() {
-  testWidgets('portada', (t) => medir(t, 'Portada'));
-  testWidgets('aulas', (t) => medir(t, 'Elegir aula', luego: (x) async {
-    await x.tap(find.text('Soy alumno')); await x.pumpAndSettle();
-  }));
-  testWidgets('fotos', (t) => medir(t, 'Elegir alumno', luego: (x) async {
-    await x.tap(find.text('Soy alumno')); await x.pumpAndSettle();
-    await x.tap(find.text('Aula de la autonomía')); await x.pumpAndSettle();
-  }));
-  testWidgets('pin', (t) => medir(t, 'PIN', luego: (x) async {
-    await x.tap(find.text('Soy alumno')); await x.pumpAndSettle();
-    await x.tap(find.text('Aula de la autonomía')); await x.pumpAndSettle();
-    await x.tap(find.text('Pablo García')); await x.pumpAndSettle();
-  }));
-  testWidgets('agenda', (t) => medir(t, 'Agenda alumno', rol: UserRole.student));
-  testWidgets('detalle', (t) => medir(t, 'Detalle tarea', rol: UserRole.student,
-      luego: (x) async {
-    await x.tap(find.text('Preparar la mochila').first); await x.pumpAndSettle();
-  }));
-  testWidgets('aulas personal', (t) => medir(t, 'Aulas personal', rol: UserRole.staff));
-  testWidgets('alumnos aula', (t) => medir(t, 'Alumnos del aula', rol: UserRole.staff,
-      luego: (x) async {
-    await x.tap(find.text('Aula de la autonomía')); await x.pumpAndSettle();
-  }));
-  testWidgets('familia', (t) => medir(t, 'Familia', rol: UserRole.parent));
+  tabletas.forEach((orientacion, tamano) {
+    group('tablet $orientacion', () {
+      testWidgets('portada', (t) => medir(t, 'Portada', tamano: tamano));
+      testWidgets('aulas', (t) => medir(t, 'Elegir aula', tamano: tamano,
+          luego: (x) async {
+        await x.tap(find.text('Soy alumno')); await x.pumpAndSettle();
+      }));
+      testWidgets('fotos', (t) => medir(t, 'Elegir alumno', tamano: tamano,
+          luego: (x) async {
+        await x.tap(find.text('Soy alumno')); await x.pumpAndSettle();
+        await x.tap(find.text('Aula de la autonomía')); await x.pumpAndSettle();
+      }));
+      testWidgets('pin', (t) => medir(t, 'PIN', tamano: tamano,
+          luego: (x) async {
+        await x.tap(find.text('Soy alumno')); await x.pumpAndSettle();
+        await x.tap(find.text('Aula de la autonomía')); await x.pumpAndSettle();
+        await x.tap(find.text('Pablo García')); await x.pumpAndSettle();
+      }));
+      testWidgets('agenda', (t) => medir(t, 'Agenda alumno',
+          rol: UserRole.student, tamano: tamano));
+      testWidgets('detalle', (t) => medir(t, 'Detalle tarea',
+          rol: UserRole.student, tamano: tamano, luego: (x) async {
+        await x.tap(find.text('Preparar la mochila').first);
+        await x.pumpAndSettle();
+      }));
+      // De base el alumno no entra en sus ajustes: se le habilita.
+      testWidgets('accesibilidad', (t) => medir(t, 'Accesibilidad del alumno',
+          rol: UserRole.student, tamano: tamano,
+          conCuenta: (r) =>
+              r.currentUser!.access.values['stud_access_profile_mod'] = true,
+          luego: (x) async {
+        // Los ajustes se abren desde la foto de la barra.
+        await x.tap(find.byTooltip('Ajustes')); await x.pumpAndSettle();
+        await x.tap(find.text('Abrir mis opciones de accesibilidad'));
+        await x.pumpAndSettle();
+      }));
+      testWidgets('aulas personal', (t) => medir(t, 'Aulas personal',
+          rol: UserRole.staff, tamano: tamano));
+      testWidgets('alumnos aula', (t) => medir(t, 'Alumnos del aula',
+          rol: UserRole.staff, tamano: tamano, luego: (x) async {
+        await x.tap(find.text('Aula de la autonomía')); await x.pumpAndSettle();
+      }));
+      testWidgets('familia', (t) => medir(t, 'Familia',
+          rol: UserRole.parent, tamano: tamano));
+    });
+  });
 }
