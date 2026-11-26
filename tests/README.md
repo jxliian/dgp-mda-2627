@@ -10,7 +10,7 @@
    
     
    
-  **Última ejecución:** 26/11/2026 · **Total:** 244 casos · **Resultado:** 244 correctos y 0 fallos.  
+  **Última ejecución:** 26/11/2026 · **Total:** 264 casos · **Resultado:** 264 correctos y 0 fallos.  
    
     
    
@@ -33,7 +33,7 @@
 | HU-13 |  Guardar la tarea creada por el personal |  `test_tasks.py` |  
 | Consulta de agenda |  Consultar tareas por alumno y fecha como personal, tutor y alumno |  `test_tasks.py` |  
 | HU-15 |  Eliminar tareas según el horario escolar |  `test_tasks.py` |
-| Pasos de tareas |  Crear, consultar y eliminar pasos según rol, permisos y horario |  `test_tasks.py` |  
+| Pasos de tareas |  Crear, consultar, modificar y eliminar pasos según rol, permisos y horario |  `test_tasks.py` |  
 | Resto del sprint 1 |  Crear y modificar usuarios, tareas propias del alumno, clases, tareas de clase y foto de perfil |  `test_sprint1.py` |  
   
    
@@ -63,7 +63,7 @@ uv run --with pytest python -m pytest ../../../tests/integration -v   
       
    
 ```  
-**Resultado esperado:** `244 passed, 0 xfailed`.  
+**Resultado esperado:** `264 passed, 0 xfailed`.  
    
     
    
@@ -323,7 +323,7 @@ uv run --with pytest python -m pytest ../../../tests/integration -v   
    
     
    
-  `test_tasks.py`**: crear, consultar y eliminar tareas, y crear/eliminar pasos (HU-12, HU-13, HU-15 y pasos; 97 casos)**  
+  `test_tasks.py`**: crear, consultar y eliminar tareas, y crear/consultar/modificar/eliminar pasos (HU-12, HU-13, HU-15 y pasos; 117 casos)**  
    
     
    
@@ -423,9 +423,9 @@ uv run --with pytest python -m pytest ../../../tests/integration -v   
    
     
    
-  **Pasos de tareas (39 casos nuevos)**
+  **Pasos de tareas (59 casos nuevos)**
 
-Los escenarios crean cada tarea y sus pasos mediante la API, así que comprueban creación, consulta, borrado y permisos en una base limpia. Las respuestas de agenda incluyen los pasos ordenados por `step_index` y `step_id`; las tareas sin pasos devuelven `steps: []`. También se comprueba que la consulta del alumno se limita a su agenda y que personal y tutores solo ven alumnos asociados. La eliminación conserva el orden y deja índices consecutivos. Las pruebas cubren:
+Los escenarios crean cada tarea y sus pasos mediante la API, así que comprueban creación, consulta, modificación, borrado y permisos en una base limpia. Las respuestas de agenda incluyen los pasos ordenados por `step_index` y `step_id`; las tareas sin pasos devuelven `steps: []`. También se comprueba que la consulta del alumno se limita a su agenda y que personal y tutores solo ven alumnos asociados. Al modificar o borrar, los índices quedan consecutivos y se conserva el estado del paso. Las pruebas cubren:
 
 | **Escenario** | **Qué comprueba** | **Resultado esperado** |
 | - | - | - |
@@ -446,7 +446,15 @@ Los escenarios crean cada tarea y sus pasos mediante la API, así que comprueban
 | Permisos y existencia al borrar | Clase ajena, tarea/paso no coincidente o paso inexistente | 403 o 404; sin cambios |
 | Alumno elimina un paso propio | Puede borrar pasos de su tarea si tiene permiso de modificación | 200 |
 | Límites del alumno | No borra pasos ajenos ni si `stud_access_task_mod` está desactivado | 404 o 403, código 1039 |
-| Sesión al borrar | Petición sin token | 401, código 1002 |
+| Tutor, personal y alumno modifican pasos individuales | Actualización de descripción/posición, persistencia y visibilidad en la consulta | 200; orden e índices correctos |
+| Personal modifica pasos de clase | Actualización del paso propio y reflejo en la consulta de clase | 200; datos y orden guardados |
+| Propiedad y asociación al modificar | No se editan tareas ajenas ni pasos de otra tarea | 404, código 1021, sin cambios |
+| Personal no modifica tareas de clase ajenas | Otro docente asignado a la clase no es el creador de la tarea | 404, código 1021, sin cambios |
+| Horario al modificar | Personal fuera del horario y tutor dentro del horario | 400, código 1023 o 1024, sin cambios |
+| Validación de modificaciones | Sin campos, descripción vacía, índice negativo o campo adicional | 400, código 1012, o 422, código 1005 |
+| Índice solicitado superior al máximo | El paso termina al final sin dejar huecos | 200; último índice válido |
+| Permiso del alumno para modificar | `stud_access_task_mod` desactivado | 403, código 1039, sin cambios |
+| Sesión al borrar/modificar | Petición sin token | 401, código 1002 |
 
 La confirmación previa al borrado es comportamiento de interfaz y no forma parte de estas pruebas de integración HTTP. La API recibe el `DELETE` después de que el cliente confirme.
 
