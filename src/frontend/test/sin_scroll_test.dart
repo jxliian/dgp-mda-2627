@@ -126,7 +126,7 @@ void main() {
         await x.tap(find.byTooltip('Ajustes')); await x.pumpAndSettle();
         await x.tap(find.text('Abrir mis opciones de accesibilidad'));
         await x.pumpAndSettle();
-        await x.tap(find.text('Colores')); await x.pumpAndSettle();
+        await x.tap(find.text('Elegir los colores')); await x.pumpAndSettle();
       }));
       testWidgets('anadir tarea', (t) => medir(t, 'Añadir mi tarea',
           rol: UserRole.student, tamano: tamano,

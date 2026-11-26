@@ -182,35 +182,47 @@ class _SettingsScreenState extends State<SettingsScreen> {
         'Cómo veo la aplicación',
         hint: 'Se guarda en este dispositivo, no en tu cuenta.',
       ),
+      // El mismo criterio que en la accesibilidad del alumno: se elige entre
+      // opciones, no se escribe un número.
+      OptionPicker<int>(
+        label: 'Tamaño de letra',
+        enabled: !ocupado,
+        value: ajustesDeAdulto.number('fontsize'),
+        onChanged: (valor) => setState(
+          () => ajustesDeAdulto.values['stud_access_fontsize'] = valor,
+        ),
+        options: [
+          for (final (tamano, nombre) in const [
+            (16, 'Normal'),
+            (20, 'Grande'),
+            (26, 'Muy grande'),
+            (32, 'Enorme'),
+          ])
+            Opcion(
+              tamano,
+              nombre,
+              leading: SizedBox(
+                width: 34,
+                child: Center(
+                  child: Text(
+                    'A',
+                    style: TextStyle(
+                      fontSize: tamano.toDouble().clamp(14, 30),
+                      fontWeight: FontWeight.w700,
+                      height: 1,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+      const SizedBox(height: 18),
       Wrap(
         spacing: 20,
         runSpacing: 20,
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
-          SizedBox(
-            width: 260,
-            child: TextFormField(
-              initialValue: '${ajustesDeAdulto.number('fontsize')}',
-              enabled: !ocupado,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: 'Tamaño de letra',
-                helperText: '16 es el tamaño normal',
-              ),
-              validator: (valor) {
-                final numero = int.tryParse(valor ?? '');
-                return numero == null || numero <= 0
-                    ? 'Escribe un entero válido.'
-                    : null;
-              },
-              onChanged: (valor) {
-                final numero = int.tryParse(valor);
-                if (numero != null && numero > 0) {
-                  ajustesDeAdulto.values['stud_access_fontsize'] = numero;
-                }
-              },
-            ),
-          ),
           OutlinedButton.icon(
             onPressed: ocupado
                 ? null

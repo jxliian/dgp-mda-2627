@@ -399,7 +399,7 @@ void main() {
         expect(find.text('Alto contraste'), findsNothing);
         await tester.tap(find.text('Abrir mis opciones de accesibilidad'));
         await tester.pumpAndSettle();
-        expect(find.text('Permisos'), findsOneWidget);
+        expect(find.text('Tamaño de letra'), findsOneWidget);
         await tester.ensureVisible(find.text('Alto contraste'));
         await tester.tap(find.text('Alto contraste'));
         await tester.pumpAndSettle();

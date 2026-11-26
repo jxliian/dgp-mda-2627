@@ -17,6 +17,7 @@ export 'widgets/form_actions.dart';
 export 'widgets/icon_action.dart';
 export 'widgets/load_panel.dart';
 export 'widgets/notice.dart';
+export 'widgets/option_picker.dart';
 export 'widgets/paged_items.dart';
 export 'widgets/page_shell.dart';
 export 'widgets/screen_actions.dart';

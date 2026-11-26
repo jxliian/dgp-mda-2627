@@ -22,27 +22,50 @@ class ColorSettingsScreen extends StatefulWidget {
 }
 
 class _ColorSettingsScreenState extends State<ColorSettingsScreen> {
+  /// Fondos: claros y de poco brillo, más uno oscuro para quien lo prefiere.
+  /// Todos dan 12,7:1 o más con el texto de tinta; el oscuro cambia el tema a
+  /// texto blanco. Ninguna combinación elegible aquí baja del 7:1 que se
+  /// comprometió el proyecto, que es lo que permite quitar el campo libre.
   static const _principales = [
-    ('#fbf9f5', 'Lino'),
-    ('#ffffff', 'Blanco'),
-    ('#eef5f0', 'Verde claro'),
-    ('#fdf1dc', 'Crema'),
-    ('#e8eef7', 'Azul claro'),
-    ('#1f2a24', 'Oscuro'),
-  ];
-  static const _secundarios = [
-    ('#1b4332', 'Verde'),
-    ('#1d3557', 'Azul'),
-    ('#8a3a22', 'Terracota'),
-    ('#5b2a86', 'Morado'),
-    ('#7a4b06', 'Ámbar'),
-    ('#111111', 'Negro'),
+    Opcion('#fbf9f5', 'Lino'),
+    Opcion('#ffffff', 'Blanco'),
+    Opcion('#eef5f0', 'Verde claro'),
+    Opcion('#e8eef7', 'Azul claro'),
+    Opcion('#fdf1dc', 'Crema'),
+    Opcion('#fbece5', 'Rosa claro'),
+    Opcion('#f1ecf7', 'Lila claro'),
+    Opcion('#eceff1', 'Gris claro'),
+    Opcion('#1f2a24', 'Oscuro'),
   ];
 
-  static final _formato = RegExp(r'^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$');
+  /// Acentos: el texto blanco encima de cualquiera de ellos pasa de 7:1
+  /// ---el más justo es el ámbar, 7,40:1---, de modo que no hace falta
+  /// comprobar nada al elegir.
+  static const _secundarios = [
+    Opcion('#1b4332', 'Verde'),
+    Opcion('#1d3557', 'Azul'),
+    Opcion('#8a3a22', 'Terracota'),
+    Opcion('#5b2a86', 'Morado'),
+    Opcion('#7a4b06', 'Ámbar'),
+    Opcion('#005d75', 'Turquesa'),
+    Opcion('#9b1b4b', 'Frambuesa'),
+    Opcion('#3f4c44', 'Pizarra'),
+    Opcion('#111111', 'Negro'),
+  ];
 
   void _guardar(String clave, String valor) =>
       setState(() => widget.settings.values['stud_access_$clave'] = valor);
+
+  /// Si el color guardado no está en la paleta ---por ejemplo, uno escrito a
+  /// mano antes de que esta pantalla dejara de pedirlo--- se respeta y se
+  /// añade al final como «El de siempre», para no cambiárselo a nadie sin
+  /// avisar.
+  List<Opcion<String>> _conElActual(
+    List<Opcion<String>> paleta,
+    String actual,
+  ) => paleta.any((o) => o.value.toLowerCase() == actual.toLowerCase())
+      ? paleta
+      : [...paleta, Opcion(actual, 'El de siempre')];
 
   @override
   Widget build(BuildContext context) => PageShell(
@@ -141,89 +164,27 @@ class _ColorSettingsScreenState extends State<ColorSettingsScreen> {
     required String clave,
     required String titulo,
     required String ayuda,
-    required List<(String, String)> paleta,
+    required List<Opcion<String>> paleta,
   }) {
-    final actual = widget.settings.color(clave).toLowerCase();
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SectionTitle(titulo, hint: ayuda),
-        Wrap(
-          spacing: 14,
-          runSpacing: 14,
-          children: [
-            for (final (valor, nombre) in paleta)
-              _muestra(clave, valor, nombre, elegido: valor == actual),
-          ],
-        ),
-        const SizedBox(height: 14),
-        SizedBox(
-          width: 300,
-          child: TextFormField(
-            key: ValueKey('$clave/$actual'),
-            initialValue: widget.settings.color(clave),
-            enabled: widget.enabled,
-            decoration: InputDecoration(
-              labelText: 'O escribe el color (#RRGGBB)',
-              errorText: _formato.hasMatch(widget.settings.color(clave))
-                  ? null
-                  : 'Usa un color como #1b4332.',
+    final actual = widget.settings.color(clave);
+    return Padding(
+      padding: const EdgeInsets.only(top: 24),
+      child: OptionPicker<String>(
+        label: titulo,
+        hint: ayuda,
+        enabled: widget.enabled,
+        value: actual,
+        onChanged: (valor) => _guardar(clave, valor),
+        options: [
+          for (final opcion in _conElActual(paleta, actual))
+            Opcion(
+              opcion.value,
+              opcion.label,
+              leading: MuestraDeColor(opcion.value),
             ),
-            onChanged: (valor) {
-              if (_formato.hasMatch(valor)) _guardar(clave, valor);
-            },
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
-  Widget _muestra(
-    String clave,
-    String valor,
-    String nombre, {
-    required bool elegido,
-  }) => Semantics(
-    button: true,
-    selected: elegido,
-    label: nombre,
-    child: InkWell(
-      onTap: widget.enabled ? () => _guardar(clave, valor) : null,
-      borderRadius: BorderRadius.circular(Medidas.radioControl),
-      child: Container(
-        width: 148,
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(Medidas.radioControl),
-          border: Border.all(
-            color: elegido ? Paleta.bosque : Paleta.trazoControl,
-            width: elegido ? Medidas.anilloFoco : Medidas.trazo,
-          ),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 34,
-              height: 34,
-              decoration: BoxDecoration(
-                color: colorDesdeHex(valor),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Paleta.trazoControl),
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                nombre,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 15),
-              ),
-            ),
-            if (elegido) const Icon(Icons.check, size: 20),
-          ],
-        ),
-      ),
-    ),
-  );
 }

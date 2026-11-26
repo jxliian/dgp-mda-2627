@@ -27,11 +27,26 @@ class AccessEditor extends StatefulWidget {
 }
 
 class _AccessEditorState extends State<AccessEditor> {
-  static const _numeros = {
-    'fontsize': ('Tamaño de letra', 'Entero mayor que cero', 1),
-    'ntasks_visible': ('Tareas por página', '0: mostrar todas', 0),
-    'ndays_visible': ('Días visibles', '0: solo hoy; hasta 7 por semana', 0),
-  };
+  /// Opciones preparadas para cada ajuste. No se escribe ningún número: el
+  /// valor que se guarda sigue siendo el mismo que antes, pero se elige.
+  static const _tamanosDeLetra = [
+    Opcion(16, 'Normal'),
+    Opcion(20, 'Grande'),
+    Opcion(26, 'Muy grande'),
+    Opcion(32, 'Enorme'),
+  ];
+  static const _tareasPorPagina = [
+    Opcion(1, 'Una a una'),
+    Opcion(2, 'Dos a la vez'),
+    Opcion(3, 'Tres a la vez'),
+    Opcion(0, 'Todas'),
+  ];
+  static const _diasVisibles = [
+    Opcion(0, 'Solo hoy'),
+    Opcion(3, 'Tres días'),
+    Opcion(5, 'Lun. a vie.'),
+    Opcion(7, 'La semana'),
+  ];
   static const _apoyos = {
     'pictograms': 'Mostrar apoyos visuales',
     'contrast': 'Alto contraste',
@@ -58,23 +73,54 @@ class _AccessEditorState extends State<AccessEditor> {
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      const SectionTitle(
-        'Permisos',
-        hint: 'Qué puede hacer el alumno y con qué apoyos ve su agenda.',
-      ),
-      Wrap(
-        spacing: 20,
-        runSpacing: 20,
-        crossAxisAlignment: WrapCrossAlignment.center,
-        children: [
-          for (final entrada in _numeros.entries)
-            SizedBox(
-              width: 260,
-              child: _campoNumerico(entrada.key, entrada.value),
+      // Los tres ajustes, uno al lado de otro cuando hay ancho: en columna
+      // ocupaban tres pantallas de alto.
+      LayoutBuilder(
+        builder: (context, restricciones) {
+          final grupos = [
+            _opciones(
+              clave: 'fontsize',
+              etiqueta: 'Tamaño de letra',
+              opciones: _tamanosDeLetra,
+              conLetra: true,
             ),
-          SizedBox(width: 260, child: _botonDeColores()),
-        ],
+            _opciones(
+              clave: 'ntasks_visible',
+              etiqueta: 'Cuántas tareas ve a la vez',
+              opciones: _tareasPorPagina,
+              ancho: 166,
+            ),
+            _opciones(
+              clave: 'ndays_visible',
+              etiqueta: 'Qué días puede elegir',
+              opciones: _diasVisibles,
+              ancho: 166,
+            ),
+          ];
+          if (restricciones.maxWidth < Pantalla.media) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                for (final grupo in grupos) ...[
+                  grupo,
+                  const SizedBox(height: 20),
+                ],
+              ],
+            );
+          }
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (var i = 0; i < grupos.length; i++) ...[
+                if (i > 0) const SizedBox(width: 24),
+                Expanded(child: grupos[i]),
+              ],
+            ],
+          );
+        },
       ),
+      const SizedBox(height: 22),
+      _botonDeColores(),
       const SizedBox(height: 12),
       // En una tablet los interruptores van a dos columnas: en una sola fila
       // por interruptor sobraba la mitad del ancho y la pantalla no cabía.
@@ -103,52 +149,62 @@ class _AccessEditorState extends State<AccessEditor> {
     ],
   );
 
+  /// Un ajuste numérico, elegido entre opciones con nombre.
+  Widget _opciones({
+    required String clave,
+    required String etiqueta,
+    required List<Opcion<int>> opciones,
+    double ancho = 148,
+    bool conLetra = false,
+  }) {
+    final actual = widget.settings.number(clave);
+    return OptionPicker<int>(
+      label: etiqueta,
+      optionWidth: ancho,
+      enabled: widget.enabled,
+      value: opciones.any((o) => o.value == actual) ? actual : opciones[0].value,
+      onChanged: (valor) => setState(() => _guardar(clave, valor)),
+      options: conLetra
+          // Cada tamaño se enseña con una «A» de ese tamaño: así se elige
+          // viendo el resultado y no imaginándolo.
+          ? [
+              for (final opcion in opciones)
+                Opcion(
+                  opcion.value,
+                  opcion.label,
+                  leading: SizedBox(
+                    width: 34,
+                    child: Center(
+                      child: Text(
+                        'A',
+                        style: TextStyle(
+                          fontSize: opcion.value.toDouble().clamp(14, 30),
+                          fontWeight: FontWeight.w700,
+                          height: 1,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ]
+          : opciones,
+    );
+  }
+
   Widget _botonDeColores() => Row(
     mainAxisSize: MainAxisSize.min,
     children: [
-      Flexible(
-        child: OutlinedButton.icon(
-          onPressed: widget.enabled ? _abrirColores : null,
-          icon: const Icon(Icons.palette_outlined),
-          label: const Text('Colores'),
-        ),
+      OutlinedButton.icon(
+        onPressed: widget.enabled ? _abrirColores : null,
+        icon: const Icon(Icons.palette_outlined),
+        label: const Text('Elegir los colores'),
       ),
       const SizedBox(width: 12),
-      _muestraDeColor(widget.settings.color('main_col')),
+      MuestraDeColor(widget.settings.color('main_col')),
       const SizedBox(width: 8),
-      _muestraDeColor(widget.settings.color('sec_col')),
+      MuestraDeColor(widget.settings.color('sec_col')),
     ],
   );
-
-  Widget _muestraDeColor(String valor) => Container(
-    width: 34,
-    height: 34,
-    decoration: BoxDecoration(
-      color: colorDesdeHex(valor),
-      borderRadius: BorderRadius.circular(8),
-      border: Border.all(color: Paleta.trazoControl, width: Medidas.trazo),
-    ),
-  );
-
-  Widget _campoNumerico(String clave, (String, String, int) definicion) {
-    final (etiqueta, ayuda, minimo) = definicion;
-    return TextFormField(
-      initialValue: '${widget.settings.number(clave)}',
-      enabled: widget.enabled,
-      keyboardType: TextInputType.number,
-      decoration: InputDecoration(labelText: etiqueta, helperText: ayuda),
-      validator: (valor) {
-        final numero = int.tryParse(valor ?? '');
-        return numero == null || numero < minimo
-            ? 'Escribe un entero válido.'
-            : null;
-      },
-      onChanged: (valor) {
-        final numero = int.tryParse(valor);
-        if (numero != null) _guardar(clave, numero);
-      },
-    );
-  }
 
   Widget _interruptor(String clave, String etiqueta) => SwitchListTile.adaptive(
     contentPadding: EdgeInsets.zero,
