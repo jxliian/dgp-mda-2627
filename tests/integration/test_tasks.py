@@ -351,3 +351,198 @@ def test_quitar_tarea_de_agenda_conserva_tarea_compartida_e_historico(client, co
     assert count("stud_task WHERE task_id_fk = :t", t=tarea) == 0
     assert count("Tasks WHERE task_id = :t", t=tarea) == 1
     assert count("Generic_Task WHERE task_id_fk = :t", t=tarea) == 1
+
+
+# ------------------------------------------------------ Pasos de tareas (HU-16)
+
+def crear_paso(client, usuario, tarea, descripcion="Preparar el material"):
+    return client.post(
+        f"/student-tasks/{tarea}/steps",
+        json={"step_description": descripcion},
+        headers=as_user(usuario),
+    )
+
+
+def crear_tarea_de_clase(client, clase="1A", usuario="lucia"):
+    return client.post(
+        f"/classes/{clase}/tasks",
+        json={
+            "task_title": "Actividad con pasos",
+            "task_date": LUNES,
+            "task_start_hour": "10:00",
+            "task_duration": 30,
+        },
+        headers=as_user(usuario),
+    )
+
+
+def test_el_tutor_anade_varios_pasos_en_orden_a_su_tarea(client, count):
+    tarea = create_task(client, "madre", titulo="Rutina de tarde").json()["task_id"]
+
+    primero = crear_paso(client, "madre", tarea, "Preparar la mochila")
+    segundo = crear_paso(client, "madre", tarea, "Dejar la mochila en la entrada")
+
+    assert primero.status_code == segundo.status_code == 201
+    assert primero.json()["step_index"] == 0
+    assert segundo.json()["step_index"] == 1
+    assert primero.json()["step_finished"] is False
+    assert count("Steps WHERE generic_task_id_fk = :t", t=tarea) == 2
+
+
+def test_el_personal_anade_pasos_a_su_tarea_individual(client, count):
+    tarea = create_task(client, "lucia", hora="10:00", titulo="Lectura").json()["task_id"]
+
+    r = crear_paso(client, "lucia", tarea, "Leer la página 4")
+
+    assert r.status_code == 201
+    assert r.json()["generic_task_id_fk"] == tarea
+    assert r.json()["step_description"] == "Leer la página 4"
+    assert r.json()["step_index"] == 0
+    assert count("Steps WHERE generic_task_id_fk = :t", t=tarea) == 1
+
+
+def test_el_alumno_anade_pasos_a_su_tarea_propia(client, count):
+    creada = client.post(
+        "/student-tasks/me",
+        json={
+            "task_title": "Dibujo",
+            "task_date": LUNES,
+            "task_start_hour": "17:00",
+            "task_duration": 30,
+        },
+        headers=as_user("pablo"),
+    )
+    assert creada.status_code == 201
+    tarea = creada.json()["task_id"]
+
+    r = crear_paso(client, "pablo", tarea, "Sacar los lápices")
+
+    assert r.status_code == 201
+    assert r.json()["step_index"] == 0
+    assert count("Steps WHERE generic_task_id_fk = :t", t=tarea) == 1
+
+
+def test_el_personal_anade_pasos_a_una_tarea_de_clase(client, count):
+    creada = crear_tarea_de_clase(client)
+    assert creada.status_code == 201
+    tarea = creada.json()["task_id"]
+
+    r = client.post(
+        f"/classes/1A/tasks/{tarea}/steps",
+        json={"step_description": "Abrir el cuaderno"},
+        headers=as_user("lucia"),
+    )
+
+    assert r.status_code == 201
+    assert r.json()["class_name"] == "1A"
+    assert r.json()["generic_task_id_fk"] == tarea
+    assert r.json()["step_index"] == 0
+    assert count("Steps WHERE generic_task_id_fk = :t", t=tarea) == 1
+
+
+def test_cualquier_personal_asignado_a_la_clase_puede_anadir_pasos(client):
+    tarea = crear_tarea_de_clase(client).json()["task_id"]
+    assert client.post("/classes/1A/staff/pedro", headers=as_user("admin")).status_code == 200
+
+    r = client.post(
+        f"/classes/1A/tasks/{tarea}/steps",
+        json={"step_description": "Revisar la actividad"},
+        headers=as_user("pedro"),
+    )
+
+    assert r.status_code == 201
+    assert r.json()["step_index"] == 0
+
+
+def test_el_personal_no_anade_pasos_a_una_clase_ajena(client, count):
+    tarea = crear_tarea_de_clase(client).json()["task_id"]
+
+    r = client.post(
+        f"/classes/1A/tasks/{tarea}/steps",
+        json={"step_description": "Paso no autorizado"},
+        headers=as_user("pedro"),
+    )
+
+    assert r.status_code == 403
+    assert error_code(r) == 1032
+    assert count("Steps WHERE generic_task_id_fk = :t", t=tarea) == 0
+
+
+def test_el_personal_no_anade_pasos_a_una_tarea_de_otra_clase(client, count):
+    tarea = crear_tarea_de_clase(client).json()["task_id"]
+
+    r = client.post(
+        f"/classes/2B/tasks/{tarea}/steps",
+        json={"step_description": "Paso en clase incorrecta"},
+        headers=as_user("pedro"),
+    )
+
+    assert r.status_code == 404
+    assert error_code(r) == 1021
+    assert count("Steps WHERE generic_task_id_fk = :t", t=tarea) == 0
+
+
+@pytest.mark.parametrize("usuario", ["otra_madre", "ana"])
+def test_tutor_y_alumno_no_anaden_pasos_a_tareas_ajenas(client, usuario, count):
+    tarea = create_task(client, "madre").json()["task_id"]
+
+    r = crear_paso(client, usuario, tarea)
+
+    assert r.status_code == 404
+    assert error_code(r) == 1021
+    assert count("Steps WHERE generic_task_id_fk = :t", t=tarea) == 0
+
+
+def test_el_personal_no_anade_pasos_a_una_tarea_individual_ajena(client, count):
+    tarea = create_task(client, "madre").json()["task_id"]
+
+    r = crear_paso(client, "lucia", tarea)
+
+    assert r.status_code == 404
+    assert error_code(r) == 1021
+    assert count("Steps WHERE generic_task_id_fk = :t", t=tarea) == 0
+
+
+@pytest.mark.parametrize(
+    "payload",
+    [
+        {"step_description": ""},
+        {"step_description": "   "},
+        {"step_description": "Paso", "campo_extra": True},
+    ],
+)
+def test_no_se_aceptan_descripciones_de_paso_invalidas(client, count, payload):
+    tarea = create_task(client, "madre").json()["task_id"]
+
+    r = client.post(
+        f"/student-tasks/{tarea}/steps", json=payload, headers=as_user("madre")
+    )
+
+    assert r.status_code == 422
+    assert error_code(r) == 1005
+    assert count("Steps WHERE generic_task_id_fk = :t", t=tarea) == 0
+
+
+def test_anadir_paso_requiere_sesion(client):
+    tarea = create_task(client, "madre").json()["task_id"]
+
+    r = client.post(
+        f"/student-tasks/{tarea}/steps", json={"step_description": "Paso"}
+    )
+
+    assert r.status_code == 401
+    assert error_code(r) == 1002
+
+
+@pytest.mark.parametrize("usuario", ["admin", "otra_madre", "pablo"])
+def test_solo_el_personal_asignado_puede_anadir_pasos_a_tareas_de_clase(client, usuario):
+    tarea = crear_tarea_de_clase(client).json()["task_id"]
+
+    r = client.post(
+        f"/classes/1A/tasks/{tarea}/steps",
+        json={"step_description": "Paso no permitido"},
+        headers=as_user(usuario),
+    )
+
+    assert r.status_code == 403
+    assert error_code(r) == 1032
