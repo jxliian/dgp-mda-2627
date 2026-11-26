@@ -7,6 +7,7 @@ import '../ui/ui.dart';
 import 'days_screen.dart';
 import 'task_detail_screen.dart';
 import 'task_editor_screen.dart';
+import 'task_modify_screen.dart';
 
 /// Agenda de un alumno para un día: la ve él mismo o quien le acompaña.
 ///
@@ -33,6 +34,9 @@ class _AgendaScreenState extends State<AgendaScreen> {
 
   /// La sesión es la del propio alumno (y no la de quien le acompaña).
   bool get esSuPropiaAgenda => AppScope.of(context).student;
+
+  /// La sesión pertenece a un tutor familiar consultando un alumno a su cargo.
+  bool get esTutor => AppScope.of(context).user?.role == UserRole.parent;
 
   AccessSettings get ajustes => esSuPropiaAgenda
       ? AppScope.of(context).access
@@ -77,6 +81,16 @@ class _AgendaScreenState extends State<AgendaScreen> {
       ),
     );
     if (mounted) _recargar();
+  }
+
+  Future<void> modificarTarea(AgendaTask tarea) async {
+    final guardada = await openPage<bool>(
+      context,
+      TaskModifyScreen(student: widget.student, task: tarea),
+    );
+    if (mounted && guardada == true) {
+      _recargar(mensaje: 'La tarea se ha modificado.');
+    }
   }
 
   Future<void> elegirDia() async {
@@ -208,7 +222,41 @@ class _AgendaScreenState extends State<AgendaScreen> {
               size: 120,
             )
           : null,
+      trailing: esTutor ? _botonModificar(tarea) : null,
       onTap: () => abrirTarea(tarea, delDia),
+    );
+  }
+
+  /// Botón táctil pensado para tablet: objetivo amplio de 72 × 72 dp, icono
+  /// nítido y contorno de alto contraste separado del área principal de la
+  /// ficha para evitar pulsaciones accidentales.
+  Widget _botonModificar(AgendaTask tarea) {
+    final tema = Theme.of(context);
+    final esquema = tema.colorScheme;
+    final oscuro = esquema.brightness == Brightness.dark;
+    final bordeBase = oscuro ? esquema.outline : Paleta.trazoControl;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 6),
+      child: IconButton.outlined(
+        tooltip: 'Modificar la tarea ${tarea.title}',
+        onPressed: () => modificarTarea(tarea),
+        icon: const Icon(Icons.edit_outlined, size: 30),
+        style: IconButton.styleFrom(
+          minimumSize: const Size(72, 72),
+          padding: const EdgeInsets.all(18),
+          backgroundColor: oscuro ? esquema.surface : Paleta.blanco,
+          foregroundColor: esquema.onSurface,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(Medidas.radioControl),
+          ),
+        ).copyWith(
+          side: WidgetStateProperty.resolveWith(
+            (estados) => estados.contains(WidgetState.focused)
+                ? BorderSide(color: tema.focusColor, width: Medidas.anilloFoco)
+                : BorderSide(color: bordeBase, width: Medidas.trazoGrueso),
+          ),
+        ),
+      ),
     );
   }
 }
