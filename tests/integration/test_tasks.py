@@ -1,5 +1,6 @@
 """HU-12 (tarea de la familia), HU-13 (tarea del personal) y HU-15 (eliminar tareas)."""
 import pytest
+from sqlalchemy import text
 
 from conftest import LUNES, SABADO, as_user, error_code
 
@@ -546,3 +547,219 @@ def test_solo_el_personal_asignado_puede_anadir_pasos_a_tareas_de_clase(client, 
 
     assert r.status_code == 403
     assert error_code(r) == 1032
+
+
+def eliminar_paso_individual(client, usuario, tarea, paso):
+    return client.delete(
+        f"/student-tasks/{tarea}/steps/{paso}", headers=as_user(usuario)
+    )
+
+
+def test_el_personal_elimina_un_paso_y_se_reindexa_el_resto(client, engine, count):
+    tarea = create_task(client, "lucia", hora="10:00").json()["task_id"]
+    pasos = [
+        crear_paso(client, "lucia", tarea, descripcion).json()
+        for descripcion in ("Paso A", "Paso B", "Paso C")
+    ]
+
+    r = eliminar_paso_individual(client, "lucia", tarea, pasos[1]["step_id"])
+
+    assert r.status_code == 200
+    assert r.json()["task_id"] == tarea
+    assert r.json()["deleted_step_id"] == pasos[1]["step_id"]
+    assert r.json()["deleted_step_index"] == 1
+    assert r.json()["remaining_steps"] == 2
+    assert count("Steps WHERE step_id = :s", s=pasos[1]["step_id"]) == 0
+    with engine.connect() as conn:
+        restantes = conn.execute(
+            text(
+                "SELECT step_description, step_index FROM Steps "
+                "WHERE generic_task_id_fk = :t ORDER BY step_index"
+            ),
+            {"t": tarea},
+        ).all()
+    assert [(fila[0], fila[1]) for fila in restantes] == [("Paso A", 0), ("Paso C", 1)]
+
+
+def test_el_personal_no_elimina_pasos_de_una_tarea_fuera_del_horario(client, engine, count):
+    tarea = create_task(client, "lucia", hora="10:00").json()["task_id"]
+    paso = crear_paso(client, "lucia", tarea).json()["step_id"]
+    with engine.begin() as conn:
+        conn.execute(
+            text("UPDATE Tasks SET task_start_hour = '16:00' WHERE task_id = :t"),
+            {"t": tarea},
+        )
+
+    r = eliminar_paso_individual(client, "lucia", tarea, paso)
+
+    assert r.status_code == 400
+    assert error_code(r) == 1026
+    assert count("Steps WHERE step_id = :s", s=paso) == 1
+
+
+def test_el_tutor_elimina_pasos_de_una_tarea_fuera_del_horario(client, count):
+    tarea = create_task(client, "madre", hora="17:00").json()["task_id"]
+    primero = crear_paso(client, "madre", tarea, "Paso A").json()["step_id"]
+    segundo = crear_paso(client, "madre", tarea, "Paso B").json()["step_id"]
+
+    r = eliminar_paso_individual(client, "madre", tarea, primero)
+
+    assert r.status_code == 200
+    assert r.json()["deleted_step_id"] == primero
+    assert r.json()["remaining_steps"] == 1
+    assert count("Steps WHERE step_id = :s", s=primero) == 0
+    assert count("Steps WHERE step_id = :s", s=segundo) == 1
+
+
+def test_el_tutor_no_elimina_pasos_de_una_tarea_dentro_del_horario(client, engine, count):
+    tarea = create_task(client, "madre", hora="17:00").json()["task_id"]
+    paso = crear_paso(client, "madre", tarea).json()["step_id"]
+    with engine.begin() as conn:
+        conn.execute(
+            text("UPDATE Tasks SET task_start_hour = '10:00' WHERE task_id = :t"),
+            {"t": tarea},
+        )
+
+    r = eliminar_paso_individual(client, "madre", tarea, paso)
+
+    assert r.status_code == 400
+    assert error_code(r) == 1025
+    assert count("Steps WHERE step_id = :s", s=paso) == 1
+
+
+def test_el_personal_elimina_un_paso_de_una_tarea_de_clase(client, engine, count):
+    tarea = crear_tarea_de_clase(client).json()["task_id"]
+    primero = client.post(
+        f"/classes/1A/tasks/{tarea}/steps",
+        json={"step_description": "Paso A"},
+        headers=as_user("lucia"),
+    ).json()
+    segundo = client.post(
+        f"/classes/1A/tasks/{tarea}/steps",
+        json={"step_description": "Paso B"},
+        headers=as_user("lucia"),
+    ).json()
+
+    r = client.delete(
+        f"/classes/1A/tasks/{tarea}/steps/{primero['step_id']}",
+        headers=as_user("lucia"),
+    )
+
+    assert r.status_code == 200
+    assert r.json()["class_name"] == "1A"
+    assert r.json()["deleted_step_id"] == primero["step_id"]
+    assert r.json()["remaining_steps"] == 1
+    assert count("Steps WHERE step_id = :s", s=primero["step_id"]) == 0
+    with engine.connect() as conn:
+        indice = conn.execute(
+            text("SELECT step_index FROM Steps WHERE step_id = :s"),
+            {"s": segundo["step_id"]},
+        ).scalar_one()
+    assert indice == 0
+
+
+def test_el_personal_no_elimina_pasos_de_una_tarea_de_clase_ajena(client, count):
+    tarea = crear_tarea_de_clase(client).json()["task_id"]
+    paso = client.post(
+        f"/classes/1A/tasks/{tarea}/steps",
+        json={"step_description": "Paso"},
+        headers=as_user("lucia"),
+    ).json()["step_id"]
+
+    r = client.delete(
+        f"/classes/1A/tasks/{tarea}/steps/{paso}", headers=as_user("pedro")
+    )
+
+    assert r.status_code == 403
+    assert error_code(r) == 1032
+    assert count("Steps WHERE step_id = :s", s=paso) == 1
+
+
+def test_no_se_elimina_un_paso_que_pertenece_a_otra_tarea(client, count):
+    tarea_a = create_task(client, "lucia", hora="10:00", titulo="Tarea A").json()["task_id"]
+    tarea_b = create_task(client, "lucia", hora="11:00", titulo="Tarea B").json()["task_id"]
+    paso_b = crear_paso(client, "lucia", tarea_b, "Paso de B").json()["step_id"]
+
+    r = eliminar_paso_individual(client, "lucia", tarea_a, paso_b)
+
+    assert r.status_code == 404
+    assert error_code(r) == 1021
+    assert count("Steps WHERE step_id = :s", s=paso_b) == 1
+
+
+def test_no_se_elimina_un_paso_inexistente(client):
+    tarea = create_task(client, "lucia", hora="10:00").json()["task_id"]
+
+    r = eliminar_paso_individual(client, "lucia", tarea, 9999)
+
+    assert r.status_code == 404
+    assert error_code(r) == 1021
+
+
+def test_eliminar_un_paso_requiere_sesion(client):
+    tarea = create_task(client, "lucia", hora="10:00").json()["task_id"]
+    paso = crear_paso(client, "lucia", tarea).json()["step_id"]
+
+    r = client.delete(f"/student-tasks/{tarea}/steps/{paso}")
+
+    assert r.status_code == 401
+    assert error_code(r) == 1002
+
+
+def test_el_alumno_elimina_pasos_de_una_tarea_propia(client, count):
+    creada = client.post(
+        "/student-tasks/me",
+        json={
+            "task_title": "Tarea propia",
+            "task_date": LUNES,
+            "task_start_hour": "17:00",
+            "task_duration": 30,
+        },
+        headers=as_user("pablo"),
+    )
+    assert creada.status_code == 201
+    tarea = creada.json()["task_id"]
+    paso = crear_paso(client, "pablo", tarea).json()["step_id"]
+
+    r = eliminar_paso_individual(client, "pablo", tarea, paso)
+
+    assert r.status_code == 200
+    assert r.json()["deleted_step_id"] == paso
+    assert r.json()["remaining_steps"] == 0
+    assert count("Steps WHERE step_id = :s", s=paso) == 0
+
+
+def test_el_alumno_no_elimina_pasos_de_una_tarea_ajena(client, count):
+    tarea = create_task(client, "madre").json()["task_id"]
+    paso = crear_paso(client, "madre", tarea).json()["step_id"]
+
+    r = eliminar_paso_individual(client, "pablo", tarea, paso)
+
+    assert r.status_code == 404
+    assert error_code(r) == 1021
+    assert count("Steps WHERE step_id = :s", s=paso) == 1
+
+
+def test_el_alumno_no_elimina_pasos_si_no_puede_modificar_tareas(client, engine, count):
+    creada = client.post(
+        "/student-tasks/me",
+        json={
+            "task_title": "Tarea propia",
+            "task_date": LUNES,
+            "task_start_hour": "17:00",
+            "task_duration": 30,
+        },
+        headers=as_user("pablo"),
+    )
+    tarea = creada.json()["task_id"]
+    paso = crear_paso(client, "pablo", tarea).json()["step_id"]
+    with engine.begin() as conn:
+        conn.execute(
+            text("UPDATE Student SET stud_access_task_mod = FALSE WHERE stud_usr = 'pablo'")
+        )
+
+    r = eliminar_paso_individual(client, "pablo", tarea, paso)
+
+    assert r.status_code == 403
+    assert error_code(r) == 1039
+    assert count("Steps WHERE step_id = :s", s=paso) == 1
