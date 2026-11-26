@@ -36,26 +36,29 @@ class _AccessEditorState extends State<AccessEditor> {
     Opcion(32, 'Enorme'),
   ];
   static const _tareasPorPagina = [
-    Opcion(1, 'Una a una'),
-    Opcion(2, 'Dos a la vez'),
-    Opcion(3, 'Tres a la vez'),
+    Opcion(1, 'Una'),
+    Opcion(2, 'Dos'),
+    Opcion(3, 'Tres'),
     Opcion(0, 'Todas'),
   ];
   static const _diasVisibles = [
-    Opcion(0, 'Solo hoy'),
+    Opcion(0, 'Hoy'),
     Opcion(3, 'Tres días'),
     Opcion(5, 'Lun. a vie.'),
-    Opcion(7, 'La semana'),
+    Opcion(7, 'Semana'),
   ];
   static const _apoyos = {
-    'pictograms': 'Mostrar apoyos visuales',
-    'contrast': 'Alto contraste',
-    'talkback': 'Mostrar botones para escuchar',
+    'pictograms': ('Mostrar apoyos visuales', Icons.image_outlined),
+    'contrast': ('Alto contraste', Icons.contrast),
+    'talkback': ('Mostrar botones para escuchar', Icons.volume_up_outlined),
   };
   static const _permisos = {
-    'prof_mod': 'Permiso de personalización avanzada',
-    'profile_mod': 'Puede modificar su perfil',
-    'task_mod': 'Puede crear y eliminar sus tareas',
+    'prof_mod': ('Permiso de personalización avanzada', Icons.tune),
+    'profile_mod': (
+      'Puede modificar su perfil',
+      Icons.manage_accounts_outlined,
+    ),
+    'task_mod': ('Puede crear y eliminar sus tareas', Icons.add_task),
   };
 
   void _guardar(String clave, Object valor) =>
@@ -82,19 +85,19 @@ class _AccessEditorState extends State<AccessEditor> {
               clave: 'fontsize',
               etiqueta: 'Tamaño de letra',
               opciones: _tamanosDeLetra,
-              conLetra: true,
+              simbolo: SimboloDeLetra.new,
             ),
             _opciones(
               clave: 'ntasks_visible',
               etiqueta: 'Cuántas tareas ve a la vez',
               opciones: _tareasPorPagina,
-              ancho: 166,
+              simbolo: SimboloDeTareas.new,
             ),
             _opciones(
               clave: 'ndays_visible',
               etiqueta: 'Qué días puede elegir',
               opciones: _diasVisibles,
-              ancho: 166,
+              simbolo: SimboloDeDias.new,
             ),
           ];
           if (restricciones.maxWidth < Pantalla.media) {
@@ -103,7 +106,7 @@ class _AccessEditorState extends State<AccessEditor> {
               children: [
                 for (final grupo in grupos) ...[
                   grupo,
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 10),
                 ],
               ],
             );
@@ -119,7 +122,7 @@ class _AccessEditorState extends State<AccessEditor> {
           );
         },
       ),
-      const SizedBox(height: 22),
+      const SizedBox(height: 10),
       _botonDeColores(),
       const SizedBox(height: 12),
       // En una tablet los interruptores van a dos columnas: en una sola fila
@@ -150,44 +153,24 @@ class _AccessEditorState extends State<AccessEditor> {
   );
 
   /// Un ajuste numérico, elegido entre opciones con nombre.
+  /// Un ajuste elegido entre opciones, cada una con su dibujo.
   Widget _opciones({
     required String clave,
     required String etiqueta,
     required List<Opcion<int>> opciones,
-    double ancho = 148,
-    bool conLetra = false,
+    required Widget Function(int) simbolo,
   }) {
     final actual = widget.settings.number(clave);
     return OptionPicker<int>(
       label: etiqueta,
-      optionWidth: ancho,
+      vertical: true,
       enabled: widget.enabled,
       value: opciones.any((o) => o.value == actual) ? actual : opciones[0].value,
       onChanged: (valor) => setState(() => _guardar(clave, valor)),
-      options: conLetra
-          // Cada tamaño se enseña con una «A» de ese tamaño: así se elige
-          // viendo el resultado y no imaginándolo.
-          ? [
-              for (final opcion in opciones)
-                Opcion(
-                  opcion.value,
-                  opcion.label,
-                  leading: SizedBox(
-                    width: 34,
-                    child: Center(
-                      child: Text(
-                        'A',
-                        style: TextStyle(
-                          fontSize: opcion.value.toDouble().clamp(14, 30),
-                          fontWeight: FontWeight.w700,
-                          height: 1,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-            ]
-          : opciones,
+      options: [
+        for (final opcion in opciones)
+          Opcion(opcion.value, opcion.label, leading: simbolo(opcion.value)),
+      ],
     );
   }
 
@@ -206,12 +189,19 @@ class _AccessEditorState extends State<AccessEditor> {
     ],
   );
 
-  Widget _interruptor(String clave, String etiqueta) => SwitchListTile.adaptive(
+  Widget _interruptor(String clave, (String, IconData) definicion) {
+    final (etiqueta, icono) = definicion;
+    return SwitchListTile.adaptive(
     contentPadding: EdgeInsets.zero,
+    secondary: Icon(icono, size: 26),
+    // El icono ayuda a reconocer el ajuste sin leerlo; sin densidad propia la
+    // fila crece y desborda cuando el nombre ocupa dos lineas.
+    visualDensity: VisualDensity.compact,
     title: Text(etiqueta),
     value: widget.settings.flag(clave),
     onChanged: widget.enabled
         ? (valor) => setState(() => _guardar(clave, valor))
         : null,
-  );
+    );
+  }
 }

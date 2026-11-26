@@ -112,6 +112,7 @@ class _AccessSettingsScreenState extends State<AccessSettingsScreen> {
             busy: guardando || !widget.enabled,
             onSave: guardar,
             label: 'Guardar accesibilidad',
+            topPadding: 18,
           ),
         ],
       ),
