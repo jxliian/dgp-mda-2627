@@ -96,26 +96,142 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return PageShell(
       title: 'Mis ajustes',
       subtitle: usuario.displayName,
-      child: Form(
-        key: form,
+      child: usuario.role == UserRole.student
+          ? _vistaDeAlumno(usuario)
+          : Form(
+              key: form,
+              child: LayoutBuilder(
+                builder: (context, restricciones) {
+                  final ajustes = _ajustes(usuario);
+                  final foto = _fotoPropia(usuario);
+                  // La foto va al lado de los ajustes, no encima de ellos: en una
+                  // tablet sobra ancho de sobra para las dos cosas.
+                  if (restricciones.maxWidth < Pantalla.media) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [foto, const SizedBox(height: 24), ajustes],
+                    );
+                  }
+                  return Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(flex: 3, child: ajustes),
+                      const SizedBox(width: 32),
+                      SizedBox(width: 280, child: foto),
+                    ],
+                  );
+                },
+              ),
+            ),
+    );
+  }
+
+  /// Vista propia del alumnado: fichas grandes y simétricas que llenan la
+  /// pantalla en tablet apaisada y pasan a una columna horizontal cuando se
+  /// estrecha o se agranda la letra, para que nunca se deformen ni desborden.
+  Widget _vistaDeAlumno(AppUser usuario) {
+    final state = AppScope.of(context);
+    final opciones =
+        <Widget Function({required bool vertical, required double minHeight})>[
+          ({required vertical, required minHeight}) => Semantics(
+            button: true,
+            enabled: !ocupado,
+            child: ActionTile(
+              title: 'Accesibilidad',
+              subtitle: 'Letra, colores y apoyos',
+              icon: Icons.accessibility_new,
+              vertical: vertical,
+              height: minHeight,
+              edge: Paleta.bosque,
+              onTap: ocupado
+                  ? null
+                  : () async {
+                      await openPage(
+                        context,
+                        AccessSettingsScreen(
+                          user: usuario,
+                          enabled: puedeEditar,
+                        ),
+                      );
+                      if (mounted) setState(() {});
+                    },
+            ),
+          ),
+          ({required vertical, required minHeight}) => ProfilePhotoEditor(
+            user: usuario,
+            label: 'Mi foto',
+            localOnly: state.profilePhotoIsLocal(usuario),
+            enabled:
+                puedeEditar && !ocupado && state.canSetProfilePhoto(usuario),
+            onBusyChanged: (value) => setState(() => ocupado = value),
+            onError: (msg) => setState(() => error = msg),
+            onSelected: (bytes) async {
+              await state.saveProfilePhoto(usuario, bytes);
+              if (mounted) {
+                setState(() {
+                  error = null;
+                  aviso = state.profilePhotoSavedMessage(usuario);
+                });
+              }
+            },
+            asTile: true,
+            vertical: vertical,
+            height: minHeight,
+            edge: Paleta.terracota,
+          ),
+        ];
+
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 960),
         child: LayoutBuilder(
           builder: (context, restricciones) {
-            final ajustes = _ajustes(usuario);
-            final foto = _fotoPropia(usuario);
-            // La foto va al lado de los ajustes, no encima de ellos: en una
-            // tablet sobra ancho de sobra para las dos cosas.
-            if (restricciones.maxWidth < Pantalla.media) {
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [foto, const SizedBox(height: 24), ajustes],
-              );
-            }
-            return Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            final letraGrande = Pantalla.letraGrande(context);
+            final dosColumnas =
+                restricciones.maxWidth >= Pantalla.media && !letraGrande;
+            final minHeight = dosColumnas
+                ? (opciones.length <= 2 ? 320.0 : 220.0)
+                : (letraGrande
+                      ? 140.0
+                      : (opciones.length <= 2 ? 200.0 : 140.0));
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Expanded(flex: 3, child: ajustes),
-                const SizedBox(width: 32),
-                SizedBox(width: 280, child: foto),
+                if (!state.repository.supportsProfileRead)
+                  const Notice(_servidorSinLecturaDePerfil),
+                if (!puedeEditar) const Notice(_ajustesProtegidos),
+                if (dosColumnas)
+                  for (var i = 0; i < opciones.length; i += 2) ...[
+                    if (i > 0) const SizedBox(height: 12),
+                    if (i + 1 < opciones.length)
+                      IntrinsicHeight(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Expanded(
+                              child: opciones[i](
+                                vertical: true,
+                                minHeight: minHeight,
+                              ),
+                            ),
+                            const SizedBox(width: 24),
+                            Expanded(
+                              child: opciones[i + 1](
+                                vertical: true,
+                                minHeight: minHeight,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    else
+                      opciones[i](vertical: false, minHeight: 160),
+                  ]
+                else
+                  for (final opcion in opciones)
+                    opcion(vertical: false, minHeight: minHeight),
+                if (error != null) Notice(error!, error: true),
+                if (aviso != null) Notice(aviso!),
               ],
             );
           },
@@ -145,37 +261,33 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Widget _ajustes(AppUser usuario) {
     return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (usuario.role == UserRole.student) ..._seccionDeAlumno(usuario),
-            if (usuario.role != UserRole.student) ...[
-              ..._seccionDeAdulto(),
-              const SectionTitle(
-                'Contraseña',
-                hint: 'Déjala vacía si no la cambias.',
-              ),
-              _campoContrasena(),
-              const SizedBox(height: 16),
-              _campoRepeticion(),
-              const SizedBox(height: 8),
-              Text(
-                'Al cambiarla tendrás que entrar de nuevo.',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-            ],
-            if (error != null) Notice(error!, error: true),
-            // El mensaje de la foto no es un «guardado» cualquiera: dice si ha
-            // ido al servidor o solo a este dispositivo, así que se queda.
-            if (aviso != null) Notice(aviso!),
-            if (usuario.role != UserRole.student)
-              FormActions(
-                busy: ocupado,
-                canSave: puedeEditar,
-                onSave: guardar,
-                label: 'Guardar mis ajustes',
-              ),
-          ],
-        );
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ..._seccionDeAdulto(),
+        const SectionTitle(
+          'Contraseña',
+          hint: 'Déjala vacía si no la cambias.',
+        ),
+        _campoContrasena(),
+        const SizedBox(height: 16),
+        _campoRepeticion(),
+        const SizedBox(height: 8),
+        Text(
+          'Al cambiarla tendrás que entrar de nuevo.',
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
+        if (error != null) Notice(error!, error: true),
+        // El mensaje de la foto no es un «guardado» cualquiera: dice si ha
+        // ido al servidor o solo a este dispositivo, así que se queda.
+        if (aviso != null) Notice(aviso!),
+        FormActions(
+          busy: ocupado,
+          canSave: puedeEditar,
+          onSave: guardar,
+          label: 'Guardar mis ajustes',
+        ),
+      ],
+    );
   }
 
   /// La aplicación también la usan profesorado, familias y administración, y
@@ -257,25 +369,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     ];
   }
-
-  List<Widget> _seccionDeAlumno(AppUser usuario) => [
-    if (!AppScope.of(context).repository.supportsProfileRead)
-      const Notice(_servidorSinLecturaDePerfil),
-    if (!puedeEditar) const Notice(_ajustesProtegidos),
-    OutlinedButton.icon(
-      onPressed: ocupado
-          ? null
-          : () async {
-              await openPage(
-                context,
-                AccessSettingsScreen(user: usuario, enabled: puedeEditar),
-              );
-              if (mounted) setState(() {});
-            },
-      icon: const Icon(Icons.accessibility_new),
-      label: const Text('Accesibilidad'),
-    ),
-  ];
 
   Widget _campoContrasena() => TextFormField(
     controller: contrasena,

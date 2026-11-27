@@ -90,6 +90,13 @@ void main() {
         rol: UserRole.student, tamano: tamano, letra: 32, luego: (x) async {
       await x.tap(find.text('Elegir día')); await x.pumpAndSettle();
     }));
+    testWidgets('mis ajustes', (t) => medir(t, 'Mis ajustes con letra enorme',
+        rol: UserRole.student, tamano: tamano, letra: 32,
+        conCuenta: (r) =>
+            r.currentUser!.access.values['stud_access_profile_mod'] = true,
+        luego: (x) async {
+      await x.tap(find.byTooltip('Ajustes')); await x.pumpAndSettle();
+    }));
     testWidgets('accesibilidad', (t) => medir(t, 'Accesibilidad con letra enorme',
         rol: UserRole.student, tamano: tamano, letra: 32,
         conCuenta: (r) =>
