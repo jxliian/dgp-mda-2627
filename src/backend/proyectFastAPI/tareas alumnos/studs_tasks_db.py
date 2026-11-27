@@ -296,6 +296,158 @@ def set_alternative_task(
         raise
 
 
+def update_student_task(
+    db: Session,
+    creator_role: str,
+    creator_username: str,
+    student_username: str,
+    task_id: int,
+    original_task_date: date,
+    task_title: str,
+    new_task_date: date,
+    task_start_hour: time | None,
+    task_duration: int,
+    alt_task_id_fk: int | None,
+) -> dict:
+    """Actualiza una tarea individual de un alumno respetando rol, relación y horario."""
+    if creator_role not in {"staff", "parent"}:
+        raise CatalogError(ErrorCode.TASK_CREATOR_REQUIRED)
+
+    validate_task_schedule(creator_role, task_start_hour, task_duration)
+
+    student_exists = db.execute(
+        text(
+            "SELECT 1 FROM users AS account JOIN Student AS student_profile "
+            "ON student_profile.stud_usr = account.username "
+            "WHERE account.username = :student_username"
+        ),
+        {"student_username": student_username},
+    ).scalar_one_or_none()
+    if student_exists is None:
+        raise CatalogError(ErrorCode.TASK_STUDENT_NOT_FOUND)
+
+    if not _has_student_relationship(db, creator_role, creator_username, student_username):
+        raise CatalogError(ErrorCode.TASK_STUDENT_NOT_ASSOCIATED)
+
+    if alt_task_id_fk is not None:
+        alt_task_exists = db.execute(
+            text("SELECT 1 FROM Alt_Tasks WHERE alt_task_id = :alt_task_id_fk"),
+            {"alt_task_id_fk": alt_task_id_fk},
+        ).scalar_one_or_none()
+        if alt_task_exists is None:
+            raise CatalogError(ErrorCode.ALTERNATIVE_TASK_NOT_FOUND)
+        alt_task_assigned = db.execute(
+            text(
+                "SELECT 1 FROM Tasks "
+                "WHERE alt_task_id_fk = :alt_task_id_fk AND task_id <> :task_id"
+            ),
+            {"alt_task_id_fk": alt_task_id_fk, "task_id": task_id},
+        ).scalar_one_or_none()
+        if alt_task_assigned is not None:
+            raise CatalogError(ErrorCode.ALTERNATIVE_TASK_ALREADY_ASSIGNED)
+
+    try:
+        lock_student_agendas(db, [student_username])
+        existing = db.execute(
+            text(
+                "SELECT task.task_start_hour, task.task_duration, assigned.task_index, "
+                "assigned.class_name_fk "
+                "FROM Tasks task "
+                "JOIN stud_task assigned ON assigned.task_id_fk = task.task_id "
+                "WHERE task.task_id = :task_id AND assigned.stud_usr_fk = :student_username "
+                "AND assigned.task_date = :original_task_date "
+                "ORDER BY assigned.task_index LIMIT 1 "
+                "FOR UPDATE OF assigned, task"
+            ),
+            {
+                "task_id": task_id,
+                "student_username": student_username,
+                "original_task_date": original_task_date,
+            },
+        ).mappings().first()
+        if existing is None:
+            raise CatalogError(ErrorCode.TASK_NOT_FOUND)
+
+        existing_start_hour = existing["task_start_hour"]
+        if existing_start_hour is not None:
+            during_school_hours = SCHOOL_START <= existing_start_hour < SCHOOL_END
+            if creator_role == "parent" and during_school_hours:
+                raise CatalogError(ErrorCode.PARENT_TASK_DURING_SCHOOL_HOURS)
+            if creator_role == "staff" and not during_school_hours:
+                raise CatalogError(ErrorCode.STAFF_TASK_OUTSIDE_SCHOOL_HOURS)
+        elif creator_role == "staff":
+            raise CatalogError(ErrorCode.STAFF_TASK_OUTSIDE_SCHOOL_HOURS)
+
+        if existing["class_name_fk"] is not None:
+            raise CatalogError(ErrorCode.TASK_NOT_FOUND)
+
+        deleted = db.execute(
+            text(
+                "DELETE FROM stud_task "
+                "WHERE task_id_fk = :task_id AND stud_usr_fk = :student_username "
+                "AND task_date = :original_task_date AND task_index = :old_task_index"
+            ),
+            {
+                "task_id": task_id,
+                "student_username": student_username,
+                "original_task_date": original_task_date,
+                "old_task_index": existing["task_index"],
+            },
+        )
+        if not deleted.rowcount:
+            raise CatalogError(ErrorCode.TASK_NOT_FOUND)
+
+        updated_task = db.execute(
+            text(
+                "UPDATE Tasks "
+                "SET task_title = :task_title, task_start_hour = :task_start_hour, "
+                "task_duration = :task_duration, alt_task_id_fk = :alt_task_id_fk "
+                "WHERE task_id = :task_id "
+                "RETURNING task_id, task_title, task_start_hour, task_duration, "
+                "task_creator, task_finished, alt_task_id_fk"
+            ),
+            {
+                "task_id": task_id,
+                "task_title": task_title,
+                "task_start_hour": task_start_hour,
+                "task_duration": task_duration,
+                "alt_task_id_fk": alt_task_id_fk,
+            },
+        ).mappings().one()
+
+        new_task_index = calculate_task_index(
+            db, student_username, new_task_date, task_start_hour
+        )
+        db.execute(
+            text(
+                "INSERT INTO stud_task (stud_usr_fk, task_id_fk, task_index, task_date) "
+                "VALUES (:student_username, :task_id, :task_index, :task_date)"
+            ),
+            {
+                "student_username": student_username,
+                "task_id": task_id,
+                "task_index": new_task_index,
+                "task_date": new_task_date,
+            },
+        )
+        db.commit()
+        return success_response(
+            **dict(updated_task),
+            stud_usr_fk=student_username,
+            task_index=new_task_index,
+            task_date=new_task_date,
+        )
+    except IntegrityError as exc:
+        db.rollback()
+        constraint = getattr(getattr(exc.orig, "diag", None), "constraint_name", "") or ""
+        if "alt_task_id_fk" in constraint:
+            raise CatalogError(ErrorCode.ALTERNATIVE_TASK_ALREADY_ASSIGNED) from exc
+        raise
+    except Exception:
+        db.rollback()
+        raise
+
+
 def delete_student_task(
     db: Session,
     creator_role: str,

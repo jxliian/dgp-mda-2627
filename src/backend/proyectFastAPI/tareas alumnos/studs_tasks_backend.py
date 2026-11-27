@@ -101,6 +101,35 @@ def get_student_tasks(
     )
 
 
+@router.put("/students/{student_username}/{task_id}")
+def update_student_task(
+    student_username: UsernamePath,
+    task_id: Annotated[int, Path(gt=0)],
+    task_date: date,
+    payload: CreateTaskRequest,
+    db: Session = Depends(get_db),
+    user: dict = Depends(get_current_user),
+) -> dict:
+    """Modifica una tarea individual en la agenda de un alumno asociado al usuario."""
+    if user["role"] not in {"staff", "parent"}:
+        raise_api_error(ErrorCode.TASK_CREATOR_REQUIRED)
+
+    return _run_db_operation(
+        tasks_db.update_student_task,
+        db,
+        user["role"],
+        user["username"],
+        student_username,
+        task_id,
+        task_date,
+        payload.task_title,
+        payload.task_date,
+        payload.task_start_hour,
+        payload.task_duration,
+        payload.alt_task_id_fk,
+    )
+
+
 @router.post("/me", status_code=201)
 def create_my_task(
     payload: CreateTaskRequest,
