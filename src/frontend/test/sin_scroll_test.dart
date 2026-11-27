@@ -96,7 +96,7 @@ void main() {
             r.currentUser!.access.values['stud_access_profile_mod'] = true,
         luego: (x) async {
       await x.tap(find.byTooltip('Ajustes')); await x.pumpAndSettle();
-      await x.tap(find.text('Abrir mis opciones de accesibilidad'));
+      await x.tap(find.text('Accesibilidad'));
       await x.pumpAndSettle();
     }));
   });
@@ -134,7 +134,7 @@ void main() {
           luego: (x) async {
         // Los ajustes se abren desde la foto de la barra.
         await x.tap(find.byTooltip('Ajustes')); await x.pumpAndSettle();
-        await x.tap(find.text('Abrir mis opciones de accesibilidad'));
+        await x.tap(find.text('Accesibilidad'));
         await x.pumpAndSettle();
       }));
       testWidgets('elegir dia', (t) => medir(t, 'Elegir día',
@@ -154,7 +154,7 @@ void main() {
               r.currentUser!.access.values['stud_access_profile_mod'] = true,
           luego: (x) async {
         await x.tap(find.byTooltip('Ajustes')); await x.pumpAndSettle();
-        await x.tap(find.text('Abrir mis opciones de accesibilidad'));
+        await x.tap(find.text('Accesibilidad'));
         await x.pumpAndSettle();
         await x.tap(find.text('Colores')); await x.pumpAndSettle();
       }));

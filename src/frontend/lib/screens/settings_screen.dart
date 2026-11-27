@@ -130,7 +130,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final state = AppScope.of(context);
     return ProfilePhotoEditor(
       user: usuario,
-      label: 'Cambiar mi foto',
+      label: 'Mi foto',
       localOnly: state.profilePhotoIsLocal(usuario),
       enabled: puedeEditar && !ocupado && state.canSetProfilePhoto(usuario),
       onBusyChanged: (value) => setState(() => ocupado = value),
@@ -151,15 +151,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
             if (usuario.role != UserRole.student) ...[
               ..._seccionDeAdulto(),
               const SectionTitle(
-                'Cambiar contraseña',
-                hint: 'Déjala vacía si no quieres cambiarla.',
+                'Contraseña',
+                hint: 'Déjala vacía si no la cambias.',
               ),
               _campoContrasena(),
               const SizedBox(height: 16),
               _campoRepeticion(),
               const SizedBox(height: 8),
               Text(
-                'Después de cambiarla tendrás que iniciar sesión de nuevo.',
+                'Al cambiarla tendrás que entrar de nuevo.',
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
             ],
@@ -186,8 +186,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final ajustesDeAdulto = state.adultAccess;
     return [
       const SectionTitle(
-        'Cómo veo la aplicación',
-        hint: 'Se guarda en este dispositivo, no en tu cuenta.',
+        'Cómo la veo',
+        hint: 'Solo en este dispositivo.',
       ),
       // El mismo criterio que en la accesibilidad del alumno: se elige entre
       // opciones, no se escribe un número.
@@ -259,10 +259,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   List<Widget> _seccionDeAlumno(AppUser usuario) => [
-    const SectionTitle(
-      'Cómo veo mi agenda',
-      hint: 'El tamaño de la letra, los colores y los apoyos.',
-    ),
     if (!AppScope.of(context).repository.supportsProfileRead)
       const Notice(_servidorSinLecturaDePerfil),
     if (!puedeEditar) const Notice(_ajustesProtegidos),
@@ -277,7 +273,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               if (mounted) setState(() {});
             },
       icon: const Icon(Icons.accessibility_new),
-      label: const Text('Abrir mis opciones de accesibilidad'),
+      label: const Text('Accesibilidad'),
     ),
   ];
 
@@ -299,8 +295,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   );
 
   static const _servidorSinLecturaDePerfil =
-      'El servidor todavía no permite consultar tus ajustes actuales. '
-      'Solo se enviarán las opciones que cambies aquí.';
+      'El servidor no devuelve tus ajustes actuales: solo se envía lo que '
+      'cambies aquí.';
   static const _ajustesProtegidos =
-      'Tus ajustes están protegidos. Pide ayuda al administrador.';
+      'Tus ajustes están protegidos. Pide ayuda.';
 }

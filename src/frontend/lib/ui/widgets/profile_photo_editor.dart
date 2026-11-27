@@ -89,10 +89,11 @@ class _ProfilePhotoEditorState extends State<ProfilePhotoEditor> {
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 12),
           child: Text(
+            // Dónde se guarda, en cuatro palabras: el párrafo largo que
+            // había aquí ocupaba media columna para decir lo mismo.
             widget.localOnly
-                ? 'La foto de demostración dura solo esta sesión.'
-                : 'La foto se guarda en el servidor y se comparte con los '
-                      'usuarios que tienen acceso a este perfil.',
+                ? 'Solo en esta demostración.'
+                : 'Se guarda en el servidor.',
             textAlign: TextAlign.center,
           ),
         ),

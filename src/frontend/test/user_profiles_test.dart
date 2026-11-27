@@ -298,7 +298,7 @@ void main() {
       await repo.login('admin', '1234', UserRole.admin);
       final state = AppState(repository: repo);
       await _mount(tester, state, const SettingsScreen());
-      await _tap(tester, 'Cambiar mi foto');
+      await _tap(tester, 'Mi foto');
       expect(find.text('Guardando foto…'), findsNothing);
       expect(
         tester

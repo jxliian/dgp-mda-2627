@@ -394,9 +394,9 @@ void main() {
         expect(find.textContaining('Nueva contraseña'), findsNothing);
         // El alumno cambia su foto desde sus ajustes, y la accesibilidad
         // vive en su propia pantalla: desde aquí solo se entra.
-        expect(find.text('Cambiar mi foto'), findsOneWidget);
+        expect(find.text('Mi foto'), findsOneWidget);
         expect(find.text('Alto contraste'), findsNothing);
-        await tester.tap(find.text('Abrir mis opciones de accesibilidad'));
+        await tester.tap(find.text('Accesibilidad'));
         await tester.pumpAndSettle();
         expect(find.text('Tamaño de letra'), findsOneWidget);
         await tester.ensureVisible(find.text('Alto contraste'));
