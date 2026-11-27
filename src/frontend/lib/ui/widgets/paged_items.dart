@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import '../theme.dart';
 import 'icon_action.dart';
 import 'notice.dart';
 
 /// Lista paginada: muestra pocos elementos a la vez para no saturar.
 ///
-/// Sigue los bocetos del centro: las flechas van a los lados de la lista, a su
-/// misma altura, y el número de página debajo. Las flechas llevan texto
+/// Las flechas están **siempre en el mismo sitio**: a izquierda y derecha del
+/// contenido, a su misma altura. El hueco de las flechas se reserva aunque no
+/// haya más de una página, de modo que el contenido no se desplaza al cambiar
+/// de pantalla ni al aparecer la paginación. Las flechas llevan texto
 /// descriptivo y el cambio de página se anuncia a los lectores de pantalla.
 class PagedItems<T> extends StatefulWidget {
   const PagedItems({
@@ -34,7 +37,19 @@ class PagedItems<T> extends StatefulWidget {
 class _PagedItemsState<T> extends State<PagedItems<T>> {
   int page = 0;
 
-  int get _porPagina => widget.pageSize < 1 ? 1 : widget.pageSize;
+  /// Ancho reservado a cada flecha, ocupada o no.
+  static const _columnaDeFlecha = 72.0;
+
+  /// Con la letra agrandada cada elemento ocupa proporcionalmente más, así
+  /// que caben menos por página. Se reparte en más páginas en vez de obligar
+  /// a desplazar: las flechas ya están donde el alumno las conoce.
+  int get _porPagina {
+    final base = widget.pageSize < 1 ? 1 : widget.pageSize;
+    final escala = Pantalla.escalaDeTexto(context);
+    if (escala <= 1.2) return base;
+    return (base / escala).ceil().clamp(1, base);
+  }
+
   int get _paginas => (widget.items.length / _porPagina).ceil();
   bool get _hayVariasPaginas => _paginas > 1;
 
@@ -47,46 +62,61 @@ class _PagedItemsState<T> extends State<PagedItems<T>> {
         .take(_porPagina)
         .toList();
     final contenido = widget.grid ? _rejilla(visibles) : _columna(visibles);
-    if (!_hayVariasPaginas) return contenido;
     return LayoutBuilder(
-      builder: (context, restricciones) => Column(
-        children: [
-          // Las flechas van a los lados en tablet, como en los bocetos del
-          // centro. En pantalla estrecha no caben sin estrangular la lista,
-          // así que pasan debajo.
-          if (restricciones.maxWidth >= _anchoParaFlechasLaterales)
-            Row(
-              children: [
-                _flecha(anterior: true),
-                const SizedBox(width: 12),
-                Expanded(child: contenido),
-                const SizedBox(width: 12),
-                _flecha(anterior: false),
-              ],
-            )
-          else ...[
-            contenido,
-            const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [_flecha(anterior: true), _flecha(anterior: false)],
-            ),
+      builder: (context, restricciones) {
+        // En tablet las flechas van siempre a los lados. En un móvil no caben
+        // sin estrangular la lista, así que van siempre debajo: dentro de un
+        // mismo dispositivo nunca cambian de sitio.
+        final aLosLados = restricciones.maxWidth >= Pantalla.media;
+        return Column(
+          children: [
+            if (aLosLados)
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  _hueco(anterior: true),
+                  Expanded(child: contenido),
+                  _hueco(anterior: false),
+                ],
+              )
+            else
+              contenido,
+            if (_hayVariasPaginas) ...[
+              const SizedBox(height: 12),
+              if (!aLosLados)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _flecha(anterior: true),
+                    _flecha(anterior: false),
+                  ],
+                ),
+              const SizedBox(height: 8),
+              Semantics(
+                liveRegion: true,
+                child: Text(
+                  'Página ${page + 1} de $_paginas',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ),
+            ],
           ],
-          const SizedBox(height: 8),
-          Semantics(
-            liveRegion: true,
-            child: Text(
-              'Página ${page + 1} de $_paginas',
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontWeight: FontWeight.w600),
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
-  static const _anchoParaFlechasLaterales = 620.0;
+  /// El hueco existe siempre; la flecha solo cuando hay más de una página.
+  Widget _hueco({required bool anterior}) => SizedBox(
+    width: _columnaDeFlecha,
+    child: _hayVariasPaginas
+        ? Align(
+            alignment: Alignment.center,
+            child: _flecha(anterior: anterior),
+          )
+        : null,
+  );
 
   Widget _flecha({required bool anterior}) {
     final puede = anterior ? page > 0 : page < _paginas - 1;
@@ -104,11 +134,9 @@ class _PagedItemsState<T> extends State<PagedItems<T>> {
 
   Widget _rejilla(List<T> visibles) => LayoutBuilder(
     builder: (context, restricciones) {
-      final cabenPorAncho = switch (restricciones.maxWidth) {
-        < 460 => 1,
-        < 760 => 2,
-        _ => 4,
-      };
+      final cabenPorAncho =
+          ((restricciones.maxWidth + 18) / (Pantalla.anchoDeTarjeta + 18))
+              .floor();
       final columnas = cabenPorAncho.clamp(1, widget.maxColumns);
       final ancho = (restricciones.maxWidth - (columnas - 1) * 18) / columnas;
       return Wrap(

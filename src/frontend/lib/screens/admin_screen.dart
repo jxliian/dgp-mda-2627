@@ -19,10 +19,37 @@ class _AdminScreenState extends State<AdminScreen> {
   bool mostrandoAulas = false;
   String busqueda = '';
   UserRole? rolFiltrado;
+
+  /// Aula por la que se filtra la lista de cuentas, y sus miembros.
+  String? aulaFiltrada;
+  Set<String>? miembrosDelAula;
   int revision = 0;
   bool ocupado = false;
   String? aviso;
   String? error;
+
+  /// Al elegir un aula se piden sus miembros una sola vez y se filtra en local.
+  Future<void> filtrarPorAula(String? aula) async {
+    setState(() {
+      aulaFiltrada = aula;
+      miembrosDelAula = null;
+      error = null;
+    });
+    if (aula == null) return;
+    try {
+      final detalle = await AppScope.of(context).repository.classDetail(aula);
+      if (mounted) {
+        setState(
+          () => miembrosDelAula = {
+            for (final alumno in detalle.students) alumno.username,
+            for (final persona in detalle.staff) persona.username,
+          },
+        );
+      }
+    } on Object catch (e) {
+      if (mounted) setState(() => error = e.toString());
+    }
+  }
 
   void _recargar(String? mensaje) => setState(() {
     revision++;
@@ -89,24 +116,26 @@ class _AdminScreenState extends State<AdminScreen> {
     return PageShell(
       title: 'Gestión de usuarios y aulas',
       subtitle: 'Bienvenido: ${state.user!.displayName}',
-      footer: const AppFooter(),
       child: Column(
         children: [
           _selectorDeVista(),
           const SizedBox(height: 20),
           _buscador(),
+          if (!mostrandoAulas) _filtroDeAula(),
           if (!mostrandoAulas) _filtroDeRoles(),
           const SizedBox(height: 24),
           if (error != null) Notice(error!, error: true),
           if (aviso != null) Notice(aviso!),
           if (mostrandoAulas) _listaDeAulas(state) else _listaDeUsuarios(state),
-          const SizedBox(height: 24),
-          FilledButton.icon(
-            onPressed: ocupado
-                ? null
-                : () => mostrandoAulas ? editarAula() : editarUsuario(),
-            icon: const Icon(Icons.add),
-            label: Text(mostrandoAulas ? 'Crear aula' : 'Crear usuario'),
+          ScreenActions(
+            topPadding: 24,
+            primary: FilledButton.icon(
+              onPressed: ocupado
+                  ? null
+                  : () => mostrandoAulas ? editarAula() : editarUsuario(),
+              icon: const Icon(Icons.add),
+              label: Text(mostrandoAulas ? 'Crear aula' : 'Crear usuario'),
+            ),
           ),
         ],
       ),
@@ -137,6 +166,29 @@ class _AdminScreenState extends State<AdminScreen> {
       prefixIcon: const Icon(Icons.search),
     ),
     onChanged: (valor) => setState(() => busqueda = valor.toLowerCase()),
+  );
+
+  /// Desplegable de aulas: enseña solo las cuentas de esa clase.
+  Widget _filtroDeAula() => Padding(
+    padding: const EdgeInsets.only(top: 16),
+    child: LoadPanel<List<Classroom>>(
+      key: ValueKey('aulas-filtro/${AppScope.of(context).classroomVersion}'),
+      load: AppScope.of(context).repository.classes,
+      builder: (aulas) => DropdownButtonFormField<String?>(
+        initialValue: aulaFiltrada,
+        isExpanded: true,
+        decoration: const InputDecoration(
+          labelText: 'Filtrar por aula',
+          prefixIcon: Icon(Icons.school_outlined),
+        ),
+        items: [
+          const DropdownMenuItem<String?>(child: Text('Todas las aulas')),
+          for (final aula in aulas)
+            DropdownMenuItem<String?>(value: aula.name, child: Text(aula.name)),
+        ],
+        onChanged: ocupado ? null : filtrarPorAula,
+      ),
+    ),
   );
 
   Widget _filtroDeRoles() => Padding(
@@ -177,15 +229,20 @@ class _AdminScreenState extends State<AdminScreen> {
     load: state.repository.users,
     builder: (usuarios) => PagedItems<AppUser>(
       items: usuarios.where(_coincide).toList(),
-      empty: 'No hay usuarios que coincidan con la búsqueda.',
+      empty: aulaFiltrada == null
+          ? 'No hay usuarios que coincidan con la búsqueda.'
+          : 'No hay cuentas de $aulaFiltrada que coincidan con la búsqueda.',
       builder: _fichaDeUsuario,
     ),
   );
 
   bool _coincide(AppUser usuario) {
     final porRol = rolFiltrado == null || rolFiltrado == usuario.role;
+    final porAula =
+        aulaFiltrada == null ||
+        (miembrosDelAula?.contains(usuario.username) ?? false);
     final texto = '${usuario.username} ${usuario.displayName}'.toLowerCase();
-    return porRol && texto.contains(busqueda);
+    return porRol && porAula && texto.contains(busqueda);
   }
 
   Widget _fichaDeAula(Classroom aula) => ActionTile(

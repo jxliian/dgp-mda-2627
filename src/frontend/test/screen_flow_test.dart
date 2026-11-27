@@ -111,7 +111,7 @@ void main() {
     },
   );
 
-  testWidgets('sprint 1 handles a task as a unit, with no steps or timer', (
+  testWidgets('a task opens on its first step and chains to the next one', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(1366, 1024);
@@ -126,17 +126,24 @@ void main() {
     await tester.pumpWidget(AutovidaApp(state: state));
     await tester.pumpAndSettle();
 
-    // El detalle muestra la tarea completa, sin pasos ni cronómetro.
+    // Una tarea de un solo paso se abre entera, sin numerar pasos ni listarlos.
     await tester.tap(find.text('Preparar la mochila').first);
     await tester.pumpAndSettle();
     expect(find.text('¿Qué hay que hacer?'), findsOneWidget);
     expect(find.textContaining('Cierra la cremallera'), findsOneWidget);
     expect(find.text('Empezar'), findsNothing);
     expect(find.textContaining('Paso 1 de'), findsNothing);
+    expect(find.text('Ver los pasos'), findsNothing);
     expect(find.text('He terminado la tarea'), findsOneWidget);
+
+    // Al terminar hay refuerzo positivo y se sale hacia la tarea siguiente.
     await tester.tap(find.text('He terminado la tarea'));
     await tester.pumpAndSettle();
-    expect(find.textContaining('Has completado tu tarea'), findsOneWidget);
+    expect(find.text('¡Muy bien!'), findsOneWidget);
+    expect(find.textContaining('Regar las plantas'), findsOneWidget);
+    await tester.tap(find.text('Ir a la siguiente tarea'));
+    await tester.pumpAndSettle();
+    expect(find.text('Regar las plantas'), findsWidgets);
     await tester.tap(find.text('Volver'));
     await tester.pumpAndSettle();
 
@@ -251,7 +258,7 @@ void main() {
       await tester.pumpWidget(AutovidaApp(state: state));
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
-      expect(find.text('Salir'), findsOneWidget);
+      expect(find.byTooltip('Salir'), findsOneWidget);
       await tester.pumpWidget(const SizedBox.shrink());
       state.dispose();
     });

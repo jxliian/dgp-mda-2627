@@ -58,6 +58,51 @@ class Medidas {
   static const anchoMaximo = 1120.0;
 }
 
+/// Puntos de corte de la interfaz, medidos sobre el ancho disponible para el
+/// contenido, no sobre el de la pantalla.
+///
+/// El dispositivo objetivo del centro es una tablet de 10 pulgadas: 1280x800
+/// apaisada y 800x1280 vertical. Antes había siete números sueltos repartidos
+/// por los widgets ---460, 560, 600, 620, 720, 760--- que nadie había decidido
+/// juntos y que no correspondían a ningún dispositivo real.
+class Pantalla {
+  const Pantalla._();
+
+  /// Móvil. Por debajo de este ancho todo va en una sola columna y los
+  /// controles se compactan.
+  static const compacta = 600.0;
+
+  /// Tablet. Caben los botones de la barra con su texto, las flechas a los
+  /// lados de una lista y dos campos de formulario en la misma fila.
+  static const media = 760.0;
+
+  /// Tablet apaisada o escritorio. Caben dos columnas de contenido enteras,
+  /// como la ficha con su foto al lado o las dos listas de matrícula.
+  static const amplia = 1024.0;
+
+  /// Alto a partir del cual las pantallas densas caben sin apretar nada. Una
+  /// tablet apaisada de 10 pulgadas se queda justo por debajo.
+  static const altoHolgado = 860.0;
+
+  /// Ancho mínimo de una tarjeta en rejilla. Las columnas salen de dividir el
+  /// espacio entre esto, no de una lista de anchos fijos.
+  static const anchoDeTarjeta = 230.0;
+
+  /// Cuánto se ha agrandado la letra respecto del tamaño de base. Un alumno
+  /// con «Enorme» en sus ajustes llega a 2,0.
+  static double escalaDeTexto(BuildContext context) =>
+      MediaQuery.textScalerOf(context).scale(16) / 16;
+
+  /// Con la letra muy grande todo ocupa el doble y hay que recortar lo que no
+  /// es información: iconos decorativos, márgenes y elementos por página.
+  static bool letraGrande(BuildContext context) =>
+      escalaDeTexto(context) >= 1.45;
+
+  /// Ancho máximo cómodo para leer un párrafo seguido. Por encima de esto la
+  /// línea se hace larga y cuesta volver al principio del renglón.
+  static const anchoDeLectura = 680.0;
+}
+
 Color colorDesdeHex(String value) {
   var hex = value.replaceFirst('#', '');
   if (hex.length == 3) hex = hex.split('').map((c) => '$c$c').join();
@@ -123,8 +168,10 @@ class _Colores {
       principal.computeLuminance() > .179 ? Colors.black : Colors.white;
 }
 
-ThemeData appTheme(AccessSettings ajustes, {bool student = false}) {
-  final c = _Colores(ajustes, alumno: student);
+/// Tema de la sesión. Con [personalized] se aplican los ajustes de quien ha
+/// entrado; sin él, la identidad del centro tal cual.
+ThemeData appTheme(AccessSettings ajustes, {bool personalized = false}) {
+  final c = _Colores(ajustes, alumno: personalized);
   return ThemeData(
     useMaterial3: true,
     colorScheme: _esquema(c),

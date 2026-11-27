@@ -134,19 +134,23 @@ class _ClassEditorScreenState extends State<ClassEditorScreen> {
           if (existe) _miembros(),
           if (error != null) Notice(error!, error: true),
           if (aviso != null) Notice(aviso!),
-          FormActions(
-            busy: ocupado,
-            onSave: guardarNombre,
-            label: 'Guardar aula',
-          ),
-          if (existe)
-            Padding(
-              padding: const EdgeInsets.only(top: 20),
-              child: TextButton(
-                onPressed: () => Navigator.pop(context, true),
-                child: const Text('Terminar y volver a la gestión'),
-              ),
+          ScreenActions(
+            secondary: [
+              if (existe)
+                OutlinedButton.icon(
+                  onPressed: ocupado
+                      ? null
+                      : () => Navigator.pop(context, true),
+                  icon: const Icon(Icons.done_all),
+                  label: const Text('Terminar y volver'),
+                ),
+            ],
+            primary: FilledButton.icon(
+              onPressed: ocupado ? null : guardarNombre,
+              icon: const Icon(Icons.check),
+              label: Text(ocupado ? 'Guardando…' : 'Guardar aula'),
             ),
+          ),
         ],
       ),
     ),
@@ -187,30 +191,23 @@ class _ClassEditorScreenState extends State<ClassEditorScreen> {
                 ? () => cambiarPersonal(miembro.username, retirar: true)
                 : null,
           ),
-        SectionTitle(
-          'Alumnos del aula',
-          hint: puedeMatricular
-              ? 'Matricula o retira alumnos de esta clase.'
-              : 'Las matrículas las gestiona el personal asignado al aula.',
-        ),
-        Text('Total: ${aula.studentCount} alumnos'),
-        for (final alumno in aula.students)
-          _filaDeMiembro(
-            alumno,
-            avatar: true,
-            onRemove: puedeMatricular ? () => retirarAlumno(alumno) : null,
-          ),
+        // Dos listas, la de quien puede entrar y la de quien ya está, y una
+        // flecha para pasar de una a otra.
         if (puedeMatricular)
-          _selector(
-            etiqueta: 'Añadir alumno',
-            rol: UserRole.student,
-            yaPresentes: aula.students,
-            elegido: alumnoElegido,
-            onChanged: (valor) => setState(() => alumnoElegido = valor),
-            onConfirm: () => matricular(alumnoElegido!),
-            textoBoton: 'Matricular alumno',
-            vacio: 'No hay más alumnos disponibles.',
+          EnrollmentTransfer(
+            className: nombreGuardado!,
+            enabled: !ocupado,
+            onChanged: () => setState(() => revision++),
+          )
+        else ...[
+          const SectionTitle(
+            'Alumnos del aula',
+            hint: 'Las matrículas las gestiona el personal asignado al aula.',
           ),
+          Text('Total: ${aula.studentCount} alumnos'),
+          for (final alumno in aula.students)
+            _filaDeMiembro(alumno, avatar: true, onRemove: null),
+        ],
       ],
     ),
   );

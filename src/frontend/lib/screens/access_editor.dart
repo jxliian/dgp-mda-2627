@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import '../models/domain.dart';
 import '../ui/ui.dart';
+import 'color_settings_screen.dart';
 
-/// Ajustes de accesibilidad de un alumno: colores, tamaños y apoyos.
+/// Permisos y apoyos de un alumno: qué puede hacer y cómo ve su agenda.
+///
+/// Los colores no están aquí: tienen pantalla propia, porque elegir color es
+/// una tarea en sí misma y entre campos de texto se perdía.
 ///
 /// Los interruptores de permisos solo se muestran a quien administra la
 /// cuenta, no al propio alumno.
@@ -23,94 +27,226 @@ class AccessEditor extends StatefulWidget {
 }
 
 class _AccessEditorState extends State<AccessEditor> {
-  static const _colores = {
-    'main_col': 'Color de fondo',
-    'sec_col': 'Color de los botones',
-  };
-  static const _numeros = {
-    'fontsize': ('Tamaño de letra', 'Entero mayor que cero', 1),
-    'ntasks_visible': ('Tareas por página', '0: mostrar todas', 0),
-    'ndays_visible': ('Días visibles', '0: solo hoy; hasta 7 por semana', 0),
-  };
+  /// Opciones preparadas para cada ajuste. No se escribe ningún número: el
+  /// valor que se guarda sigue siendo el mismo que antes, pero se elige.
+  static const _tamanosDeLetra = [
+    Opcion(16, 'Normal'),
+    Opcion(20, 'Grande'),
+    Opcion(26, 'Muy grande'),
+    Opcion(32, 'Enorme'),
+  ];
+  static const _tareasPorPagina = [
+    Opcion(1, 'Una'),
+    Opcion(2, 'Dos'),
+    Opcion(3, 'Tres'),
+    Opcion(0, 'Todas'),
+  ];
+  static const _diasVisibles = [
+    Opcion(0, 'Hoy'),
+    Opcion(3, 'Tres días'),
+    Opcion(5, 'Lun. a vie.'),
+    Opcion(7, 'Semana'),
+  ];
   static const _apoyos = {
-    'pictograms': 'Mostrar apoyos visuales',
-    'contrast': 'Alto contraste',
-    'filters': 'Mostrar filtros de tareas',
-    'talkback': 'Mostrar botones para escuchar',
+    'pictograms': ('Apoyos visuales', Icons.image_outlined),
+    'contrast': ('Alto contraste', Icons.contrast),
+    'talkback': ('Botones para escuchar', Icons.volume_up_outlined),
   };
   static const _permisos = {
-    'prof_mod': 'Permiso de personalización avanzada',
-    'profile_mod': 'Puede modificar su perfil',
-    'task_mod': 'Puede crear y eliminar sus tareas',
+    'prof_mod': ('Personalización avanzada', Icons.tune),
+    'profile_mod': ('Puede cambiar sus ajustes', Icons.manage_accounts_outlined),
+    'task_mod': ('Puede crear y borrar tareas', Icons.add_task),
   };
 
   void _guardar(String clave, Object valor) =>
       widget.settings.values['stud_access_$clave'] = valor;
 
+  Future<void> _abrirColores() async {
+    await openPage<bool>(
+      context,
+      ColorSettingsScreen(settings: widget.settings, enabled: widget.enabled),
+    );
+    if (mounted) setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      const SectionTitle(
-        'Visualización y apoyos',
-        hint: 'Ajusta cómo se ve la agenda del alumno.',
-      ),
-      Wrap(
-        spacing: 20,
-        runSpacing: 20,
-        children: [
-          for (final entrada in _colores.entries)
-            SizedBox(width: 260, child: _campoDeColor(entrada.key, entrada.value)),
-          for (final entrada in _numeros.entries)
-            SizedBox(width: 260, child: _campoNumerico(entrada.key, entrada.value)),
-        ],
-      ),
-      const SizedBox(height: 12),
-      for (final entrada in _apoyos.entries)
-        _interruptor(entrada.key, entrada.value),
-      if (widget.permissions)
-        for (final entrada in _permisos.entries)
-          _interruptor(entrada.key, entrada.value),
+      _bloque(context, 'Cómo ve su agenda', _comoSeVe(context), primero: true),
     ],
   );
 
-  Widget _campoDeColor(String clave, String etiqueta) => TextFormField(
-    initialValue: widget.settings.color(clave),
-    enabled: widget.enabled,
-    decoration: InputDecoration(labelText: '$etiqueta (#RRGGBB)'),
-    validator: (valor) =>
-        RegExp(r'^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$').hasMatch(valor ?? '')
-        ? null
-        : 'Usa un color como #1b4332.',
-    onChanged: (valor) => _guardar(clave, valor),
+  Widget _comoSeVe(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      // Los tres ajustes, uno al lado de otro cuando hay ancho: en columna
+      // ocupaban tres pantallas de alto.
+      LayoutBuilder(
+        builder: (context, restricciones) {
+          final grupos = [
+            _opciones(
+              clave: 'fontsize',
+              etiqueta: 'Tamaño de letra',
+              opciones: _tamanosDeLetra,
+              simbolo: SimboloDeLetra.new,
+            ),
+            _opciones(
+              clave: 'ntasks_visible',
+              etiqueta: 'Tareas a la vez',
+              opciones: _tareasPorPagina,
+              simbolo: SimboloDeTareas.new,
+            ),
+            _opciones(
+              clave: 'ndays_visible',
+              etiqueta: 'Días que puede ver',
+              opciones: _diasVisibles,
+              simbolo: SimboloDeDias.new,
+            ),
+          ];
+          if (restricciones.maxWidth < Pantalla.media) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                for (final grupo in grupos) ...[
+                  grupo,
+                  const SizedBox(height: 10),
+                ],
+              ],
+            );
+          }
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (var i = 0; i < grupos.length; i++) ...[
+                if (i > 0) const SizedBox(width: 24),
+                Expanded(child: grupos[i]),
+              ],
+            ],
+          );
+        },
+      ),
+      SizedBox(height: Pantalla.letraGrande(context) ? 6 : 12),
+      _botonDeColores(),
+      _bloque(context, 'Apoyos', _interruptores(_apoyos)),
+      if (widget.permissions)
+        _bloque(context, 'Qué puede hacer', _interruptores(_permisos)),
+    ],
   );
 
-  Widget _campoNumerico(String clave, (String, String, int) definicion) {
-    final (etiqueta, ayuda, minimo) = definicion;
-    return TextFormField(
-      initialValue: '${widget.settings.number(clave)}',
+  /// Un bloque con su rótulo. Separa los ajustes por lo que son ---cómo se
+  /// ve, qué apoyos tiene, qué puede hacer--- en lugar de encadenarlos uno
+  /// detrás de otro, que era lo que lo hacía parecer un amasijo.
+  Widget _bloque(
+    BuildContext context,
+    String rotulo,
+    Widget contenido, {
+    bool primero = false,
+  }) {
+    final apretado = Pantalla.letraGrande(context);
+    return Padding(
+        padding: EdgeInsets.only(
+          top: primero ? 0 : (apretado ? 8 : 18),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // El rótulo organiza, no se lee en voz alta cada vez: crece menos
+            // que los ajustes que ordena.
+            MediaQuery.withClampedTextScaling(
+              maxScaleFactor: 1.3,
+              child: Semantics(
+                header: true,
+                child: Text(
+                  rotulo.toUpperCase(),
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1.1,
+                    color: Paleta.tintaSuave,
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(height: apretado ? 4 : 6),
+            contenido,
+          ],
+        ),
+      );
+  }
+
+  /// En una tablet los interruptores van a dos columnas: en una sola fila por
+  /// interruptor sobraba la mitad del ancho y la pantalla no cabía.
+  Widget _interruptores(Map<String, (String, IconData)> cuales) => LayoutBuilder(
+    builder: (context, restricciones) {
+      final enDos = restricciones.maxWidth >= Pantalla.media;
+      final ancho = enDos
+          ? (restricciones.maxWidth - 24) / 2
+          : restricciones.maxWidth;
+      return Wrap(
+        spacing: 24,
+        runSpacing: 0,
+        children: [
+          for (final entrada in cuales.entries)
+            SizedBox(
+              width: ancho,
+              child: _interruptor(entrada.key, entrada.value),
+            ),
+        ],
+      );
+    },
+  );
+
+  /// Un ajuste numérico, elegido entre opciones con nombre.
+  /// Un ajuste elegido entre opciones, cada una con su dibujo.
+  Widget _opciones({
+    required String clave,
+    required String etiqueta,
+    required List<Opcion<int>> opciones,
+    required Widget Function(int) simbolo,
+  }) {
+    final actual = widget.settings.number(clave);
+    return OptionPicker<int>(
+      label: etiqueta,
+      vertical: true,
       enabled: widget.enabled,
-      keyboardType: TextInputType.number,
-      decoration: InputDecoration(labelText: etiqueta, helperText: ayuda),
-      validator: (valor) {
-        final numero = int.tryParse(valor ?? '');
-        return numero == null || numero < minimo
-            ? 'Escribe un entero válido.'
-            : null;
-      },
-      onChanged: (valor) {
-        final numero = int.tryParse(valor);
-        if (numero != null) _guardar(clave, numero);
-      },
+      value: opciones.any((o) => o.value == actual) ? actual : opciones[0].value,
+      onChanged: (valor) => setState(() => _guardar(clave, valor)),
+      options: [
+        for (final opcion in opciones)
+          Opcion(opcion.value, opcion.label, leading: simbolo(opcion.value)),
+      ],
     );
   }
 
-  Widget _interruptor(String clave, String etiqueta) => SwitchListTile.adaptive(
+  Widget _botonDeColores() => Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      OutlinedButton.icon(
+        onPressed: widget.enabled ? _abrirColores : null,
+        icon: const Icon(Icons.palette_outlined),
+        label: const Text('Colores'),
+      ),
+      const SizedBox(width: 12),
+      MuestraDeColor(widget.settings.color('main_col')),
+      const SizedBox(width: 8),
+      MuestraDeColor(widget.settings.color('sec_col')),
+    ],
+  );
+
+  Widget _interruptor(String clave, (String, IconData) definicion) {
+    final (etiqueta, icono) = definicion;
+    return SwitchListTile.adaptive(
     contentPadding: EdgeInsets.zero,
+    secondary: Icon(icono, size: 26),
+    // El icono ayuda a reconocer el ajuste sin leerlo; sin densidad propia la
+    // fila crece y desborda cuando el nombre ocupa dos lineas.
+    visualDensity: VisualDensity.compact,
     title: Text(etiqueta),
     value: widget.settings.flag(clave),
     onChanged: widget.enabled
         ? (valor) => setState(() => _guardar(clave, valor))
         : null,
-  );
+    );
+  }
 }

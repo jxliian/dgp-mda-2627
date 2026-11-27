@@ -3,7 +3,8 @@ import '../models/domain.dart';
 import '../models/validation.dart';
 import '../state/app_state.dart';
 import '../ui/ui.dart';
-import 'access_editor.dart';
+import 'access_settings_screen.dart';
+import 'color_settings_screen.dart';
 
 /// Accesibilidad del alumno y contraseña de las cuentas del centro y familia.
 class SettingsScreen extends StatefulWidget {
@@ -57,9 +58,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (ocupado || !puedeEditar) return;
     if (!form.currentState!.validate()) return;
     final state = AppScope.of(context);
+    if (!state.student) await state.saveAdultAccess();
     final cambios = _cambios(state.user!);
     if (cambios.isEmpty) {
-      setState(() => aviso = 'No hay cambios para guardar.');
+      state.confirm('Ajustes guardados');
       return;
     }
     setState(() {
@@ -76,10 +78,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       }
       await state.refreshProfile();
       if (mounted) {
-        setState(() {
-          ajustesOriginales = ajustes.copy();
-          aviso = 'Tus ajustes se han guardado.';
-        });
+        setState(() => ajustesOriginales = ajustes.copy());
+        state.confirm('Ajustes guardados');
       }
     } on Object catch (e) {
       if (mounted) setState(() => error = e.toString());
@@ -98,27 +98,58 @@ class _SettingsScreenState extends State<SettingsScreen> {
       subtitle: usuario.displayName,
       child: Form(
         key: form,
-        child: Column(
+        child: LayoutBuilder(
+          builder: (context, restricciones) {
+            final ajustes = _ajustes(usuario);
+            final foto = _fotoPropia(usuario);
+            // La foto va al lado de los ajustes, no encima de ellos: en una
+            // tablet sobra ancho de sobra para las dos cosas.
+            if (restricciones.maxWidth < Pantalla.media) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [foto, const SizedBox(height: 24), ajustes],
+              );
+            }
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(flex: 3, child: ajustes),
+                const SizedBox(width: 32),
+                SizedBox(width: 280, child: foto),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  /// La propia foto, para cualquier rol: el alumnado también reconoce a su
+  /// profesorado por ella.
+  Widget _fotoPropia(AppUser usuario) {
+    final state = AppScope.of(context);
+    return ProfilePhotoEditor(
+      user: usuario,
+      label: 'Cambiar mi foto',
+      localOnly: state.profilePhotoIsLocal(usuario),
+      enabled: puedeEditar && !ocupado && state.canSetProfilePhoto(usuario),
+      onBusyChanged: (value) => setState(() => ocupado = value),
+      onSelected: (bytes) async {
+        await state.saveProfilePhoto(usuario, bytes);
+        if (mounted) {
+          setState(() => aviso = state.profilePhotoSavedMessage(usuario));
+        }
+      },
+    );
+  }
+
+  Widget _ajustes(AppUser usuario) {
+    return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ProfilePhotoEditor(
-              user: usuario,
-              label: 'Cambiar mi foto',
-              localOnly: state.profilePhotoIsLocal(usuario),
-              enabled:
-                  puedeEditar && !ocupado && state.canSetProfilePhoto(usuario),
-              onBusyChanged: (value) => setState(() => ocupado = value),
-              onSelected: (bytes) async {
-                await state.saveProfilePhoto(usuario, bytes);
-                if (mounted) {
-                  setState(
-                    () => aviso = state.profilePhotoSavedMessage(usuario),
-                  );
-                }
-              },
-            ),
             if (usuario.role == UserRole.student) ..._seccionDeAlumno(usuario),
             if (usuario.role != UserRole.student) ...[
+              ..._seccionDeAdulto(),
               const SectionTitle(
                 'Cambiar contraseña',
                 hint: 'Déjala vacía si no quieres cambiarla.',
@@ -133,24 +164,121 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ],
             if (error != null) Notice(error!, error: true),
+            // El mensaje de la foto no es un «guardado» cualquiera: dice si ha
+            // ido al servidor o solo a este dispositivo, así que se queda.
             if (aviso != null) Notice(aviso!),
-            FormActions(
-              busy: ocupado,
-              canSave: puedeEditar,
-              onSave: guardar,
-              label: 'Guardar mis ajustes',
-            ),
+            if (usuario.role != UserRole.student)
+              FormActions(
+                busy: ocupado,
+                canSave: puedeEditar,
+                onSave: guardar,
+                label: 'Guardar mis ajustes',
+              ),
           ],
-        ),
+        );
+  }
+
+  /// La aplicación también la usan profesorado, familias y administración, y
+  /// también necesitan letra grande o contraste. El servidor solo guarda los
+  /// ajustes del alumnado, así que estos se quedan en el dispositivo.
+  List<Widget> _seccionDeAdulto() {
+    final state = AppScope.of(context);
+    final ajustesDeAdulto = state.adultAccess;
+    return [
+      const SectionTitle(
+        'Cómo veo la aplicación',
+        hint: 'Se guarda en este dispositivo, no en tu cuenta.',
       ),
-    );
+      // El mismo criterio que en la accesibilidad del alumno: se elige entre
+      // opciones, no se escribe un número.
+      OptionPicker<int>(
+        label: 'Tamaño de letra',
+        enabled: !ocupado,
+        value: ajustesDeAdulto.number('fontsize'),
+        onChanged: (valor) => setState(
+          () => ajustesDeAdulto.values['stud_access_fontsize'] = valor,
+        ),
+        options: [
+          for (final (tamano, nombre) in const [
+            (16, 'Normal'),
+            (20, 'Grande'),
+            (26, 'Muy grande'),
+            (32, 'Enorme'),
+          ])
+            Opcion(
+              tamano,
+              nombre,
+              leading: SizedBox(
+                width: 34,
+                child: Center(
+                  child: Text(
+                    'A',
+                    style: TextStyle(
+                      fontSize: tamano.toDouble().clamp(14, 30),
+                      fontWeight: FontWeight.w700,
+                      height: 1,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+      const SizedBox(height: 18),
+      Wrap(
+        spacing: 20,
+        runSpacing: 20,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          OutlinedButton.icon(
+            onPressed: ocupado
+                ? null
+                : () async {
+                    await openPage<bool>(
+                      context,
+                      ColorSettingsScreen(settings: ajustesDeAdulto),
+                    );
+                    if (mounted) setState(() {});
+                  },
+            icon: const Icon(Icons.palette_outlined),
+            label: const Text('Configurar los colores'),
+          ),
+        ],
+      ),
+      SwitchListTile.adaptive(
+        contentPadding: EdgeInsets.zero,
+        title: const Text('Alto contraste'),
+        value: ajustesDeAdulto.flag('contrast'),
+        onChanged: ocupado
+            ? null
+            : (valor) => setState(
+                () => ajustesDeAdulto.values['stud_access_contrast'] = valor,
+              ),
+      ),
+    ];
   }
 
   List<Widget> _seccionDeAlumno(AppUser usuario) => [
+    const SectionTitle(
+      'Cómo veo mi agenda',
+      hint: 'El tamaño de la letra, los colores y los apoyos.',
+    ),
     if (!AppScope.of(context).repository.supportsProfileRead)
       const Notice(_servidorSinLecturaDePerfil),
     if (!puedeEditar) const Notice(_ajustesProtegidos),
-    AccessEditor(settings: ajustes, enabled: puedeEditar && !ocupado),
+    OutlinedButton.icon(
+      onPressed: ocupado
+          ? null
+          : () async {
+              await openPage(
+                context,
+                AccessSettingsScreen(user: usuario, enabled: puedeEditar),
+              );
+              if (mounted) setState(() {});
+            },
+      icon: const Icon(Icons.accessibility_new),
+      label: const Text('Abrir mis opciones de accesibilidad'),
+    ),
   ];
 
   Widget _campoContrasena() => TextFormField(

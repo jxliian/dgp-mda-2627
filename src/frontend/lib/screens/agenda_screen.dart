@@ -7,8 +7,12 @@ import '../ui/ui.dart';
 import 'days_screen.dart';
 import 'task_detail_screen.dart';
 import 'task_editor_screen.dart';
+import 'task_modify_screen.dart';
 
 /// Agenda de un alumno para un día: la ve él mismo o quien le acompaña.
+///
+/// Las tareas ocupan el centro de la pantalla. Todo lo demás ---elegir día,
+/// la foto, inicio, ajustes y salir--- vive en la única barra de arriba.
 class AgendaScreen extends StatefulWidget {
   const AgendaScreen({super.key, required this.student});
 
@@ -28,14 +32,9 @@ class _AgendaScreenState extends State<AgendaScreen> {
   Future<String?>? claseDelAlumno;
   int revision = 0;
   String? aviso;
+  String? aula;
+  bool aulaPedida = false;
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    claseDelAlumno ??= AppScope.of(
-      context,
-    ).repository.classOf(widget.student.username);
-  }
 
   AgendaFilters get filtros => AgendaFilters(
     finished: switch (filtro) {
@@ -50,8 +49,28 @@ class _AgendaScreenState extends State<AgendaScreen> {
   /// La sesión es la del propio alumno (y no la de quien le acompaña).
   bool get esSuPropiaAgenda => AppScope.of(context).student;
 
+  /// La sesión pertenece a un tutor familiar consultando un alumno a su cargo.
+  bool get esTutor => AppScope.of(context).user?.role == UserRole.parent;
+
   AccessSettings get ajustes =>
       esSuPropiaAgenda ? AppScope.of(context).access : widget.student.access;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    claseDelAlumno ??= AppScope.of(
+      context,
+    ).repository.classOf(widget.student.username);
+    if (aulaPedida) return;
+    aulaPedida = true;
+    // El aula acompaña al título en vez de ocupar una etiqueta propia, que
+    // parecía un botón y no llevaba a ninguna parte.
+    AppScope.of(context).repository.classOf(widget.student.username).then((
+      nombre,
+    ) {
+      if (mounted) setState(() => aula = nombre);
+    });
+  }
 
   void _recargar({String? mensaje}) => setState(() {
     revision++;
@@ -68,12 +87,26 @@ class _AgendaScreenState extends State<AgendaScreen> {
     }
   }
 
-  Future<void> abrirTarea(AgendaTask tarea) async {
+  Future<void> abrirTarea(AgendaTask tarea, List<AgendaTask> delDia) async {
     await openPage<bool>(
       context,
-      TaskDetailScreen(student: widget.student, task: tarea),
+      TaskDetailScreen(
+        student: widget.student,
+        task: tarea,
+        dayTasks: delDia,
+      ),
     );
     if (mounted) _recargar();
+  }
+
+  Future<void> modificarTarea(AgendaTask tarea) async {
+    final guardada = await openPage<bool>(
+      context,
+      TaskModifyScreen(student: widget.student, task: tarea),
+    );
+    if (mounted && guardada == true) {
+      _recargar(mensaje: 'La tarea se ha modificado.');
+    }
   }
 
   Future<void> elegirDia() async {
@@ -95,6 +128,9 @@ class _AgendaScreenState extends State<AgendaScreen> {
     _ => tareas,
   };
 
+  bool get _puedeElegirDia =>
+      !esSuPropiaAgenda || ajustes.number('ndays_visible') > 0;
+
   @override
   Widget build(BuildContext context) {
     final state = AppScope.of(context);
@@ -102,65 +138,70 @@ class _AgendaScreenState extends State<AgendaScreen> {
       title: esSuPropiaAgenda
           ? 'Mis tareas'
           : 'Tareas de ${widget.student.displayName}',
-      subtitle: DateFormat('EEEE d MMMM', 'es').format(dia),
-      actions: [UserAvatar(user: widget.student, size: 72)],
-      footer: const AppFooter(),
+      subtitle: _subtitulo,
+      headerAvatar: esSuPropiaAgenda
+          ? null
+          : UserAvatar(user: widget.student, size: 60),
+      actions: [
+        if (_puedeElegirDia)
+          BarAction(
+            icon: Icons.calendar_month_outlined,
+            label: 'Elegir día',
+            onPressed: elegirDia,
+          ),
+      ],
       child: Column(
         children: [
-          _ClaseDelAlumno(className: claseDelAlumno!),
-          _barraDeDia(),
-          const SizedBox(height: 14),
-          if (!esSuPropiaAgenda || ajustes.flag('filters')) _filtrosDeEstado(),
-          if (!esSuPropiaAgenda) _filtrosDeOrigen(),
+          // Los filtros son una herramienta de quien acompaña al alumno; en
+          // su propia agenda solo añaden ruido. El aula ya está en el
+          // subtítulo y el día se elige desde la barra de arriba.
+          if (!esSuPropiaAgenda) ...[
+            _filtrosDeEstado(),
+            _filtrosDeOrigen(),
+          ],
           if (aviso != null) Notice(aviso!),
           const SizedBox(height: 12),
           if (state.repository.canReadAgenda)
             _listaDeTareas(state)
           else
             const Notice(_servidorSinAgenda),
-          const SizedBox(height: 16),
-          if (!esSuPropiaAgenda || ajustes.flag('task_mod'))
-            FilledButton.icon(
-              onPressed: crearTarea,
-              icon: const Icon(Icons.add),
-              label: Text(esSuPropiaAgenda ? 'Añadir mi tarea' : 'Crear tarea'),
-            ),
+          ScreenActions(
+            topPadding: 16,
+            primary: !esSuPropiaAgenda || ajustes.flag('task_mod')
+                ? FilledButton.icon(
+                    onPressed: crearTarea,
+                    icon: const Icon(Icons.add),
+                    label: Text(
+                      esSuPropiaAgenda ? 'Añadir mi tarea' : 'Crear tarea',
+                    ),
+                  )
+                : null,
+          ),
         ],
       ),
     );
   }
 
-  Widget _barraDeDia() => Wrap(
-    alignment: WrapAlignment.center,
-    spacing: 16,
-    runSpacing: 12,
-    crossAxisAlignment: WrapCrossAlignment.center,
-    children: [
-      if (!esSuPropiaAgenda || ajustes.number('ndays_visible') > 0)
-        OutlinedButton.icon(
-          onPressed: elegirDia,
-          icon: const Icon(Icons.calendar_month_outlined),
-          label: const Text('Elegir día'),
-        ),
-      if (!esSuPropiaAgenda || ajustes.flag('talkback'))
-        SpeechButton(
-          text: 'Tareas del ${DateFormat('EEEE d MMMM', 'es').format(dia)}',
-        ),
-    ],
-  );
+  String get _subtitulo {
+    final fecha = DateFormat('EEEE d MMMM', 'es').format(dia);
+    return aula == null ? fecha : '$fecha · $aula';
+  }
 
-  Widget _filtrosDeEstado() => Wrap(
-    spacing: 12,
-    runSpacing: 12,
-    alignment: WrapAlignment.center,
-    children: [
-      for (final opcion in _filtros)
-        ChoiceChip(
-          label: Text(opcion),
-          selected: filtro == opcion,
-          onSelected: (_) => setState(() => filtro = opcion),
-        ),
-    ],
+  Widget _filtrosDeEstado() => Padding(
+    padding: const EdgeInsets.only(bottom: 14),
+    child: Wrap(
+      spacing: 12,
+      runSpacing: 12,
+      alignment: WrapAlignment.center,
+      children: [
+        for (final opcion in _filtros)
+          ChoiceChip(
+            label: Text(opcion),
+            selected: filtro == opcion,
+            onSelected: (_) => setState(() => filtro = opcion),
+          ),
+      ],
+    ),
   );
 
   Widget _filtrosDeOrigen() => Padding(
@@ -228,10 +269,10 @@ class _AgendaScreenState extends State<AgendaScreen> {
       return PagedItems<AgendaTask>(
         items: visibles,
         pageSize: _tareasPorPagina(visibles.length),
-        empty: !filtros.isEmpty
+        empty: !filtros.isEmpty || filtro != _filtros.first
             ? 'No hay tareas con estos filtros.'
             : 'No hay actividades para esta fecha.',
-        builder: (tarea) => _ficha(tarea, state),
+        builder: (tarea) => _ficha(tarea, tareas),
       );
     },
   );
@@ -242,15 +283,20 @@ class _AgendaScreenState extends State<AgendaScreen> {
     return total == 0 ? 1 : total;
   }
 
-  Widget _ficha(AgendaTask tarea, AppState state) {
-    final esSuya = esSuPropiaAgenda && tarea.creator == state.user!.username;
+  Widget _ficha(AgendaTask tarea, List<AgendaTask> delDia) {
+    final esSuya = tarea.creator == widget.student.username;
     return ActionTile(
       title: tarea.title,
       subtitle:
           '${tarea.startHour?.substring(0, 5) ?? 'Sin hora fija'} · ${tarea.duration} min',
       icon: taskIcon(tarea.title),
       edge: tarea.finished ? Paleta.bosque : Paleta.terracota,
-      badges: taskBadges(tarea, own: esSuya, showCreator: !esSuPropiaAgenda),
+      badges: taskBadges(
+        tarea,
+        own: esSuya,
+        viewerIsStudent: esSuPropiaAgenda,
+        showCreator: !esSuPropiaAgenda,
+      ),
       leading: ajustes.flag('pictograms')
           ? ContentPicture(
               bytes: tarea.image,
@@ -258,31 +304,41 @@ class _AgendaScreenState extends State<AgendaScreen> {
               size: 120,
             )
           : null,
-      onTap: () => abrirTarea(tarea),
+      trailing: esTutor ? _botonModificar(tarea) : null,
+      onTap: () => abrirTarea(tarea, delDia),
     );
   }
-}
 
-/// Aula a la que pertenece el alumno (SCRUM-325). Si no consta, no ocupa sitio.
-class _ClaseDelAlumno extends StatelessWidget {
-  const _ClaseDelAlumno({required this.className});
-
-  final Future<String?> className;
-
-  @override
-  Widget build(BuildContext context) => FutureBuilder<String?>(
-    future: className,
-    builder: (context, snapshot) {
-      final aula = snapshot.data;
-      if (aula == null) return const SizedBox.shrink();
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 10),
-        child: StatusBadge(
-          'Mi clase · $aula',
-          tone: BadgeTone.main,
-          icon: Icons.school_outlined,
+  /// Botón táctil pensado para tablet: objetivo amplio de 72 × 72 dp, icono
+  /// nítido y contorno de alto contraste separado del área principal de la
+  /// ficha para evitar pulsaciones accidentales.
+  Widget _botonModificar(AgendaTask tarea) {
+    final tema = Theme.of(context);
+    final esquema = tema.colorScheme;
+    final oscuro = esquema.brightness == Brightness.dark;
+    final bordeBase = oscuro ? esquema.outline : Paleta.trazoControl;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 6),
+      child: IconButton.outlined(
+        tooltip: 'Modificar la tarea ${tarea.title}',
+        onPressed: () => modificarTarea(tarea),
+        icon: const Icon(Icons.edit_outlined, size: 30),
+        style: IconButton.styleFrom(
+          minimumSize: const Size(72, 72),
+          padding: const EdgeInsets.all(18),
+          backgroundColor: oscuro ? esquema.surface : Paleta.blanco,
+          foregroundColor: esquema.onSurface,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(Medidas.radioControl),
+          ),
+        ).copyWith(
+          side: WidgetStateProperty.resolveWith(
+            (estados) => estados.contains(WidgetState.focused)
+                ? BorderSide(color: tema.focusColor, width: Medidas.anilloFoco)
+                : BorderSide(color: bordeBase, width: Medidas.trazoGrueso),
+          ),
         ),
-      );
-    },
-  );
+      ),
+    );
+  }
 }

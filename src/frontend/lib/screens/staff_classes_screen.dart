@@ -27,7 +27,6 @@ class _StaffClassesScreenState extends State<StaffClassesScreen> {
     return PageShell(
       title: 'Mis aulas',
       subtitle: 'Personal del centro · ${state.user!.displayName}',
-      footer: const AppFooter(),
       child: Column(
         children: [
           FilledButton.icon(

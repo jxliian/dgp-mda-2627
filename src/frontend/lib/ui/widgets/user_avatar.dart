@@ -55,6 +55,13 @@ class _UserAvatarState extends State<UserAvatar> {
 
   bool _puedeVerla(AppState state) {
     // La API comprueba los vínculos del usuario con la cuenta consultada.
+    // Una cuenta que no es de alumno y no tiene ruta de foto no se pide: el
+    // servidor solo guarda la del alumnado y la petición acabaría en un 404.
+    if (!state.demo &&
+        widget.user.role != UserRole.student &&
+        widget.user.avatarUrl == null) {
+      return false;
+    }
     return state.demo ||
         state.user != null ||
         widget.user.role == UserRole.student && widget.user.avatarUrl != null;

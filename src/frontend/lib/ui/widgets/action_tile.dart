@@ -96,20 +96,25 @@ class ActionTile extends StatelessWidget {
     ],
   );
 
-  Widget _contenidoVertical(BuildContext context) => Column(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      _imagen(Theme.of(context).colorScheme),
-      const SizedBox(height: 18),
-      _textos(context),
-    ],
-  );
+  Widget _contenidoVertical(BuildContext context) {
+    final apretado = Pantalla.letraGrande(context);
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        if (!apretado || leading != null) ...[
+          _imagen(Theme.of(context).colorScheme, apretado),
+          SizedBox(height: apretado ? 10 : 18),
+        ],
+        _textos(context),
+      ],
+    );
+  }
 
-  Widget _imagen(ColorScheme scheme) =>
+  Widget _imagen(ColorScheme scheme, [bool apretado = false]) =>
       leading ??
       ExcludeSemantics(
         child: Container(
-          padding: const EdgeInsets.all(20),
+          padding: EdgeInsets.all(apretado ? 10 : 20),
           decoration: BoxDecoration(
             color: scheme.primaryContainer,
             borderRadius: BorderRadius.circular(Medidas.radioControl),
@@ -121,7 +126,7 @@ class ActionTile extends StatelessWidget {
           child: Icon(
             icon,
             size: vertical
-                ? Medidas.iconoFichaVertical
+                ? (apretado ? 56 : Medidas.iconoFichaVertical)
                 : Medidas.iconoFicha,
             color: scheme.onPrimaryContainer,
           ),

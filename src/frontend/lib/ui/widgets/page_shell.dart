@@ -1,9 +1,17 @@
 import 'package:flutter/material.dart';
 import '../../state/app_state.dart';
 import '../theme.dart';
+import 'bar_action.dart';
+import 'icon_action.dart';
+import 'session_actions.dart';
 
-/// Armazón común de todas las pantallas: avisos de estado arriba, cabecera con
-/// título, contenido desplazable centrado y, si procede, barra de navegación.
+/// Armazón común de todas las pantallas: avisos de estado arriba, una única
+/// barra con el título y todas las acciones, y el contenido centrado debajo.
+///
+/// Hay una sola barra, siempre arriba y siempre con el mismo orden: volver a
+/// la izquierda, el título en el centro y, a la derecha, primero las acciones
+/// de la pantalla y después las de la sesión. Antes había dos barras, una
+/// arriba y otra abajo, y las acciones cambiaban de sitio según la pantalla.
 ///
 /// El título se marca como cabecera de la página para los lectores de pantalla
 /// y el botón de volver aparece solo cuando hay sitio al que volver.
@@ -13,30 +21,61 @@ class PageShell extends StatelessWidget {
     required this.title,
     required this.child,
     this.subtitle,
+    this.headerAvatar,
     this.actions = const [],
-    this.footer,
+    this.session = true,
   });
 
   final String title;
   final Widget child;
   final String? subtitle;
+
+  /// Imagen opcional junto al título (por ejemplo, la foto del alumno cuando
+  /// otra persona consulta su agenda).
+  final Widget? headerAvatar;
+
+  /// Acciones propias de la pantalla. Van en la barra, antes de las de sesión.
   final List<Widget> actions;
-  final Widget? footer;
+
+  /// Si la barra incluye foto/ajustes, inicio y salir. Se apaga en las
+  /// pantallas que todavía no tienen sesión iniciada.
+  final bool session;
+
+  /// Por debajo de [Pantalla.media] la barra viaja con el contenido: en un
+  /// móvil con la letra muy ampliada, una barra fija con título y acciones se
+  /// comería la pantalla entera.
 
   @override
   Widget build(BuildContext context) {
     final state = AppScope.of(context);
+    final barra = _Barra(
+      title: title,
+      subtitle: subtitle,
+      headerAvatar: headerAvatar,
+      actions: actions,
+      session: session && state.user != null,
+    );
     return Scaffold(
       body: SafeArea(
-        child: Column(
-          children: [
-            if (state.demo) const AvisoBanda(_textoDemostracion),
-            if (state.repository.offline || state.repository.pendingChanges > 0)
-              const SyncBanner(),
-            _Cabecera(title: title, subtitle: subtitle, actions: actions),
-            Expanded(child: _Contenido(child: child)),
-            if (footer != null) _PieDePagina(child: footer!),
-          ],
+        child: LayoutBuilder(
+          builder: (context, restricciones) {
+            final fija = restricciones.maxWidth >= Pantalla.media;
+            return Column(
+              children: [
+                if (state.demo) const AvisoBanda(_textoDemostracion),
+                if (state.repository.offline ||
+                    state.repository.pendingChanges > 0)
+                  const SyncBanner(),
+                if (fija) barra,
+                Expanded(
+                  child: _Contenido(
+                    header: fija ? null : barra,
+                    child: child,
+                  ),
+                ),
+              ],
+            );
+          },
         ),
       ),
     );
@@ -46,71 +85,151 @@ class PageShell extends StatelessWidget {
       'Modo demostración · Datos de prueba · Los cambios duran solo esta sesión';
 }
 
-class _Cabecera extends StatelessWidget {
-  const _Cabecera({required this.title, this.subtitle, this.actions = const []});
+/// Identifica la barra única de la pantalla; las pruebas la miden con ella.
+const barraDePagina = ValueKey('barra-de-pagina');
+
+class _Barra extends StatelessWidget {
+  const _Barra({
+    required this.title,
+    required this.session,
+    this.subtitle,
+    this.headerAvatar,
+    this.actions = const [],
+  });
 
   final String title;
   final String? subtitle;
+  final Widget? headerAvatar;
   final List<Widget> actions;
+  final bool session;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Container(
+      key: barraDePagina,
       decoration: BoxDecoration(
+        color: scheme.surfaceContainer,
         border: Border(
           bottom: BorderSide(color: scheme.outlineVariant, width: Medidas.trazo),
         ),
       ),
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-      // Disposición de los bocetos: volver a la izquierda, título centrado y
-      // las acciones de la sesión a la derecha.
-      child: Row(
-        children: [
-          if (Navigator.canPop(context))
-            OutlinedButton.icon(
-              onPressed: () => Navigator.maybePop(context),
-              icon: const Icon(Icons.arrow_back),
-              label: const Text('Volver'),
-            ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Semantics(
-                    header: true,
-                    child: Text(
-                      title,
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.headlineMedium,
-                    ),
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+      child: LayoutBuilder(
+        builder: (context, restricciones) {
+          // Con la letra muy grande los botones de la barra con texto
+          // ocupan tres filas y dejan sin sitio al contenido: pasan a iconos,
+          // que conservan su nombre accesible.
+          final estrecha =
+              restricciones.maxWidth < Pantalla.media ||
+              Pantalla.letraGrande(context);
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              if (Navigator.canPop(context)) ...[
+                _volver(context, estrecha),
+                const SizedBox(width: 14),
+              ],
+              Expanded(flex: 4, child: _cabecera(context, estrecha)),
+              // Las acciones se reparten en varias líneas antes que
+              // estrecharse: con la letra muy ampliada no caben todas en una
+              // sola fila.
+              Flexible(
+                flex: 6,
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: Wrap(
+                    spacing: 12,
+                    runSpacing: 8,
+                    alignment: WrapAlignment.end,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      if (session) const SessionAvatar(),
+                      ...actions,
+                      if (session) SessionActions(compact: estrecha),
+                    ],
                   ),
-                  if (subtitle != null)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 3),
-                      child: Text(
-                        subtitle!,
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                    ),
-                ],
+                ),
               ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _cabecera(BuildContext context, bool estrecha) {
+    final texto = _titulo(context);
+    if (headerAvatar == null) return texto;
+    if (estrecha) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [headerAvatar!, const SizedBox(height: 8), texto],
+      );
+    }
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        headerAvatar!,
+        const SizedBox(width: 14),
+        Expanded(child: texto),
+      ],
+    );
+  }
+
+  Widget _volver(BuildContext context, bool estrecha) => estrecha
+      ? IconAction(
+          icon: Icons.arrow_back,
+          label: 'Volver',
+          onPressed: () => Navigator.maybePop(context),
+        )
+      : BarAction(
+          icon: Icons.arrow_back,
+          label: 'Volver',
+          onPressed: () => Navigator.maybePop(context),
+        );
+
+  /// El título crece menos que el contenido. Quien agranda la letra lo hace
+  /// para leer sus tareas, no el rótulo de la pantalla: dejarlo crecer igual
+  /// se comía media pantalla antes de empezar.
+  static const _maximoDelTitulo = 1.3;
+
+  Widget _titulo(BuildContext context) {
+    final escala = Pantalla.escalaDeTexto(context);
+    final contenido = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Semantics(
+          header: true,
+          child: Text(title, style: Theme.of(context).textTheme.headlineMedium),
+        ),
+        if (subtitle != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 3),
+            child: Text(
+              subtitle!,
+              style: Theme.of(context).textTheme.bodyMedium,
             ),
           ),
-          ...actions,
-        ],
-      ),
+      ],
+    );
+    if (escala <= _maximoDelTitulo) return contenido;
+    return MediaQuery.withClampedTextScaling(
+      maxScaleFactor: _maximoDelTitulo,
+      child: contenido,
     );
   }
 }
 
 class _Contenido extends StatelessWidget {
-  const _Contenido({required this.child});
+  const _Contenido({required this.child, this.header});
 
   final Widget child;
+
+  /// Barra que viaja con el contenido cuando no cabe fija.
+  final Widget? header;
 
   static const _margenVertical = 18.0;
 
@@ -118,23 +237,25 @@ class _Contenido extends StatelessWidget {
   Widget build(BuildContext context) => LayoutBuilder(
     builder: (context, restricciones) {
       final relleno = EdgeInsets.symmetric(
-        horizontal: restricciones.maxWidth < 600 ? 18 : 48,
+        horizontal: restricciones.maxWidth < Pantalla.compacta ? 18 : 48,
         vertical: _margenVertical,
       );
       // Reservando la altura del hueco, el contenido queda centrado cuando
       // cabe y se desplaza solo cuando no cabe. Con la letra muy ampliada en
-      // un móvil, la cabecera y el pie pueden dejar un hueco mínimo: de ahí
-      // que se acote a cero en vez de restar sin más.
+      // un móvil, la cabecera puede dejar un hueco mínimo: de ahí que se acote
+      // a cero en vez de restar sin más.
       final alturaDisponible = restricciones.maxHeight.isFinite
           ? (restricciones.maxHeight - _margenVertical * 2).clamp(
               0.0,
               double.infinity,
             )
           : 0.0;
-      return SingleChildScrollView(
+      final cuerpo = Padding(
         padding: relleno,
         child: ConstrainedBox(
-          constraints: BoxConstraints(minHeight: alturaDisponible),
+          constraints: BoxConstraints(
+            minHeight: header == null ? alturaDisponible : 0,
+          ),
           child: Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: Medidas.anchoMaximo),
@@ -143,30 +264,13 @@ class _Contenido extends StatelessWidget {
           ),
         ),
       );
+      return SingleChildScrollView(
+        child: header == null
+            ? cuerpo
+            : Column(children: [header!, cuerpo]),
+      );
     },
   );
-}
-
-class _PieDePagina extends StatelessWidget {
-  const _PieDePagina({required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: scheme.surfaceContainer,
-        border: Border(
-          top: BorderSide(color: scheme.outlineVariant, width: Medidas.trazo),
-        ),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      child: child,
-    );
-  }
 }
 
 /// Banda de aviso cálida en la parte superior de la pantalla.

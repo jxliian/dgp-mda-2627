@@ -2,30 +2,36 @@ import 'package:flutter/material.dart';
 import '../../models/domain.dart';
 import 'status_badge.dart';
 
-/// Insignias que resumen una tarea de un vistazo: cuándo es, de quién es y en
-/// qué estado está.
+/// Insignias que resumen una tarea de un vistazo: de quién es y en qué estado
+/// está.
+///
+/// No se marca el día: la agenda ya es la de un día concreto y la etiqueta
+/// «Hoy» repetida en cada tarea no aportaba nada. Lo que sí hace falta saber
+/// es quién puso la tarea ahí, porque no es lo mismo una que se ha puesto el
+/// propio alumno que una que le manda su profesor.
 List<Widget> taskBadges(
   AgendaTask task, {
   required bool own,
+  bool viewerIsStudent = true,
   bool showCreator = false,
 }) => [
-  if (sameDay(task.date, DateTime.now()))
-    const StatusBadge(
-      'Hoy',
-      tone: BadgeTone.attention,
-      icon: Icons.today_outlined,
-    ),
   if (task.className != null)
     StatusBadge(
       'Aula · ${task.className}',
       tone: BadgeTone.main,
       icon: Icons.groups_outlined,
-    ),
-  if (own && task.className == null)
-    const StatusBadge(
-      'Mi tarea',
+    )
+  else if (own)
+    StatusBadge(
+      viewerIsStudent ? 'Creada por mí' : 'Creada por el alumno',
       tone: BadgeTone.warm,
       icon: Icons.push_pin_outlined,
+    )
+  else
+    const StatusBadge(
+      'Creada por el profesor',
+      tone: BadgeTone.main,
+      icon: Icons.school_outlined,
     ),
   if (showCreator && task.creatorRole != null)
     StatusBadge(

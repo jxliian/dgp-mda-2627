@@ -359,7 +359,8 @@ void main() {
         isNull,
       );
       await _enter(tester, 'Nombre de usuario *', 'nuevo');
-      await _enter(tester, 'Nombre y apellidos *', 'Nuevo alumno');
+      await _enter(tester, 'Nombre *', 'Nuevo');
+      await _enter(tester, 'Apellidos', 'alumno');
       await _enter(tester, 'Contraseña *', '1234');
       await _enter(tester, 'Confirmar contraseña', '1234');
       await tester
@@ -394,7 +395,8 @@ void main() {
         }
         _expectNoContactField(tester);
         await _enter(tester, 'Nombre de usuario *', 'nueva');
-        await _enter(tester, 'Nombre y apellidos *', 'Persona nueva');
+        await _enter(tester, 'Nombre *', 'Persona');
+        await _enter(tester, 'Apellidos', 'nueva');
         await _enter(tester, 'Contraseña *', '1234');
         await _enter(tester, 'Confirmar contraseña', '1234');
         await tester
@@ -431,7 +433,8 @@ void main() {
       final state = AppState(repository: repo);
       await _mount(tester, state, const UserEditorScreen());
       await _enter(tester, 'Nombre de usuario *', 'nuevo');
-      await _enter(tester, 'Nombre y apellidos *', 'Nuevo alumno');
+      await _enter(tester, 'Nombre *', 'Nuevo');
+      await _enter(tester, 'Apellidos', 'alumno');
       await _enter(tester, 'Contraseña *', '1234');
       await _enter(tester, 'Confirmar contraseña', '1234');
       await tester

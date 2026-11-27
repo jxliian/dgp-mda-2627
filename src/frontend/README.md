@@ -126,6 +126,78 @@ La planificación nueva requiere conexión. Los errores de permisos no se sustit
 
 La autenticación requiere conexión y el token no se persiste. Después de reiniciar hay que autenticarse otra vez para recuperar la cola del mismo usuario. La caché se elimina al cerrar sesión correctamente; permite recuperar confirmaciones tras un cierre inesperado una vez autenticado de nuevo.
 
+## Reglas de interfaz
+
+Tres reglas que valen para todas las pantallas. Están escritas aquí y
+aplicadas en un único sitio del código, para que una pantalla nueva nazca
+coherente en lugar de arreglarse después.
+
+### 1. Una sola barra, siempre arriba
+
+`PageShell` dibuja la única barra de la aplicación, y siempre en el mismo
+orden: volver a la izquierda, título, y a la derecha las acciones de la
+pantalla, la foto de la sesión y las de sesión. Todos sus botones son
+`BarAction`, de modo que comparten contorno, altura y tipografía: no hay
+botones de texto mezclados con botones de contorno. En pantalla estrecha pasan
+a iconos con nombre accesible.
+
+No hay barra inferior. Una pantalla no añade navegación por su cuenta.
+
+### 2. Dónde van las acciones del contenido
+
+Lo decide `ScreenActions`, y `FormActions` es su caso para formularios:
+
+| Acción | Dónde |
+|---|---|
+| Principal (guardar, terminar, crear) | abajo del todo, a la derecha, rellena |
+| Secundarias (cancelar, ver, alternativa) | a su izquierda, con contorno |
+| Destructiva (eliminar, retirar) | fila propia debajo, a la izquierda y separada |
+| Navegación (abrir otra pantalla) | arriba, junto al contenido con el que tiene que ver |
+
+Nada va después de la acción principal. La destructiva nunca comparte fila con
+ella: son dos decisiones distintas y una no se puede deshacer.
+
+### 3. Puntos de corte
+
+Los define `Pantalla` en `lib/ui/theme.dart` y se miden sobre el ancho
+disponible para el contenido, no sobre el de la pantalla:
+
+| Nombre | Ancho | Qué cambia |
+|---|---|---|
+| `compacta` | 600 | por debajo, una sola columna y controles compactos |
+| `media` | 760 | barra fija con texto, flechas a los lados, dos campos por fila |
+| `amplia` | 1024 | dos columnas de contenido enteras |
+
+El dispositivo objetivo es la tablet de 10 pulgadas del centro: **1280×800
+apaisada y 800×1280 vertical**. `Pantalla.altoHolgado` (860) distingue las
+pantallas bajas, donde el teclado de dibujos y la rejilla de fotos se aprietan
+para no obligar a desplazar. `test/sin_scroll_test.dart` comprueba las dos
+orientaciones.
+
+### 4. El contenido crece; lo que lo rodea, menos
+
+Un alumno puede poner la letra en «Enorme», que es el doble del tamaño base.
+Tampoco entonces debe tener que desplazar la pantalla: si no cupiera, la
+aplicación dejaría de servir justo a quien más la necesita.
+
+Para que quepa, lo que crece al doble es **lo que hay que leer** —el nombre de
+la tarea, su explicación, los nombres de los días— y no lo que lo rodea:
+
+| Qué | Hasta cuánto crece |
+|---|---|
+| Contenido | sin límite, lo que diga el perfil |
+| Título de la pantalla | 1,3 × |
+| Rótulos de los botones de acción | 1,4 × |
+| Insignias de estado | 1,4 × |
+
+Además, con `Pantalla.letraGrande` (1,45 × o más) los iconos decorativos
+encogen o desaparecen, las barras pasan a iconos, las listas reparten menos
+elementos por página y el ancho cómodo de lectura crece con la letra, porque
+se mide en caracteres por línea y no en píxeles.
+
+El grupo `letra enorme` de `test/sin_scroll_test.dart` comprueba la agenda, la
+tarea, el selector de día y la accesibilidad con la letra al máximo.
+
 ## Accesibilidad y límites
 
 Interfaz en español, controles amplios, etiquetas de acciones, teclado, texto escalable, estados con texto e iconos, colores configurables, contraste alto y lectura en voz cuando esté habilitada. El alumno dispone de ajustes de accesibilidad y foto cuando tiene permiso para modificar su perfil.

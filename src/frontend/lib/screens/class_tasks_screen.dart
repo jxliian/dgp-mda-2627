@@ -82,7 +82,6 @@ class _ClassTasksScreenState extends State<ClassTasksScreen> {
   Widget build(BuildContext context) => PageShell(
     title: 'Tareas de ${widget.classroom.name}',
     subtitle: 'Se asignan a todos los alumnos del aula',
-    footer: const AppFooter(),
     child: Column(
       children: [
         if (error != null) Notice(error!, error: true),
@@ -97,11 +96,13 @@ class _ClassTasksScreenState extends State<ClassTasksScreen> {
             builder: _ficha,
           ),
         ),
-        const SizedBox(height: 20),
-        FilledButton.icon(
-          onPressed: ocupado ? null : () => editar(),
-          icon: const Icon(Icons.add),
-          label: const Text('Crear tarea para toda el aula'),
+        ScreenActions(
+          topPadding: 20,
+          primary: FilledButton.icon(
+            onPressed: ocupado ? null : () => editar(),
+            icon: const Icon(Icons.add),
+            label: const Text('Crear tarea para toda el aula'),
+          ),
         ),
       ],
     ),

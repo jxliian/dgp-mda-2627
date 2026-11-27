@@ -4,6 +4,7 @@ import 'package:autovida/models/domain.dart';
 import 'package:autovida/services/api_client.dart';
 import 'package:autovida/services/repository.dart';
 import 'package:autovida/state/app_state.dart';
+import 'package:autovida/ui/ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -233,8 +234,8 @@ void main() {
         hasLength(1),
       );
 
-      await _choose(tester, 'Añadir alumno', 'Pablo');
-      final enrol = find.text('Matricular alumno');
+      // Las matrículas son dos listas: se pasa al alumno de una a la otra.
+      final enrol = find.byTooltip('Matricular a Pablo');
       await tester.ensureVisible(enrol);
       await tester.tap(enrol);
       await tester.pumpAndSettle();
@@ -321,8 +322,10 @@ void main() {
     await tester.ensureVisible(find.text('Gestionar asociaciones'));
     await tester.tap(find.text('Gestionar asociaciones'));
     await tester.pumpAndSettle();
-    await _choose(tester, 'Aula para asignar', 'Aula 1');
+    // El aula se elige en su propia pantalla, no en un desplegable.
     await tester.tap(find.text('Asignar personal al aula'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Aula 1').first);
     await tester.pumpAndSettle();
     expect(server.staffAssigned, true);
     expect(find.text('Personal asignado al aula Aula 1.'), findsOneWidget);
@@ -369,23 +372,44 @@ void main() {
       final server = _MainApi(UserRole.student, profileMod: permitted);
       final state = await _open(tester, server);
       expect(state.access.number('ntasks_visible'), 3);
-      expect(find.text('Ajustes'), permitted ? findsOneWidget : findsNothing);
-      if (permitted) {
-        await tester.tap(find.text('Ajustes'));
+      expect(find.byType(UserAvatar), findsOneWidget);
+      expect(
+        tester.getTopLeft(find.byType(UserAvatar)).dx,
+        lessThan(tester.getTopLeft(find.text('Inicio')).dx),
+      );
+      expect(find.text('Ajustes'), findsNothing);
+      expect(
+        find.byTooltip('Ajustes'),
+        permitted ? findsOneWidget : findsNothing,
+      );
+      if (!permitted) {
+        await tester.tap(find.byType(UserAvatar));
         await tester.pumpAndSettle();
-        expect(find.text('Visualización y apoyos'), findsOneWidget);
+        expect(find.text('Mis ajustes'), findsNothing);
+      }
+      if (permitted) {
+        await tester.tap(find.byTooltip('Ajustes'));
+        await tester.pumpAndSettle();
         expect(find.text('Cambiar contraseña'), findsNothing);
         expect(find.textContaining('Nueva contraseña'), findsNothing);
+        // El alumno cambia su foto desde sus ajustes, y la accesibilidad
+        // vive en su propia pantalla: desde aquí solo se entra.
         expect(find.text('Cambiar mi foto'), findsOneWidget);
+        expect(find.text('Alto contraste'), findsNothing);
+        await tester.tap(find.text('Abrir mis opciones de accesibilidad'));
+        await tester.pumpAndSettle();
+        expect(find.text('Tamaño de letra'), findsOneWidget);
         await tester.ensureVisible(find.text('Alto contraste'));
         await tester.tap(find.text('Alto contraste'));
         await tester.pumpAndSettle();
-        await tester.ensureVisible(find.text('Guardar mis ajustes'));
-        await tester.tap(find.text('Guardar mis ajustes'));
+        await tester.ensureVisible(find.text('Guardar'));
+        await tester.tap(find.text('Guardar'));
         await tester.pumpAndSettle();
         expect(server.settings, {'stud_access_contrast': true});
         expect(state.access.flag('contrast'), true);
-        expect(find.text('Tus ajustes se han guardado.'), findsOneWidget);
+        // El guardado se confirma con un tick junto a la foto de la barra,
+        // no con un aviso que se queda ocupando sitio.
+        expect(state.confirmation, 'Ajustes guardados');
       }
       expect(tester.takeException(), isNull);
       await _close(tester, state);

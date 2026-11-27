@@ -1,0 +1,263 @@
+% ==============================================================================
+% PLAN DE GESTION DE RIESGOS — PROYECTO AUTOVIDA
+% CLENCH Software Development · Documento RSK-2627-01
+% Diseno: el mismo sistema del presupuesto (PRESUPUESTO_AUTOVIDA.tex).
+% ==============================================================================
+\documentclass[a4paper,10pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-tabla,es-nodecimaldot]{babel}
+\usepackage[left=2.1cm, right=2.1cm, top=3.0cm, bottom=2.6cm,
+            headheight=1.6cm, headsep=0.9cm, footskip=1.2cm]{geometry}
+\usepackage{graphicx}
+\usepackage[table]{xcolor}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage{lastpage}
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+\usepackage{textcomp}
+\usepackage{amsmath}
+\usepackage{eso-pic}
+\usepackage{pdflscape}
+\usepackage{needspace}
+\usepackage{letterspace}
+
+% Fira Sans como única familia: humanista, técnica, cifras de altura uniforme.
+\usepackage[sfdefault,lf]{FiraSans}
+\renewcommand{\familydefault}{\sfdefault}
+\linespread{1.12}
+
+% ------------------------------------------------------------------ Paleta
+\definecolor{tinta}{HTML}{0E2A33}     % texto y titulares
+\definecolor{cian}{HTML}{00A6C7}      % estructura: reglas, numeración
+\definecolor{cianoscuro}{HTML}{005D75}
+\definecolor{magenta}{HTML}{AD0090}   % reservado al importe total
+\definecolor{gris}{HTML}{5A6872}      % texto secundario
+\definecolor{banda}{HTML}{EDF5F7}     % cabeceras de tabla
+\definecolor{cebra}{HTML}{F7FAFB}     % filas alternas
+\definecolor{linea}{HTML}{C9D9DF}
+\definecolor{cianclaro}{HTML}{8FC7D6} % texto secundario sobre fondo tinta
+
+\usepackage[hyperfootnotes=false,colorlinks=true,linkcolor=cianoscuro,
+            urlcolor=cianoscuro]{hyperref}
+
+% ------------------------------------------------------------------ Rotulos
+% Mayusculas con tracking abierto: el recurso tipografico de la marca.
+\newcommand{\rotulo}[1]{{\fontsize{8}{10}\selectfont\bfseries\textls[200]{\MakeUppercase{#1}}}}
+
+% Fondo de la portada: tinta a sangre y zocalo cian.
+\newcommand{\fondoportada}{%
+  \AddToShipoutPictureBG*{%
+    \AtPageLowerLeft{\color{tinta}\rule{\paperwidth}{\paperheight}}%
+    \AtPageLowerLeft{\color{cian}\rule{\paperwidth}{7mm}}%
+  }%
+}
+
+% ------------------------------------------------------------------ Titulares
+\titleformat{\section}[block]
+  {\color{tinta}\Large\bfseries}
+  {\color{cian}\large\bfseries\thesection\hspace{0.55em}}{0pt}{}
+  [\vspace{4pt}\hbox to\linewidth{{\color{cian}\rule[0pt]{2.2cm}{1.4pt}}%
+   {\color{linea}\leaders\hrule height 0.5pt\hfill}}]
+\titlespacing*{\section}{0pt}{8pt}{4pt}
+
+\setcounter{secnumdepth}{0}
+
+% ------------------------------------------------------------------ Membrete
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\color{gris}\rotulo{Plan de riesgos RSK-2627-01\ \ /\ \ Proyecto AUTOVIDA}}
+\fancyhead[R]{\raisebox{-0.35\height}{\includegraphics[height=0.85cm]{images/logo_clench.png}}}
+\fancyfoot[L]{\scriptsize\color{gris} CLENCH Software Development\, ·\, E.T.S.I.I.T., c/ Periodista Daniel Saucedo Aranda s/n, 18014 Granada}
+\fancyfoot[R]{\scriptsize\color{gris} \thepage\,/\,\pageref{LastPage}}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+\fancyheadoffset{0pt}
+
+\renewcommand{\headrule}{\vspace{3pt}\hbox to\headwidth{%
+  {\color{cian}\rule[0pt]{2.2cm}{1.6pt}}%
+  {\color{linea}\leaders\hrule height 0.4pt\hfill}}}
+\renewcommand{\footrule}{\hbox to\headwidth{\color{linea}\leaders\hrule height 0.4pt\hfill}\vspace{4pt}}
+
+% ------------------------------------------------------------------ Tablas
+\setlength{\arrayrulewidth}{0.7pt}
+\arrayrulecolor{cianoscuro}
+\renewcommand{\arraystretch}{1.45}
+\setlength{\tabcolsep}{7pt}
+
+\newcommand{\tablacebra}{\rowcolors{2}{white}{cebra}}
+\newcommand{\cabtxt}[1]{\cellcolor{tinta}\textbf{\color{white}#1}}
+\newcommand{\eu}{\,\texteuro}
+
+\begin{document}
+\color{tinta}
+
+% ==============================================================================
+% PORTADA — tinta a sangre, la misma que el presupuesto.
+% ==============================================================================
+\fondoportada
+\thispagestyle{empty}
+\color{white}
+
+\vspace*{0.4cm}
+\noindent\includegraphics[width=5.8cm]{images/logo_clench_portada.png}
+
+\vfill
+
+\noindent{\color{cianclaro}\rotulo{Gestión de riesgos del proyecto}}\\[0.55cm]
+\noindent{\color{cian}\rule{3.4cm}{3pt}}\\[0.8cm]
+\noindent{\fontsize{52}{54}\selectfont\bfseries AUTOVIDA}\\[0.5cm]
+\noindent{\fontsize{15}{21}\selectfont\color{cianclaro} Diez riesgos identificados y cinco prioritarios\\ Lista de riesgos y medidas de respuesta}
+
+\vspace{0.7cm}
+\noindent{\color{cianclaro}\rotulo{Integrantes de CLENCH Software Development}}\\[0.3cm]
+{\small
+\setlength{\tabcolsep}{0pt}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X@{}}
+José Rodríguez Fernández & Julián Carrión Tovar\\[3pt]
+Yeray Rodríguez Navas & Pablo de la Torre Roldán\\[3pt]
+Pablo Hernández Ibáñez & Miguel Ángel Luque Gómez\\[3pt]
+Amine Azzammouri & \\
+\end{tabularx}}\par
+\vspace{0.6cm}
+\noindent{\small\textbf{Coordinador:} Pablo Hernández Ibáñez}\\[0.3cm]
+\noindent{\small Granada, 19 de noviembre de 2026}
+
+\vfill
+
+\noindent{\color{cian}\rule{\textwidth}{0.5pt}}\\[0.55cm]
+\noindent
+\begin{minipage}[t]{0.34\textwidth}
+  {\color{cian}\rotulo{Documento}}\\[0.30cm]
+  {\small RSK-2627-01, versión 1.6\\ Revisado el 19/11/2026}
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.28\textwidth}
+  {\color{cian}\rotulo{Alcance}}\\[0.30cm]
+  {\small 10 riesgos identificados\\ 5 riesgos prioritarios gestionados}
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.32\textwidth}
+  {\color{cian}\rotulo{Destinataria}}\\[0.30cm]
+  {\small C.E.E. Fundación Purísima Concepción\\ Granada}
+\end{minipage}
+
+\vspace{1.15cm}
+\noindent{\scriptsize\color{cianclaro} Escuela Técnica Superior de Ingenierías Informática y de Telecomunicación (ETSIIT), Universidad de Granada\\
+c/ Periodista Daniel Saucedo Aranda, s/n, 18014 Granada, España}
+\vspace*{0.2cm}
+
+\newpage
+\color{tinta}
+
+% ==============================================================================
+% TABLA DE LOS DIEZ RIESGOS (APAISADA)
+% ==============================================================================
+\newgeometry{left=1.6cm, right=1.6cm, top=2.4cm, bottom=2.0cm,
+             headheight=1.1cm, headsep=0.6cm, footskip=1.0cm}
+\begin{landscape}
+\section{Lista de riesgos del proyecto}
+
+\noindent Los riesgos se presentan por probabilidad estimada para las iteraciones restantes. Se mantiene la selección de los \textbf{cinco primeros como prioritarios} y se revisan sus medidas.
+
+\smallskip
+\noindent{\footnotesize\textbf{Horas revisadas:} esfuerzo adicional total del equipo en un escenario acotado, con valor central, rango orientativo y desglose; pendiente de contrastar con horas reales. Costes: 19,51\eu/h; porcentajes sobre 323 h de iteración 2. La prevención se planifica aparte. El retraso depende de responsables, dependencias y espera: no equivale a horas-persona. No sumar reprocesos solapados.}
+
+\vspace{0.22cm}
+\noindent{\footnotesize
+\renewcommand{\arraystretch}{1.10}%
+\setlength{\tabcolsep}{4.5pt}%
+\tablacebra
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{3.4cm}>{\raggedleft\arraybackslash}p{2.1cm}>{\raggedright\arraybackslash}p{5.2cm}>{\raggedright\arraybackslash}p{6.55cm}>{\raggedright\arraybackslash}p{6.55cm}@{}}
+\hline
+\cabtxt{Nombre del riesgo} & \cabtxt{Probabilidad de ocurrencia \%} & \cabtxt{Impacto (tiempo / costes / alcance)} & \cabtxt{Actividades para mitigar el riesgo} & \cabtxt{Actividades para evitar el riesgo}\\
+\hline
+\endfirsthead
+\hline
+\cabtxt{Nombre del riesgo} & \cabtxt{Probabilidad de ocurrencia \%} & \cabtxt{Impacto (tiempo / costes / alcance)} & \cabtxt{Actividades para mitigar el riesgo} & \cabtxt{Actividades para evitar el riesgo}\\
+\hline
+\endhead
+
+\textbf{R1.} La app no resulta usable para el alumnado PTVAL
+& 50\,\%
+& \textbf{24 h-persona} (rango 16--40 h; 7,4\,\% iter. 2); 468,24\eu{}. Desglose: 4 h validación repetida + 12 h ajustes de interfaz + 8 h regresión. Alcance: corregir flujos y apoyos esenciales; replanificar mejoras secundarias.
+& Corregir los flujos que fallen con los perfiles evaluados; ajustar componentes compartidos y apoyos individuales. Repetir pruebas con usuarios y de regresión, manteniendo los apoyos esenciales y las pruebas de accesibilidad y desplazamiento.
+& Validar prototipos y pantallas en tablet con profesorado y alumnado PTVAL. Acordar criterios de comprensión, errores y ayuda necesaria. Aplicar WCAG 2.2 AA; distinguir los objetivos propios de contraste 7:1 y controles de 64 px. Revisión del Gestor de Usabilidad.
+\\
+
+\textbf{R2.} Se exponen datos personales de menores
+& 45\,\%
+& \textbf{20 h-persona} (rango 12--32 h; 6,2\,\% iter. 2); 390,20\eu{}. Desglose: 4 h revisar accesos + 8 h permisos + 8 h pruebas. Alcance: pausa del piloto con datos reales. El importe cubre corrección, no todos los daños de una exposición.
+& Suspender accesos no autorizados y revocar sus sesiones. Corregir permisos de alumnado y avatares y comprobar que cada cuenta accede solo a sus alumnos autorizados. Usar datos ficticios durante la revisión.
+& Aumentar la seguridad de a quién se entrega la app: verificar con el centro personas y dispositivos autorizados, registrar entregas y asignar cuentas individuales. Complementar el control de entrega con restricciones de la API y pruebas de permisos; retirar accesos cuando proceda.
+\\
+
+\textbf{R3.} El cliente o la profesora cambian requisitos, o los criterios de las historias son ambiguos
+& 45\,\%
+& \textbf{20 h-persona} (rango 12--32 h; 6,2\,\% iter. 2); 390,20\eu{}. Desglose: 4 h aclarar y reestimar + 12 h adaptar una historia + 4 h regresión. Alcance: replanificar la historia afectada; cambios mayores requieren reestimar.
+& Planear semanalmente revisiones con el cliente para acordar cambios. Registrar acuerdos en acta, aclarar criterios y reestimar historias; ajustar el sprint según valor, esfuerzo y dependencias.
+& Preparar criterios y bocetos antes de las revisiones; mantener el alcance validado y distinguir aclaraciones de nuevas peticiones. Acordar quién aprueba cada cambio y su entrega; confirmar la disponibilidad semanal con el centro.
+\\
+
+\textbf{R4.} El diseño de la base de datos da errores de datos (estado de tareas compartido, historial que se pierde)
+& 40\,\%
+& \textbf{32 h-persona} (rango 24--40 h; 9,9\,\% iter. 2); 624,32\eu{}. Desglose: 8 h modelo + 12 h migración y consultas + 12 h pruebas y recuperación. Alcance: retrabajo de una implementación con estados compartidos; bloquea aceptar el progreso individual.
+& Separar definición y realización por alumno y fecha, incluido cada paso. Corregir consultas y migrar con copia y reversión si el progreso se implementó sobre estados compartidos. Revisar borrados según el histórico acordado; conservar las cascadas correctas.
+& Revisar antes del desarrollo los estados globales de \texttt{Tasks} y \texttt{Steps} y las asignaciones de \texttt{stud\_task}. Definir progreso individual e histórico. Probar dos alumnos con avances diferentes, dos fechas y borrados. El esquema actual justifica mantener este riesgo.
+\\
+
+\textbf{R5.} Frontend y backend dejan de encajar porque uno cambia la API sin avisar
+& 40\,\%
+& \textbf{16 h-persona} (rango 8--24 h; 5,0\,\% iter. 2); 312,16\eu{}. Desglose: 4 h diagnóstico + 6 h adaptar contrato y cliente + 6 h integración real. Alcance: corregir un contrato y cerrar el flujo afectado; no rehacer la API.
+& Localizar el contrato incompatible; restaurar una combinación compatible o adaptar cliente y API conjuntamente. Verificar flujo, respuestas, errores y permisos contra la API real. Usar \texttt{DemoRepository} para trabajo independiente; registrar funciones ocultadas como pendientes.
+& Acordar y versionar OpenAPI; revisar rutas y JSON entre ambos equipos y comprobar contratos e integración en cada cambio compartido. Mantener la detección de capacidades. El desajuste de consulta de agenda, resuelto en iteración 1, justifica vigilar su repetición.
+\\
+\hline
+\pagebreak
+
+\textbf{R6.} No llegamos al plazo y todo se acumula al final de la iteración
+& 35\,\%
+& \textbf{24 h-persona} (rango 16--40 h; 7,4\,\% iter. 2); 468,24\eu{}. Desglose: 4 h replanificar + 12 h resolver pendientes + 8 h integración y pruebas. Alcance: peligran el cierre y las mejoras secundarias; acordar su aplazamiento.
+& \multicolumn{2}{>{\raggedright\arraybackslash}p{13.42cm}@{}}{Sin medidas específicas desarrolladas; se mantiene en seguimiento por debajo de los cinco prioritarios.}
+\\
+
+\textbf{R7.} El colegio no tiene tiempo para validar ni para hacer pruebas con usuarios
+& 30\,\%
+& \textbf{8 h-persona} (rango 4--12 h; 2,5\,\% iter. 2); 156,08\eu{}. Desglose: 2 h recoordinar + 2 h preparar de nuevo + 4 h repetir validación. Alcance: validación con alumnado pendiente. La espera del centro puede exceder el esfuerzo del equipo.
+& \multicolumn{2}{>{\raggedright\arraybackslash}p{13.42cm}@{}}{Sin medidas específicas desarrolladas; se mantiene en seguimiento por debajo de los cinco prioritarios.}
+\\
+
+\textbf{R8.} El conocimiento queda aislado: solo un subgrupo entiende su parte
+& 25\,\%
+& \textbf{16 h-persona} (rango 8--24 h; 5,0\,\% iter. 2); 312,16\eu{}. Desglose: 6 h transferencia + 4 h completar guías + 6 h corrección acompañada. Alcance: se ralentiza el módulo cuyo referente falte, según su cobertura.
+& \multicolumn{2}{>{\raggedright\arraybackslash}p{13.42cm}@{}}{Sin medidas específicas desarrolladas; se mantiene en seguimiento por debajo de los cinco prioritarios.}
+\\
+
+\textbf{R9.} Jira no refleja el estado real del código
+& 25\,\%
+& \textbf{6 h-persona} (rango 4--10 h; 1,9\,\% iter. 2); 117,06\eu{}. Desglose: 2 h auditar tablero + 2 h conciliar evidencias + 2 h verificar y actualizar. Alcance: cierre formal y previsión poco fiables hasta conciliar código y tablero.
+& \multicolumn{2}{>{\raggedright\arraybackslash}p{13.42cm}@{}}{Sin medidas específicas desarrolladas; se mantiene en seguimiento por debajo de los cinco prioritarios.}
+\\
+
+\textbf{R10.} El entorno falla en algún equipo (Windows/Linux, Docker, Flutter, CORS)
+& 20\,\%
+& \textbf{8 h-persona} (rango 4--16 h; 2,5\,\% iter. 2); 156,08\eu{}. Desglose: 2 h diagnóstico + 4 h corregir entorno + 2 h verificar arranque. Alcance: bloqueo temporal de un equipo; varios equipos afectados requieren reestimar.
+& \multicolumn{2}{>{\raggedright\arraybackslash}p{13.42cm}@{}}{Sin medidas específicas desarrolladas; se mantiene en seguimiento por debajo de los cinco prioritarios.}
+\\
+\hline
+\end{longtable}}
+% Base de la revisión de R4: CreacionTablas.sqlscript, Tasks.task_finished,
+% Steps.step_finished y stud_task; clases_db.assign_task comparte task_id.
+% Base de R5: peticion_backend.md (antecedente resuelto) y repository.dart,
+% discover/camposDelCuerpo/canTrackProgress; no se presupone una avería activa.
+% Las estimaciones cubren reproceso acotado, no el desarrollo funcional normal.
+\end{landscape}
+\restoregeometry
+
+\end{document}

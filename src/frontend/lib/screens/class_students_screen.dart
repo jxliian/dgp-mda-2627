@@ -61,12 +61,13 @@ class _ClassStudentsScreenState extends State<ClassStudentsScreen> {
   Widget build(BuildContext context) => PageShell(
     title: widget.className,
     subtitle: 'Alumnos del aula',
-    footer: const AppFooter(),
     child: LoadPanel<Classroom>(
       key: ValueKey(revision),
       load: () => AppScope.of(context).repository.classDetail(widget.className),
       builder: (aula) => Column(
         children: [
+          _accionesDelAula(aula),
+          const SizedBox(height: 20),
           Text(
             'Total: ${aula.studentCount} alumnos',
             style: const TextStyle(fontWeight: FontWeight.w600),
@@ -76,8 +77,6 @@ class _ClassStudentsScreenState extends State<ClassStudentsScreen> {
             students: aula.students,
             empty: 'Todavía no hay alumnos en esta aula.',
           ),
-          const SizedBox(height: 24),
-          _accionesDelAula(aula),
           if (gestionando) _gestionDeMatriculas(aula),
           if (error != null) Notice(error!, error: true),
           if (aviso != null) Notice(aviso!),
@@ -86,6 +85,7 @@ class _ClassStudentsScreenState extends State<ClassStudentsScreen> {
     ),
   );
 
+  /// Navegación del aula: va arriba, antes del contenido.
   Widget _accionesDelAula(Classroom aula) => Wrap(
     spacing: 20,
     runSpacing: 12,
