@@ -350,8 +350,10 @@ def update_student_task(
         lock_student_agendas(db, [student_username])
         existing = db.execute(
             text(
-                "SELECT task.task_start_hour, task.task_duration, assigned.task_index, "
-                "assigned.class_name_fk "
+                "SELECT task.task_start_hour, task.task_duration, task.task_creator, "
+                "EXISTS (SELECT 1 FROM Staff staff_member "
+                "WHERE staff_member.staff_usr = task.task_creator) AS created_by_staff, "
+                "assigned.task_index, assigned.class_name_fk "
                 "FROM Tasks task "
                 "JOIN stud_task assigned ON assigned.task_id_fk = task.task_id "
                 "WHERE task.task_id = :task_id AND assigned.stud_usr_fk = :student_username "
@@ -368,15 +370,12 @@ def update_student_task(
         if existing is None:
             raise CatalogError(ErrorCode.TASK_NOT_FOUND)
 
-        existing_start_hour = existing["task_start_hour"]
-        if existing_start_hour is not None:
-            during_school_hours = SCHOOL_START <= existing_start_hour < SCHOOL_END
-            if creator_role == "parent" and during_school_hours:
-                raise CatalogError(ErrorCode.PARENT_TASK_DURING_SCHOOL_HOURS)
-            if creator_role == "staff" and not during_school_hours:
-                raise CatalogError(ErrorCode.STAFF_TASK_OUTSIDE_SCHOOL_HOURS)
-        elif creator_role == "staff":
-            raise CatalogError(ErrorCode.STAFF_TASK_OUTSIDE_SCHOOL_HOURS)
+        if creator_role == "parent" and existing["created_by_staff"]:
+            raise CatalogError(ErrorCode.PARENT_EDIT_STAFF_TASK_DENIED)
+
+        validate_task_schedule(
+            creator_role, existing["task_start_hour"], existing["task_duration"]
+        )
 
         if existing["class_name_fk"] is not None:
             raise CatalogError(ErrorCode.TASK_NOT_FOUND)

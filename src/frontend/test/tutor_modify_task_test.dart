@@ -367,4 +367,102 @@ void main() {
       state.dispose();
     },
   );
+
+  testWidgets(
+    'acceptance criteria: rejects invalid fields, blocks staff tasks, and student sees updated task',
+    (tester) async {
+      tester.view.physicalSize = const Size(1280, 900);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final repo = _TrackingDemoRepository();
+      await repo.login('familia', '1234', UserRole.parent);
+      final state = AppState(repository: repo);
+
+      await tester.pumpWidget(AutovidaApp(state: state));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Pablo García'));
+      await tester.pumpAndSettle();
+
+      // 1. Tarea creada por personal (lucia, 09:00): el tutor no puede modificarla.
+      await tester.tap(
+        find.byTooltip('Modificar la tarea Preparar la mochila'),
+      );
+      await tester.pumpAndSettle();
+
+      // Si intenta guardarla manteniendo horario escolar, rechaza con mensaje descriptivo.
+      await tester.tap(find.text('Guardar cambios'));
+      await tester.pumpAndSettle();
+      expect(
+        find.text(
+          'La tarea completa debe quedar fuera del horario escolar (09:00–15:00).',
+        ),
+        findsOneWidget,
+      );
+      expect(repo.saveTaskCalls, 0);
+
+      // Incluso quitando la hora fija, el repositorio impide modificar tareas del personal.
+      await tester.tap(find.text('Sin hora fija'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Guardar cambios'));
+      await tester.pumpAndSettle();
+      expect(
+        find.textContaining('creada por el personal del centro'),
+        findsOneWidget,
+      );
+
+      // Volver a la agenda del alumno y abrir una tarea del tutor.
+      await tester.tap(find.text('Cancelar'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byTooltip('Página siguiente'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byTooltip('Modificar la tarea Leer mi cuento'));
+      await tester.pumpAndSettle();
+
+      // 2. Campos incorrectos: título vacío y duración inválida muestran mensajes descriptivos.
+      await tester.enterText(
+        find.widgetWithText(TextFormField, 'Nombre de la tarea *'),
+        '   ',
+      );
+      await tester.enterText(
+        find.widgetWithText(TextFormField, 'Duración (minutos) *'),
+        '0',
+      );
+      await tester.tap(find.text('Guardar cambios'));
+      await tester.pumpAndSettle();
+      expect(find.text('Completa este campo.'), findsOneWidget);
+      expect(
+        find.text('Escribe un número entero mayor que cero.'),
+        findsOneWidget,
+      );
+
+      // 3. Modificación válida por el tutor.
+      await tester.enterText(
+        find.widgetWithText(TextFormField, 'Nombre de la tarea *'),
+        'Leer mi cuento ilustrado',
+      );
+      await tester.enterText(
+        find.widgetWithText(TextFormField, 'Duración (minutos) *'),
+        '35',
+      );
+      await tester.tap(find.text('Guardar cambios'));
+      await tester.pumpAndSettle();
+      expect(find.text('La tarea se ha modificado.'), findsOneWidget);
+
+      // 4. El alumno inicia sesión y ve el cambio reflejado en su propia agenda.
+      await state.logout();
+      await state.login('pablo', '1234', UserRole.student);
+      await tester.pumpAndSettle();
+      expect(find.text('Mis tareas'), findsOneWidget);
+      await tester.tap(find.byTooltip('Página siguiente'));
+      await tester.pumpAndSettle();
+      expect(find.text('Leer mi cuento ilustrado'), findsOneWidget);
+      expect(find.text('17:00 · 35 min'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+
+      await tester.pumpWidget(const SizedBox.shrink());
+      state.dispose();
+    },
+  );
 }

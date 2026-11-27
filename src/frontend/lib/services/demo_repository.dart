@@ -489,6 +489,20 @@ class DemoRepository implements AutovidaRepository {
         previous.creator != _current!.username) {
       throw const ApiException('Solo puedes modificar tus propias tareas.');
     }
+    if (previous != null && _current!.role == UserRole.parent) {
+      if (_users[previous.creator]?.role == UserRole.staff ||
+          previous.className != null) {
+        throw const ApiException(
+          'Un tutor no puede modificar una tarea creada por el personal del centro.',
+        );
+      }
+      final previousError = scheduleError(
+        UserRole.parent,
+        previous.startHour,
+        previous.duration,
+      );
+      if (previousError != null) throw ApiException(previousError);
+    }
     final targets = classroom == null
         ? [student]
         : _students[classroom]!.toList();
