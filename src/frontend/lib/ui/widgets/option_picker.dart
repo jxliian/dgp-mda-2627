@@ -56,9 +56,12 @@ class OptionPicker<T> extends StatelessWidget {
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Text(
-        label,
-        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+      MediaQuery.withClampedTextScaling(
+        maxScaleFactor: 1.5,
+        child: Text(
+          label,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+        ),
       ),
       if (hint != null)
         Padding(

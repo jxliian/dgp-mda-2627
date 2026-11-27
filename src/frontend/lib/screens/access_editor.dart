@@ -73,6 +73,13 @@ class _AccessEditorState extends State<AccessEditor> {
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
+      _bloque(context, 'Cómo ve su agenda', _comoSeVe(context), primero: true),
+    ],
+  );
+
+  Widget _comoSeVe(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
       // Los tres ajustes, uno al lado de otro cuando hay ancho: en columna
       // ocupaban tres pantallas de alto.
       LayoutBuilder(
@@ -119,34 +126,75 @@ class _AccessEditorState extends State<AccessEditor> {
           );
         },
       ),
-      const SizedBox(height: 10),
+      SizedBox(height: Pantalla.letraGrande(context) ? 6 : 12),
       _botonDeColores(),
-      const SizedBox(height: 12),
-      // En una tablet los interruptores van a dos columnas: en una sola fila
-      // por interruptor sobraba la mitad del ancho y la pantalla no cabía.
-      LayoutBuilder(
-        builder: (context, restricciones) {
-          final enDos = restricciones.maxWidth >= Pantalla.media;
-          final ancho = enDos
-              ? (restricciones.maxWidth - 24) / 2
-              : restricciones.maxWidth;
-          return Wrap(
-            spacing: 24,
-            runSpacing: 0,
-            children: [
-              for (final entrada in {
-                ..._apoyos,
-                if (widget.permissions) ..._permisos,
-              }.entries)
-                SizedBox(
-                  width: ancho,
-                  child: _interruptor(entrada.key, entrada.value),
-                ),
-            ],
-          );
-        },
-      ),
+      _bloque(context, 'Apoyos', _interruptores(_apoyos)),
+      if (widget.permissions)
+        _bloque(context, 'Qué puede hacer', _interruptores(_permisos)),
     ],
+  );
+
+  /// Un bloque con su rótulo. Separa los ajustes por lo que son ---cómo se
+  /// ve, qué apoyos tiene, qué puede hacer--- en lugar de encadenarlos uno
+  /// detrás de otro, que era lo que lo hacía parecer un amasijo.
+  Widget _bloque(
+    BuildContext context,
+    String rotulo,
+    Widget contenido, {
+    bool primero = false,
+  }) {
+    final apretado = Pantalla.letraGrande(context);
+    return Padding(
+        padding: EdgeInsets.only(
+          top: primero ? 0 : (apretado ? 8 : 18),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // El rótulo organiza, no se lee en voz alta cada vez: crece menos
+            // que los ajustes que ordena.
+            MediaQuery.withClampedTextScaling(
+              maxScaleFactor: 1.3,
+              child: Semantics(
+                header: true,
+                child: Text(
+                  rotulo.toUpperCase(),
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1.1,
+                    color: Paleta.tintaSuave,
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(height: apretado ? 4 : 6),
+            contenido,
+          ],
+        ),
+      );
+  }
+
+  /// En una tablet los interruptores van a dos columnas: en una sola fila por
+  /// interruptor sobraba la mitad del ancho y la pantalla no cabía.
+  Widget _interruptores(Map<String, (String, IconData)> cuales) => LayoutBuilder(
+    builder: (context, restricciones) {
+      final enDos = restricciones.maxWidth >= Pantalla.media;
+      final ancho = enDos
+          ? (restricciones.maxWidth - 24) / 2
+          : restricciones.maxWidth;
+      return Wrap(
+        spacing: 24,
+        runSpacing: 0,
+        children: [
+          for (final entrada in cuales.entries)
+            SizedBox(
+              width: ancho,
+              child: _interruptor(entrada.key, entrada.value),
+            ),
+        ],
+      );
+    },
   );
 
   /// Un ajuste numérico, elegido entre opciones con nombre.
