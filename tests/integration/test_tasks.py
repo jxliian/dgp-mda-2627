@@ -19,6 +19,33 @@ def delete_task(client, usuario, task_id, alumno="pablo", fecha=LUNES):
     )
 
 
+def update_task(
+    client,
+    usuario,
+    task_id,
+    alumno="pablo",
+    fecha_origen=LUNES,
+    fecha_nueva=LUNES,
+    hora="18:00",
+    duracion=45,
+    titulo="Tarea modificada",
+    alternativa=None,
+):
+    body = {
+        "task_title": titulo,
+        "task_date": fecha_nueva,
+        "task_duration": duracion,
+        "task_start_hour": hora,
+        "alt_task_id_fk": alternativa,
+    }
+    return client.put(
+        f"/student-tasks/students/{alumno}/{task_id}",
+        params={"task_date": fecha_origen},
+        json=body,
+        headers=as_user(usuario),
+    )
+
+
 # ---------------------------------------------------- HU-12: la familia crea tareas
 
 def test_la_familia_crea_una_tarea_y_queda_en_la_agenda(client, count):
@@ -351,3 +378,339 @@ def test_quitar_tarea_de_agenda_conserva_tarea_compartida_e_historico(client, co
     assert count("stud_task WHERE task_id_fk = :t", t=tarea) == 0
     assert count("Tasks WHERE task_id = :t", t=tarea) == 1
     assert count("Generic_Task WHERE task_id_fk = :t", t=tarea) == 1
+
+
+# ----------------------------------------------------------- Modificar tareas individuales
+
+def test_el_tutor_modifica_una_tarea_y_se_refleja_en_la_agenda(client, count):
+    tarea = create_task(
+        client, "madre", hora="17:00", duracion=20, fecha=LUNES, titulo="Leer cuento"
+    ).json()["task_id"]
+
+    r = update_task(
+        client,
+        "madre",
+        tarea,
+        fecha_origen=LUNES,
+        fecha_nueva="2026-11-17",
+        hora="18:30",
+        duracion=35,
+        titulo="Leer cómic",
+    )
+
+    assert r.status_code == 200
+    datos = r.json()
+    assert datos["task_id"] == tarea
+    assert datos["task_title"] == "Leer cómic"
+    assert datos["task_date"] == "2026-11-17"
+    assert datos["task_start_hour"] == "18:30:00"
+    assert datos["task_duration"] == 35
+    assert datos["stud_usr_fk"] == "pablo"
+    assert count("stud_task WHERE task_id_fk = :t AND task_date = :d", t=tarea, d=LUNES) == 0
+    assert count("stud_task WHERE task_id_fk = :t AND task_date = '2026-11-17'", t=tarea) == 1
+
+    agenda_nueva = client.get(
+        "/student-tasks/students/pablo",
+        params={"task_date": "2026-11-17"},
+        headers=as_user("madre"),
+    )
+    assert agenda_nueva.status_code == 200
+    assert [t["task_title"] for t in agenda_nueva.json()["tasks"]] == ["Leer cómic"]
+
+
+def test_el_tutor_puede_quitar_hora_y_reordena_la_agenda(client, engine):
+    from sqlalchemy import text
+
+    primera = create_task(client, "madre", hora="16:00", titulo="Primera").json()["task_id"]
+    segunda = create_task(client, "madre", hora="18:00", titulo="Segunda").json()["task_id"]
+
+    r = update_task(client, "madre", primera, hora=None, duracion=25, titulo="Sin hora")
+    assert r.status_code == 200
+    assert r.json()["task_start_hour"] is None
+
+    with engine.connect() as conn:
+        orden = conn.execute(
+            text(
+                "SELECT task_id_fk FROM stud_task "
+                "WHERE stud_usr_fk = 'pablo' AND task_date = :d ORDER BY task_index"
+            ),
+            {"d": LUNES},
+        ).scalars().all()
+    assert orden == [segunda, primera]
+
+
+@pytest.mark.parametrize(
+    "hora, duracion",
+    [("08:30", 30), ("15:00", 30), ("17:00", 45), (None, 20)],
+)
+def test_el_tutor_modifica_tareas_fuera_del_horario_escolar(client, hora, duracion):
+    tarea = create_task(client, "madre", hora="17:00", titulo="Tarde").json()["task_id"]
+    r = update_task(client, "madre", tarea, hora=hora, duracion=duracion, titulo="Actualizada")
+    assert r.status_code == 200
+    assert r.json()["task_title"] == "Actualizada"
+
+
+@pytest.mark.parametrize(
+    "hora, duracion",
+    [("08:30", 31), ("09:00", 10), ("10:00", 30), ("14:59", 1), ("23:00", 601)],
+)
+def test_el_tutor_no_modifica_hacia_el_horario_escolar(client, engine, hora, duracion):
+    from sqlalchemy import text
+
+    tarea = create_task(client, "madre", hora="17:00", duracion=20, titulo="Tarde").json()["task_id"]
+    r = update_task(client, "madre", tarea, hora=hora, duracion=duracion, titulo="Intento")
+    assert r.status_code == 400
+    assert error_code(r) == 1024
+    assert "horario escolar" in r.json()["details"].lower()
+    with engine.connect() as conn:
+        titulo = conn.execute(
+            text("SELECT task_title FROM Tasks WHERE task_id = :t"), {"t": tarea}
+        ).scalar_one()
+    assert titulo == "Tarde"
+
+
+def test_el_tutor_no_modifica_una_tarea_ya_programada_en_horario_escolar(client, engine):
+    from sqlalchemy import text
+
+    with engine.begin() as conn:
+        task_id = conn.execute(
+            text(
+                "INSERT INTO Tasks (task_title, task_start_hour, task_duration, task_creator, task_finished) "
+                "VALUES ('En clase', '10:00:00', 30, 'madre', FALSE) RETURNING task_id"
+            )
+        ).scalar_one()
+        conn.execute(text("INSERT INTO Generic_Task (task_id_fk) VALUES (:t)"), {"t": task_id})
+        conn.execute(
+            text(
+                "INSERT INTO stud_task (stud_usr_fk, task_id_fk, task_index, task_date) "
+                "VALUES ('pablo', :t, 0, :d)"
+            ),
+            {"t": task_id, "d": LUNES},
+        )
+
+    r = update_task(client, "madre", task_id, hora="17:00", duracion=30, titulo="Movida")
+    assert r.status_code == 400
+    assert error_code(r) == 1024
+    assert "horario escolar" in r.json()["details"].lower()
+
+
+def test_el_tutor_no_puede_modificar_tarea_creada_por_personal(client, engine):
+    from sqlalchemy import text
+
+    # 1. Tarea individual creada por el personal en horario escolar.
+    tarea_escolar = create_task(client, "lucia", hora="10:00", titulo="Clase").json()["task_id"]
+    r = update_task(client, "madre", tarea_escolar, hora="17:00", duracion=30, titulo="Cambiada")
+    assert r.status_code == 403
+    assert error_code(r) == 1041
+    assert "personal" in r.json()["details"].lower()
+
+    # 2. Tarea creada por el personal incluso si estuviera fuera del horario escolar.
+    with engine.begin() as conn:
+        tarea_staff_tarde = conn.execute(
+            text(
+                "INSERT INTO Tasks (task_title, task_start_hour, task_duration, task_creator, task_finished) "
+                "VALUES ('Apoyo personal', '17:00:00', 20, 'lucia', FALSE) RETURNING task_id"
+            )
+        ).scalar_one()
+        conn.execute(
+            text("INSERT INTO Generic_Task (task_id_fk) VALUES (:t)"),
+            {"t": tarea_staff_tarde},
+        )
+        conn.execute(
+            text(
+                "INSERT INTO stud_task (stud_usr_fk, task_id_fk, task_index, task_date) "
+                "VALUES ('pablo', :t, 1, :d)"
+            ),
+            {"t": tarea_staff_tarde, "d": LUNES},
+        )
+
+    r2 = update_task(client, "madre", tarea_staff_tarde, hora="18:00", duracion=25, titulo="Editada")
+    assert r2.status_code == 403
+    assert error_code(r2) == 1041
+    assert "personal" in r2.json()["details"].lower()
+
+    # 3. Tarea grupal de clase creada por el personal.
+    grupal = client.post(
+        "/classes/1A/tasks",
+        json={
+            "task_title": "Plástica",
+            "task_date": LUNES,
+            "task_start_hour": "11:00",
+            "task_duration": 30,
+        },
+        headers=as_user("lucia"),
+    ).json()["task_id"]
+    r3 = update_task(client, "madre", grupal, hora="17:30", duracion=30, titulo="Editada")
+    assert r3.status_code == 403
+    assert error_code(r3) == 1041
+
+    with engine.connect() as conn:
+        titulos = conn.execute(
+            text("SELECT task_title FROM Tasks WHERE task_id IN (:a, :b, :c) ORDER BY task_id"),
+            {"a": tarea_escolar, "b": tarea_staff_tarde, "c": grupal},
+        ).scalars().all()
+    assert titulos == ["Clase", "Apoyo personal", "Plástica"]
+
+
+def test_el_alumno_ve_en_su_agenda_los_cambios_hechos_por_el_tutor(client):
+    tarea = create_task(
+        client, "madre", hora="17:00", duracion=20, fecha=LUNES, titulo="Hacer deberes"
+    ).json()["task_id"]
+
+    r = update_task(
+        client,
+        "madre",
+        tarea,
+        fecha_origen=LUNES,
+        fecha_nueva="2026-11-17",
+        hora="18:15",
+        duracion=40,
+        titulo="Hacer deberes de lengua",
+    )
+    assert r.status_code == 200
+
+    agenda_antigua = client.get(
+        "/student-tasks/me",
+        params={"task_date": LUNES},
+        headers=as_user("pablo"),
+    )
+    assert agenda_antigua.status_code == 200
+    assert agenda_antigua.json()["tasks"] == []
+
+    agenda_nueva = client.get(
+        "/student-tasks/me",
+        params={"task_date": "2026-11-17"},
+        headers=as_user("pablo"),
+    )
+    assert agenda_nueva.status_code == 200
+    tareas = agenda_nueva.json()["tasks"]
+    assert len(tareas) == 1
+    assert tareas[0]["task_id"] == tarea
+    assert tareas[0]["task_title"] == "Hacer deberes de lengua"
+    assert tareas[0]["task_start_hour"] == "18:15:00"
+    assert tareas[0]["task_duration"] == 40
+    assert tareas[0]["task_date"] == "2026-11-17"
+
+
+@pytest.mark.parametrize(
+    "cambio",
+    [
+        {"task_title": "   "},
+        {"task_title": "x" * 101},
+        {"task_duration": 0},
+        {"task_duration": -15},
+        {"task_duration": "30"},
+        {"task_date": "no-es-fecha"},
+        {"task_start_hour": "25:00"},
+        {"task_start_hour": "17:00+01:00"},
+        {"campo_inventado": 1},
+    ],
+)
+def test_modificar_tarea_con_datos_invalidos_devuelve_mensaje_descriptivo(client, engine, cambio):
+    from sqlalchemy import text
+
+    tarea = create_task(
+        client, "madre", hora="17:00", duracion=20, fecha=LUNES, titulo="Original"
+    ).json()["task_id"]
+    body = {
+        "task_title": "Valida",
+        "task_date": LUNES,
+        "task_start_hour": "18:00",
+        "task_duration": 30,
+        **cambio,
+    }
+    r = client.put(
+        f"/student-tasks/students/pablo/{tarea}",
+        params={"task_date": LUNES},
+        json=body,
+        headers=as_user("madre"),
+    )
+    assert r.status_code == 422
+    assert error_code(r) == 1005
+    assert r.json()["details"]
+    with engine.connect() as conn:
+        titulo = conn.execute(
+            text("SELECT task_title FROM Tasks WHERE task_id = :t"), {"t": tarea}
+        ).scalar_one()
+    assert titulo == "Original"
+
+
+def test_el_personal_modifica_solo_tareas_individuales_en_horario_escolar(client):
+    individual = create_task(client, "lucia", hora="10:00", titulo="Fichas").json()["task_id"]
+    r = update_task(client, "lucia", individual, hora="11:30", duracion=40, titulo="Fichas 2")
+    assert r.status_code == 200
+    assert r.json()["task_title"] == "Fichas 2"
+    assert r.json()["task_start_hour"] == "11:30:00"
+
+    fuera = create_task(client, "madre", hora="17:00", titulo="Casa").json()["task_id"]
+    r_fuera = update_task(client, "lucia", fuera, hora="10:00", duracion=20)
+    assert r_fuera.status_code == 400
+    assert error_code(r_fuera) == 1023
+
+    sin_hora = create_task(client, "madre", hora=None, titulo="Libre").json()["task_id"]
+    r_sin_hora = update_task(client, "lucia", sin_hora, hora="10:00", duracion=20)
+    assert r_sin_hora.status_code == 400
+    assert error_code(r_sin_hora) == 1023
+
+    grupal = client.post(
+        "/classes/1A/tasks",
+        json={
+            "task_title": "Plástica",
+            "task_date": LUNES,
+            "task_start_hour": "11:00",
+            "task_duration": 30,
+        },
+        headers=as_user("lucia"),
+    ).json()["task_id"]
+    r_grupal = update_task(client, "lucia", grupal, hora="12:00", duracion=30)
+    assert r_grupal.status_code == 404
+    assert error_code(r_grupal) == 1021
+
+
+@pytest.mark.parametrize("usuario", ["pedro", "otra_madre"])
+def test_modificar_sin_relacion_con_el_alumno(client, usuario):
+    tarea = create_task(client, "madre", hora="17:00").json()["task_id"]
+    r = update_task(client, usuario, tarea, hora="10:00" if usuario == "pedro" else "18:00")
+    assert r.status_code == 403
+    assert error_code(r) == 1019
+
+
+@pytest.mark.parametrize("usuario", ["admin", "pablo"])
+def test_solo_familia_y_personal_modifican_para_un_alumno(client, usuario):
+    tarea = create_task(client, "madre", hora="17:00").json()["task_id"]
+    r = update_task(client, usuario, tarea)
+    assert r.status_code == 403
+    assert error_code(r) == 1017
+
+
+def test_modificar_errores_de_validacion_y_existencia(client):
+    assert update_task(client, "madre", 9999).status_code == 404
+    assert error_code(update_task(client, "madre", 9999)) == 1021
+
+    r_no_student = update_task(client, "madre", 1, alumno="nadie")
+    assert r_no_student.status_code == 404
+    assert error_code(r_no_student) == 1018
+
+    tarea = create_task(client, "madre", hora="17:00", fecha=LUNES).json()["task_id"]
+    r_wrong_date = update_task(client, "madre", tarea, fecha_origen="2026-11-17")
+    assert r_wrong_date.status_code == 404
+    assert error_code(r_wrong_date) == 1021
+
+    r_no_session = client.put(
+        f"/student-tasks/students/pablo/{tarea}",
+        params={"task_date": LUNES},
+        json={"task_title": "X", "task_date": LUNES, "task_duration": 15},
+    )
+    assert r_no_session.status_code == 401
+
+    r_no_query = client.put(
+        f"/student-tasks/students/pablo/{tarea}",
+        json={"task_title": "X", "task_date": LUNES, "task_duration": 15},
+        headers=as_user("madre"),
+    )
+    assert r_no_query.status_code == 422
+
+
+def test_openapi_anuncia_put_de_tareas_individuales(client):
+    schema = client.get("/openapi.json").json()
+    assert "put" in schema["paths"]["/student-tasks/students/{student_username}/{task_id}"]
