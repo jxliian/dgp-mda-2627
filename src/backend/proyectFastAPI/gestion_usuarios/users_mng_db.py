@@ -2,7 +2,7 @@ from typing import Optional
 from urllib.parse import quote
 
 from passlib.context import CryptContext
-from sqlalchemy import text
+from sqlalchemy import bindparam, text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -33,15 +33,56 @@ STUDENT_ACCESS_FIELDS = (
     "stud_access_talkback",
     "stud_access_profile_mod",
     "stud_access_task_mod",
+    "stud_access_img_pwd",
 )
 STUDENT_ACCESS_PERMISSION_FIELDS = frozenset(
-    {"stud_access_prof_mod", "stud_access_profile_mod", "stud_access_task_mod"}
+    {"stud_access_prof_mod", "stud_access_profile_mod", "stud_access_task_mod", "stud_access_img_pwd"}
 )
 DEFAULT_AVATAR = b'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Foto de perfil predeterminada">
 <rect width="128" height="128" rx="64" fill="#e5e7eb"/>
 <circle cx="64" cy="45" r="23" fill="#9ca3af"/>
 <path d="M22 113c4-25 19-38 42-38s38 13 42 38" fill="#9ca3af"/>
 </svg>'''
+
+MIN_IMAGE_PASSWORD_IMAGES = 4
+MAX_IMAGE_PASSWORD_IMAGES = 8
+IMAGE_PASSWORD_ID_WIDTH = 5
+
+
+class ImagePasswordError(ValueError):
+    """La secuencia gráfica no cumple el formato o contiene imágenes inactivas."""
+
+
+def canonical_image_password(value: str) -> tuple[str, list[int]]:
+    """Lee IDs decimales concatenados en bloques fijos de cinco dígitos."""
+    if not value.isascii() or not value.isdecimal() or len(value) % IMAGE_PASSWORD_ID_WIDTH:
+        raise ImagePasswordError("La contraseña gráfica debe concatenar IDs de cinco dígitos")
+    image_count = len(value) // IMAGE_PASSWORD_ID_WIDTH
+    if not MIN_IMAGE_PASSWORD_IMAGES <= image_count <= MAX_IMAGE_PASSWORD_IMAGES:
+        raise ImagePasswordError("La contraseña gráfica debe contener entre 4 y 8 imágenes")
+    ids = [
+        int(value[offset:offset + IMAGE_PASSWORD_ID_WIDTH])
+        for offset in range(0, len(value), IMAGE_PASSWORD_ID_WIDTH)
+    ]
+    if any(image_id < 1 or image_id > 32767 for image_id in ids):
+        raise ImagePasswordError("Los IDs deben pertenecer al catálogo de imágenes")
+    if len(set(ids)) != len(ids):
+        raise ImagePasswordError("No se puede repetir una imagen en la contraseña gráfica")
+    canonical = "".join(f"{image_id:0{IMAGE_PASSWORD_ID_WIDTH}d}" for image_id in ids)
+    return canonical, ids
+
+
+def normalize_image_password(db: Session, value: str) -> str:
+    """Valida que los IDs de la secuencia correspondan a imágenes activas."""
+    canonical, ids = canonical_image_password(value)
+    found = db.execute(
+        text("SELECT COUNT(*) FROM passwords WHERE pwd_active = TRUE AND pwd_id IN :ids")
+        .bindparams(bindparam("ids", expanding=True)),
+        {"ids": ids},
+    ).scalar_one()
+    if found != len(ids):
+        raise ImagePasswordError("La contraseña gráfica contiene imágenes inexistentes o inactivas")
+    return canonical
 
 
 def _config(role: str) -> dict:
@@ -166,6 +207,15 @@ class UsersManagementDB:
         """Guarda un nuevo hash de contraseña e invalida el token activo."""
         try:
             cfg = _config(role)
+            if role.lower() == "student":
+                image_mode = db.execute(
+                    text("SELECT stud_access_img_pwd FROM Student WHERE stud_usr = :username"),
+                    {"username": username},
+                ).scalar_one_or_none()
+                if image_mode is None:
+                    return _error(ErrorCode.USER_NOT_FOUND)
+                if image_mode:
+                    new_password_plain = normalize_image_password(db, new_password_plain)
             result = db.execute(
                 text(
                     "UPDATE users AS u SET password = :password, token = NULL "
@@ -179,6 +229,9 @@ class UsersManagementDB:
                 return _error(ErrorCode.USER_NOT_FOUND)
             db.commit()
             return _ok()
+        except ImagePasswordError:
+            db.rollback()
+            return _error(ErrorCode.INVALID_REQUEST)
         except ValueError:
             db.rollback()
             return _error(ErrorCode.INVALID_ROLE)
@@ -195,6 +248,8 @@ class UsersManagementDB:
                                            for field in STUDENT_ACCESS_FIELDS)
             ):
                 return _error(ErrorCode.INVALID_REQUEST)
+            if role.lower() == "student" and access_settings["stud_access_img_pwd"]:
+                passwd_plain = normalize_image_password(db, passwd_plain)
             if _username_exists(db, username):
                 db.rollback()
                 return _error(ErrorCode.USERNAME_TAKEN)
@@ -228,6 +283,9 @@ class UsersManagementDB:
             db.execute(text(f"INSERT INTO {cfg['table']} ({', '.join(fields)}) VALUES ({', '.join(values)})"), params)
             db.commit()
             return _ok()
+        except ImagePasswordError:
+            db.rollback()
+            return _error(ErrorCode.INVALID_REQUEST)
         except ValueError as exc:
             db.rollback()
             return _error(ErrorCode.INVALID_ROLE)
@@ -325,6 +383,7 @@ class UsersManagementDB:
             selected_fields = ["u.username"]
             if source_role == "student":
                 selected_fields.append("r.stud_access_profile_mod AS stud_access_profile_mod")
+                selected_fields.append("r.stud_access_img_pwd AS stud_access_img_pwd")
             old_row = db.execute(
                 text(
                     f"SELECT {', '.join(selected_fields)} "
@@ -347,6 +406,19 @@ class UsersManagementDB:
             if access_settings and target_role != "student":
                 db.rollback()
                 return _error(ErrorCode.INVALID_REQUEST)
+            current_image_mode = (
+                bool(old_row["stud_access_img_pwd"]) if source_role == "student" else False
+            )
+            target_image_mode = (
+                bool(access_settings.get("stud_access_img_pwd", current_image_mode))
+                if source_role == "student"
+                else False
+            )
+            if target_image_mode != current_image_mode and passwd_plain is None:
+                db.rollback()
+                return _error(ErrorCode.INVALID_REQUEST)
+            if passwd_plain is not None and target_image_mode:
+                passwd_plain = normalize_image_password(db, passwd_plain)
             if target_username != username and _username_exists(db, target_username):
                 db.rollback()
                 return _error(ErrorCode.USERNAME_TAKEN)
@@ -388,6 +460,9 @@ class UsersManagementDB:
 
             db.commit()
             return _ok(username=target_username, role=target_role)
+        except ImagePasswordError:
+            db.rollback()
+            return _error(ErrorCode.INVALID_REQUEST)
         except ValueError:
             db.rollback()
             return _error(ErrorCode.INVALID_ROLE)

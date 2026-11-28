@@ -92,14 +92,15 @@ bash ./scripts/levantar_backend.sh --con-web
 | Sin argumentos | Prepara el servicio y deja la API en primer plano. |
 | `--con-web` | Añade Flutter en segundo plano; prefiere escritorio Linux y usa Chrome como alternativa. |
 | `--parar` | Detiene el contenedor de PostgreSQL conservando su volumen. |
+| `--borrar` | Recrea las tablas con los scripts SQL, carga datos de prueba y arranca la API. |
 
-El nombre informal `./levantar_backend` corresponde a ese archivo. El script solo comprueba el primer argumento y no implementa selector de dispositivo ni de puerto.
+El nombre informal `./levantar_backend` corresponde a ese archivo. Las opciones `--parar`, `--borrar` y `--con-web` se pueden combinar; no hay selector de dispositivo ni de puerto.
 
 Sus fases son comprobación de herramientas, configuración local, preparación de `src/backend/.venv`, arranque del contenedor, preparación de datos de prueba y ejecución de la API. Con `--con-web` lanza Flutter antes de dejar la API en primer plano.
 
 Puertos utilizados: servicio HTTP `8000`, frontend web `5174` y contenedor de datos `5432`. La comprobación inicial de escritorio es parcial; `flutter doctor` y la compilación pueden detectar requisitos adicionales.
 
-El script no instala Flutter. Si no lo encuentra, avisa y continúa levantando el servicio. La creación de datos de prueba se omite cuando ya existen cuentas, por lo que volver a ejecutar el script no restablece contraseñas ni genera de nuevo tareas para hoy.
+El script no instala Flutter. Si no lo encuentra, avisa y continúa levantando el servicio. En modo normal, la creación de datos de prueba se omite cuando ya existen cuentas, por lo que volver a ejecutar el script no restablece contraseñas ni genera de nuevo tareas para hoy. Con `--borrar`, el lanzador inicia PostgreSQL, elimina las tablas con `EliminacionTablas.sqlscript`, las recrea con `CreacionTablas.sqlscript`, carga de nuevo los datos de prueba y después inicia la API. Esta operación borra los datos actuales.
 
 El arranque está completo cuando la terminal confirma que la API ha terminado de inicializarse y Flutter muestra la portada. Como ambos procesos arrancan por separado, la ventana puede abrirse antes de que la API esté lista. Si la primera consulta falla, esperar a la confirmación del servicio y utilizar «Volver a intentar».
 

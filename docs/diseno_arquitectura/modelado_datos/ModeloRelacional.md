@@ -9,6 +9,11 @@ erDiagram
     users ||--o| Staff : "especialización"
     users ||--o| Student : "especialización"
     users ||--o| Parents : "especialización"
+    passwords {
+        smallint pwd_id PK
+        bytes pwd_bin
+        boolean pwd_active
+    }
 
     Avatar {
         int avatar_id PK
@@ -43,6 +48,7 @@ erDiagram
         boolean stud_access_talkback
         boolean stud_access_profile_mod
         boolean stud_access_task_mod
+        boolean stud_access_img_pwd
     }
     Parents {
         string par_usr PK,FK
@@ -50,6 +56,8 @@ erDiagram
 ```
 
 `users.avatar_id_fk` es obligatorio y referencia `Avatar.avatar_id`. En cada alta se crea una silueta predeterminada. Al cambiar la foto se actualiza la referencia común y se retira la imagen anterior cuando ninguna cuenta la usa. Cada cuenta pertenece a una especialización de rol; solo `Student` añade los campos de accesibilidad.
+
+`passwords` es un catálogo independiente de imágenes para el inicio gráfico del alumnado; no guarda contraseñas ni una relación por usuario. `pwd_id` identifica la imagen que el cliente muestra y envía como parte de la secuencia de acceso. La secuencia se hashea y se almacena en `users.password`, igual que las credenciales de texto. `Student.stud_access_img_pwd` activa este modo solo para la cuenta del alumno. `pwd_active` permite retirar una imagen de nuevas selecciones sin eliminar IDs que ya forman parte de contraseñas existentes.
 
 ## Acceso a las fotos
 

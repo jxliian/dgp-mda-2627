@@ -47,7 +47,16 @@ CREATE TABLE Student (
     stud_access_talkback BOOLEAN NOT NULL,
     stud_access_profile_mod BOOLEAN NOT NULL,
     stud_access_task_mod BOOLEAN NOT NULL,
+    stud_access_img_pwd BOOLEAN NOT NULL DEFAULT FALSE,
     CONSTRAINT fk_student_user FOREIGN KEY (stud_usr) REFERENCES users(username) ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+-- Catálogo de imágenes usado por la contraseña gráfica del alumnado.
+-- La baja es lógica para que una credencial ya elegida siga siendo válida.
+CREATE TABLE passwords (
+    pwd_id SMALLINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    pwd_bin BYTEA NOT NULL,
+    pwd_active BOOLEAN NOT NULL DEFAULT TRUE
 );
 
 CREATE TABLE Parents (

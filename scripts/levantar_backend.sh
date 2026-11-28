@@ -5,6 +5,7 @@
 #   ./scripts/levantar_backend.sh --con-web  Además abre el frontend (escritorio
 #                                            Linux si se puede, si no Chrome)
 #   ./scripts/levantar_backend.sh --parar    Detiene la base de datos
+#   ./scripts/levantar_backend.sh --borrar   Recrea el esquema y carga datos de prueba
 #
 # El backend es el de la rama main y no se toca: este script solo crea .env,
 # .venv y los datos de prueba, todo ello ignorado por git.
@@ -33,6 +34,8 @@ readonly GUIA='docs/diseno_arquitectura/arquitectura/guia_configuracion_base_de_
 readonly BASE_DE_DATOS=autovida_db
 
 DOCKER=docker  # pasa a «sudo docker» si este equipo lo necesita
+BORRAR=false
+CON_WEB=false
 
 paso() { printf '\n\033[1;32m==>\033[0m %s\n' "$1"; }
 aviso() { printf '\033[1;33m[aviso]\033[0m %s\n' "$1"; }
@@ -187,7 +190,11 @@ arrancar_base_de_datos() {
 preparar_datos() {
   paso 'Creando esquema y cuentas de prueba'
   local salida
-  if ! salida="$("$VENV/bin/python" "$RAIZ/scripts/datos_de_prueba.py" 2>&1)"; then
+  local -a opciones=()
+  if [[ "$BORRAR" == true ]]; then
+    opciones+=(--borrar)
+  fi
+  if ! salida="$("$VENV/bin/python" "$RAIZ/scripts/datos_de_prueba.py" "${opciones[@]}" 2>&1)"; then
     grep -v 'bcrypt' <<<"$salida" >&2 || true
     fallo 'No se pudieron crear los datos de prueba. El error está justo encima.'
   fi
@@ -241,15 +248,21 @@ parar() {
 }
 
 main() {
-  if [[ "${1:-}" == '--parar' ]]; then
-    parar
-  fi
+  local argumento
+  for argumento in "$@"; do
+    case "$argumento" in
+      --parar) parar ;;
+      --borrar) BORRAR=true ;;
+      --con-web) CON_WEB=true ;;
+      *) fallo "Opción no reconocida: $argumento. Usa --borrar, --con-web o --parar." ;;
+    esac
+  done
   comprobar_requisitos
   comprobar_env
   instalar_dependencias_si_faltan
   arrancar_base_de_datos
   preparar_datos
-  if [[ "${1:-}" == '--con-web' ]]; then
+  if [[ "$CON_WEB" == true ]]; then
     arrancar_frontend
   fi
   cat <<'EOF'

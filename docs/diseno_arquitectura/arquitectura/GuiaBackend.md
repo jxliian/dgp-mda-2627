@@ -31,7 +31,7 @@ No requiere autenticación. Ejecuta `SELECT 1` en PostgreSQL y devuelve `estado:
 
 Recibe JSON con `username`, `password` y `role`. Usuario y contraseña deben ser cadenas no vacías; el username no puede contener espacios y no puede superar 50 caracteres. La contraseña no puede superar 72 bytes UTF-8. El rol debe ser uno de los cuatro roles admitidos y no se admiten propiedades JSON adicionales.
 
-El servidor busca la cuenta en `users` junto a la tabla hija correspondiente al rol y compara la contraseña recibida con el hash bcrypt almacenado. Si coincide, genera un token aleatorio, guarda su hash SHA-256 en `users.token` y confirma el cambio. El token anterior de ese usuario deja de servir. La respuesta incluye `access_token`, `token_type: "bearer"` y la identidad `{username, role}`.
+El servidor busca la cuenta en `users` junto a la tabla hija correspondiente al rol y compara la contraseña recibida con el hash bcrypt almacenado. Para alumnos con `Student.stud_access_img_pwd = true`, `password` debe concatenar de 4 a 8 IDs distintos, en el orden elegido, sin comas ni separadores. Cada ID se representa con cinco dígitos, completando con ceros a la izquierda: los IDs `12`, `4`, `19` y `7` se envían como `00012000040001900007`. El backend valida los bloques y compara el hash de la cadena en `users.password`; los binarios e IDs no se guardan como credencial del usuario. Para los demás casos se usa la contraseña de texto existente. Si coincide, genera un token aleatorio, guarda su hash SHA-256 en `users.token` y confirma el cambio. El token anterior de ese usuario deja de servir. La respuesta incluye `access_token`, `token_type: "bearer"` y la identidad `{username, role}`.
 
 Una contraseña incorrecta o una combinación de usuario/rol que no corresponde devuelve `INVALID_CREDENTIALS` (HTTP 401). El endpoint limita `role` a los cuatro valores admitidos; un valor distinto falla la validación de FastAPI y devuelve `INVALID_REQUEST` (HTTP 422). Un fallo de infraestructura de autenticación devuelve `LOGIN_FAILED` (HTTP 500).
 
@@ -48,6 +48,33 @@ Una contraseña incorrecta o una combinación de usuario/rol que no corresponde 
 **Ejemplo de error:**
 ```json
 {"errorCode": 1001, "details": "Usuario o contraseña incorrectos"}
+```
+
+### `GET /auth/password-images` — Consultar el catálogo de imágenes de contraseña
+
+No requiere sesión para que el formulario pueda mostrar imágenes antes de iniciar sesión. Devuelve todas las imágenes ordenadas por `pwd_id`, incluyendo `pwd_active`. `pwd_bin` se entrega en Base64; el cliente debe decodificarlo como bytes de imagen. Las imágenes inactivas pueden seguir apareciendo en el acceso para que las credenciales antiguas sigan siendo utilizables, pero no pueden elegirse al crear o cambiar una contraseña gráfica. Para formar `password`, el cliente completa cada `pwd_id` a cinco dígitos con ceros a la izquierda y concatena los valores en el orden seleccionado.
+
+**Respuesta JSON:**
+```json
+{"errorCode":0,"details":"successful","images":[{"pwd_id":12,"pwd_bin":"iVBORw0KGgo...","pwd_active":true},{"pwd_id":19,"pwd_bin":"/9j/4AA...","pwd_active":false}]}
+```
+
+### `GET /auth/login-mode?username=<usuario>&role=<rol>` — Consultar el método de acceso
+
+No requiere sesión. Permite que el formulario sepa qué control de acceso mostrar antes de autenticar. Para `role=student` responde con el valor de `stud_access_img_pwd`; si el usuario no existe, o el rol es distinto de `student`, devuelve `false`. No devuelve nombres ni otros datos de la cuenta.
+
+**Respuesta JSON:**
+```json
+{"errorCode":0,"details":"successful","stud_access_img_pwd":true}
+```
+
+### `POST`, `PUT` y `DELETE /auth/password-images` — Gestionar catálogo de imágenes
+
+Solo administrador. `POST /auth/password-images` añade una imagen con `multipart/form-data` en `file` y devuelve el `pwd_id` generado. `PUT /auth/password-images/{pwd_id}` reemplaza el binario de una imagen activa. `DELETE /auth/password-images/{pwd_id}` la desactiva; la fila y el ID se conservan para no invalidar la secuencia hasheada de una cuenta. Se admiten PNG, JPEG y WebP hasta 5 MB. La operación de baja es lógica; el catálogo incluye las imágenes inactivas para el acceso, aunque el backend las rechaza al crear o cambiar una contraseña gráfica. La tabla nace vacía: el administrador debe cargar las imágenes antes de habilitar este método a un alumno; el script de datos de prueba no incluye binarios de imágenes de contraseña.
+
+**Respuesta de creación:**
+```json
+{"errorCode":0,"details":"successful","pwd_id":23}
 ```
 
 ### `POST /auth/logout` — Cerrar sesión
@@ -79,7 +106,7 @@ Solo administrador. Recibe un objeto JSON discriminado por `role`.
 
 Campos comunes obligatorios: `username`, `full_name` y `password`. El username se recorta y no puede contener espacios; el nombre completo se recorta, debe contener alguna letra y no puede contener números. La contraseña no puede superar 72 bytes UTF-8 (límite de bcrypt). No se aceptan campos no definidos.
 
-Para `role: "student"` también son obligatorios todos los campos de accesibilidad: `stud_access_main_col`, `stud_access_sec_col`, `stud_access_ntasks_visible`, `stud_access_pictograms`, `stud_access_contrast`, `stud_access_fontsize`, `stud_access_filters`, `stud_access_ndays_visible`, `stud_access_prof_mod`, `stud_access_timebar`, `stud_access_talkback`, `stud_access_profile_mod` y `stud_access_task_mod`. Los colores deben ser hexadecimales de 3 o 6 dígitos (por ejemplo, `#abc` o `#aabbcc`). Las cantidades visibles deben ser enteros JSON no negativos y el tamaño de fuente un entero JSON positivo. Los campos booleanos requieren `true` o `false` de JSON.
+Para `role: "student"` también son obligatorios todos los campos de accesibilidad: `stud_access_main_col`, `stud_access_sec_col`, `stud_access_ntasks_visible`, `stud_access_pictograms`, `stud_access_contrast`, `stud_access_fontsize`, `stud_access_filters`, `stud_access_ndays_visible`, `stud_access_prof_mod`, `stud_access_timebar`, `stud_access_talkback`, `stud_access_profile_mod`, `stud_access_task_mod` y `stud_access_img_pwd`. Los colores deben ser hexadecimales de 3 o 6 dígitos (por ejemplo, `#abc` o `#aabbcc`). Las cantidades visibles deben ser enteros JSON no negativos y el tamaño de fuente un entero JSON positivo. Los campos booleanos requieren `true` o `false` de JSON. Si `stud_access_img_pwd` es `true`, `password` debe concatenar entre 4 y 8 IDs distintos de imágenes activas, cada uno expresado con cinco dígitos (ceros a la izquierda si hace falta) y sin separadores; el backend almacena su hash bcrypt en `users.password`. Si es `false`, `password` mantiene el formato de texto habitual.
 
 La operación crea una imagen SVG predeterminada en `Avatar` y la asigna a `users.avatar_id_fk`; después inserta la especialización correspondiente en `Admn`, `Staff`, `Student` o `Parents`. La cuenta común nunca queda sin foto. Todas las inserciones se confirman conjuntamente. El username es único en la tabla común, por lo que no puede repetirse entre roles. Si ya existe, se devuelve `USERNAME_TAKEN` (HTTP 409); otros errores de creación usan `USER_CREATE_FAILED` (HTTP 500).
 
@@ -87,7 +114,12 @@ El rol se fija al crear la cuenta y es inmutable. Ni el propio usuario ni un adm
 
 **JSON de entrada para estudiante:**
 ```json
-{"username":"luis","full_name":"Luis Pérez","password":"clave","role":"student","stud_access_main_col":"#ffffff","stud_access_sec_col":"#000000","stud_access_ntasks_visible":5,"stud_access_pictograms":true,"stud_access_contrast":false,"stud_access_fontsize":18,"stud_access_filters":true,"stud_access_ndays_visible":7,"stud_access_prof_mod":false,"stud_access_timebar":true,"stud_access_talkback":false,"stud_access_profile_mod":true,"stud_access_task_mod":true}
+{"username":"luis","full_name":"Luis Pérez","password":"clave","role":"student","stud_access_main_col":"#ffffff","stud_access_sec_col":"#000000","stud_access_ntasks_visible":5,"stud_access_pictograms":true,"stud_access_contrast":false,"stud_access_fontsize":18,"stud_access_filters":true,"stud_access_ndays_visible":7,"stud_access_prof_mod":false,"stud_access_timebar":true,"stud_access_talkback":false,"stud_access_profile_mod":true,"stud_access_task_mod":true,"stud_access_img_pwd":false}
+```
+
+Con contraseña gráfica, el campo `password` recibe los IDs en el orden elegido. El ejemplo usa los IDs 12, 4, 19 y 7; deben existir y estar activos en el catálogo:
+```json
+{"username":"luis","full_name":"Luis Pérez","password":"00012000040001900007","role":"student","stud_access_main_col":"#ffffff","stud_access_sec_col":"#000000","stud_access_ntasks_visible":5,"stud_access_pictograms":true,"stud_access_contrast":false,"stud_access_fontsize":18,"stud_access_filters":true,"stud_access_ndays_visible":7,"stud_access_prof_mod":false,"stud_access_timebar":true,"stud_access_talkback":false,"stud_access_profile_mod":true,"stud_access_task_mod":true,"stud_access_img_pwd":true}
 ```
 
 **JSON de entrada para admin, staff o parent:**
@@ -114,7 +146,7 @@ El parámetro `role` se valida contra los cuatro roles admitidos; un valor disti
 
 **Respuesta JSON (ejemplo abreviado):**
 ```json
-{"errorCode":0,"details":"successful","users":[{"username":"ana","full_name":"Ana López","role":"parent","avatar_url":"/users/parent/ana/avatar-image"},{"username":"luis","full_name":"Luis Pérez","role":"student","avatar_url":"/users/student/luis/avatar-image","stud_access_main_col":"#ffffff","stud_access_sec_col":"#000000","stud_access_ntasks_visible":5,"stud_access_pictograms":true,"stud_access_contrast":false,"stud_access_fontsize":18,"stud_access_filters":true,"stud_access_ndays_visible":7,"stud_access_prof_mod":false,"stud_access_timebar":true,"stud_access_talkback":false,"stud_access_profile_mod":true,"stud_access_task_mod":true}]}
+{"errorCode":0,"details":"successful","users":[{"username":"ana","full_name":"Ana López","role":"parent","avatar_url":"/users/parent/ana/avatar-image"},{"username":"luis","full_name":"Luis Pérez","role":"student","avatar_url":"/users/student/luis/avatar-image","stud_access_main_col":"#ffffff","stud_access_sec_col":"#000000","stud_access_ntasks_visible":5,"stud_access_pictograms":true,"stud_access_contrast":false,"stud_access_fontsize":18,"stud_access_filters":true,"stud_access_ndays_visible":7,"stud_access_prof_mod":false,"stud_access_timebar":true,"stud_access_talkback":false,"stud_access_profile_mod":true,"stud_access_task_mod":true,"stud_access_img_pwd":false}]}
 ```
 
 ### `GET /users/{role}/{username}` — Consultar una cuenta concreta
@@ -136,16 +168,16 @@ Requiere autenticación y devuelve únicamente la ficha del usuario asociado al 
 
 **Respuesta JSON (ejemplo de alumno):**
 ```json
-{"errorCode":0,"details":"successful","username":"luis","full_name":"Luis Pérez","avatar_url":"/users/student/luis/avatar-image","stud_access_main_col":"#ffffff","stud_access_sec_col":"#000000","stud_access_ntasks_visible":5,"stud_access_pictograms":true,"stud_access_contrast":false,"stud_access_fontsize":18,"stud_access_filters":true,"stud_access_ndays_visible":7,"stud_access_prof_mod":false,"stud_access_timebar":true,"stud_access_talkback":false,"stud_access_profile_mod":true,"stud_access_task_mod":true,"role":"student"}
+{"errorCode":0,"details":"successful","username":"luis","full_name":"Luis Pérez","avatar_url":"/users/student/luis/avatar-image","stud_access_main_col":"#ffffff","stud_access_sec_col":"#000000","stud_access_ntasks_visible":5,"stud_access_pictograms":true,"stud_access_contrast":false,"stud_access_fontsize":18,"stud_access_filters":true,"stud_access_ndays_visible":7,"stud_access_prof_mod":false,"stud_access_timebar":true,"stud_access_talkback":false,"stud_access_profile_mod":true,"stud_access_task_mod":true,"stud_access_img_pwd":false,"role":"student"}
 ```
 
 ### `PUT /users/{role}/{username}` — Editar perfil o datos de usuario
 
-Requiere autenticación. Un administrador puede editar cualquier cuenta. Un `parent` o `staff` solo puede editar su contraseña y no puede enviar `username`, `full_name` ni `role`. Un `student` solo puede editar sus propios ajustes de accesibilidad, y únicamente si `stud_access_profile_mod` está activado; si está desactivado, se rechaza la edición con `PROFILE_UPDATE_DENIED` (HTTP 403). El alumno no puede cambiar `username`, `full_name`, contraseña ni `role`, ni modificar los indicadores de permisos `stud_access_prof_mod`, `stud_access_profile_mod` y `stud_access_task_mod`; estos campos quedan reservados al administrador. Ningún usuario puede cambiar el rol de una cuenta: un administrador que envíe un `role` distinto del actual recibe `ROLE_CHANGE_DENIED` (HTTP 403); un usuario no administrador que envíe `role` recibe `PROFILE_UPDATE_DENIED` (HTTP 403).
+Requiere autenticación. Un administrador puede editar cualquier cuenta. Un `parent` o `staff` solo puede editar su contraseña y no puede enviar `username`, `full_name` ni `role`. Un `student` solo puede editar sus propios ajustes de accesibilidad, y únicamente si `stud_access_profile_mod` está activado; si está desactivado, se rechaza la edición con `PROFILE_UPDATE_DENIED` (HTTP 403). El alumno no puede cambiar `username`, `full_name`, contraseña ni `role`, ni modificar los indicadores reservados al administrador `stud_access_prof_mod`, `stud_access_profile_mod`, `stud_access_task_mod` y `stud_access_img_pwd`. Ningún usuario puede cambiar el rol de una cuenta: un administrador que envíe un `role` distinto del actual recibe `ROLE_CHANGE_DENIED` (HTTP 403); un usuario no administrador que envíe `role` recibe `PROFILE_UPDATE_DENIED` (HTTP 403).
 
 El JSON acepta campos opcionales: `username`, `role`, `full_name`, `password` y campos `stud_access_*`. No se aceptan propiedades extra. Debe haber al menos un campo que modificar. El username y el nombre completo aplican validaciones iguales a las de creación; la contraseña está limitada a 72 bytes. Los valores numéricos y booleanos de accesibilidad deben usar sus tipos JSON correspondientes, y los colores deben seguir el formato hexadecimal indicado en creación.
 
-Cambiar username actualiza la clave común y las referencias en cascada; también actualiza `Tasks.task_creator` y `Alt_Tasks.alt_task_creator`. Cambiar username o contraseña invalida el token activo. Cambiar solo `full_name` o accesibilidad no invalida el token. El rol y su fila de especialización no se modifican mediante esta ruta.
+Cambiar username actualiza la clave común y las referencias en cascada; también actualiza `Tasks.task_creator` y `Alt_Tasks.alt_task_creator`. Cambiar username o contraseña invalida el token activo. Cambiar solo `full_name` o accesibilidad no invalida el token. Si el administrador activa o desactiva `stud_access_img_pwd`, debe enviar una contraseña nueva en la misma operación para que el usuario no pierda acceso. En modo gráfico, esa contraseña debe ser una secuencia válida de IDs activos; en modo texto se valida como contraseña ordinaria. El rol y su fila de especialización no se modifican mediante esta ruta.
 
 La respuesta de éxito devuelve el `username` y el rol resultante.
 
@@ -288,7 +320,9 @@ El alumno debe existir y el usuario autenticado debe estar asociado a él según
 
 La operación inserta los datos comunes en `Tasks` (sin estado de finalización), añade el subtipo `Generic_Task` y crea la asignación `stud_task` con alumno, tarea, índice calculado y fecha. `stud_task.task_finished` es el estado individual de esa asignación y nace en `false`. Completar una tarea en la agenda de un alumno no altera el estado de sus compañeros. Las tareas con hora se insertan según su hora respecto a las tareas de esa fecha; las tareas sin hora de `parent` se colocan al final, por lo que su índice queda después de la última tarea de `staff`. Las tareas de `parent` con hora anterior a las 09:00 quedan antes de las de `staff`, y las posteriores a las 15:00 quedan después. Si se inserta una tarea antes de otras, sus índices se desplazan para abrirle sitio. La agenda del alumno se bloquea durante el cálculo para serializar inserciones concurrentes. Todo se confirma en una transacción. La respuesta incluye el índice asignado. El esquema también impone `NOT NULL` y `CHECK (> 0)` en `Tasks.task_duration` y `Alt_Tasks.alt_task_duration`; las alternativas ya almacenadas deben cumplirlo aunque esta API solo las asocie.
 
-`CreacionTablas.sqlscript` recrea el esquema completo: elimina primero las tablas existentes y después vuelve a crearlas. Es destructivo y borra todos los datos de esas tablas; se debe ejecutar solo cuando se quiera reiniciar la base de datos.
+`CreacionTablas.sqlscript` contiene las instrucciones para crear las tablas y no las elimina. Para reiniciar el esquema se ejecuta primero `EliminacionTablas.sqlscript` y después `CreacionTablas.sqlscript`.
+
+El script `scripts/levantar_backend.sh` levanta PostgreSQL y llama a `scripts/datos_de_prueba.py`. Si no encuentra la tabla `users`, este último crea el esquema desde `CreacionTablas.sqlscript` y después inserta las cuentas, aulas y tareas de prueba. Si se ejecuta `datos_de_prueba.py --borrar`, elimina las tablas con `EliminacionTablas.sqlscript`, las vuelve a crear con `CreacionTablas.sqlscript` y repuebla los datos de prueba.
 
 La hora de inicio es opcional para `parent` y `student`; si se omite, la tarea se coloca al final de la agenda. `staff` debe indicar la hora de inicio y su tarea debe quedar dentro del horario escolar. Tanto `parent` como `student` pueden indicar una hora fuera del horario escolar, validándose el intervalo completo.
 
@@ -651,7 +685,7 @@ Las listas y consultas de asociaciones, clases y tareas se generan desde las rel
 
 ## Interacciones entre módulos
 
-1. **Identidad y especialización:** `users` contiene los campos comunes (`username`, `full_name`, contraseña y token); `Admn`, `Staff`, `Student` y `Parents` determinan el rol y mantienen campos propios. Login y autorización unen la cuenta común con la especialización del rol.
+1. **Identidad y especialización:** `users` contiene los campos comunes (`username`, `full_name`, contraseña y token); `Admn`, `Staff`, `Student` y `Parents` determinan el rol y mantienen campos propios. Login y autorización unen la cuenta común con la especialización del rol. `Student.stud_access_img_pwd` selecciona el método de acceso solo para alumnos. `passwords` es un catálogo global sin FK a usuarios; el ID y binario se envían al cliente y el hash de la secuencia elegida se conserva en `users.password`.
 2. **Sesiones y cambios de usuario:** las rutas protegidas consultan el token guardado en `users`. Editar contraseña o username revoca ese token. Los roles son inmutables después de crear la cuenta; el login siguiente genera un token nuevo.
 3. **Permisos y asociaciones:** `par_stud` es la fuente de la relación directa tutor-alumno. El acceso del personal a los alumnos se deriva por la cadena `class_staff` → `class_stud`. Las consultas de asociaciones y las autorizaciones de tareas usan esas relaciones vigentes.
 4. **Agenda:** `Tasks` contiene los datos comunes, `Generic_Task` su especialización y `class_task` vincula la tarea a una clase y fecha. `stud_task` enlaza tareas con alumnos, fecha e índice; `class_name_fk` identifica las filas que proceden de una clase y queda nulo para asignaciones individuales. Retirar a un alumno de una clase elimina solo sus filas de agenda originadas en esa clase. Si se borra una tarea grupal, se conservan sus filas de asignación individual; las tareas sin ningún vínculo se eliminan junto a su subtipo.

@@ -16,6 +16,7 @@ from pathlib import Path
 RAIZ = Path(__file__).resolve().parents[1]
 BACKEND = RAIZ / 'src' / 'backend'
 ESQUEMA = RAIZ / 'docs/diseno_arquitectura/modelado_datos/CreacionTablas.sqlscript'
+ELIMINACION = RAIZ / 'docs/diseno_arquitectura/modelado_datos/EliminacionTablas.sqlscript'
 sys.path.insert(0, str(BACKEND))
 
 from dotenv import load_dotenv  # noqa: E402
@@ -44,6 +45,7 @@ AJUSTES_DE_ALUMNO = {
     'stud_access_talkback': False,
     'stud_access_profile_mod': True,
     'stud_access_task_mod': True,
+    'stud_access_img_pwd': False,
 }
 
 CUENTAS = [
@@ -73,14 +75,12 @@ def crear_esquema_si_falta() -> None:
         conexion.exec_driver_sql(ESQUEMA.read_text(encoding='utf-8').replace('COMMIT;', ''))
 
 
-def borrar_datos() -> None:
-    print('Vaciando las tablas')
+def recrear_esquema() -> None:
+    print('Eliminando y recreando el esquema')
     with engine.begin() as conexion:
-        conexion.exec_driver_sql(
-            'TRUNCATE stud_task, class_task, par_stud, class_stud, class_staff, '
-            'Steps, Generic_Task, Tasks, Class, Avatar, Student, Parents, Staff, '
-            'Admn, users RESTART IDENTITY CASCADE'
-        )
+        conexion.exec_driver_sql(ELIMINACION.read_text(encoding='utf-8'))
+        esquema = ESQUEMA.read_text(encoding='utf-8').replace('COMMIT;', '')
+        conexion.exec_driver_sql(esquema)
 
 
 def crear_cuentas(db) -> None:
@@ -117,9 +117,10 @@ def crear_tareas(db) -> None:
 
 
 def main() -> None:
-    crear_esquema_si_falta()
     if '--borrar' in sys.argv:
-        borrar_datos()
+        recrear_esquema()
+    else:
+        crear_esquema_si_falta()
     with SessionLocal() as db:
         if db.execute(text('SELECT COUNT(*) FROM users')).scalar_one():
             print('La base ya tiene cuentas; no se ha cambiado nada.')

@@ -118,6 +118,7 @@ class CreateStudentRequest(CreateUserBase):
     stud_access_talkback: StrictBool
     stud_access_profile_mod: StrictBool
     stud_access_task_mod: StrictBool
+    stud_access_img_pwd: StrictBool
 
 
 class CreateNonStudentUserRequest(CreateUserBase):
@@ -156,6 +157,7 @@ class UpdateUserRequest(BaseModel):
                     "stud_access_talkback": False,
                     "stud_access_profile_mod": True,
                     "stud_access_task_mod": True,
+                    "stud_access_img_pwd": False,
                 }
             ]
         },
@@ -178,6 +180,7 @@ class UpdateUserRequest(BaseModel):
     stud_access_talkback: StrictBool | None = None
     stud_access_profile_mod: StrictBool | None = None
     stud_access_task_mod: StrictBool | None = None
+    stud_access_img_pwd: StrictBool | None = None
 
     @field_validator("username")
     @classmethod
