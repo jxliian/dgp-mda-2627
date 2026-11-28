@@ -315,6 +315,82 @@ def get_my_tasks(
     )
 
 
+@router.post("/me/{task_id}/pause")
+def pause_my_task(
+    task_id: Annotated[int, Path(gt=0)],
+    task_date: date,
+    db: Session = Depends(get_db),
+    user: dict = Depends(get_current_user),
+) -> dict:
+    """Pausa el temporizador de una tarea propia en curso."""
+    if user["role"] != "student":
+        raise_api_error(ErrorCode.TASK_CREATOR_REQUIRED)
+    return _run_db_operation(tasks_db.pause_student_task, db, user["username"], task_id, task_date)
+
+
+@router.post("/me/{task_id}/resume")
+def resume_my_task(
+    task_id: Annotated[int, Path(gt=0)],
+    task_date: date,
+    db: Session = Depends(get_db),
+    user: dict = Depends(get_current_user),
+) -> dict:
+    """Reanuda una tarea pausada o inicia una pendiente."""
+    if user["role"] != "student":
+        raise_api_error(ErrorCode.TASK_CREATOR_REQUIRED)
+    return _run_db_operation(tasks_db.start_student_task, db, user["username"], task_id, task_date)
+
+
+@router.get("/parents/me/task-notifications")
+def get_my_task_notifications(
+    db: Session = Depends(get_db),
+    user: dict = Depends(get_current_user),
+) -> dict:
+    """Lista avisos pendientes sobre conflictos de agenda de los alumnos asociados."""
+    if user["role"] != "parent":
+        raise_api_error(ErrorCode.TASK_CREATOR_REQUIRED)
+    return tasks_db.list_parent_task_notifications(db, user["username"])
+
+
+@router.patch("/parents/me/task-notifications/{notification_id}/read")
+def mark_my_task_notification_read(
+    notification_id: Annotated[int, Path(gt=0)],
+    db: Session = Depends(get_db),
+    user: dict = Depends(get_current_user),
+) -> dict:
+    """Marca como leído un aviso de uno de los alumnos asociados al tutor."""
+    if user["role"] != "parent":
+        raise_api_error(ErrorCode.TASK_CREATOR_REQUIRED)
+    return _run_db_operation(
+        tasks_db.mark_parent_task_notification_read, db, user["username"], notification_id
+    )
+
+
+@router.get("/staff/me/task-notifications")
+def get_my_staff_task_notifications(
+    db: Session = Depends(get_db),
+    user: dict = Depends(get_current_user),
+) -> dict:
+    """Lista avisos de tareas escolares que no se pudieron reanudar."""
+    if user["role"] != "staff":
+        raise_api_error(ErrorCode.TASK_CREATOR_REQUIRED)
+    return tasks_db.list_staff_task_notifications(db, user["username"])
+
+
+@router.patch("/staff/me/task-notifications/{notification_id}/read")
+def mark_my_staff_task_notification_read(
+    notification_id: Annotated[int, Path(gt=0)],
+    db: Session = Depends(get_db),
+    user: dict = Depends(get_current_user),
+) -> dict:
+    """Marca como leído un aviso dirigido a ese miembro del personal."""
+    if user["role"] != "staff":
+        raise_api_error(ErrorCode.TASK_CREATOR_REQUIRED)
+    return _run_db_operation(
+        tasks_db.mark_staff_task_notification_read, db, user["username"], notification_id
+    )
+
+
 @router.put("/{task_id}/alternative")
 def set_task_alternative(
     task_id: Annotated[int, Path(gt=0)],

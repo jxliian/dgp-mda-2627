@@ -1333,8 +1333,8 @@ def test_el_tutor_no_modifica_una_tarea_ya_programada_en_horario_escolar(client,
     with engine.begin() as conn:
         task_id = conn.execute(
             text(
-                "INSERT INTO Tasks (task_title, task_start_hour, task_duration, task_creator, task_finished) "
-                "VALUES ('En clase', '10:00:00', 30, 'madre', FALSE) RETURNING task_id"
+                "INSERT INTO Tasks (task_title, task_start_hour, task_duration, task_creator) "
+                "VALUES ('En clase', '10:00:00', 30, 'madre') RETURNING task_id"
             )
         ).scalar_one()
         conn.execute(text("INSERT INTO Generic_Task (task_id_fk) VALUES (:t)"), {"t": task_id})
@@ -1366,8 +1366,8 @@ def test_el_tutor_no_puede_modificar_tarea_creada_por_personal(client, engine):
     with engine.begin() as conn:
         tarea_staff_tarde = conn.execute(
             text(
-                "INSERT INTO Tasks (task_title, task_start_hour, task_duration, task_creator, task_finished) "
-                "VALUES ('Apoyo personal', '17:00:00', 20, 'lucia', FALSE) RETURNING task_id"
+                "INSERT INTO Tasks (task_title, task_start_hour, task_duration, task_creator) "
+                "VALUES ('Apoyo personal', '17:00:00', 20, 'lucia') RETURNING task_id"
             )
         ).scalar_one()
         conn.execute(

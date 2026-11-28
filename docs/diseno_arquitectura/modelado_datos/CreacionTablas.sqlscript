@@ -154,10 +154,37 @@ CREATE TABLE stud_task (
     task_date DATE,
     class_name_fk VARCHAR(50),
     task_finished BOOLEAN NOT NULL DEFAULT FALSE,
+    task_status VARCHAR(20) NOT NULL DEFAULT 'pending'
+        CONSTRAINT ck_stud_task_status CHECK (task_status IN ('pending', 'in_progress', 'paused')),
+    task_remaining_seconds INT CONSTRAINT ck_stud_task_remaining_seconds
+        CHECK (task_remaining_seconds IS NULL OR task_remaining_seconds >= 0),
+    task_started_at TIMESTAMPTZ,
+    task_scheduled_start_hour TIME,
     PRIMARY KEY (stud_usr_fk, task_id_fk, task_index, task_date),
     CONSTRAINT fk_stud_task_student FOREIGN KEY (stud_usr_fk) REFERENCES Student(stud_usr) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT fk_stud_task_tasks FOREIGN KEY (task_id_fk) REFERENCES Tasks(task_id) ON DELETE CASCADE,
     CONSTRAINT fk_stud_task_class_task FOREIGN KEY (class_name_fk, task_id_fk) REFERENCES class_task(class_name_fk, task_id_fk) ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+-- Avisos persistentes dirigidos al tutor o al miembro del personal responsable.
+CREATE TABLE task_notifications (
+    notification_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    parent_usr_fk VARCHAR(50),
+    staff_usr_fk VARCHAR(50),
+    stud_usr_fk VARCHAR(50) NOT NULL,
+    task_id_fk INT NOT NULL,
+    task_date DATE NOT NULL,
+    message TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    read_at TIMESTAMPTZ,
+    CONSTRAINT ck_task_notification_recipient CHECK (
+        (parent_usr_fk IS NOT NULL AND staff_usr_fk IS NULL)
+        OR (parent_usr_fk IS NULL AND staff_usr_fk IS NOT NULL)
+    ),
+    CONSTRAINT fk_task_notification_parent FOREIGN KEY (parent_usr_fk) REFERENCES Parents(par_usr) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT fk_task_notification_staff FOREIGN KEY (staff_usr_fk) REFERENCES Staff(staff_usr) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT fk_task_notification_student FOREIGN KEY (stud_usr_fk) REFERENCES Student(stud_usr) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT fk_task_notification_task FOREIGN KEY (task_id_fk) REFERENCES Tasks(task_id) ON DELETE CASCADE
 );
 
 -- Relación N:M entre Canteen_Task y Student

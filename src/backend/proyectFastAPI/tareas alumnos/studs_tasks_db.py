@@ -1,4 +1,4 @@
-from datetime import date, time
+from datetime import date, datetime, time, timedelta
 
 from sqlalchemy import bindparam, text
 from sqlalchemy.exc import IntegrityError
@@ -130,8 +130,10 @@ def list_student_tasks(
     rows = db.execute(
         text(
             "SELECT * FROM ("
-            "SELECT task.task_id, task.task_title, task.task_start_hour, "
+            "SELECT task.task_id, task.task_title, "
+            "COALESCE(assigned.task_scheduled_start_hour, task.task_start_hour) AS task_start_hour, "
             "task.task_duration, task.task_creator, assigned.task_finished, "
+            "assigned.task_status, assigned.task_remaining_seconds, assigned.task_started_at, "
             "task.alt_task_id_fk, assigned.task_date, assigned.task_index, "
             "assigned.class_name_fk, "
             f"{CREATOR_ROLE_SQL} AS creator_role "
@@ -818,7 +820,7 @@ def update_student_task(
                 "SELECT task.task_start_hour, task.task_duration, task.task_creator, "
                 "EXISTS (SELECT 1 FROM Staff staff_member "
                 "WHERE staff_member.staff_usr = task.task_creator) AS created_by_staff, "
-                "assigned.task_index, assigned.class_name_fk "
+                "assigned.task_index, assigned.class_name_fk, assigned.task_finished "
                 "FROM Tasks task "
                 "JOIN stud_task assigned ON assigned.task_id_fk = task.task_id "
                 "WHERE task.task_id = :task_id AND assigned.stud_usr_fk = :student_username "
@@ -868,7 +870,7 @@ def update_student_task(
                 "task_duration = :task_duration, alt_task_id_fk = :alt_task_id_fk "
                 "WHERE task_id = :task_id "
                 "RETURNING task_id, task_title, task_start_hour, task_duration, "
-                "task_creator, task_finished, alt_task_id_fk"
+                "task_creator, alt_task_id_fk"
             ),
             {
                 "task_id": task_id,
@@ -882,21 +884,27 @@ def update_student_task(
         new_task_index = calculate_task_index(
             db, student_username, new_task_date, task_start_hour
         )
+        task_finished = (
+            existing["task_finished"] if new_task_date == original_task_date else False
+        )
         db.execute(
             text(
-                "INSERT INTO stud_task (stud_usr_fk, task_id_fk, task_index, task_date) "
-                "VALUES (:student_username, :task_id, :task_index, :task_date)"
+                "INSERT INTO stud_task "
+                "(stud_usr_fk, task_id_fk, task_index, task_date, task_finished) "
+                "VALUES (:student_username, :task_id, :task_index, :task_date, :task_finished)"
             ),
             {
                 "student_username": student_username,
                 "task_id": task_id,
                 "task_index": new_task_index,
                 "task_date": new_task_date,
+                "task_finished": task_finished,
             },
         )
         db.commit()
         return success_response(
             **dict(updated_task),
+            task_finished=task_finished,
             stud_usr_fk=student_username,
             task_index=new_task_index,
             task_date=new_task_date,
@@ -1017,3 +1025,321 @@ def delete_student_task(
         task_date=task_date,
         task_index=task_index,
     )
+
+
+def _lock_student_task(db: Session, student_username: str, task_id: int, task_date: date) -> dict:
+    task = db.execute(
+        text(
+            "SELECT assigned.task_index, assigned.task_finished, assigned.task_status, "
+            "assigned.task_remaining_seconds, assigned.task_started_at, "
+            "COALESCE(assigned.task_scheduled_start_hour, task.task_start_hour) AS start_hour, "
+            "task.task_duration, task.task_title, task.task_creator, "
+            "EXISTS (SELECT 1 FROM Staff staff WHERE staff.staff_usr = task.task_creator) AS staff_created "
+            "FROM stud_task assigned JOIN Tasks task ON task.task_id = assigned.task_id_fk "
+            "WHERE assigned.stud_usr_fk = :student_username AND assigned.task_id_fk = :task_id "
+            "AND assigned.task_date = :task_date FOR UPDATE OF assigned"
+        ),
+        {"student_username": student_username, "task_id": task_id, "task_date": task_date},
+    ).mappings().first()
+    if task is None:
+        raise CatalogError(ErrorCode.TASK_NOT_FOUND)
+    return dict(task)
+
+
+def _skip_resumed_task(db: Session, student_username: str, task_id: int, task_date: date,
+                       task_title: str, task_creator: str, staff_created: bool,
+                       remaining: int) -> dict:
+    """Deja pendiente una tarea que no cabe y avisa a quien debe gestionarla."""
+    db.execute(
+        text(
+            "UPDATE stud_task SET task_status = 'pending', task_remaining_seconds = :remaining, "
+            "task_started_at = NULL WHERE stud_usr_fk = :student_username "
+            "AND task_id_fk = :task_id AND task_date = :task_date"
+        ),
+        {"remaining": remaining, "student_username": student_username, "task_id": task_id, "task_date": task_date},
+    )
+    if staff_created:
+        recipients = [(None, task_creator)]
+    else:
+        parents = db.execute(
+            text("SELECT par_usr_fk FROM par_stud WHERE stud_usr_fk = :student_username"),
+            {"student_username": student_username},
+        ).scalars().all()
+        recipients = [(parent_username, None) for parent_username in parents]
+    for parent_username, staff_username in recipients:
+        db.execute(
+            text(
+                "INSERT INTO task_notifications "
+                "(parent_usr_fk, staff_usr_fk, stud_usr_fk, task_id_fk, task_date, message) "
+                "VALUES (:parent, :staff, :student, :task_id, :task_date, :message)"
+            ),
+            {
+                "parent": parent_username,
+                "staff": staff_username,
+                "student": student_username,
+                "task_id": task_id,
+                "task_date": task_date,
+                "message": f"La tarea «{task_title}» no se reanudó porque no cabe en el horario restante.",
+            },
+        )
+    db.commit()
+    return success_response(
+        task_id=task_id, task_status="pending", task_finished=False,
+        skipped=True, remaining_seconds=remaining,
+        tutor_notified=bool(recipients) and not staff_created,
+        staff_notified=bool(recipients) and staff_created,
+    )
+
+
+def start_student_task(db: Session, student_username: str, task_id: int, task_date: date) -> dict:
+    """Inicia una tarea pendiente o reanuda una pausada; omite las que ya no caben."""
+    student_exists = db.execute(
+        text("SELECT stud_usr FROM Student WHERE stud_usr = :username FOR UPDATE"),
+        {"username": student_username},
+    ).scalar_one_or_none()
+    if student_exists is None:
+        raise CatalogError(ErrorCode.TASK_STUDENT_NOT_FOUND)
+
+    try:
+        task = _lock_student_task(db, student_username, task_id, task_date)
+        if task["task_finished"] or task["task_status"] == "in_progress":
+            raise CatalogError(ErrorCode.INVALID_REQUEST)
+        remaining = task["task_remaining_seconds"]
+        if remaining is None:
+            remaining = task["task_duration"] * 60
+
+        next_task = db.execute(
+            text(
+                "SELECT COALESCE(next_assigned.task_scheduled_start_hour, next_task.task_start_hour) AS start_hour, "
+                "next_task.task_duration "
+                "FROM stud_task next_assigned JOIN Tasks next_task ON next_task.task_id = next_assigned.task_id_fk "
+                "WHERE next_assigned.stud_usr_fk = :student_username AND next_assigned.task_date = :task_date "
+                "AND next_assigned.task_index > :task_index AND next_assigned.task_finished = FALSE "
+                "ORDER BY next_assigned.task_index LIMIT 1"
+            ),
+            {"student_username": student_username, "task_date": task_date, "task_index": task["task_index"]},
+        ).mappings().first()
+        clock = db.execute(
+            text("SELECT CURRENT_DATE AS today, LOCALTIME AS now_time")
+        ).mappings().one()
+        # Para la agenda de hoy se parte de la hora real de reanudación; en otra
+        # fecha, se usa la hora programada para que la replanificación sea estable.
+        start_hour = clock["now_time"] if task_date == clock["today"] else task["start_hour"]
+        if task["staff_created"]:
+            school_start = datetime.combine(task_date, SCHOOL_START)
+            school_end = datetime.combine(task_date, SCHOOL_END)
+            resumed_start = datetime.combine(task_date, start_hour) if start_hour is not None else None
+            resumed_end = resumed_start + timedelta(seconds=remaining) if resumed_start else None
+            if (
+                resumed_start is None
+                or resumed_start < school_start
+                or resumed_end > school_end
+            ):
+                return _skip_resumed_task(
+                    db, student_username, task_id, task_date, task["task_title"],
+                    task["task_creator"], task["staff_created"], remaining
+                )
+        if start_hour is None:
+            last_scheduled = db.execute(
+                text(
+                    "SELECT COALESCE(assigned.task_scheduled_start_hour, task.task_start_hour) AS start_hour, "
+                    "task.task_duration FROM stud_task assigned JOIN Tasks task "
+                    "ON task.task_id = assigned.task_id_fk "
+                    "WHERE assigned.stud_usr_fk = :student_username AND assigned.task_date = :task_date "
+                    "AND assigned.task_id_fk <> :task_id AND assigned.task_finished = FALSE "
+                    "AND COALESCE(assigned.task_scheduled_start_hour, task.task_start_hour) IS NOT NULL "
+                    "ORDER BY COALESCE(assigned.task_scheduled_start_hour, task.task_start_hour) DESC, "
+                    "assigned.task_index DESC LIMIT 1"
+                ),
+                {"student_username": student_username, "task_date": task_date, "task_id": task_id},
+            ).mappings().first()
+            if last_scheduled is not None:
+                start_hour = (
+                    datetime.combine(task_date, last_scheduled["start_hour"])
+                    + timedelta(minutes=last_scheduled["task_duration"])
+                ).time()
+        if start_hour is not None and next_task and next_task["start_hour"] is not None:
+            planned_end = datetime.combine(task_date, start_hour) + timedelta(seconds=remaining)
+            next_start = datetime.combine(task_date, next_task["start_hour"])
+            next_end = next_start + timedelta(minutes=next_task["task_duration"])
+            planned_start = datetime.combine(task_date, start_hour)
+            if planned_start < next_end and planned_end > next_start:
+                return _skip_resumed_task(
+                    db, student_username, task_id, task_date, task["task_title"],
+                    task["task_creator"], task["staff_created"], remaining
+                )
+
+        # Desplaza las horas posteriores que colisionen con el fin estimado,
+        # manteniendo el orden y la duración individual de cada asignación.
+        cursor = datetime.combine(task_date, start_hour) + timedelta(seconds=remaining) if start_hour else None
+        later_tasks = db.execute(
+            text(
+                "SELECT later.task_id_fk, later.task_index, "
+                "COALESCE(later.task_scheduled_start_hour, later_task.task_start_hour) AS start_hour, "
+                "later_task.task_duration, "
+                "EXISTS (SELECT 1 FROM Staff staff WHERE staff.staff_usr = later_task.task_creator) AS staff_created "
+                "FROM stud_task later "
+                "JOIN Tasks later_task ON later_task.task_id = later.task_id_fk "
+                "WHERE later.stud_usr_fk = :student_username AND later.task_date = :task_date "
+                "AND later.task_index > :task_index AND later.task_finished = FALSE "
+                "ORDER BY later.task_index FOR UPDATE OF later"
+            ),
+            {"student_username": student_username, "task_date": task_date, "task_index": task["task_index"]},
+        ).mappings().all()
+        schedule_updates = []
+        school_end = datetime.combine(task_date, SCHOOL_END)
+        for later in later_tasks:
+            if later["start_hour"] is None:
+                if cursor is None:
+                    continue
+                later_start = cursor
+                if later["staff_created"] and (
+                    later_start < datetime.combine(task_date, SCHOOL_START)
+                    or later_start + timedelta(minutes=later["task_duration"]) > school_end
+                ):
+                    return _skip_resumed_task(
+                        db, student_username, task_id, task_date, task["task_title"],
+                        task["task_creator"], task["staff_created"], remaining
+                    )
+                schedule_updates.append((later["task_id_fk"], later_start.time()))
+                cursor = later_start + timedelta(minutes=later["task_duration"])
+                continue
+            later_start = datetime.combine(task_date, later["start_hour"])
+            if cursor is not None and later_start < cursor:
+                later_start = cursor
+                if later["staff_created"] and (
+                    later_start < datetime.combine(task_date, SCHOOL_START)
+                    or later_start + timedelta(minutes=later["task_duration"]) > school_end
+                ):
+                    return _skip_resumed_task(
+                        db, student_username, task_id, task_date, task["task_title"],
+                        task["task_creator"], task["staff_created"], remaining
+                    )
+                schedule_updates.append((later["task_id_fk"], later_start.time()))
+            cursor = later_start + timedelta(minutes=later["task_duration"])
+
+        db.execute(
+            text(
+                "UPDATE stud_task SET task_scheduled_start_hour = :start_hour "
+                "WHERE stud_usr_fk = :student_username AND task_id_fk = :task_id AND task_date = :task_date"
+            ),
+            {"start_hour": start_hour, "student_username": student_username, "task_id": task_id, "task_date": task_date},
+        )
+        for later_task_id, later_start_hour in schedule_updates:
+            db.execute(
+                text(
+                    "UPDATE stud_task SET task_scheduled_start_hour = :start_hour "
+                    "WHERE stud_usr_fk = :student_username AND task_id_fk = :task_id AND task_date = :task_date"
+                ),
+                {
+                    "start_hour": later_start_hour, "student_username": student_username,
+                    "task_id": later_task_id, "task_date": task_date,
+                },
+            )
+
+        started_at = db.execute(
+            text(
+                "UPDATE stud_task SET task_status = 'in_progress', task_remaining_seconds = :remaining, "
+                "task_started_at = CURRENT_TIMESTAMP WHERE stud_usr_fk = :student_username "
+                "AND task_id_fk = :task_id AND task_date = :task_date RETURNING task_started_at"
+            ),
+            {"remaining": remaining, "student_username": student_username, "task_id": task_id, "task_date": task_date},
+        ).scalar_one()
+        db.commit()
+        return success_response(
+            task_id=task_id, task_status="in_progress", task_finished=False,
+            skipped=False, remaining_seconds=remaining, task_started_at=started_at,
+        )
+    except Exception:
+        db.rollback()
+        raise
+
+
+def pause_student_task(db: Session, student_username: str, task_id: int, task_date: date) -> dict:
+    """Detiene el temporizador y persiste el tiempo real que queda."""
+    student_exists = db.execute(
+        text("SELECT stud_usr FROM Student WHERE stud_usr = :username FOR UPDATE"),
+        {"username": student_username},
+    ).scalar_one_or_none()
+    if student_exists is None:
+        raise CatalogError(ErrorCode.TASK_STUDENT_NOT_FOUND)
+    try:
+        task = _lock_student_task(db, student_username, task_id, task_date)
+        if task["task_finished"] or task["task_status"] != "in_progress":
+            raise CatalogError(ErrorCode.INVALID_REQUEST)
+        remaining = db.execute(
+            text(
+                "SELECT GREATEST(0, :duration - FLOOR(EXTRACT(EPOCH FROM "
+                "(CURRENT_TIMESTAMP - :started_at)))::INT)"
+            ),
+            {"duration": task["task_remaining_seconds"], "started_at": task["task_started_at"]},
+        ).scalar_one()
+        db.execute(
+            text(
+                "UPDATE stud_task SET task_status = 'paused', task_remaining_seconds = :remaining, "
+                "task_started_at = NULL WHERE stud_usr_fk = :student_username "
+                "AND task_id_fk = :task_id AND task_date = :task_date"
+            ),
+            {"remaining": remaining, "student_username": student_username, "task_id": task_id, "task_date": task_date},
+        )
+        db.commit()
+        return success_response(task_id=task_id, task_status="paused", remaining_seconds=remaining)
+    except Exception:
+        db.rollback()
+        raise
+
+
+def list_parent_task_notifications(db: Session, parent_username: str) -> dict:
+    rows = db.execute(
+        text(
+            "SELECT notification_id, stud_usr_fk, task_id_fk, task_date, message, created_at "
+            "FROM task_notifications WHERE parent_usr_fk = :parent AND read_at IS NULL "
+            "ORDER BY created_at, notification_id"
+        ),
+        {"parent": parent_username},
+    ).mappings().all()
+    return success_response(parent_usr_fk=parent_username, notifications=[dict(row) for row in rows])
+
+
+def list_staff_task_notifications(db: Session, staff_username: str) -> dict:
+    rows = db.execute(
+        text(
+            "SELECT notification_id, stud_usr_fk, task_id_fk, task_date, message, created_at "
+            "FROM task_notifications WHERE staff_usr_fk = :staff AND read_at IS NULL "
+            "ORDER BY created_at, notification_id"
+        ),
+        {"staff": staff_username},
+    ).mappings().all()
+    return success_response(staff_usr_fk=staff_username, notifications=[dict(row) for row in rows])
+
+
+def mark_parent_task_notification_read(db: Session, parent_username: str, notification_id: int) -> dict:
+    row = db.execute(
+        text(
+            "UPDATE task_notifications SET read_at = CURRENT_TIMESTAMP "
+            "WHERE notification_id = :notification_id AND parent_usr_fk = :parent "
+            "RETURNING notification_id, read_at"
+        ),
+        {"notification_id": notification_id, "parent": parent_username},
+    ).mappings().first()
+    if row is None:
+        db.rollback()
+        raise CatalogError(ErrorCode.TASK_NOT_FOUND)
+    db.commit()
+    return success_response(**dict(row))
+
+
+def mark_staff_task_notification_read(db: Session, staff_username: str, notification_id: int) -> dict:
+    row = db.execute(
+        text(
+            "UPDATE task_notifications SET read_at = CURRENT_TIMESTAMP "
+            "WHERE notification_id = :notification_id AND staff_usr_fk = :staff "
+            "RETURNING notification_id, read_at"
+        ),
+        {"notification_id": notification_id, "staff": staff_username},
+    ).mappings().first()
+    if row is None:
+        db.rollback()
+        raise CatalogError(ErrorCode.TASK_NOT_FOUND)
+    db.commit()
+    return success_response(**dict(row))

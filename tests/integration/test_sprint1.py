@@ -21,6 +21,7 @@ AJUSTES_ALUMNO = {
     "stud_access_talkback": False,
     "stud_access_profile_mod": True,
     "stud_access_task_mod": True,
+    "stud_access_img_pwd": False,
 }
 
 

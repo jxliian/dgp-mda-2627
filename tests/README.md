@@ -10,7 +10,7 @@
    
     
    
-  **Última ejecución:** 26/11/2026 · **Total:** 264 casos · **Resultado:** 264 correctos y 0 fallos.  
+  **Última ejecución:** 28/11/2026 · **Total:** 299 casos · **Resultado:** 299 correctos y 0 fallos.
    
     
    
@@ -35,6 +35,7 @@
 | HU-15 |  Eliminar tareas según el horario escolar |  `test_tasks.py` |
 | Pasos de tareas |  Crear, consultar, modificar y eliminar pasos según rol, permisos y horario |  `test_tasks.py` |  
 | Resto del sprint 1 |  Crear y modificar usuarios, tareas propias del alumno, clases, tareas de clase y foto de perfil |  `test_sprint1.py` |  
+| Pausa de tareas |  Guardar tiempo restante, reanudar, reprogramar, detectar solapamientos y avisar al responsable |  `test_task_pause_resume.py` |
   
    
    
@@ -63,7 +64,7 @@ uv run --with pytest python -m pytest ../../../tests/integration -v   
       
    
 ```  
-**Resultado esperado:** `264 passed, 0 xfailed`.  
+**Última ejecución:** `299 passed, 0 failed`, incluida la comprobación de que el aviso por conflicto al reanudar una tarea se dirige al personal creador o a los tutores según corresponda.
    
     
    

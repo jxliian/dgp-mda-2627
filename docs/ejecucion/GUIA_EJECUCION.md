@@ -96,7 +96,7 @@ bash ./scripts/levantar_backend.sh --con-web
 
 El nombre informal `./levantar_backend` corresponde a ese archivo. Las opciones `--parar`, `--borrar` y `--con-web` se pueden combinar; no hay selector de dispositivo ni de puerto.
 
-Sus fases son comprobación de herramientas, configuración local, preparación de `src/backend/.venv`, arranque del contenedor, preparación de datos de prueba y ejecución de la API. Con `--con-web` lanza Flutter antes de dejar la API en primer plano.
+Sus fases son comprobación de herramientas, configuración local, preparación de `src/backend/.venv`, arranque del contenedor, preparación de datos de prueba y ejecución de la API. Para reconstruir la base de pruebas con el esquema vigente, utiliza `--borrar`; elimina y vuelve a crear las tablas antes de cargar los datos. Con `--con-web` lanza Flutter antes de dejar la API en primer plano.
 
 Puertos utilizados: servicio HTTP `8000`, frontend web `5174` y contenedor de datos `5432`. La comprobación inicial de escritorio es parcial; `flutter doctor` y la compilación pueden detectar requisitos adicionales.
 
@@ -235,7 +235,7 @@ docker logs --tail 50 autovida_postgres
 | La base indicada no existe | Confirmar la configuración y que se está usando el volumen previsto; coordinar la recuperación con el equipo. |
 | Contenedor reiniciándose | Revisar el error de sus logs antes de volver a ejecutar el lanzador. |
 | Conexión rechazada o timeout | Comprobar contenedor, puerto `5432` y posibles conflictos de red/VPN. |
-| Error de versión del volumen | Utilizar la versión compatible con sus datos o acordar su migración con el equipo. |
+| Error de versión del volumen | Recrear el volumen PostgreSQL desde cero. Se perderán sus datos de prueba. |
 
 El lanzador puede sugerir `docker compose down -v` en algunos de estos casos. Esa orden elimina los datos del volumen; no debe utilizarse para intentar reparar la conexión conservando la información existente. Para la parada habitual se usa `--parar` o `docker compose down`.
 

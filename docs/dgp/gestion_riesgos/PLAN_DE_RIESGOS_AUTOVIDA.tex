@@ -207,7 +207,7 @@ c/ Periodista Daniel Saucedo Aranda, s/n, 18014 Granada, España}
 
 \textbf{R4.} El diseño de la base de datos da errores de datos (estado de tareas compartido, historial que se pierde)
 & 40\,\%
-& \textbf{32 h-persona} (rango 24--40 h; 9,9\,\% iter. 2); 624,32\eu{}. Desglose: 8 h modelo + 12 h migración y consultas + 12 h pruebas y recuperación. Alcance: retrabajo de una implementación con estados compartidos; bloquea aceptar el progreso individual.
+& \textbf{32 h-persona} (rango 24--40 h; 9,9\,\% iter. 2); 624,32\eu{}. Desglose: 8 h modelo + 12 h ajuste del esquema y consultas + 12 h pruebas y recuperación. Alcance: retrabajo de una implementación con estados compartidos; bloquea aceptar el progreso individual.
 & Separar definición y realización por alumno y fecha, incluido cada paso. Corregir consultas y migrar con copia y reversión si el progreso se implementó sobre estados compartidos. Revisar borrados según el histórico acordado; conservar las cascadas correctas.
 & Revisar antes del desarrollo los estados globales de \texttt{Tasks} y \texttt{Steps} y las asignaciones de \texttt{stud\_task}. Definir progreso individual e histórico. Probar dos alumnos con avances diferentes, dos fechas y borrados. El esquema actual justifica mantener este riesgo.
 \\

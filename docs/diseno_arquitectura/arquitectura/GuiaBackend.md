@@ -291,7 +291,7 @@ Las relaciones vigentes también controlan las tareas individuales. El tutor deb
 
 Prefijo `/student-tasks`. El personal (`staff`) puede crear tareas para alumnos inscritos en alguna clase que imparte; los tutores (`parent`) pueden hacerlo para alumnos enlazados mediante `par_stud`. El alumno puede crear y eliminar solo sus propias tareas mediante las rutas `/me`, si `stud_access_task_mod` está activado. El administrador no está autorizado por este router. Las rutas de edición de tareas alternativas siguen reservadas a `staff` y `parent`; también validan la relación actual con al menos un alumno asignado a la tarea.
 
-El estado de finalización se llama `task_finished` en la base de datos y en las respuestas (no `task_completed`). Se almacena por alumno en `stud_task`. Aunque la aplicación cliente declara usar `PATCH /student-tasks/me/{task_id}/progress` para registrar el progreso, esa ruta no está implementada en este backend: aquí no hay una operación HTTP para actualizar `stud_task.task_finished` ni `Steps.step_finished`. Por tanto, el esquema y las consultas ya representan progreso individual, pero el flujo de completar desde el cliente no puede persistir en este backend hasta añadir esa operación.
+El estado de finalización se llama `task_finished` en la base de datos y en las respuestas (no `task_completed`). Se almacena por alumno en `stud_task`. La asignación también guarda `task_status` (`pending`, `in_progress` o `paused`), `task_remaining_seconds`, `task_started_at` y la hora reprogramada. El temporizador se calcula desde `task_started_at` y se detiene al pausar; la finalización (`task_finished`) sigue siendo independiente.
 
 ### `GET /student-tasks/students/{student_username}?task_date=AAAA-MM-DD` — Consultar tareas y pasos de un alumno por día
 
@@ -312,6 +312,30 @@ Requiere token de alumno. Todos los alumnos pueden consultar su agenda, independ
 
 **Respuesta JSON:** usa el mismo formato de la consulta de tareas de un alumno.
 
+### `POST /student-tasks/me/{task_id}/resume?task_date=AAAA-MM-DD` — Iniciar o reanudar una tarea
+
+Requiere token de alumno y una asignación de su agenda para esa fecha. Inicia una tarea pendiente o reanuda una pausada desde `task_remaining_seconds`. Si la tarea activa tiene hora y su tiempo restante se solapa con la siguiente, queda pendiente y no completada; el alumno continúa con la siguiente. Si el reajuste desplazara una tarea del personal fuera de 09:00–15:00, la tarea que se intentaba reanudar también queda pendiente y sin cambios de horario. En otro caso, se inicia el temporizador y las horas posteriores se desplazan para evitar solapamientos. La respuesta incluye `task_status`, `remaining_seconds`, `task_started_at` y `skipped`.
+
+### `POST /student-tasks/me/{task_id}/pause?task_date=AAAA-MM-DD` — Pausar una tarea
+
+Requiere token de alumno y que la tarea de su agenda esté en curso. Detiene el temporizador, calcula el tiempo restante en segundos y guarda el estado `paused`. No altera tareas compartidas de otros alumnos. Reanudar una tarea no requiere `stud_access_task_mod`, que solo controla la creación y eliminación de tareas propias.
+
+### `GET /student-tasks/parents/me/task-notifications` — Consultar avisos del tutor
+
+Requiere token de tutor. Devuelve avisos pendientes de tareas creadas por la familia o por el alumno asociado cuando no se pueden reanudar por un conflicto de horario. Para tareas creadas por personal, el aviso se dirige al miembro del personal creador; el tutor sigue viendo el estado pendiente en la agenda del alumno. Los avisos se conservan en `task_notifications`.
+
+### `PATCH /student-tasks/parents/me/task-notifications/{notification_id}/read` — Marcar aviso como leído
+
+Requiere token de tutor. Solo permite marcar avisos destinados a ese tutor. Un aviso inexistente o de otro tutor devuelve `TASK_NOT_FOUND`.
+
+### `GET /student-tasks/staff/me/task-notifications` — Consultar avisos del personal
+
+Requiere token de personal. Devuelve los avisos pendientes de tareas creadas por ese miembro del personal que no se pudieron reanudar sin romper el horario escolar.
+
+### `PATCH /student-tasks/staff/me/task-notifications/{notification_id}/read` — Marcar aviso como leído
+
+Requiere token de personal. Solo permite marcar avisos destinados a ese miembro del personal. Un aviso inexistente o destinado a otra persona devuelve `TASK_NOT_FOUND`.
+
 ### `POST /student-tasks/students/{student_username}` — Crear tarea en la agenda de un alumno
 
 Responde HTTP 201. El JSON requiere `task_title`, `task_date` y `task_duration`. La fecha es obligatoria, puede ser futura y no se limita al día actual. El título se recorta y debe contener entre 1 y 100 caracteres; la duración es un entero positivo expresado en minutos. Son opcionales `task_start_hour` (hora local sin zona) y `alt_task_id_fk` (entero positivo). `task_index` no se envía: el backend lo calcula para la agenda del alumno. Si falta la duración, es `null` o no es positiva, FastAPI rechaza la petición con error de validación `1005` (HTTP 422). No admite propiedades adicionales.
@@ -323,6 +347,8 @@ La operación inserta los datos comunes en `Tasks` (sin estado de finalización)
 `CreacionTablas.sqlscript` contiene las instrucciones para crear las tablas y no las elimina. Para reiniciar el esquema se ejecuta primero `EliminacionTablas.sqlscript` y después `CreacionTablas.sqlscript`.
 
 El script `scripts/levantar_backend.sh` levanta PostgreSQL y llama a `scripts/datos_de_prueba.py`. Si no encuentra la tabla `users`, este último crea el esquema desde `CreacionTablas.sqlscript` y después inserta las cuentas, aulas y tareas de prueba. Si se ejecuta `datos_de_prueba.py --borrar`, elimina las tablas con `EliminacionTablas.sqlscript`, las vuelve a crear con `CreacionTablas.sqlscript` y repuebla los datos de prueba.
+
+Para usar los estados de pausa/reanudación, crear de nuevo la base desde `CreacionTablas.sqlscript`; no se actualizan esquemas anteriores. El lanzador admite `--borrar`, que elimina las tablas existentes, las crea de nuevo y carga datos de prueba.
 
 La hora de inicio es opcional para `parent` y `student`; si se omite, la tarea se coloca al final de la agenda. `staff` debe indicar la hora de inicio y su tarea debe quedar dentro del horario escolar. Tanto `parent` como `student` pueden indicar una hora fuera del horario escolar, validándose el intervalo completo.
 
